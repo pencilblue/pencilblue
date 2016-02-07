@@ -53,27 +53,6 @@ module.exports = function(pb) {
         SettingApiController.super_.prototype.init.apply(this, [context, init]);
     };
 
-//    SettingApiController.prototype.processWhere = function(q) {
-//        var where = null;
-//        var failures = [];
-//
-//        //build query & get results
-//        var search = q.q;
-//        if (pb.ValidationService.isNonEmptyStr(search, true)) {
-//
-//            var patternStr = ".*" + util.escapeRegExp(search) + ".*";
-//            var pattern = new RegExp(patternStr, "i");
-//            where = {
-//              name: pattern
-//            };
-//        }
-//
-//        return {
-//            where: where,
-//            failures: failures
-//        };
-//    };
-
     //exports
     return SettingApiController;
 };

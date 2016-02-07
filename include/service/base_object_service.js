@@ -422,6 +422,21 @@ module.exports = function(pb) {
         });
     };
 
+    /**
+     * Attempts to persist the DTO as an add.  The function executes a series of events:
+     * 1) The format event is fired
+     * 2) When an ID is provided the object is retrieved from the database otherwise a new object is created.
+     * 3) The merge event is triggered
+     * 4) The validate event is triggered. If validation errors are detected the process halts and the function calls back with an error.
+     * 5) The beforeSave event is triggered
+     * 6) The object is persisted
+     * 7) The afterSave event is triggered
+     *
+     * @method add
+     * @param {Object} [options]
+     * @param {Function} cb A callback that takes two parameters.  The first is
+     * an error, if occurred. The second is the object that matches the specified query
+     */
     BaseObjectService.prototype.add = function(dto, options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
@@ -431,6 +446,21 @@ module.exports = function(pb) {
         this.save(dto, options, cb);
     };
 
+    /**
+     * Attempts to persist the DTO as an update.  The function executes a series of events:
+     * 1) The format event is fired
+     * 2) When an ID is provided the object is retrieved from the database otherwise a new object is created.
+     * 3) The merge event is triggered
+     * 4) The validate event is triggered. If validation errors are detected the process halts and the function calls back with an error.
+     * 5) The beforeSave event is triggered
+     * 6) The object is persisted
+     * 7) The afterSave event is triggered
+     *
+     * @method update
+     * @param {Object} [options]
+     * @param {Function} cb A callback that takes two parameters.  The first is
+     * an error, if occurred. The second is the object that matches the specified query
+     */
     BaseObjectService.prototype.update = function(dto, options, cb) {
         if (util.isFunction(options)) {
             cb      = options;

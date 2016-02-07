@@ -144,6 +144,14 @@ module.exports = function SettingsModule(pb) {
         });
     };
 
+    /**
+     * Constructs the where condition that uniquely identifies the DTO from the
+     * persistence store.  If the clause cannot be constructed the function
+     * should return null
+     * @method getIdWhere
+     * @param {Object} dto
+     * @return {Object}
+     */
     SettingService.prototype.getIdWhere = function(dto) {
         return dto.key ? { key: dto.key } : null;
     };
@@ -169,10 +177,25 @@ module.exports = function SettingsModule(pb) {
         context.service.cacheService.set(context.data.key, context.data.value, cb);
     };
 
+    /**
+     * Purges the data from the cache after it is deleted from the persistence
+     * store
+     * @static
+     * @method afterDelete
+     * @param {Object} context
+     * @param {Function} cb Takes a single error, if exists
+     */
     SettingService.afterDelete = function(context, cb) {
         context.service.cacheService.purge(context.data.key, cb);
     };
 
+    /**
+     * Formats the data before it is merged
+     * @static
+     * @method format
+     * @param {Object} context
+     * @param {Function} cb Takes a single error, if exists
+     */
     SettingService.format = function(context, cb) {
         var dto = context.data;
         dto.key = pb.BaseController.sanitize(dto.key);
