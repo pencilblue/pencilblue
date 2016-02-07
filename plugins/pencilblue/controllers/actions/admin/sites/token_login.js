@@ -43,20 +43,20 @@ module.exports = function TokenLoginControllerModule(pb) {
             if(util.isError(err)) {
                 return cb({
                     code: 500,
-                    content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING')))
+                    content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING')))
                 });
             }
 
             if(!user) {
                 return cb({
                     code: 400,
-                    content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_TOKEN')))
+                    content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('sites.INVALID_TOKEN')))
                 });
             }
 
             cb({
                 code: 200,
-                content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('TOKEN_LOGIN_SUCCESSFUL')))
+                content: jsonpResponse(callback, pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('sites.TOKEN_LOGIN_SUCCESSFUL')))
             });
         });
     };

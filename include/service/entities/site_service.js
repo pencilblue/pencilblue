@@ -582,7 +582,7 @@ module.exports = function SiteServiceModule(pb) {
 
                         taskCallback(null, {collection: collections[i].name});
                     });
-                }
+                };
             });
             async.parallel(tasks, function (err, results) {
                 if (pb.util.isError(err)) {
@@ -608,7 +608,7 @@ module.exports = function SiteServiceModule(pb) {
             hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
             active: pb.config.multisite.enabled ? false : true,
             defaultLocale: pb.Localization.getDefaultLocale(),
-            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function(a, i) { return true; }),
+            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function() { return true; }),
             prevHostnames: []
         };
     };
@@ -621,7 +621,7 @@ module.exports = function SiteServiceModule(pb) {
             // Check for circular hostname references
             data.prevHostnames = data.prevHostnames.filter(function (hostname) {
                 return hostname !== newHostname;
-            })
+            });
             data.prevHostnames.push(prevHostname);
             pb.RequestHandler.redirectHosts[prevHostname] = newHostname;
             pb.RequestHandler.sites[prevHostname] = null;

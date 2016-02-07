@@ -142,13 +142,13 @@ module.exports = function(pb) {
         if (util.isNullOrUndefined(ls)) {
             throw new Error('The localization parameter cannot be null');
         }
-        
+
         return {
-            'ACCESS_USER': ls.get('ACCESS_USER'),
-            'ACCESS_WRITER': ls.get('ACCESS_WRITER'),
-            'ACCESS_EDITOR': ls.get('ACCESS_EDITOR'),
-            'ACCESS_MANAGING_EDITOR': ls.get('ACCESS_MANAGING_EDITOR'),
-            'ACCESS_ADMINISTRATOR': ls.get('ACCESS_ADMINISTRATOR'),
+            'ACCESS_USER': ls.g('generic.ACCESS_USER'),
+            'ACCESS_WRITER': ls.g('generic.ACCESS_WRITER'),
+            'ACCESS_EDITOR': ls.g('generic.ACCESS_EDITOR'),
+            'ACCESS_MANAGING_EDITOR': ls.g('generic.ACCESS_MANAGING_EDITOR'),
+            'ACCESS_ADMINISTRATOR': ls.g('generic.ACCESS_ADMINISTRATOR'),
         };
     };
 
@@ -190,7 +190,7 @@ module.exports = function(pb) {
                 session.authentication.user        = user;
                 session.authentication.user_id     = user[pb.DAO.getIdField()].toString();
                 session.authentication.admin_level = user.admin;
-                
+
                 //set locale if no preference already indicated for the session
                 if (!session.locale) {
                     session.locale = user.locale;
@@ -274,7 +274,7 @@ module.exports = function(pb) {
         }
         return password.join('');
     };
-    
+
     /**
      *
      * @static
