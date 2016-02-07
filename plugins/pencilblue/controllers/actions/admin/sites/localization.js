@@ -43,42 +43,35 @@ module.exports = function(pb) {
                 return self.saveLocalesToDatabase(post, cb);
             }
 
-            var filepath = path.join(pb.config.docRoot, 'plugins', post.plugin, 'public', 'localization', post.lang + '.json');
-            fs.readFile(filepath, "utf-8", function (err, data) {
-                if (err) throw err;
-                console.log(data);
-                var pluginsJsonFileObj;
-                try{
-                    pluginsJsonFileObj = JSON.parse(data);
-                } catch(e) {
-                    pluginsJsonFileObj = null;
-                }
-                if(pluginsJsonFileObj) {
-                    var obj = {};
-                    post.translations.forEach(function (element){
-                        obj[element.key] = element.value;
-                    });
-                    pluginsJsonFileObj[post.site] = obj;
-                    try{
-                        pluginsJsonFileObj = JSON.stringify(pluginsJsonFileObj);
-                    }catch(e){
-                        console.log(e);
-                        return cb({
-                            code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), e)
-                        });
-                    }
-
-                    fs.writeFile(filepath, pluginsJsonFileObj, function (err) {
-                        if (err) throw err;
-                        console.log('It\'s saved!');
-                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS,'happy happy joy joy')});
-                    });
-                }
-            });
-
+            Localization.prototype.saveLocalesToFile(post, cb);
         });
 
+    };
+
+    Localization.prototype.saveLocalesToFile = function(post, cb){
+        var self = this;
+        self.query = post;
+        self.getLocalesFromFile(function(err, pluginsJsonFileObj) {
+            if (err)
+                throw err;
+            if (pluginsJsonFileObj) {
+                var obj = {};
+                post.translations.forEach(function (element) {
+                    obj[element.key] = element.value;
+                });
+                pluginsJsonFileObj[post.site] = obj;
+                try {
+                    pluginsJsonFileObj = JSON.stringify(pluginsJsonFileObj);
+                } catch (e) {
+                    pb.log.error(e);
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), e)
+                    });
+                }
+                self.sendLocalesToFile(pluginsJsonFileObj, cb);
+            }
+        });
     };
 
     Localization.prototype.saveLocalesToDatabase = function(post, cb){
@@ -162,13 +155,8 @@ module.exports = function(pb) {
             self.getLocalesFromDB(cb);
         }
         else{
-            var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
-            fs.readFile(filepath, "utf-8", function (err, data) {
-                if (err) throw err;
-
-                if (data) {
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, JSON.parse(data))});
-                }
+            self.getLocalesFromFile(function(err, data){
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, data)});
             });
         }
     };
@@ -191,6 +179,34 @@ module.exports = function(pb) {
             }
             var displayObj = convertLocalesToDisplayObject(self.query.lang, self.query.plugin, result[0]);
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, displayObj)});
+        });
+    };
+
+    Localization.prototype.getLocalesFromFile = function(cb){
+        var self = this;
+        var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
+        fs.readFile(filepath, "utf-8", function (err, data) {
+            if (err)
+                cb(err);
+
+            if (data) {
+                try {
+                    cb(null, JSON.parse(data));
+                } catch (e) {
+                    cb(e);
+                }
+            }
+        });
+    };
+
+    Localization.prototype.sendLocalesToFile = function(locales, cb){
+        var self = this;
+        var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
+
+        fs.writeFile(filepath, locales, function (err) {
+            if (err)
+                throw err;
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Locales were saved successfully')});
         });
     };
 
