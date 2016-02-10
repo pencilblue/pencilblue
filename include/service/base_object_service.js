@@ -352,6 +352,7 @@ module.exports = function(pb) {
      * that was found or NULL if no object could be found. The function will
      * trigger the "get" event.
      * @method get
+     * @param {String|ObjectID}
      * @param {Object} [options]
      * @param {Function} cb A callback that takes two parameters.  The first is
      * an error, if occurred. The second is the object with the specified ID

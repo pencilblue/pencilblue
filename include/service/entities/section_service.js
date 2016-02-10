@@ -799,29 +799,8 @@ module.exports = function SectionServiceModule(pb) {
         if (!ls) {
             ls = new pb.Localization();
         }
-
-        return [
-            {
-                value: "container",
-                label: ls.g('generic.CONTAINER')
-            },
-            {
-                value: "section",
-                label: ls.g('generic.SECTION')
-            },
-            {
-                value: "article",
-                label: ls.g('generic.ARTICLE')
-            },
-            {
-                value: "page",
-                label: ls.g('generic.PAGE')
-            },
-            {
-                value: "link",
-                label: ls.g('generic.LINK')
-            },
-        ];
+        pb.log.warn('SectionService: getTypes is deprecated');
+        return pb.NavigationItemService.getTypes(ls);
     };
 
     /**
@@ -831,11 +810,7 @@ module.exports = function SectionServiceModule(pb) {
      * @return {Boolean}
      */
     SectionService.isValidType = function(type) {
-        if (util.isObject(type)) {
-            type = type.type;
-        }
-
-        return VALID_TYPES[type] === true;
+        return pb.NavigationItemService.isValidType(type);
     };
 
     //exports

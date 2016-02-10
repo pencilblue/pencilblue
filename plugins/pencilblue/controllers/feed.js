@@ -142,7 +142,6 @@ module.exports = function FeedModule(pb) {
         };
         var tasks = util.getTasks(articles, function(articles, i) {
             return function(callback) {
-
                 var url = UrlService.createSystemUrl(UrlService.urlJoin('/article', articles[i].url), urlOptions);
                 var ts = self.ts.getChildInstance();
                 ts.registerLocal('url', url);
