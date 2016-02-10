@@ -219,6 +219,7 @@ Configuration.getBaseConfig = function(multisite) {
         settings: {
             use_memory: true,
             use_cache: false,
+            autoSync: false,
 
             //The timeout specifies how long in milliseconds a setting will exist
             //in memory before being flushed.  A value of 0 indicates that the
