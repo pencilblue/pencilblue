@@ -593,23 +593,33 @@ module.exports = function PluginServiceModule(pb) {
             if (pb.util.isError(err) || !settings) {
                 return cb(err);
             }
-            var modified = false;
+            var discrepancy = true;
+            var hashedSettings = {};
             var formattedSettings = [];
 
             // Detect new settings
             for (var i = 0; i < details.settings.length; i++) {
                 var settingName = details.settings[i].name;
+                hashedSettings[settingName] = true;
                 if (settings[settingName] === undefined) {
-                    modified = true;
+                    discrepancy = true;
                     formattedSettings.push({name: details.settings[i].name, value: details.settings[i].value});
                 }
                 else {
                     formattedSettings.push({name: settingName, value: settings[settingName]});
                 }
-                //TODO: Detect removed settings?
             }
+
+            // Detect deprecated settings
+            for (setting in settings) {
+                if (!hashedSettings[setting]) {
+                    discrepancy = true;
+                    break;
+                }
+            }
+
             // If a plugin setting needs updating, save it off
-            if (modified) {
+            if (discrepancy) {
                 self.resetSettings({uid: plugin.uid, settings: formattedSettings}, function(err, result) {
                     if (pb.util.isError(err)) {
                         pb.log.error("PluginService.syncSettings failed to save off updated settings for " + plugin.dirName);
