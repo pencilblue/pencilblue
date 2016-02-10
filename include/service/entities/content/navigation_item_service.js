@@ -73,6 +73,283 @@ module.exports = function(pb) {
 
     /**
      *
+     * @method validate
+     * @param {Object} navItem
+     * @param {Function} cb
+     */
+    NavigationItemService.prototype.validate = function(navItem, cb) {
+        var self   = this;
+        var errors = [];
+        if (!util.isObject(navItem)) {
+            errors.push({field: '', message: 'A valid navigation item must be provided'});
+            cb(null, errors);
+            return;
+        }
+
+        //verify type
+        if (!NavigationItemService.isValidType(navItem.type)) {
+            errors.push({field: 'type', message: 'An invalid type ['+navItem.type+'] was provided'});
+            cb(null, errors);
+            return;
+        }
+
+        //name
+        this.validateNavItemName(navItem, function(err, validationError) {
+            if (util.isError(err)) {
+                cb(err, errors);
+                return;
+            }
+
+            if (validationError) {
+                errors.push(validationError);
+            }
+
+            //description
+            if (!pb.validation.validateNonEmptyStr(navItem.name, true)) {
+                errors.push({field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
+            }
+
+            //compile all errors and call back
+            var onDone = function(err, validationErrors) {
+                util.arrayPushAll(validationErrors, errors);
+                cb(err, errors);
+            };
+
+            //validate for each type of nav item
+            switch(navItem.type) {
+            case 'container':
+                onDone(null, []);
+                break;
+            case 'section':
+                self.validateSectionNavItem(navItem, onDone);
+                break;
+            case 'article':
+            case 'page':
+                self.validateContentNavItem(navItem, onDone);
+                break;
+            case 'link':
+                self.validateLinkNavItem(navItem, onDone);
+                break;
+            default:
+                throw new Error("An invalid nav item type made it through!");
+            }
+        });
+    };
+
+    /**
+     *
+     * @method validateLinkNavItem
+     * @param {Object} navItem
+     * @param {Function} cb
+     */
+    NavigationItemService.prototype.validateLinkNavItem = function(navItem, cb) {
+        var errors = [];
+        if (!pb.validation.validateUrl(navItem.link, true) && navItem.link.charAt(0) !== '/') {
+            errors.push({field: 'link', message: 'A valid link is required'});
+        }
+        process.nextTick(function() {
+            cb(null, errors);
+        });
+    };
+
+    /**
+     *
+     * @method validateNavItemName
+     * @param {Object} navItem
+     * @param {Function} cb
+     */
+    NavigationItemService.prototype.validateNavItemName = function(navItem, cb) {
+        if (!pb.validation.validateNonEmptyStr(navItem.name, true) || navItem.name === 'admin') {
+            cb(null, {field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
+            return;
+        }
+
+        var where = {
+            name: navItem.name
+        };
+        this.siteQueryService.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
+            var error = null;
+            if (!unique) {
+                error = {field: 'name', message: 'The provided name is not unique'};
+            }
+            cb(err, error);
+        });
+    };
+
+    /**
+     *
+     * @method validateContentNavItem
+     * @param {Object} navItem
+     * @param {Function} cb
+     */
+    NavigationItemService.prototype.validateContentNavItem = function(navItem, cb) {
+        var self   = this;
+        var errors = [];
+        var tasks  = [
+
+            //parent
+            function(callback) {
+                self.validateNavItemParent(navItem.parent, function(err, validationError) {
+                    if (validationError) {
+                        errors.push(validationError);
+                    }
+                    callback(err, null);
+                });
+            },
+
+            //content
+            function(callback) {
+                self.validateNavItemContent(navItem.type, navItem.item, function(err, validationError) {
+                    if (validationError) {
+                        errors.push(validationError);
+                    }
+                    callback(err, null);
+                });
+            }
+        ];
+        async.series(tasks, function(err, results) {
+            cb(err, errors);
+        });
+    };
+
+    /**
+     *
+     * @method validateSectionNavItem
+     * @param {Object} navItem
+     * @param {Function} cb
+     */
+    NavigationItemService.prototype.validateSectionNavItem = function(navItem, cb) {
+        var self   = this;
+        var errors = [];
+        var tasks  = [
+
+            //url
+            function(callback) {
+
+                var params = {
+                    type: 'section',
+                    id: navItem[pb.DAO.getIdField()],
+                    url: navItem.url,
+                    site: self.site
+                };
+                var urlService = new pb.UrlService();
+                urlService.existsForType(params, function(err, exists) {
+                    if (exists) {
+                        errors.push({field: 'url', message: 'The url key ['+navItem.url+'] already exists'});
+                    }
+                    callback(err, null);
+                });
+            },
+
+            //parent
+            function(callback) {
+                self.validateNavItemParent(navItem.parent, function(err, validationError) {
+                    if (validationError) {
+                        errors.push(validationError);
+                    }
+                    callback(err, null);
+                });
+            },
+
+            //editor
+            function(callback) {
+                self.validateNavItemEditor(navItem.editor, function(err, validationError) {
+                    if (validationError) {
+                        errors.push(validationError);
+                    }
+                    callback(err, null);
+                });
+            }
+        ];
+        async.series(tasks, function(err, results) {
+            cb(err, errors);
+        });
+    };
+
+    /**
+     *
+     * @method validateNavItemParent
+     * @param {String} parent
+     * @param {Function} cb
+     */
+    NavigationItemService.prototype.validateNavItemParent = function(parent, cb) {
+
+        var error = null;
+        if (!pb.validation.validateNonEmptyStr(parent, false)) {
+            error = {field: 'parent', message: 'The parent must be a valid nav item container ID'};
+            cb(null, error);
+        }
+        else if (parent) {
+
+            //ensure parent exists
+            var where = pb.DAO.getIdWhere(parent);
+            where.type = 'container';
+            var dao = new pb.DAO();
+            dao.count('section', where, function(err, count) {
+                if (count !== 1) {
+                    error = {field: 'parent', message: 'The parent is not valid'};
+                }
+                cb(err, error);
+            });
+        }
+        else {
+            cb(null, null);
+        }
+    };
+
+    /**
+     *
+     * @method validateNavItemContent
+     * @param {String} type
+     * @param {String} content
+     * @param {Function} cb
+     */
+    NavigationItemService.prototype.validateNavItemContent = function(type, content, cb) {
+
+        var error = null;
+        if (!pb.validation.validateNonEmptyStr(content, true)) {
+            error = {field: 'item', message: 'The content must be a valid ID'};
+            cb(null, error);
+            return;
+        }
+
+        //ensure content exists
+        var where = pb.DAO.getIdWhere(content);
+        var dao   = new pb.DAO();
+        dao.count(type, where, function(err, count) {
+            if (count !== 1) {
+                error = {field: 'item', message: 'The content is not valid'};
+            }
+            cb(err, error);
+        });
+    };
+
+    /**
+     *
+     * @method validateNavItemEditor
+     * @param {String} editor
+     * @param {Function} cb
+     */
+    NavigationItemService.prototype.validateNavItemEditor = function(editor, cb) {
+
+        var error = null;
+        if (!pb.validation.validateNonEmptyStr(editor, true)) {
+            error = {field: 'editor', message: 'The editor must be a valid user ID'};
+            cb(null, error);
+            return;
+        }
+
+        var service = new pb.UserService();
+        service.hasAccessLevel(editor, pb.SecurityService.ACCESS_EDITOR, function(err, hasAccess) {
+            if (!hasAccess) {
+                error = {field: 'editor', message: 'The editor is not valid'};
+            }
+            cb(err, error);
+        });
+    };
+
+    /**
+     *
      * @static
      * @method
      * @param {Object} context
@@ -182,6 +459,39 @@ module.exports = function(pb) {
                 label: ls.g('generic.LINK')
             },
         ];
+    };
+
+    /**
+     *
+     * @static
+     * @method trimForType
+     * @param {Object} navItem
+     */
+    NavigationItemService.trimForType = function(navItem) {
+        if (navItem.type === CONTAINER) {
+            navItem.parent = null;
+            navItem.url    = null;
+            navItem.editor = null;
+            navItem.item   = null;
+            navItem.link   = null;
+            navItem.new_tab = null;
+        }
+        else if (navItem.type === SECTION) {
+            navItem.item = null;
+            navItem.link = null;
+            navItem.new_tab = null;
+        }
+        else if (navItem.type === ARTICLE || navItem.type === PAGE) {
+            navItem.link   = null;
+            navItem.url    = null;
+            navItem.editor = null;
+            navItem.new_tab = null;
+        }
+        else if (navItem.type === LINK) {
+            navItem.editor = null;
+            navItem.url    = null;
+            navItem.item   = null;
+        }
     };
 
     //Event Registries
