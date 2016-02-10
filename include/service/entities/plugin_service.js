@@ -578,6 +578,52 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
+     * Loads the settings from a details object and persists them in the DB.  Any
+     * existing settings for the plugin are deleted before the new settings are
+     * persisted.
+     *
+     * @method syncSettings
+     * @param details The details object to extract the settings from
+     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
+     * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
+     */
+    PluginService.prototype.syncSettings = function(plugin, details, cb) {
+        var self = this;
+        this.getSettingsKV(plugin.dirName, function(err, settings) {
+            if (pb.util.isError(err) || !settings) {
+                return cb(err);
+            }
+            var modified = false;
+            var formattedSettings = [];
+
+            // Detect new settings
+            for (var i = 0; i < details.settings.length; i++) {
+                var settingName = details.settings[i].name;
+                if (settings[settingName] === undefined) {
+                    modified = true;
+                    formattedSettings.push({name: details.settings[i].name, value: details.settings[i].value});
+                }
+                else {
+                    formattedSettings.push({name: settingName, value: settings[settingName]});
+                }
+                //TODO: Detect removed settings?
+            }
+            // If a plugin setting needs updating, save it off
+            if (modified) {
+                self.resetSettings({uid: plugin.uid, settings: formattedSettings}, function(err, result) {
+                    if (pb.util.isError(err)) {
+                        pb.log.error("PluginService.syncSettings failed to save off updated settings for " + plugin.dirName);
+                    }
+                    cb(null, !err);
+                });
+            }
+            else {
+                cb(null, true);
+            }
+        });
+    };
+
+    /**
      * Loads the Theme settings from a details object and persists them in the DB.  Any
      * existing theme settings for the plugin are deleted before the new settings
      * are persisted. If the plugin does not have a theme then false is provided in
@@ -1071,6 +1117,7 @@ module.exports = function PluginServiceModule(pb) {
         var details = null;
         var site = plugin.site || GLOBAL_SITE;
         var cached_plugin = PLUGIN_INIT_CACHE[plugin.uid] || null;
+        var autoSync = pb.config.settings.autoSync;
         var site_independant_tasks = [
             //load the details file
             function(callback) {
@@ -1079,7 +1126,15 @@ module.exports = function PluginServiceModule(pb) {
                 if(!cached_plugin || !cached_plugin.details) {
                     return PluginService.loadDetailsFile(PluginService.getDetailsPath(plugin.dirName), function (err, loadedDetails) {
                         details = loadedDetails;
-                        callback(err, !!details);
+                        if (autoSync) {
+                            var pluginService = new PluginService({site: site});
+                            pluginService.syncSettings(plugin, details, function(err, result){
+                                callback(null, true);
+                            });
+                        }
+                        else {
+                            callback(err, !!details);
+                        }
                     });
                 }
                 callback(null, true);
