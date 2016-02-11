@@ -47,6 +47,16 @@ module.exports = function(pb) {
     BaseApiController.FIELD_OFF = '0';
 
     /**
+     * The delimiter used when multiple values are provided for a single query
+     * parameter
+     * @static
+     * @readonly
+     * @property MULTI_DELIMITER
+     * @type {String}
+     */
+    BaseApiController.MULTI_DELIMITER = ',';
+
+    /**
      * Retrieves a resource by ID where :id is a path parameter
      * @method get
      * @param {Function} cb

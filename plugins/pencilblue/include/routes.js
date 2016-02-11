@@ -1197,6 +1197,18 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'locale_view_controller.js'),
       	},
 
+        //navigation
+        {
+            method: 'get',
+            path: "/api/content/navigation/map/admin",
+            handler: "getAdminMap",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/navigation_map_api_controller.js')
+        },
+
         //articles
         {
             method: 'get',
