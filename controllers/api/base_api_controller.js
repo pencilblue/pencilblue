@@ -21,13 +21,13 @@ module.exports = function(pb) {
     var util = pb.util;
 
     /**
-     * 
+     *
      * @class BaseApiController
      * @constructor
      */
     function BaseApiController(){}
     util.inherits(BaseApiController, pb.BaseController);
-    
+
     /**
      * Indicates if a field should be part of the projection
      * @static
@@ -36,7 +36,7 @@ module.exports = function(pb) {
      * @type {String}
      */
     BaseApiController.FIELD_ON = '1';
-    
+
     /**
      * Indicates if a field should be part of the projection
      * @static
@@ -45,6 +45,16 @@ module.exports = function(pb) {
      * @type {String}
      */
     BaseApiController.FIELD_OFF = '0';
+
+    /**
+     * The delimiter used when multiple values are provided for a single query
+     * parameter
+     * @static
+     * @readonly
+     * @property MULTI_DELIMITER
+     * @type {String}
+     */
+    BaseApiController.MULTI_DELIMITER = ',';
 
     /**
      * Retrieves a resource by ID where :id is a path parameter
@@ -57,18 +67,18 @@ module.exports = function(pb) {
     };
 
     /**
-     * Retrieves one or more resources from a collection.  The endpoint 
+     * Retrieves one or more resources from a collection.  The endpoint
      * supports the following query string parameters:
      * <ul>
-     * <li>$select - A comma separated list of key/value pairs where a value 
-     * of 1 indicates the field will be returned and 0 indicates the 
+     * <li>$select - A comma separated list of key/value pairs where a value
+     * of 1 indicates the field will be returned and 0 indicates the
      * absensence.  $select=_id=1,name=1,description=0</li>
-     * <li>$order - A comma separated list of key/value pairs where a value of 
-     * 1 indicates ascending a value of 0 or less indicates descending. 
+     * <li>$order - A comma separated list of key/value pairs where a value of
+     * 1 indicates ascending a value of 0 or less indicates descending.
      * $order=name=1,created_date=0</li>
-     * <li>$limit - An integer representing the maximum number of results to 
+     * <li>$limit - An integer representing the maximum number of results to
      * return</li>
-     * <li>$offset - An integer representing the number of items to skip before 
+     * <li>$offset - An integer representing the number of items to skip before
      * returning results</li>
      * <li>$where - Currently not supported</li>
      * </ul>
@@ -79,16 +89,16 @@ module.exports = function(pb) {
         var options = this.processQuery();
         this.service.getAllWithCount(options, this.handleGet(cb));
     };
-    
+
     /**
-     * Prcoess the query string and builds the options for passing to the 
+     * Prcoess the query string and builds the options for passing to the
      * object service
      * @method processQuery
      * @return {Object} The options representing the query
      */
     BaseApiController.prototype.processQuery = function() {
         var q = this.query;
-        
+
         //get limit & offset
         var limit = parseInt(q.$limit);
         if (isNaN(limit)) {
@@ -98,23 +108,23 @@ module.exports = function(pb) {
         if (isNaN(offset)) {
             offset = null;
         }
-        
+
         //process select
         var selectResult = this.processSelect(q.$select);
-        
+
         //process the order
         var orderResult = this.processOrder(q.$order);
-        
+
         //process where
         var whereResult = this.processWhere(q);
-        
-        //when failures occur combine them into a one big error and throw it to 
+
+        //when failures occur combine them into a one big error and throw it to
         //stop execution
         var failures = selectResult.failures.concat(orderResult.failures).concat(whereResult.failures);
         if (failures.length > 0) {
             throw pb.BaseObjectService.validationError(failures);
         }
-        
+
         return {
             select: selectResult.select,
             where: whereResult.where,
@@ -123,7 +133,7 @@ module.exports = function(pb) {
             offset: offset
         };
     };
-    
+
     /**
      * Processes the query string to develop the where clause for the query request
      * @method processWhere
@@ -133,14 +143,14 @@ module.exports = function(pb) {
     BaseApiController.prototype.processWhere = function(q) {
         var where = null;
         var failures = [];
-        
+
         //TODO provide a default implementation
         return {
             where: where,
             failures: failures
         };
     };
-    
+
     /**
      * Processes the value of a $order query string variable
      * @method processOrder
@@ -152,34 +162,34 @@ module.exports = function(pb) {
         var failures = [];
 
         if (pb.ValidationService.isNonEmptyStr(rawOrder, true)) {
-            
+
             order = [];
             var orderPieces = rawOrder.split(',');
             orderPieces.forEach(function(rawStatement) {
-                
+
                 var statement = rawStatement.split('=');
-                if (statement.length === 2 && 
-                    pb.ValidationService.isNonEmptyStr(statement[0], true) && 
+                if (statement.length === 2 &&
+                    pb.ValidationService.isNonEmptyStr(statement[0], true) &&
                     pb.ValidationService.isInt(statement[1], true)) {
-                    
+
                     var ordering = {};
                     ordering[statement[0]] = parseInt(statement[1]) > 0 ? pb.DAO.ASC : pb.DAO.DESC;
                     order.push(ordering);
                 }
                 else {
-                    
+
                     var msg = util.format('An invalid order statement was provided: %s=%s', statement[0], statement[1]);
                     failures.push(pb.BaseObjectService.validationFailure('$order', msg));
                 }
             });
-        } 
-        
+        }
+
         return {
             order: order,
             failures: failures
         };
     };
-    
+
     /**
      * Processes the value of a $select query string variable
      * @method processSelect
@@ -189,34 +199,34 @@ module.exports = function(pb) {
     BaseApiController.prototype.processSelect = function(rawSelect) {
         var select = null;
         var failures = [];
-        
+
         if (pb.ValidationService.isNonEmptyStr(rawSelect, true)) {
-            
+
             select = {};
             var selectPieces = rawSelect.split(',');
             selectPieces.forEach(function(rawStatement) {
-                
+
                 var statement = rawStatement.split('=');
-                if (statement.length === 2 && 
-                    pb.ValidationService.isNonEmptyStr(statement[0], true) && 
+                if (statement.length === 2 &&
+                    pb.ValidationService.isNonEmptyStr(statement[0], true) &&
                     (statement[1] === BaseApiController.FIELD_ON || statement[1] === BaseApiController.FIELD_OFF)) {
-                    
+
                     select[statement[0]] = parseInt(statement[1]);
                 }
                 else {
-                    
+
                     var msg = util.format('An invalid select statement was provided: %s=%s', statement[0], statement[1]);
                     failures.push(pb.BaseObjectService.validationFailure('$select', msg));
                 }
             });
         }
-        
+
         return {
             select: select,
             failures: failures
         };
     };
-    
+
     /**
      * Creates a resource
      * @method post
@@ -226,21 +236,21 @@ module.exports = function(pb) {
         var dto = this.getPostDto();
         this.service.save(dto, this.handleSave(cb, true));
     };
-    
+
     /**
-     * Retrieves the request DTO.  The function ensures that the id field is 
+     * Retrieves the request DTO.  The function ensures that the id field is
      * removed.
      * @method getPostDto
-     * @return {Object} 
+     * @return {Object}
      */
     BaseApiController.prototype.getPostDto = function() {
         var dto = this.body || {};
         delete dto[pb.DAO.getIdField()];
         return dto;
     };
-    
+
     /**
-     * Updates a resource with the ID specified in the body of the request.  
+     * Updates a resource with the ID specified in the body of the request.
      * @method put
      * @param {Function} cb
      */
@@ -250,7 +260,7 @@ module.exports = function(pb) {
     };
 
     /**
-     * Deletes the resource with the specified ID from the URI path ":id".  
+     * Deletes the resource with the specified ID from the URI path ":id".
      * @method delete
      * @param {Function} cb
      */
@@ -258,11 +268,11 @@ module.exports = function(pb) {
         var id = this.pathVars.id;
         this.service.deleteById(id, this.handleDelete(cb));
     };
-    
+
     /**
-     * Creates a handler that can be used to prepare a response for GET 
-     * operations.  When the result is NULL a 404 is generated.  Otherwise a 200 
-     * response along with the object serialized as JSON is the generated 
+     * Creates a handler that can be used to prepare a response for GET
+     * operations.  When the result is NULL a 404 is generated.  Otherwise a 200
+     * response along with the object serialized as JSON is the generated
      * response
      * @method handleDelete
      * @param {Function} cb
@@ -275,19 +285,19 @@ module.exports = function(pb) {
                 return cb(err);
             }
             else if (util.isNullOrUndefined(obj)) {
-                return self.notFound(cb);    
+                return self.notFound(cb);
             }
-            
+
             cb({
                 content: obj
             });
         };
     };
-    
+
     /**
-     * Creates a handler that can be used to prepare a response for POST or PUT 
-     * operations. Upon successful create a 201 status code is returned. Upon 
-     * successful update a 200 status code is returned.  Validation errors are 
+     * Creates a handler that can be used to prepare a response for POST or PUT
+     * operations. Upon successful create a 201 status code is returned. Upon
+     * successful update a 200 status code is returned.  Validation errors are
      * expected to be handled by the global error handler and should return 400
      * @method handleSave
      * @param {Function} cb
@@ -298,17 +308,17 @@ module.exports = function(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             cb({
                 content: obj,
                 code: isCreate ? 201: 200
             });
         };
     };
-    
+
     /**
-     * Creates a handler that can be used to prepare a response for DELETE 
-     * operations. When the item cannot be found a 404 is issued.  When the 
+     * Creates a handler that can be used to prepare a response for DELETE
+     * operations. When the item cannot be found a 404 is issued.  When the
      * object is successfully delete a 204 status is provided
      * @method handleDelete
      * @param {Function} cb
@@ -321,18 +331,18 @@ module.exports = function(pb) {
                 return cb(err);
             }
             else if (util.isNullOrUndefined(obj)) {
-                return self.reqHandler.serve404();    
+                return self.reqHandler.serve404();
             }
-            
+
             cb({
                 content: '',
                 code: 204
             });
         };
     };
-    
+
     /**
-     * Calls back to the request handler with an error representing a 404 not 
+     * Calls back to the request handler with an error representing a 404 not
      * found
      * @method notFound
      */
