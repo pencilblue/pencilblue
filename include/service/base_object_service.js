@@ -340,9 +340,7 @@ module.exports = function(pb) {
                 return cb(err);
             }
 
-            pageDetails.count = pageDetails.data.length;
-            pageDetails.offset = options.offset || 0;
-            pageDetails.limit = BaseObjectService.getLimit(options.limit);
+            pageDetails = BaseObjectService.getPagedResult(pageDetails.data, pageDetails.total, BaseObjectService.getLimit(options.limit), options.offset || 0);
             cb(null, pageDetails);
         });
     };
@@ -857,6 +855,25 @@ module.exports = function(pb) {
      */
     BaseObjectService.getLimit = function(limit) {
         return util.isNullOrUndefined(limit) || isNaN(limit) || limit <= 0 ? MAX_RESULTS : Math.min(limit, MAX_RESULTS);
+    };
+
+    /**
+     * Builds a paged result object
+     * @static
+     * @method getPagedResult
+     * @param {Array} dataArray The array of items to return
+     * @param {Integer} total The total number of items available in the collection
+     * @param {Integer} [limit] The maximum number of items to return
+     * @param {Integer} [offset] The number of items skipped
+     */
+    BaseObjectService.getPagedResult = function(dataArray, total, limit, offset) {
+        return {
+            count: dataArray.length,
+            data: dataArray,
+            total: total,
+            limit: limit,
+            offset: offset
+        };
     };
 
     /**
