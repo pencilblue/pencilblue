@@ -16,10 +16,10 @@
 */
 
 module.exports = function DeleteCommentModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Deletes a comment
      */
@@ -34,7 +34,7 @@ module.exports = function DeleteCommentModule(pb) {
         if (!pb.validation.isIdStr(vars.id, true)) {
             return cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
             });
         }
 
@@ -47,7 +47,7 @@ module.exports = function DeleteCommentModule(pb) {
             else if (!comment) {
                 return cb({
                     code: 404,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                 });
             }
 
@@ -56,11 +56,11 @@ module.exports = function DeleteCommentModule(pb) {
                 if(util.isError(err)) {
                     return cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_DELETING'))
                     });
                 }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('COMMENT') + ' ' + self.ls.get('DELETED'))});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('generic.COMMENT') + ' ' + self.ls.g('admin.DELETED'))});
             });
         });
     };

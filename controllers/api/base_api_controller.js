@@ -234,7 +234,7 @@ module.exports = function(pb) {
      */
     BaseApiController.prototype.post = function(cb) {
         var dto = this.getPostDto();
-        this.service.save(dto, this.handleSave(cb, true));
+        this.service.add(dto, this.handleSave(cb, true));
     };
 
     /**
@@ -256,7 +256,7 @@ module.exports = function(pb) {
      */
     BaseApiController.prototype.put = function(cb) {
         var dto = this.body || {};
-        this.service.save(dto, this.handleSave(cb, false));
+        this.service.update(dto, this.handleGet(cb, false));
     };
 
     /**

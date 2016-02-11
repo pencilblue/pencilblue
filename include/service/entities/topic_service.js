@@ -19,10 +19,10 @@
 var util = require('../../util.js');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var BaseObjectService = pb.BaseObjectService;
-    
+
     /**
      * @private
      * @static
@@ -31,7 +31,7 @@ module.exports = function(pb) {
      * @type {String}
      */
     var TYPE = 'topic';
-    
+
     /**
      * Provides interactions with topics
      * @class TopicService
@@ -43,18 +43,18 @@ module.exports = function(pb) {
         if (!util.isObject(context)) {
             context = {};
         }
-        
+
         context.type = TYPE;
         TopicService.super_.call(this, context);
     }
     util.inherits(TopicService, BaseObjectService);
-    
+
     /**
-     * 
+     *
      * @static
-     * @method 
+     * @method
      * @param {Object} context
-     * @param {TopicService} service An instance of the service that triggered 
+     * @param {TopicService} service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -63,13 +63,13 @@ module.exports = function(pb) {
         dto.name = pb.BaseController.sanitize(dto.name);
         cb(null);
     };
-    
+
     /**
-     * 
+     *
      * @static
-     * @method 
+     * @method
      * @param {Object} context
-     * @param {TopicService} service An instance of the service that triggered 
+     * @param {TopicService} service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -77,30 +77,30 @@ module.exports = function(pb) {
         context.object.name = context.data.name;
         cb(null);
     };
-    
+
     /**
-     * 
+     *
      * @static
      * @method validate
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
-     * @param {TopicService} context.service An instance of the service that triggered 
+     * @param {TopicService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     TopicService.validate = function(context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
-        
+
         if (!pb.ValidationService.isNonEmptyStr(obj.name, true)) {
             errors.push(BaseObjectService.validationFailure('name', 'Name is required'));
-            
+
             //no need to check the DB.  Short circuit it here
             return cb(null, errors);
         }
 
         //validate name is not taken
-        var where = pb.DAO.getNotIDWhere(obj[pb.DAO.getIdField()]);
+        var where = pb.DAO.getNotIdWhere(obj[pb.DAO.getIdField()]);
         where.name = new RegExp('^' + util.escapeRegExp(obj.name) + '$', 'i');
         context.service.dao.exists(TYPE, where, function(err, exists) {
             if (util.isError(err)) {
@@ -112,12 +112,12 @@ module.exports = function(pb) {
             cb(null, errors);
         });
     };
-    
+
     //Event Registries
     BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, TopicService.format);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, TopicService.merge);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, TopicService.validate);
-    
+
     //exports
     return TopicService;
 };

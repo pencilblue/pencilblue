@@ -586,7 +586,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             if (util.isObject(type)) {
                 typeStr = type[pb.DAO.getIdField()] + '';
             }
-    
+
             where.type = typeStr;
         }
 
@@ -674,7 +674,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                     errors.push(CustomObjectService.err('name', 'The name cannot be empty'));
                     return callback(null);
                 }
-                
+
                 //test for HTML
                 var sanitized = pb.BaseController.sanitize(custObj.name);
                 if (sanitized !== custObj.name) {
@@ -984,7 +984,7 @@ module.exports = function CustomObjectServiceModule(pb) {
     /**
      * Deletes all custom objects of a specified type
      * @method deleteForType
-     * @param {String|Object} custObjType A string ID of the custom object type or 
+     * @param {String|Object} custObjType A string ID of the custom object type or
      * the custom object type itself.
      * @param {Object} [options={}]
      * @param {Function} cb
@@ -1090,7 +1090,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 if (!util.isBoolean(post[key])) {
 
                     if (util.isString(post[key])) {
-                        post[key] = "true" === post[key].toLowerCase();   
+                        post[key] = "true" === post[key].toLowerCase();
                     }
                     else if (!isNaN(post[key])) {
                         post[key] = post[key] ? true : false;
@@ -1105,7 +1105,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             else if(custObjType.fields[key].field_type == CHILD_OBJECTS_TYPE) {
                 if(util.isString(post[key])) {
 
-                    //strips out any non ID strings.  
+                    //strips out any non ID strings.
                     //TODO This should really move to validation.
                     post[key] = post[key].split(',');
                     for (var i = post[key].length - 1; i >= 0; i--) {
@@ -1116,8 +1116,8 @@ module.exports = function CustomObjectServiceModule(pb) {
                 }
             }
             else if (custObjType.fields[key].field_type == PEER_OBJECT_TYPE) {
-                //do nothing because it can only been a string ID.  Validation 
-                //should verify this before persistence. 
+                //do nothing because it can only been a string ID.  Validation
+                //should verify this before persistence.
             }
             else if (util.isString(post[key])){
 
@@ -1130,10 +1130,10 @@ module.exports = function CustomObjectServiceModule(pb) {
 
     /**
      * Formats the raw post data for a sort ordering
-     * @static 
+     * @static
      * @method formatRawSortOrdering
      * @param {Object} post
-     * @param {Object} sortOrder the existing sort order object that the post data 
+     * @param {Object} sortOrder the existing sort order object that the post data
      * will be merged with
      * @return {Object} The formatted sort ordering object
      */
@@ -1169,13 +1169,13 @@ module.exports = function CustomObjectServiceModule(pb) {
         }
 
         var map                 = {};
-        map.text                = ls.get('TEXT');
-        map.number              = ls.get('NUMBER');
-        map.wysiwyg             = ls.get('WYSIWYG');
-        map.boolean             = ls.get('BOOLEAN').toLowerCase();
-        map.date                = ls.get('DATE');
-        map[PEER_OBJECT_TYPE]   = ls.get('PEER_OBJECT');
-        map[CHILD_OBJECTS_TYPE] = ls.get('CHILD_OBJECTS');
+        map.text                = ls.g('custom_objects.TEXT');
+        map.number              = ls.g('custom_objects.NUMBER');
+        map.wysiwyg             = ls.g('generic.WYSIWYG');
+        map.boolean             = ls.g('custom_objects.BOOLEAN').toLowerCase();
+        map.date                = ls.g('generic.DATE');
+        map[PEER_OBJECT_TYPE]   = ls.g('custom_objects.PEER_OBJECT');
+        map[CHILD_OBJECTS_TYPE] = ls.g('custom_objects.CHILD_OBJECTS');
 
         // Make the list of field types used in each custom object type, for display
         for(var i = 0; i < custObjTypes.length; i++) {

@@ -22,13 +22,18 @@ var async = require('async');
 module.exports = function(pb) {
 
     //pb dependencies
-    var DAO            = pb.DAO;
+    var DAO = pb.DAO;
 
     /**
      * Retrieves the necessary data as well as prepares the layout so a view
      * loader can complete the render of content
      * @class ArticleRenderer
      * @constructor
+     * @param {Object} context
+     * @param {String} context.hostname
+     * @param {String} context.site
+     * @param {Boolean} context.onlyThisSite
+     * @param {UserService} [context.userService]
      */
     function ArticleRenderer(context) {
         if (context) {
@@ -37,6 +42,13 @@ module.exports = function(pb) {
         }
         this.site = pb.SiteService.getCurrentSite(context.site);
         this.onlyThisSite = context.onlyThisSite;
+
+        /**
+         * Instance of user service.  No context is provided and therefore can only be used
+         * @property userService
+         * @type {UserService}
+         */
+        this.userService = context.userService || new pb.UserService(context);
     }
 
     /**
@@ -47,6 +59,15 @@ module.exports = function(pb) {
      * @type {String}
      */
     var READ_MORE_FLAG = '^read_more^';
+
+    /**
+     * @private
+     * @static
+     * @readonly
+     * @property ANONYMOUS_COMMENTER
+     * @type {String}
+     */
+    var ANONYMOUS_COMMENTER = 'Anonymous';
 
     /**
      * @method render
@@ -123,7 +144,7 @@ module.exports = function(pb) {
             content.media_body_style = '';
         }
 
-        content.author_name     = pb.users.getFormattedName(author);
+        content.author_name = this.userService.getFormattedName(author);
         content.author_position = '';
         if (author.position && contentSettings.display_author_position) {
             content.author_position = author.position;
@@ -219,14 +240,15 @@ module.exports = function(pb) {
      * @param {Function} cb Callback function
      */
     ArticleRenderer.prototype.getCommenters = function(comments, contentSettings, cb) {
+        var self = this;
 
         //callback for iteration to handle setting the commenter attributes
         var processComment = function(comment, commenter) {
-            comment.commenter_name = 'Anonymous';
+            comment.commenter_name = ANONYMOUS_COMMENTER;
             comment.timestamp      = pb.ContentService.getTimestampTextFromSettings(comment.created, contentSettings);
 
             if (commenter) {
-                comment.commenter_name = pb.users.getFormattedName(commenter);
+                comment.commenter_name = self.userService.getFormattedName(commenter);
                 if(commenter.photo) {
                     comment.commenter_photo = commenter.photo;
                 }

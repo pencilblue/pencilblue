@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -371,7 +371,7 @@ module.exports = function(pb) {
                 return cb(err);
             }
 
-            self.dao.loadById(id, self.type, options, function(err, obj) {
+            self._get(id, options, function(err, obj) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
@@ -382,6 +382,17 @@ module.exports = function(pb) {
                 });
             });
         });
+    };
+
+    /**
+     * @protected
+     * @method _get
+     * @param {String} id
+     * @param {Object} [options]
+     * @param {Function} cb
+     */
+    BaseObjectService.prototype._get = function(id, options, cb) {
+        this.dao.loadById(id, this.type, options, cb);
     };
 
     /**
@@ -410,6 +421,54 @@ module.exports = function(pb) {
     };
 
     /**
+     * Attempts to persist the DTO as an add.  The function executes a series of events:
+     * 1) The format event is fired
+     * 2) When an ID is provided the object is retrieved from the database otherwise a new object is created.
+     * 3) The merge event is triggered
+     * 4) The validate event is triggered. If validation errors are detected the process halts and the function calls back with an error.
+     * 5) The beforeSave event is triggered
+     * 6) The object is persisted
+     * 7) The afterSave event is triggered
+     *
+     * @method add
+     * @param {Object} [options]
+     * @param {Function} cb A callback that takes two parameters.  The first is
+     * an error, if occurred. The second is the object that matches the specified query
+     */
+    BaseObjectService.prototype.add = function(dto, options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        options.isCreate = true;
+        this.save(dto, options, cb);
+    };
+
+    /**
+     * Attempts to persist the DTO as an update.  The function executes a series of events:
+     * 1) The format event is fired
+     * 2) When an ID is provided the object is retrieved from the database otherwise a new object is created.
+     * 3) The merge event is triggered
+     * 4) The validate event is triggered. If validation errors are detected the process halts and the function calls back with an error.
+     * 5) The beforeSave event is triggered
+     * 6) The object is persisted
+     * 7) The afterSave event is triggered
+     *
+     * @method update
+     * @param {Object} [options]
+     * @param {Function} cb A callback that takes two parameters.  The first is
+     * an error, if occurred. The second is the object that matches the specified query
+     */
+    BaseObjectService.prototype.update = function(dto, options, cb) {
+        if (util.isFunction(options)) {
+            cb      = options;
+            options = {};
+        }
+        options.isCreate = false;
+        this.save(dto, options, cb);
+    };
+
+    /**
      * Attempts to persist the DTO.  The function executes a series of events:
      * 1) The format event is fired
      * 2) When an ID is provided the object is retrieved from the database otherwise a new object is created.
@@ -421,10 +480,7 @@ module.exports = function(pb) {
      *
      * @method save
      * @param {Object} [options]
-     * @param {Object} [options.select]
-     * @param {Object} [options.where]
-     * @param {Array} [options.order]
-     * @param {Integer} [options.offset]
+     * @param {Boolean} [options.isCreate]
      * @param {Function} cb A callback that takes two parameters.  The first is
      * an error, if occurred. The second is the object that matches the specified query
      */
@@ -442,6 +498,8 @@ module.exports = function(pb) {
         //do any object formatting that should be done before validation
         var self    = this;
         var context = this.getContext(dto);
+        context.isCreate = util.isBoolean(options.isCreate) ? options.isCreate : util.isNullOrUndefined(dto[pb.DAO.getIdField()]);
+        context.isUpdate = !context.isCreate;
         self._emit(BaseObjectService.FORMAT, context, function(err) {
             if (util.isError(err)) {
                 return cb(err);
@@ -449,15 +507,13 @@ module.exports = function(pb) {
 
             //detect if we are doing an update or insert.  On update retrieve
             //the obj and call the merge event handlers
-            self._retrieveOnUpdateAndMerge(dto, function(err, obj) {
-                if (util.isError(err) || util.isNullOrUndefined(obj)) {
+            self._retrieveOnUpdateAndMerge(dto, options, function(err, obj) {
+                if (util.isError(err) || util.isNullOrUndefined(obj)) {console.log(obj);
                     return cb(err, obj);
                 }
 
                 //remove the dto from context and set the obj as the data to focus on
                 context.data             = obj;
-                context.isCreate         = util.isNullOrUndefined(obj[pb.DAO.getIdField()]);
-                context.isUpdate         = !context.isCreate;
                 context.validationErrors = [];
 
                 //perform all validations
@@ -504,15 +560,18 @@ module.exports = function(pb) {
      * @private
      * @method _retrieveOnUpdateAndMerge
      * @param {Object} dto
+     * @param {Object} options
+     * @param {Boolean} [options.isCreate]
      * @param {Function} cb
      */
-    BaseObjectService.prototype._retrieveOnUpdateAndMerge = function(dto, cb) {
+    BaseObjectService.prototype._retrieveOnUpdateAndMerge = function(dto, options, cb) {
 
         //function used as callback handler so we can simplify if/else logic
         var self     = this;
-        var id       = dto[pb.DAO.getIdField()];
-        var isUpdate = id ? true : false;
-        var isCreate = !isUpdate;
+        var where    = this.getIdWhere(dto);
+        var isCreate = util.isBoolean(options.isCreate) ? options.isCreate : !where;
+        var isUpdate = !isCreate;console.log('isCreate:'+isCreate);
+
         var onObjectRetrieved = function(err, obj) {
             if (util.isError(err) || util.isNullOrUndefined(obj)) {
                 return cb(err, obj);
@@ -529,14 +588,25 @@ module.exports = function(pb) {
         };
 
         //when we are doing an update load the object
-        if (id) {
-            this.dao.loadById(id, this.type, onObjectRetrieved);
+        if (isUpdate) {
+            this.dao.loadByValues(where, this.type, onObjectRetrieved);
         }
         else {
 
             //we are creating a new object so pass it along
             onObjectRetrieved(null, {});
         }
+    };
+
+    /**
+     * Creates the where clause that creates a lookup by the key that indicates
+     * uniqueness for the collection
+     * @method getIdWhere
+     * @param {Object} dto
+     * @return {Object}
+     */
+    BaseObjectService.prototype.getIdWhere = function(dto) {
+        return dto[pb.DAO.getIdField()] ? pb.DAO.getIdWhere(dto[pb.DAO.getIdField()]) : null;
     };
 
     /**
