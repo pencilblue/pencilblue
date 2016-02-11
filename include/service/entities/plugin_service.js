@@ -593,7 +593,7 @@ module.exports = function PluginServiceModule(pb) {
             if (pb.util.isError(err) || !settings) {
                 return cb(err);
             }
-            var discrepancy = true;
+            var discrepancy = false;
             var hashedSettings = {};
             var formattedSettings = [];
 
@@ -610,11 +610,13 @@ module.exports = function PluginServiceModule(pb) {
                 }
             }
 
-            // Detect deprecated settings
-            for (setting in settings) {
-                if (!hashedSettings[setting]) {
-                    discrepancy = true;
-                    break;
+            // Detect deprecated settings if we haven't already detected a discrepancy
+            if (!discrepancy) {
+                for (var setting in settings) {
+                    if (!hashedSettings[setting]) {
+                        discrepancy = true;
+                        break;
+                    }
                 }
             }
 
