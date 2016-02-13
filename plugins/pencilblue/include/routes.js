@@ -1440,6 +1440,18 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js'),
             request_body: ['application/json']
+        },
+
+        // NEW ADMIN
+
+        {
+            method: 'get',
+            path: "/admin-new",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin-new', 'index.js'),
+            content_type: 'text/html'
         }
     ];
 };

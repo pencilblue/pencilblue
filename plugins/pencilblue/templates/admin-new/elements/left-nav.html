@@ -1,0 +1,37 @@
+<script src="/js/admin-new/elements/left-nav.js"></script>
+<div class="left-nav" ng-controller="LeftNavController">
+  <a href="/admin-new">
+    <img class="site-logo" src="/img/pb_logo.png" alt="PencilBlue"></img>
+  </a>
+  <ul class="items">
+    <div class="spinner" ng-if="!navigationMap">
+      <i class="fa fa-fw fa-2x fa-circle-o-notch fa-spin"></i>
+    </div>
+    <span class="item-container" ng-repeat="item in navigationMap">
+      <li>
+        <a ng-href="{{item.href}}" ng-if="!item.children">
+          <i class="fa fa-fw fa-{{item.icon}}"></i>
+          <span ng-bind="item.title"></span>
+        </a>
+        <a class="clickable" ng-click="toggleItemExpansion(item)" ng-if="item.children">
+          <i class="fa fa-fw fa-{{item.icon}}"></i>
+          <span ng-bind="item.title"></span>
+          <div class="item-expand-arrow float-right">
+            <i class="fa fa-fw" ng-class="{'fa-angle-right': !item.expanded, 'fa-angle-down': item.expanded}"></i>
+          </div>
+          <div class="clearfix"></div>
+        </a>
+      </li>
+      <div class="children" ng-class="{'expanded': item.expanded, 'contracted': item.expanded === false}" ng-if="item.children">
+        <ul ng-repeat="child in item.children">
+          <li>
+            <a ng-href="{{child.href}}">
+              <i class="fa fa-fw fa-{{child.icon}}"></i>
+              <span ng-bind="child.title"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </span>
+  </ul>
+</div>

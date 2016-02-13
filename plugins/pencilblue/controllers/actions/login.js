@@ -16,7 +16,7 @@
 */
 
 module.exports = function LoginActionControllerModule(pb) {
-    
+
     //dependencies
     var util               = pb.util;
     var FormController     = pb.FormController;
@@ -32,7 +32,7 @@ module.exports = function LoginActionControllerModule(pb) {
     util.inherits(LoginActionController, FormController);
 
     /**
-     * 
+     *
      * @method onPostParamsRetrieved
      * @param {Object} post
      * @param {Function} cb
@@ -57,7 +57,7 @@ module.exports = function LoginActionControllerModule(pb) {
                 delete self.session.on_login;
             }
             else if(adminAttempt) {
-                location = '/admin';
+                location = '/admin-new';
             }
             self.redirect(location, cb);
         });
