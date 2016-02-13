@@ -53,7 +53,7 @@ module.exports = function LoginActionControllerModule(pb) {
             //redirect
             var location = '/';
             if (self.session.on_login !== undefined) {
-                location = self.session.on_login;
+                location = self.session.on_login == '/admin' ? '/admin-new' : self.session.on_login;
                 delete self.session.on_login;
             }
             else if(adminAttempt) {

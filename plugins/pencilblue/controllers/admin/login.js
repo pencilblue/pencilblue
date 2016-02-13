@@ -16,7 +16,7 @@
 */
 
 module.exports = function LoginViewControllerModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
 
@@ -38,7 +38,7 @@ module.exports = function LoginViewControllerModule(pb) {
 
 
         if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: pb.SecurityService.ACCESS_WRITER})) {
-            this.redirect('/admin', cb);
+            this.redirect('/admin-new', cb);
             return;
         }
         else if(pb.security.isAuthenticated(this.session)) {
