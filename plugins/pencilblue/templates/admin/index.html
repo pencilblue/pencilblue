@@ -9,7 +9,7 @@
             <a ng-href="{{newsLink}}">
                 <h4 ng-bind="newsTitle"></h4>
             </a>
-            <p><span ng-bind-html="getNewsCopyHtml()"></span>&nbsp;<a ng-href="{{newsLink}}" target="_blank">^loc_READ_FULL^...</a></p>
+            <p ng-if="newsCopy.length"><span ng-bind-html="getNewsCopyHtml()"></span>&nbsp;<a ng-href="{{newsLink}}" target="_blank">^loc_READ_FULL^...</a></p>
         </span>
     </div>
     <div class="row">

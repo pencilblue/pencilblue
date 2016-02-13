@@ -5,7 +5,9 @@
     'ngRoute',
     'ngSanitize',
     'ngResource',
-    'pencilblue.admin.elements.leftNav'
+    'pencilblue.admin.elements.leftNav',
+    'pencilblue.admin.elements.latestNews',
+    'pencilblue.admin.elements.serverStatus'
   ])
   .controller('AdminIndexController', function() {
 

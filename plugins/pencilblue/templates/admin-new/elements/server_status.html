@@ -1,0 +1,36 @@
+<script src="/js/admin-new/elements/server_status.js"></script>
+<div ng-controller="ServerStatusController">
+  <div class="col-md-12">
+    <h3>^loc_SERVER^:</h3>
+    <i class="fa fa-2x fa-circle-o-notch fa-spin" ng-if="!cluster"></i>
+  </div>
+  <div class="col-lg-3 col-md-4 col-sm-6" ng-repeat="node in cluster">
+    <div class="well well-sm">
+      <h4>
+        <i class="fa fa-fw {{getNodeIcon(node)}}"></i>
+        <span ng-bind="node.ip + ':' + node.port"></span>
+        <span ng-bind="' (' + node.worker_id + ')'" ng-if="node.process_type === 'Worker'"></span>
+      </h4>
+      <h5>^loc_MEMORY_USED^:</h5>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="{{node.mem_usage.heapUsed}}" aria-valuemin="0" aria-valuemax="{{node.mem_usage.heapTotal}}" style="width: {{getNodeMemoryPercentage(node)}}" ng-bind="getNodeMemoryPercentage(node)"></div>
+      </div>
+      <span class="has-tooltip" style="margin-right: 5px" title="^loc_UPTIME^">
+        <i class="fa fa-fw fa-clock-o"></i>
+        <span ng-bind="getFormattedUptime(node.uptime)"></span>
+      </span>
+      <span class="has-tooltip" style="margin-right: 5px" title="^loc_REQUESTS_TOTAL^">
+        <i class="fa fa-fw fa-download has-tooltip"></i>
+        <span ng-bind="node.requests"></span>
+      </span>
+      <span class="has-tooltip" style="margin-right: 5px" title="^loc_REQUESTS_CURRENT^">
+        <i class="fa fa-fw fa-users has-tooltip"></i>
+        <span ng-bind="node.currentRequests"></span>
+      </span>
+      <span class="has-tooltip" style="margin-right: 5px" title="^loc_LAST_MODIFIED^">
+        <i class="fa fa-fw fa-edit has-tooltip"></i>
+        <span ng-bind="node.last_modified | date:'MMM d'"></span>
+      </span>
+    </div>
+  </div>
+</div>
