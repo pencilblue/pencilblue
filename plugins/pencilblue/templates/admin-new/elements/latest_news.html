@@ -1,9 +1,16 @@
 <script src="/js/admin-new/elements/latest_news.js"></script>
-<div class="well well-sm" ng-controller="LatestNewsController">
-  <h3>PencilBlue News:</h3>
+<div ng-controller="LatestNewsController">
+  <h3>PencilBlue News</h3>
   <i class="fa fa-2x fa-circle-o-notch fa-spin" ng-if="!newsCopy.length"></i>
-  <a ng-href="{{newsLink}}">
-      <h4 ng-bind="newsTitle"></h4>
-  </a>
-  <div ng-bind-html="getNewsCopyHtml()"></div>
+  <div class="well well-sm latest-news" ng-if="newsCopy.length">
+    <div class="copy">
+      <a ng-href="{{newsLink}}">
+          <h4 ng-bind="newsTitle"></h4>
+      </a>
+      <div ng-bind-html="getNewsCopyHtml()"></div>
+    </div>
+    <div class="fadeout">
+      <a class="btn btn-primary news-link" ng-href="{{newsLink}}" target="_blank">^loc_READ_FULL^</a>
+    </div>
+  </div>
 </div>
