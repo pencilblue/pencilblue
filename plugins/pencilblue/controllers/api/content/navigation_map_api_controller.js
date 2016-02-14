@@ -22,6 +22,7 @@ module.exports = function(pb) {
     var AdminNavigation   = pb.AdminNavigation;
     var BaseApiController = pb.BaseApiController;
     var BaseObjectService = pb.BaseObjectService;
+    var TopMenuService    = pb.TopMenuService;
 
     /**
      *
@@ -42,6 +43,24 @@ module.exports = function(pb) {
         var map = AdminNavigation.get(this.session, activeItems, this.ls, this.site);
         var wrapper = BaseObjectService.getPagedResult(map, map.length);
         this.handleGet(cb)(null, wrapper);
+    };
+
+    /**
+     * Retrieves the navigation for the authenticated party
+     * @method getAdminMap
+     * @param {Function} cb
+     */
+    NavigationMapApiController.prototype.getForSite = function(cb) {
+        var self = this;
+
+        var options = {
+            currUrl: this.query.currUrl,
+            activeTheme: this.activeTheme
+        };
+        TopMenuService.getTopMenu(this.session, this.ls, options, function(themeSettings, map, accountButtons) {
+            var wrapper = BaseObjectService.getPagedResult(map, map.length);
+            self.handleGet(cb)(null, wrapper);
+        });
     };
 
     //exports
