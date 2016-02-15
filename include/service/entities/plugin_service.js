@@ -560,7 +560,7 @@ module.exports = function PluginServiceModule(pb) {
                 hashedSettings[settingName] = true;
                 if (settings[settingName] === undefined) {
                     discrepancy = true;
-                    formattedSettings.push({name: details.settings[i].name, value: details.settings[i].value});
+                    formattedSettings.push({name: settingName, value: details.settings[i].value});
                 }
                 else {
                     formattedSettings.push({name: settingName, value: settings[settingName]});
