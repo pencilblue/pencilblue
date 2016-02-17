@@ -1,0 +1,21 @@
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        ^loc_VIEW_LOC_GENERIC_KEYS^
+    </div>
+    <div class="panel-body" ng-if="!generics.length">
+        ^loc_VIEW_LOC_NO_GENERIC_KEYS^
+    </div>
+    <table id="generic_locales_table" class="table table-responsive table-condensed"
+           ng-if="generics.length > 0">
+        <tr id="generic_locales_table_header">
+            <th id="generic_locales_name_header">^loc_LOCALIZATION_KEY_LABEL^</th>
+            <th id="generic_locales_date_header">^loc_LOCALIZATION_VALUE_LABEL^</th>
+        </tr>
+        <tr class="generic_locales_site_row"
+            ng-repeat="item in generics | filter:activeQuery">
+            <td ng-bind="item.key"></td>
+            <td ng-bind="item.val"></td>
+        </tr>
+    </table>
+</div>
