@@ -207,7 +207,7 @@ module.exports = function(pb) {
     Localization.prototype.sendLocalesToFile = function(locales, cb){
         var self = this;
         var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
-        fs.writeFile(filepath, locales, { flags: 'w' }, function (err) {
+        fs.writeFile(filepath, locales, function (err) {
             if (err)
                 throw err;
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Locales were saved successfully')});
