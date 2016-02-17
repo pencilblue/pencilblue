@@ -7,7 +7,7 @@
         .form-group textarea {
             height: 125px;
         }
-        #localization-plugin-dropdown, #localization-locale-dropdown{
+        #localization-plugin-dropdown, #localization-locale-dropdown, #view-localization-locale-dropdown, #view-localization-plugin-dropdown {
             width: 100%;
         }
     </style>
@@ -27,11 +27,11 @@
                                    ng-model="siteName" readonly>
                             <label>Select Language:</label>
                             <select id="localization-locale-dropdown" ng-change="getAllLocalizations()" ng-model="currentLocale">
-                                <option ng-repeat="lang in enabledLocales" value="{{lang}}">{{lang}}</option>
+                                <option ng-selected="{{lang === currentLocale}}" ng-repeat="lang in enabledLocales" value="{{lang}}">{{lang}}</option>
                             </select>
                             <label>Select Plugin:</label>
                             <select id="localization-plugin-dropdown" ng-change="getAllLocalizations()" ng-model="currentPlugin">
-                                <option ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
+                                <option ng-selected="{{plugin === currentPlugin}}" ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
                             </select>
                         </div>
                     </div>
@@ -117,12 +117,12 @@
                                    placeholder="site name"
                                    ng-model="siteName" readonly>
                             <label>Select Language:</label>
-                            <select id="localization-locale-dropdown" ng-change="getAllLocalizations()" ng-model="currentLocale">
-                                <option ng-repeat="lang in enabledLocales" value="{{lang}}">{{lang}}</option>
+                            <select id="view-localization-locale-dropdown" ng-change="getAllLocalizations()" ng-model="currentLocale">
+                                <option ng-selected="{{lang === currentLocale}}" ng-repeat="lang in enabledLocales" value="{{lang}}">{{lang}}</option>
                             </select>
                             <label>Select Plugin:</label>
-                            <select id="localization-plugin-dropdown" ng-change="getAllLocalizations()" ng-model="currentPlugin">
-                                <option ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
+                            <select id="view-localization-plugin-dropdown" ng-change="getAllLocalizations()" ng-model="currentPlugin">
+                                <option ng-selected="{{plugin === currentPlugin}}" ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
                             </select>
                         </div>
                     </div>
