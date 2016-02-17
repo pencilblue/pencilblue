@@ -69,6 +69,12 @@ module.exports = function LocalizationModule(pb) {
          * performing key lookup
          */
         this.activeTheme = options.activeTheme;
+
+        /**
+         * The current site that should be prioritized when
+         * performing key lookup, higher priority than activeTheme
+         */
+        this.site = options.site;
     }
 
     /**
@@ -274,15 +280,16 @@ module.exports = function LocalizationModule(pb) {
      * @return {String}
      */
     Localization.prototype.g = function() {
+        var self = this;
         var key = arguments[0];
         var options = arguments[1] || {
-            site: pb.SiteService.GLOBAL_SITE,
-            params: {}
-        };
+                site: pb.SiteService.GLOBAL_SITE,
+                params: {}
+            };
 
         //log operation
         if (pb.log.isSilly()) {
-            pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, this.language);
+            pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, self.language);
         }
 
         //error checking
@@ -298,17 +305,14 @@ module.exports = function LocalizationModule(pb) {
             throw new Error('params parameter is required');
         }
 
-
-        //TODO retrieve active plugins for site to narrow down which plugins should be examined during retrieval
-
         //get the current local as object
-        var locale = this.localeObj;
+        var locale = self.localeObj;
 
         //get theme to prioritize
-        var plugin = options.plugin || this.activeTheme;
+        var plugin = options.plugin || self.activeTheme;
 
         //define convenience functions
-        var self = this;
+
         var processValue = function(localization) {
 
             //set cache
@@ -397,15 +401,18 @@ module.exports = function LocalizationModule(pb) {
         if (!Localization.keys[key]) {
             return finalize(options.defaultVal);
         }
-        else if (this.cache[key]) {
+        else if (self.cache[key]) {
 
             //we have already processed this key once for this instance
-            return finalize(processValue(this.cache[key]));
+            return finalize(processValue(self.cache[key]));
         }
 
         //key create key path
         var keyBlock = Localization.storage;
         var parts = key.split(Localization.KEY_SEP);
+        if(keyBlock[self.site] && keyBlock[self.site][parts[0]])
+            keyBlock = keyBlock[self.site];
+
         for (var i = 0; i < parts.length; i++) {
             if (util.isNullOrUndefined(keyBlock[parts[i]]) || !keyBlock[parts[i]].__isKey) {
 
@@ -424,7 +431,7 @@ module.exports = function LocalizationModule(pb) {
 
             //check to see if we should fall back to the default locale
             var defaultLocale = Localization.parseLocaleStr(Localization.getDefaultLocale());
-            if (defaultLocale.language !== this.localeObj.language || defaultLocale.countryCode !== this.localeObj.countryCode) {
+            if (defaultLocale.language !== self.localeObj.language || defaultLocale.countryCode !== self.localeObj.countryCode) {
 
                 locale = defaultLocale;
                 langKey = k(defaultLocale.language);

@@ -1,19 +1,19 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2015  PencilBlue, LLC
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //dependencies
 var path = require('path');
@@ -49,7 +49,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
      * response.  The system will attempt to catch any catastrophic errors but
      * makes no guarantees.
      */
-    RandomTextViewController.prototype.getRandomText = function(cb) {
+    RandomTextViewController.prototype.render = function(cb) {
         var self = this;
 
         //PencilBlue provides access to function to retrieve the navigation and
@@ -62,10 +62,6 @@ module.exports = function RandomTextViewControllerModule(pb) {
 
             //Create an instance of the text service.  Then we call the service for
             //random text
-            var TextService = PluginService.getService('textService', 'sample', self.site);
-            var textService = new TextService();
-            var text        = textService.getText();
-
             //The global "pb" object provides access to a number of services.  One
             //of those is logging.
             if (pb.log.isDebug()) {
@@ -96,8 +92,8 @@ module.exports = function RandomTextViewControllerModule(pb) {
             //to a minimum.
             var model = {
                 'sample_plugin_icon': PluginService.genPublicPath('sample', 'imgs/sample.ico'),
-
-                'sample_text': text,
+                'SAMPLE_HELLO_WORLD':self.ls.g('SAMPLE_HELLO_WORLD'),
+                'sample_text': 'hi this is some random text',
 
                 //The templating service also supports registering flags with functions.
                 //The allows controllers to execute complex features only when the flag
@@ -258,51 +254,16 @@ module.exports = function RandomTextViewControllerModule(pb) {
      *
      * @param cb A callback of the form: cb(error, array of objects)
      */
+    //to hit this route and get back spanish change the setup in the admin panel and
+    // hit the /es-ES/about
     RandomTextViewController.getRoutes = function(cb) {
         var routes = [
             {
-                //This is the HTTP verb that should be used for the route.  If none
-                //is provided it is assumed to be executed for all routes.
                 method: 'get',
-
-                //This is the URL pattern that will be used to match against
-                //incoming requests to determine if this the controller to execute.
-                //The route handler supports parameters and wild cards such as:
-                //"/user/:id/*
-                path: "/randomtext",
-
-                //indicates if the route requires the user to be authenticated in
-                //order to access the resource.  Defaults to false.
-                auth_required: true,
-
-                //specifies the role that is required of the authenticated user.
-                //Defaults to no role
-                access_level: pb.SecurityService.ACCESS_USER,
-
-                //specifies the specific persions that are required by users in
-                //order to access the resource.  The permissions are AND'ed
-                //together. Defaults to []
-                permissions: ["sample_view"],
-
-                //Indicates the content type that will be returned to the
-                //requesting client. Defaults to "text/html"
+                path: '/about',
                 content_type: 'text/html',
-
-                //specifies the controller prototype instance function that will be
-                //called to handle the incoming request.  Defaults to "render"
-                handler: "getRandomText"
-            },
-            {
-                method: 'get',
-                path: '/sample/redirect/home',
-                handler: 'redirectToHomePage'
-            },
-    //		{ //Use the setup below to override the home page when your plugin is set as the active theme
-    //	    	method: 'get',
-    //	    	path: "/",
-    //	    	auth_required: false,
-    //	    	content_type: 'text/html'
-    //		}
+                localization:true
+            }
         ];
         cb(null, routes);
     };

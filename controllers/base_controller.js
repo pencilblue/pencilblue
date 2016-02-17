@@ -117,6 +117,9 @@ module.exports = function BaseControllerModule(pb) {
         this.body                = props.body;
         this.localizationService = props.localization_service;
         this.ls                  = this.localizationService;
+        this.ls.activeTheme      = props.activeTheme;
+        this.ls.siteName         = props.siteName;
+        this.ls.site             = props.site;
         this.pathVars            = props.pathVars;
         this.query               = props.query;
         this.pageName            = '';
@@ -151,8 +154,26 @@ module.exports = function BaseControllerModule(pb) {
             onlyThisSite: true,
             siteObj: this.siteObj
         };
+        if(pb.config.localization && pb.config.localization.db){
+            var opts = {
+                where: {_id: self.site}
+            };
+            var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
-        cb();
+            queryService.q("localizations", opts, function (err, result) {
+                if (util.isError(err)) {
+                    pb.log.error(err);
+                }
+                if(result && result[0] && result[0].storage)
+                    pb.Localization.storage =  util.deepMerge(result[0].storage,pb.Localization.storage);
+                self.ls.siteName = self.site;
+
+
+                cb();
+            });
+        } else {
+            cb();
+        }
     };
 
     /**
