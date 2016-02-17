@@ -534,61 +534,59 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
-     * Loads the settings from a details object and persists them in the DB.  Any
-     * existing settings for the plugin are deleted before the new settings are
-     * persisted.
+     * Compares the details loaded from the plugin config (details.json)
+     * with the database values pulled from getSettingsKV(). If a discrepancy
+     * is detected, the plugin settings are updated in the database so future
+     * calls to getSettingsKV() will have the latest values.
      *
      * @method syncSettings
-     * @param details The details object to extract the settings from
+     * @param plugin {Object} The plugin object
+     * @param details {Object} The details object to extract the settings from
      * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
-     * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
+     * TRUE/FALSE if an error occured.
      */
     PluginService.prototype.syncSettings = function(plugin, details, cb) {
         var self = this;
         this.getSettingsKV(plugin.dirName, function(err, settings) {
-            if (pb.util.isError(err) || !settings) {
-                pb.log.error("PluginService.syncSettings failed to load settings from plugin [" + plugin.dirName + "]");
-                return cb(null, true);
+            var isError = util.isError(err);
+            if (isError || !settings) {
+                if (isError) {
+                    pb.log.error("PluginService: Failed to load settings from plugin [%s]", plugin.uid);
+                }
+                return cb(err, !isError);
             }
+
             var discrepancy = false;
-            var hashedSettings = {};
             var formattedSettings = [];
 
             // Detect new settings
-            for (var i = 0; i < details.settings.length; i++) {
-                var settingName = details.settings[i].name;
-                hashedSettings[settingName] = true;
-                if (settings[settingName] === undefined) {
+            details.settings.forEach(function(setting) {
+                var settingName = setting.name;
+                var val = settings[settingName];
+                if (typeof val === 'undefined') {
                     discrepancy = true;
-                    formattedSettings.push({name: settingName, value: details.settings[i].value});
+                    val = setting.value;
+                    formattedSettings.push({name: settingName, value: val});
                 }
                 else {
-                    formattedSettings.push({name: settingName, value: settings[settingName]});
+                    formattedSettings.push({name: settingName, value: val});
                 }
-            }
+            });
 
-            // Detect deprecated settings if we haven't already detected a discrepancy
+            // If there's a size difference, there's a discrepancy
+            discrepancy = discrepancy || (details.settings.length !== Object.keys(settings).length);
+
+            // Return if no discrepancy was found
             if (!discrepancy) {
-                for (var setting in settings) {
-                    if (!hashedSettings[setting]) {
-                        discrepancy = true;
-                        break;
-                    }
-                }
+                return cb(null, true);
             }
 
-            // If a plugin setting needs updating, save it off
-            if (discrepancy) {
-                self.resetSettings({uid: plugin.uid, settings: formattedSettings}, function(err, result) {
-                    if (pb.util.isError(err)) {
-                        pb.log.error("PluginService.syncSettings failed to save off updated settings for " + plugin.dirName);
-                    }
-                    cb(null, true);
-                });
-            }
-            else {
-                cb(null, true);
-            }
+            self.resetSettings({uid: plugin.uid, settings: formattedSettings}, function(err, result) {
+                if (util.isError(err)) {
+                    pb.log.error("PluginService: Failed to save off updated settings for plugin [%s]", plugin.uid);
+                }
+                cb(err, !util.isError(err));
+            });
         });
     };
 
@@ -1130,7 +1128,8 @@ module.exports = function PluginServiceModule(pb) {
         var details = null;
         var site = plugin.site || GLOBAL_SITE;
         var cached_plugin = PLUGIN_INIT_CACHE[plugin.uid] || null;
-        var autoSync = pb.config.settings.autoSync || false;
+        var syncSettingsAtStartup = pb.config.settings.syncSettingsAtStartup;
+        // TODO: Abstract the construction of these init tasks
         var site_independant_tasks = [
             //load the details file
             function(callback) {
@@ -1139,7 +1138,8 @@ module.exports = function PluginServiceModule(pb) {
                 if(!cached_plugin || !cached_plugin.details) {
                     return PluginService.loadDetailsFile(PluginService.getDetailsPath(plugin.dirName), function (err, loadedDetails) {
                         details = loadedDetails;
-                        if (autoSync && !pb.util.isError(err) && details) {
+                        if (syncSettingsAtStartup && !pb.util.isError(err) && details) {
+                            // TODO: Can we sync these plugin settings without instantiating a new PluginService each time?
                             var pluginService = new PluginService({site: site});
                             pluginService.syncSettings(plugin, details, callback);
                         }
@@ -1215,7 +1215,7 @@ module.exports = function PluginServiceModule(pb) {
         var tasks   = [
             // Sync plugin settings
             function(callback) {
-                if (cached_plugin && cached_plugin.details && autoSync) {
+                if (cached_plugin && cached_plugin.details && syncSettingsAtStartup) {
                     var pluginService = new PluginService({site: site});
                     pluginService.syncSettings(plugin, cached_plugin.details, callback);
                 }
