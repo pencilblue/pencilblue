@@ -48,7 +48,7 @@ module.exports = function(pb) {
         else {
             localizationService = opts.ls;
         }
-        
+
         /**
          * @property localCallbacks
          * @type {Object}
@@ -65,7 +65,7 @@ module.exports = function(pb) {
         if (localizationService) {
             this.localizationService = localizationService;
         }
-        
+
         /**
          * @property activeTheme
          */
@@ -110,7 +110,12 @@ module.exports = function(pb) {
          * @property reprocess
          * @type {Boolean}
          */
-        this.reprocess = false;
+        if(pb.config.TemplateService.useReprocess){
+            this.reprocess = true;
+        }
+        else{
+            this.reprocess = false;
+        }
 
         /**
          * @property unregisteredFlagTemplate
@@ -123,7 +128,7 @@ module.exports = function(pb) {
          * @type {String}
          */
         this.siteUid = pb.SiteService.getCurrentSite(opts.site);
-        
+
         /**
          * @property settingService
          * @type {SettingService}
@@ -217,8 +222,8 @@ module.exports = function(pb) {
     };
 
     /**
-     * When a flag is encountered that is not registered with the engine the 
-     * handler is called as a fail safe.  It is expected to return a string that 
+     * When a flag is encountered that is not registered with the engine the
+     * handler is called as a fail safe.  It is expected to return a string that
      * will be put in the place of the flag.
      *
      * @method setUnregisteredFlagHandler
@@ -235,8 +240,8 @@ module.exports = function(pb) {
     };
 
     /**
-     * When a flag is encountered that is not registered with the engine the 
-     * handler is called as a fail safe unless there is a locally registered handler.  
+     * When a flag is encountered that is not registered with the engine the
+     * handler is called as a fail safe unless there is a locally registered handler.
      * It is expected to return a string that will be put in the place of the flag.
      *
      * @method setGlobalUnregisteredFlagHandler
@@ -253,8 +258,8 @@ module.exports = function(pb) {
     };
 
     /**
-     * Sets the option that when true, instructs the engine to inspect the content 
-     * provided by a flag for more flags.  This is one way of providing iterative 
+     * Sets the option that when true, instructs the engine to inspect the content
+     * provided by a flag for more flags.  This is one way of providing iterative
      * processing of items.  See the sample plugin for an example.
      * @method setReprocess
      * @param {Boolean} reprocess
@@ -262,9 +267,9 @@ module.exports = function(pb) {
     TemplateService.prototype.setReprocess = function(reprocess) {
         this.reprocess = reprocess ? true : false;
     };
-    
+
     /**
-     * Retrieves the active theme.  When not provided the service retrieves it 
+     * Retrieves the active theme.  When not provided the service retrieves it
      * from the settings service.
      * @private
      * @method _getActiveTheme
@@ -294,7 +299,7 @@ module.exports = function(pb) {
      */
     TemplateService.prototype.getTemplateContentsByPriority = function(relativePath, cb) {
         var self = this;
-        
+
         //build set of paths to search through
         var hintedTheme   = this.getTheme();
         var paths         = [];
@@ -352,7 +357,7 @@ module.exports = function(pb) {
         if (!util.isFunction(cb)) {
             throw new Error('cb parameter must be a function');
         }
-        
+
         var self = this;
         this.getTemplateContentsByPriority(templateLocation, function(err, templateContents) {
             if (util.isError(err)) {
@@ -381,7 +386,7 @@ module.exports = function(pb) {
         else if (!util.isFunction(cb)) {
             throw new Error('cb parameter must be a function');
         }
-        
+
         //iterate parts
         var self  = this;
         var tasks = util.getTasks(content.parts, function(parts, i) {
@@ -454,7 +459,7 @@ module.exports = function(pb) {
                 return;
             }
             else if (flag.indexOf(LOCALIZATION_PREFIX) == 0 && self.localizationService) {//localization
-                
+
                 //TODO how do we express params?  Other template vars?
                 var key = flag.substring(LOCALIZATION_PREFIX_LEN);
                 var opts = {
@@ -465,7 +470,7 @@ module.exports = function(pb) {
                 };
                 var val = self.localizationService.g(key, opts);
                 if (!util.isString(val)) {
-                    
+
                     //TODO this is here to be backwards compatible. Remove in 0.6.0
                     val = self.localizationService.get(key);
                 }
@@ -484,7 +489,7 @@ module.exports = function(pb) {
                     pb.log.silly("TemplateService: Failed to process flag [%s]", flag);
                 }
 
-                //the flag was not registered.  Hand it off to a handler for any 
+                //the flag was not registered.  Hand it off to a handler for any
                 //catch-all processing.
                 if (util.isFunction(self.unregisteredFlagHandler)) {
                     self.unregisteredFlagHandler(flag, cb);
@@ -578,21 +583,21 @@ module.exports = function(pb) {
         this.localCallbacks[flag] = callbackFunctionOrValue;
         return true;
     };
-    
+
     /**
-     * Registers a model with the template service.  It processes each 
-     * key/value pair in the object and creates a dot notated string 
-     * registration.  For the object { key: 'value' } with a model name of 
-     * "item" would result in 1 local value registration in which the key would 
-     * be "item.key".  If no model name existed the registered key would be: 
-     * "key". The algorithm fails fast.  On the first bad registeration the 
-     * algorithm stops registering keys and returns.  Additionally, if a bad 
+     * Registers a model with the template service.  It processes each
+     * key/value pair in the object and creates a dot notated string
+     * registration.  For the object { key: 'value' } with a model name of
+     * "item" would result in 1 local value registration in which the key would
+     * be "item.key".  If no model name existed the registered key would be:
+     * "key". The algorithm fails fast.  On the first bad registeration the
+     * algorithm stops registering keys and returns.  Additionally, if a bad
      * model object is pass an Error object is thrown.
      * @method registerModel
      * @param {Object} model The model is inspect
-     * @param {String} [modelName] The optional name of the model.  The name 
+     * @param {String} [modelName] The optional name of the model.  The name
      * will prefix all of the model's keys.
-     * @returns {Boolean} TRUE when all keys were successfully registered. 
+     * @returns {Boolean} TRUE when all keys were successfully registered.
      * FALSE if a single items fails to register.
      */
     TemplateService.prototype.registerModel = function(model, modelName) {
@@ -602,7 +607,7 @@ module.exports = function(pb) {
         if (!util.isString(modelName)) {
             modelName = '';
         }
-        
+
         //load up the first set of items
         var queue = [];
         util.forEach(model, function(val, key) {
@@ -612,19 +617,19 @@ module.exports = function(pb) {
                 value: val
             });
         });
-        
+
         //create the processing function
         var self = this;
         var register = function(prefix, key, value) {
-            
+
             var flag = (prefix ? prefix + '.' : prefix) + key;
             if (util.isObject(value) && !(value instanceof TemplateValue)) {
-                
+
                 var result = true;
                 util.forEach(value, function(value, key) {
                     queue.push({
                         key: key,
-                        prefix: flag, 
+                        prefix: flag,
                         value: value
                     });
                 });
@@ -632,7 +637,7 @@ module.exports = function(pb) {
             }
             return self.registerLocal(flag, value);
         };
-                           
+
         //process the queue until it is empty
         var completedResult = true;
         while (queue.length > 0 && completedResult) {
@@ -692,14 +697,14 @@ module.exports = function(pb) {
             });
         });
     };
-    
+
     /**
-     * Creates an instance of Template service based 
+     * Creates an instance of Template service based
      * @method getChildInstance
      * @return {TemplateService}
      */
     TemplateService.prototype.getChildInstance = function() {
-        
+
         var opts = {
             ls: this.localizationService,
             activeTheme: this.activeTheme
@@ -931,7 +936,7 @@ module.exports = function(pb) {
     TemplateValue.prototype.toString = function() {
         return this.val();
     };
-    
+
     return {
         TemplateService: TemplateService,
         TemplateValue: TemplateValue
