@@ -187,7 +187,12 @@ module.exports = function(pb) {
         var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
         fs.readFile(filepath, "utf-8", function (err, data) {
             if (err)
-                cb(err);
+            {
+                if(err.toString().indexOf("no such file or directory") != -1)
+                    return cb(null, {});
+
+                return cb(err);
+            }
 
             if (data) {
                 try {
@@ -202,7 +207,6 @@ module.exports = function(pb) {
     Localization.prototype.sendLocalesToFile = function(locales, cb){
         var self = this;
         var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
-
         fs.writeFile(filepath, locales, function (err) {
             if (err)
                 throw err;

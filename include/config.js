@@ -131,6 +131,15 @@ Configuration.getBaseConfig = function(multisite) {
             globalRoot: 'http://global.localhost:8080'
         },
 
+        //provides configuration options for localization service
+        "localization": {
+            //enables/disables localization service using the database
+            "db":false,
+            //enables/disables localization directives being resolved in the nav
+            "nav":false,
+            //enables/disables localization directives being resolved in the content pages
+            "pages": false
+        },
         //provides a configuration for connecting to persistent storage.  The
         //default configuration is meant for mongodb.
         db: {
