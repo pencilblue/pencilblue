@@ -255,6 +255,25 @@ module.exports = {
         GENERATED: 'Generated',
         NOT_GENERATED: 'Not Generated'
     },
+    localization:{
+        ADD_A_CUSTOM_LOC: "Add a Custom Locale",
+        ADD_LOCALIZATION: "Add Localizations",
+        LOCALIZATION_KEY_LABEL: "Localization Keys",
+        LOCALIZATION_KEY_PLACEHOLDER: "Localization Key",
+        LOCALIZATION_VALUE_LABEL: "Localization Values",
+        LOCALIZATION_VALUE_PLACEHOLDER: "Localization Value Text",
+        LOCALIZATION_SITE_LABEL: "Current Site to Apply Locales to:",
+        LOCALIZATION_SELECT_LANG_LABEL: "Select Language:",
+        LOCALIZATION_SELECT_PLUGIN_LABEL: "Select Plugin:",
+        LOCALIZATION_SETTINGS: "Localization Settings",
+        SEARCH_GENERIC_KEYS: "Search Generic Keys for...",
+        SEARCH_OVERRIDE_KEYS: "Search Override Keys for...",
+        VIEW_LOC_GENERIC_KEYS: "Generic Locale Keys",
+        VIEW_LOC_NO_GENERIC_KEYS: "No Generic Locale Keys",
+        VIEW_LOC_SITE_OVERRIDES: "Site Overrides",
+        VIEW_LOC_NO_OVERRIDES: "No Site Overrides",
+        VIEW_LOC_TITLE: "View Locales"
+    },
     topics: {
         MANAGE_TOPICS: 'Manage topics',
         NEW_TOPIC: 'New topic',

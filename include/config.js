@@ -132,7 +132,7 @@ Configuration.getBaseConfig = function(multisite) {
         },
 
         //Sets the base template service reprocessing property
-        TemplateService: { useReprocess: false },
+        templateService: { useReprocess: false },
 
         //provides configuration options for localization service
         "localization": {

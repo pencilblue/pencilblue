@@ -110,10 +110,10 @@ module.exports = function(pb) {
          * @property reprocess
          * @type {Boolean}
          */
-        if(pb.config.TemplateService.useReprocess){
+        if(pb.config.templateService.useReprocess) {
             this.reprocess = true;
         }
-        else{
+        else {
             this.reprocess = false;
         }
 
