@@ -131,6 +131,9 @@ Configuration.getBaseConfig = function(multisite) {
             globalRoot: 'http://global.localhost:8080'
         },
 
+        //Sets the base template service reprocessing property
+        TemplateService: { useReprocess: false },
+
         //provides configuration options for localization service
         "localization": {
             //enables/disables localization service using the database
