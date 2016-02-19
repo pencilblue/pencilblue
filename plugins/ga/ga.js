@@ -1,9 +1,8 @@
-
 module.exports = function GoogleAnalyticsModule(pb) {
 
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * GoogleAnalytics - A sample for exemplifying what the main module file should
      * look like.
@@ -12,7 +11,7 @@ module.exports = function GoogleAnalyticsModule(pb) {
      * @constructor
      */
     function GoogleAnalytics(){}
-    
+
     /**
      * The ID for the analytics provider
      * @private
@@ -54,11 +53,11 @@ module.exports = function GoogleAnalyticsModule(pb) {
      * @param cb A callback that must be called upon completion.  cb(err, result).
      * The result is ignored
      */
-    GoogleAnalytics.onStartup = function(cb) {
-        var result = pb.AnalyticsManager.registerProvider(PROVIDER_NAME, GoogleAnalytics.onRequest);
+    GoogleAnalytics.onStartupWithContext = function(context, cb) {
+        var result = pb.AnalyticsManager.registerProvider(PROVIDER_NAME, context.site, GoogleAnalytics.onRequest);
         cb(null, result);
     };
-    
+
     /**
      * Called on each request
      *
@@ -71,7 +70,7 @@ module.exports = function GoogleAnalyticsModule(pb) {
                 return cb(err, '');
             }
             else if (!settings || !settings.google_analytics_tracking_id || settings.google_analytics_tracking_id.length === 0) {
-                pb.log.warn('GoogleAnalytics: Settings have not been initialized!');
+                pb.log.warn('GoogleAnalytics: Settings have not been initialized! for site ' +  siteId);
                 return cb(null, '');
             }
 
