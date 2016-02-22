@@ -55,7 +55,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * providers.
      */
     AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
-        var site = this.site
+        var site = this.site;
         var tasks = util.getTasks(Object.keys(PROVIDER_HOOKS[site]), function(keys, i) {
             return function(callback) {
                 if (pb.log.isSilly()) {
@@ -141,7 +141,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @return {Boolean} TRUE if was unregistered, FALSE if not found
      */
     AnalyticsManager.unregisterProvider = function(name, site) {
-        if (!site) { site = pb.SiteService.GLOBAL_SITE }
+        if (!site) { site = pb.SiteService.GLOBAL_SITE; }
         if (!AnalyticsManager.isRegistered(name, site)) {
             return false;
         }
