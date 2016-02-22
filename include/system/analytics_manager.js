@@ -141,6 +141,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @return {Boolean} TRUE if was unregistered, FALSE if not found
      */
     AnalyticsManager.unregisterProvider = function(name, site) {
+        if (!site) { site = pb.SiteService.GLOBAL_SITE }
         if (!AnalyticsManager.isRegistered(name, site)) {
             return false;
         }
