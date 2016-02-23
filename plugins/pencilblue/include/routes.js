@@ -69,7 +69,7 @@ module.exports = function Routes(pb){
         },
         {
             method: 'post',
-            path: '/actions/admin/localization',
+            path: '/api/localizations/overrides',
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
             inactive_site_access: true,
@@ -78,7 +78,7 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
-            path: '/actions/admin/localization',
+            path: '/api/localizations/overrides',
             auth_required: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
             inactive_site_access: true,

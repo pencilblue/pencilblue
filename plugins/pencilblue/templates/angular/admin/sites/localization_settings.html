@@ -7,7 +7,7 @@
                 $scope.getAllLocalizations = function() {
                     if($scope.currentPlugin && $scope.currentLocale && $scope.site){
 
-                        $http.get('/actions/admin/localization?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&site=' + $scope.site)
+                        $http.get('/api/localizations/overrides?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&site=' + $scope.site)
                             .success(function (result) {
                                 $scope.allLocales = result.message;
                                 var siteSpecificLocales = [];
@@ -118,7 +118,7 @@
 
                     angular.element('#progress_modal').modal();
 
-                    $http.post('/actions/admin/localization', payload)
+                    $http.post('/api/localizations/overrides', payload)
                             .success(function (result) {
                                 console.log(result);//$scope.onCreateOrEditComplete(result);
                             })
