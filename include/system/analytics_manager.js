@@ -56,7 +56,8 @@ module.exports = function AnalyticsManagerModule(pb) {
      */
     AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
         var site = this.site;
-        var tasks = util.getTasks(Object.keys(PROVIDER_HOOKS[site]), function(keys, i) {
+        var providerKeys = getKeys(site);
+        var tasks = util.getTasks(providerKeys, function(keys, i) {
             return function(callback) {
                 if (pb.log.isSilly()) {
                     pb.log.silly("AnalyticsManager: Rendering provider [%s] for URL [%s:%s]", keys[i], req.method, req.url);
@@ -71,7 +72,11 @@ module.exports = function AnalyticsManagerModule(pb) {
 
                 var d = domain.create();
                 d.run(function() {
-                    PROVIDER_HOOKS[site][keys[i]](req, session, ls, function(err, result) {
+                    var provider = PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE];
+                    if (PROVIDER_HOOKS[site] && PROVIDER_HOOKS[site][keys[i]]) {
+                        provider = PROVIDER_HOOKS[site];
+                    }
+                    provider[keys[i]](req, session, ls, function(err, result) {
                         if (util.isError(err)) {
                             pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", keys[i], req.method, req.url, err.stack);
                         }
@@ -177,7 +182,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      */
     AnalyticsManager.onPageRender = function(req, session, ls, cb) {
         var site = pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null;
-        if (!PROVIDER_HOOKS[site] || Object.keys(PROVIDER_HOOKS[site]).length === 0) {
+        if (checkForHook(site)) {
             //short circuit when there are not tasks for the site.
             return cb(null, '');
         }
@@ -185,8 +190,20 @@ module.exports = function AnalyticsManagerModule(pb) {
         managerInstance.gatherData(req, session, ls, cb);
     };
 
+    function checkForHook(site) {
+        return !PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE] ||
+            Object.keys(PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE]).length === 0
+        !PROVIDER_HOOKS[site] ||
+        Object.keys(PROVIDER_HOOKS[site]).length === 0;
+    }
 
-
+    function getKeys(site) {
+        var keyArray = Object.keys(PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE]) || [];
+        if(PROVIDER_HOOKS[site] && Object.keys(PROVIDER_HOOKS[site]).length > 0) {
+            return keyArray.concat(Object.keys(PROVIDER_HOOKS[site]))
+        }
+        return keyArray;
+    }
 
 
     //exports
