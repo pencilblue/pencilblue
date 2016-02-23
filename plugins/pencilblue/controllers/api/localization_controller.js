@@ -20,7 +20,8 @@ module.exports = function LocalizationApiControllerModule(pb) {
     //pb dependencies
     var util = pb.util;
     var dbLocalizationService = require("../../services/localization/db_localizations.js");
-    var siteLocalizationService = require("../../services/localization/site_localizations.js");
+    var siteLocalizationService = require("../../services/localization/file_localizations.js");
+
     /**
      *
      * @class LocalizationApiController
