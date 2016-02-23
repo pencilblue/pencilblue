@@ -72,7 +72,7 @@ module.exports = function AnalyticsManagerModule(pb) {
 
                 var d = domain.create();
                 d.run(function() {
-                    var provider = PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE];
+                    var provider = PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE] || [];
                     if (PROVIDER_HOOKS[site] && PROVIDER_HOOKS[site][keys[i]]) {
                         provider = PROVIDER_HOOKS[site];
                     }
