@@ -52,8 +52,9 @@ module.exports = function(pb) {
         var self = this;
         self.query = post;
         self.getLocalesFromFile(function(err, pluginsJsonFileObj) {
-            if (err)
+            if (err) {
                 throw err;
+            }
             if (pluginsJsonFileObj) {
                 var obj = {};
                 post.translations.forEach(function (element) {
@@ -84,8 +85,9 @@ module.exports = function(pb) {
         };
 
         queryService.q(col, opts, function (err, doc) {
-            if(!doc[0])
+            if(!doc[0]) {
                 doc = {_id: post.site, storage: {}};
+            }
             else{
                 doc= doc[0];
             }
@@ -121,7 +123,6 @@ module.exports = function(pb) {
     function formatDocument(element, data){
 
         var locale = splitLocale(data.lang);
-        var isKeyText = "__isKey";
         var pluginText = "__plugins";
         var document = {};
         document.__isKey = true;
@@ -188,9 +189,9 @@ module.exports = function(pb) {
         fs.readFile(filepath, "utf-8", function (err, data) {
             if (err)
             {
-                if(err.toString().indexOf("no such file or directory") != -1)
+                if(err.toString().indexOf("no such file or directory") !== -1) {
                     return cb(null, {});
-
+                }
                 return cb(err);
             }
 
@@ -208,8 +209,9 @@ module.exports = function(pb) {
         var self = this;
         var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
         fs.writeFile(filepath, locales, function (err) {
-            if (err)
+            if (err) {
                 throw err;
+            }
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Locales were saved successfully')});
         });
     };
@@ -244,17 +246,20 @@ module.exports = function(pb) {
     function checkKeyObject(keyObj,localeObj,selectedPlugin){
         if(keyObj[localeObj.language]){
             if(keyObj[localeObj.language][localeObj.country]){
-                if(keyObj[localeObj.language][localeObj.country].__plugins)
-                    if(keyObj[localeObj.language][localeObj.country].__plugins[selectedPlugin])
+                if(keyObj[localeObj.language][localeObj.country].__plugins) {
+                    if (keyObj[localeObj.language][localeObj.country].__plugins[selectedPlugin]) {
                         return keyObj[localeObj.language][localeObj.country].__plugins[selectedPlugin].value;
+                    }
+                }
             }
         }
         return '';
     }
+
     function splitLocale(lang){
         var locale = {country:'', language:''};
         var langObj = lang.split('-');
-        if(langObj.length != 2){
+        if(langObj.length !== 2){
             return new Error('lang couldnt be split into locale');
         }
         locale.language = "__" + langObj[0];
