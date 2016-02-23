@@ -371,12 +371,16 @@ Configuration.getBaseConfig = function(multisite) {
 
         //Contains all of the configuration for localization and internationalization.
         localization: {
+
             //enables/disables localization service using the database
             "db":false,
+
             //enables/disables localization directives being resolved in the nav
             "nav":false,
+
             //enables/disables localization directives being resolved in the content pages
             "pages": false,
+
             //The default locale is the fallback when localization fails for the user's desired language.
             defaultLocale: 'en-US'
         },

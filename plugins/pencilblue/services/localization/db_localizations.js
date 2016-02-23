@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 var path = require('path');
 var fs = require('fs');
 
@@ -25,57 +26,13 @@ module.exports = function(pb) {
     /**
      * Saves the site's Localization settings
      */
-    function Localization(){}
-    util.inherits(Localization, pb.BaseAdminController);
+    function Localization(options){
+        this.site = options.site;
+        this.query = options.query;
+    }
+    util.inherits(Localization, pb.BaseObjectService);
 
-    Localization.prototype.render = function(cb) {
-        var self = this;
-
-        this.getJSONPostParams(function(err, post) {
-            if(util.isError(err)) {
-                return cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), err)
-                });
-            }
-
-            if(pb.config.localization && pb.config.localization.db){
-                return self.saveLocalesToDatabase(post, cb);
-            }
-
-            Localization.prototype.saveLocalesToFile(post, cb);
-        });
-
-    };
-
-    Localization.prototype.saveLocalesToFile = function(post, cb){
-        var self = this;
-        self.query = post;
-        self.getLocalesFromFile(function(err, pluginsJsonFileObj) {
-            if (err) {
-                throw err;
-            }
-            if (pluginsJsonFileObj) {
-                var obj = {};
-                post.translations.forEach(function (element) {
-                    obj[element.key] = element.value;
-                });
-                pluginsJsonFileObj[post.site] = obj;
-                try {
-                    pluginsJsonFileObj = JSON.stringify(pluginsJsonFileObj);
-                } catch (e) {
-                    pb.log.error(e);
-                    return cb({
-                        code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), e)
-                    });
-                }
-                self.sendLocalesToFile(pluginsJsonFileObj, cb);
-            }
-        });
-    };
-
-    Localization.prototype.saveLocalesToDatabase = function(post, cb){
+    Localization.prototype.saveLocales = function(post, cb){
         var self = this;
         var col = "localizations";
         var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
@@ -120,6 +77,27 @@ module.exports = function(pb) {
         });
     };
 
+    Localization.prototype.getLocales = function(cb){
+        var self = this;
+        var col = "localizations";
+        var opts = {
+            where: {_id: self.query.site}
+        };
+        var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
+
+        queryService.q(col, opts, function (err, result) {
+            if (util.isError(err)) {
+                pb.log.error(err);
+                return cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                });
+            }
+            var displayObj = convertLocalesToDisplayObject(self.query.lang, self.query.plugin, result[0]);
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, displayObj)});
+        });
+    };
+
     function formatDocument(element, data){
 
         var locale = splitLocale(data.lang);
@@ -141,80 +119,6 @@ module.exports = function(pb) {
         return document;
 
     }
-
-    Localization.prototype.getLocales = function (cb) {
-        var self = this;
-
-        if (!self.query.site || !self.query.plugin || !self.query.lang) {
-            return cb({
-                code: 500,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no site passed in')
-            });
-        }
-
-        if (pb.config.localization && pb.config.localization.db) {
-            self.getLocalesFromDB(cb);
-        }
-        else{
-            self.getLocalesFromFile(function(err, data){
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, data)});
-            });
-        }
-    };
-
-    Localization.prototype.getLocalesFromDB = function(cb){
-        var self = this;
-        var col = "localizations";
-        var opts = {
-            where: {_id: self.query.site}
-        };
-        var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
-
-        queryService.q(col, opts, function (err, result) {
-            if (util.isError(err)) {
-                pb.log.error(err);
-                return cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-                });
-            }
-            var displayObj = convertLocalesToDisplayObject(self.query.lang, self.query.plugin, result[0]);
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, displayObj)});
-        });
-    };
-
-    Localization.prototype.getLocalesFromFile = function(cb){
-        var self = this;
-        var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
-        fs.readFile(filepath, "utf-8", function (err, data) {
-            if (err)
-            {
-                if(err.toString().indexOf("no such file or directory") !== -1) {
-                    return cb(null, {});
-                }
-                return cb(err);
-            }
-
-            if (data) {
-                try {
-                    cb(null, JSON.parse(data));
-                } catch (e) {
-                    cb(e);
-                }
-            }
-        });
-    };
-
-    Localization.prototype.sendLocalesToFile = function(locales, cb){
-        var self = this;
-        var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
-        fs.writeFile(filepath, locales, function (err) {
-            if (err) {
-                throw err;
-            }
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'Locales were saved successfully')});
-        });
-    };
 
     function convertLocalesToDisplayObject(lang, selectedPlugin, data){
         if(!data || !data.storage){
@@ -266,7 +170,6 @@ module.exports = function(pb) {
         locale.country = "__" + langObj[1];
         return locale;
     }
-
 
     //exports
     return Localization;

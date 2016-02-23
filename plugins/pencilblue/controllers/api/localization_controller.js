@@ -16,21 +16,28 @@
 */
 
 module.exports = function LocalizationApiControllerModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-
+    var dbLocalizationService = require("../../services/localization/db_localizations.js");
+    var siteLocalizationService = require("../../services/localization/site_localizations.js");
     /**
-     * 
+     *
      * @class LocalizationApiController
      * @constructor
      * @extends BaseController
      */
-    function LocalizationApiController(){}
+    function LocalizationApiController(){
+        if(pb.config.localization && pb.config.localization.db){
+            this.localizationService = new dbLocalizationService();
+        } else {
+            this.localizationService = new siteLocalizationService();
+        }
+    }
     util.inherits(LocalizationApiController, pb.BaseController);
 
     /**
-     * Retrieves the translation file and converts it to a JSON.  It then formats 
+     * Retrieves the translation file and converts it to a JSON.  It then formats
      * it such that it is valid javascript that can be executed client side.
      * @method getAsScript
      * @param {Function} cb
@@ -38,13 +45,34 @@ module.exports = function LocalizationApiControllerModule(pb) {
     LocalizationApiController.prototype.getAsScript = function(cb) {
         var locale = this.query.locale || this.ls.language;
         var plugin = this.query.plugin;
-        
+
         var package = pb.Localization.getLocalizationPackage(locale, { plugin: plugin });
         var content = {
             content: 'var loc = ' + JSON.stringify(package) + ';',
             content_type: 'text/javascript'
         };
         cb(content);
+    };
+
+    LocalizationApiController.prototype.saveLocales = function(cb) {
+        var post = this.body;
+        this.localizationService.saveLocales(post, cb);
+    };
+
+    LocalizationApiController.prototype.getLocales = function (cb) {
+        var self = this;
+
+        if (!self.query.site || !self.query.plugin || !self.query.lang) {
+            return cb({
+                code: 500,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no site passed in')
+            });
+        }
+
+        self.localizationService.getLocales(self.query, function(err, data){
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, data)});
+        });
+
     };
 
     //exports
