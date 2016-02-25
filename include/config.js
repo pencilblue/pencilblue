@@ -373,7 +373,7 @@ Configuration.getBaseConfig = function(multisite) {
         localization: {
 
             //enables/disables localization service using the database
-            "db":false,
+            "db":true,
 
             //enables/disables localization directives being resolved in the nav
             "nav":false,

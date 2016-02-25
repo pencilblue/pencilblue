@@ -19,8 +19,10 @@ module.exports = function LocalizationApiControllerModule(pb) {
 
     //pb dependencies
     var util = pb.util;
-    var dbLocalizationService = require("../../services/localization/db_localizations.js");
-    var siteLocalizationService = require("../../services/localization/file_localizations.js");
+
+    //services
+    var dbLocalizationService = require("../../services/localization/db_localizations.js")(pb);
+    var fileLocalizationService = require("../../services/localization/file_localizations.js")(pb);
 
     /**
      *
@@ -30,9 +32,9 @@ module.exports = function LocalizationApiControllerModule(pb) {
      */
     function LocalizationApiController(){
         if(pb.config.localization && pb.config.localization.db){
-            this.localizationService = new dbLocalizationService();
+            this.saveLocaleService = new dbLocalizationService();
         } else {
-            this.localizationService = new siteLocalizationService();
+            this.saveLocaleService = new fileLocalizationService();
         }
     }
     util.inherits(LocalizationApiController, pb.BaseController);
@@ -57,7 +59,7 @@ module.exports = function LocalizationApiControllerModule(pb) {
 
     LocalizationApiController.prototype.saveLocales = function(cb) {
         var post = this.body;
-        this.localizationService.saveLocales(post, cb);
+        this.saveLocaleService.saveLocales(post, cb);
     };
 
     LocalizationApiController.prototype.getLocales = function (cb) {
@@ -70,10 +72,15 @@ module.exports = function LocalizationApiControllerModule(pb) {
             });
         }
 
-        self.localizationService.getLocales(self.query, function(err, data){
+        self.saveLocaleService.getLocales(self.query, function(err, data){
+            if(err){
+                return cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'found no locales for this site/lang/plugin combination')
+                });
+            }
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, data)});
         });
-
     };
 
     //exports

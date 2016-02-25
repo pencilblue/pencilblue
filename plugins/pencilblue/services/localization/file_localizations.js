@@ -20,10 +20,7 @@ var fs = require('fs');
 
 module.exports = function(pb) {
 
-    function Localization(options){
-        this.site = options.site;
-        this.query = options.query;
-    }
+    function Localization(){}
 
     Localization.prototype.saveLocales = function(post, cb){
         var self = this;
@@ -47,7 +44,7 @@ module.exports = function(pb) {
                         content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), e)
                     });
                 }
-                sendLocalesToFile(self, pluginsJsonFileObj, cb);
+                sendLocalesToFile(post, pluginsJsonFileObj, cb);
             }
         });
     };
@@ -73,8 +70,8 @@ module.exports = function(pb) {
         });
     };
 
-    function sendLocalesToFile(self, locales, cb){
-        var filepath = path.join(pb.config.docRoot, 'plugins', self.query.plugin, 'public', 'localization', self.query.lang + '.json');
+    function sendLocalesToFile(post, locales, cb){
+        var filepath = path.join(pb.config.docRoot, 'plugins', post.plugin, 'public', 'localization', post.lang + '.json');
         fs.writeFile(filepath, locales, function (err) {
             if (err) {
                 throw err;

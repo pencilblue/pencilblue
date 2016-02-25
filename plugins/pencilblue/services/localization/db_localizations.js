@@ -26,75 +26,69 @@ module.exports = function(pb) {
     /**
      * Saves the site's Localization settings
      */
-    function Localization(options){
-        this.site = options.site;
-        this.query = options.query;
+    function Localization(context){
+        if (!util.isObject(context)) {
+            context = {};
+        }
+
+        context.type = "localizations";
+        Localization.super_.call(this, context);
+        this.dao = new pb.DAO();
     }
     util.inherits(Localization, pb.BaseObjectService);
 
     Localization.prototype.saveLocales = function(post, cb){
         var self = this;
         var col = "localizations";
-        var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
-
         var opts = {
-            where: {_id: self.query.site}
+            where: {_id:post.site}
         };
-
-        queryService.q(col, opts, function (err, doc) {
-            if(!doc[0]) {
+        this.getSingle(opts, function (err, doc) {
+            if(!doc || !doc.storage) {
                 doc = {_id: post.site, storage: {}};
             }
-            else{
-                doc= doc[0];
-            }
+
             var objectHead = doc.storage;
-            if (self.site) {
-                doc.storage[self.site] = doc.storage[self.site] || {isSite: true, isKey: true};
-                objectHead = doc.storage[self.site];
+            if (post.site) {
+                doc.storage[post.site] = doc.storage[post.site] || {isSite: true, isKey: true};
+                objectHead = doc.storage[post.site];
             }
 
             for (var i = 0; i < post.translations.length; i++) {
                 var keysBody = formatDocument(post.translations[i], post);
                 var key = post.translations[i].key;
-                objectHead[key] = util.deepMerge(keysBody, doc.storage[self.site][key]);
+                objectHead[key] = util.deepMerge(keysBody, doc.storage[post.site][key]);
             }
 
             var siteDocument = pb.DocumentCreator.create(col, doc);
 
 
-            queryService.save(siteDocument, function (err, result) {
+            self.dao.save(siteDocument, function (err, result) {
                 if (util.isError(err)) {
                     pb.log.error(err);
                     return cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'ERROR_SAVING', result)
                     });
                 }
 
-                return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVED'))});
+                return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'SAVED')});
             });
         });
     };
 
-    Localization.prototype.getLocales = function(cb){
+    Localization.prototype.getLocales = function(post, cb){
         var self = this;
-        var col = "localizations";
         var opts = {
-            where: {_id: self.query.site}
+            where: {_id:post.site}
         };
-        var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
-
-        queryService.q(col, opts, function (err, result) {
+        this.getSingle(opts, function (err, result) {
             if (util.isError(err)) {
                 pb.log.error(err);
-                return cb({
-                    code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
-                });
+                return cb(pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'ERROR_SAVING', result));
             }
-            var displayObj = convertLocalesToDisplayObject(self.query.lang, self.query.plugin, result[0]);
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, displayObj)});
+            var displayObj = convertLocalesToDisplayObject(post.lang, post.plugin, post.site, result);
+            cb(null, displayObj);
         });
     };
 
@@ -120,11 +114,11 @@ module.exports = function(pb) {
 
     }
 
-    function convertLocalesToDisplayObject(lang, selectedPlugin, data){
+    function convertLocalesToDisplayObject(lang, selectedPlugin, site, data){
         if(!data || !data.storage){
             data = { storage: {}};
         }
-        var siteLocs = data.storage[data.site] || {};
+        var siteLocs = data.storage[site] || {};
         var localeObj = splitLocale(lang);
         var displayObj = {};
 
