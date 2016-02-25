@@ -259,6 +259,7 @@ module.exports = function PB(config) {
     pb.PageRenderer         = require(path.join(config.docRoot, '/include/service/entities/content/page_renderer.js'))(pb);
     pb.PageService          = require(path.join(config.docRoot, '/include/service/entities/content/page_service.js'))(pb);
     pb.ContentViewLoader    = require(path.join(config.docRoot, '/include/service/entities/content/content_view_loader.js'))(pb);
+    pb.NavigationItemService = require(path.join(config.docRoot, '/include/service/entities/content/navigation_item_service.js'))(pb);
 
     pb.SiteMapService = require(path.join(config.docRoot, '/include/service/entities/site_map_service.js'))(pb);
 

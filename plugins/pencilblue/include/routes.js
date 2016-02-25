@@ -1218,6 +1218,26 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/navigation_map_api_controller.js')
         },
+        {
+            method: 'get',
+            path: "/api/content/navigation/items",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/navigation_item_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/navigation/items/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/navigation_item_api_controller.js')
+        },
 
         //articles
         {

@@ -16,7 +16,7 @@
 */
 
 //dependencies
-var util = require('../../util.js');
+var util = require('../../../util.js');
 
 module.exports = function(pb) {
 
@@ -30,7 +30,7 @@ module.exports = function(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'navigation_item';
+    var TYPE = 'section';//'navigation_item';
 
     var CONTAINER = 'container';
     var SECTION = 'section';
@@ -77,20 +77,18 @@ module.exports = function(pb) {
      * @param {Object} navItem
      * @param {Function} cb
      */
-    NavigationItemService.prototype.validate = function(navItem, cb) {
+    NavigationItemService.prototype.validate = function(context, cb) {
         var self   = this;
-        var errors = [];
+        var errors = context.validationErrors;
         if (!util.isObject(navItem)) {
             errors.push({field: '', message: 'A valid navigation item must be provided'});
-            cb(null, errors);
-            return;
+            return cb(null, errors);
         }
 
         //verify type
         if (!NavigationItemService.isValidType(navItem.type)) {
             errors.push({field: 'type', message: 'An invalid type ['+navItem.type+'] was provided'});
-            cb(null, errors);
-            return;
+            return cb(null, errors);
         }
 
         //name
@@ -117,17 +115,17 @@ module.exports = function(pb) {
 
             //validate for each type of nav item
             switch(navItem.type) {
-            case 'container':
+            case CONTAINER:
                 onDone(null, []);
                 break;
-            case 'section':
+            case SECTION:
                 self.validateSectionNavItem(navItem, onDone);
                 break;
-            case 'article':
-            case 'page':
+            case ARTICLE:
+            case PAGE:
                 self.validateContentNavItem(navItem, onDone);
                 break;
-            case 'link':
+            case LINK:
                 self.validateLinkNavItem(navItem, onDone);
                 break;
             default:
@@ -160,14 +158,13 @@ module.exports = function(pb) {
      */
     NavigationItemService.prototype.validateNavItemName = function(navItem, cb) {
         if (!pb.validation.validateNonEmptyStr(navItem.name, true) || navItem.name === 'admin') {
-            cb(null, {field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
-            return;
+            return cb(null, {field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
         }
 
         var where = {
             name: navItem.name
         };
-        this.siteQueryService.unique('section', where, navItem[pb.DAO.getIdField()], function(err, unique) {
+        this.dao.unique(TYPE, where, navItem[pb.DAO.getIdField()], function(err, unique) {
             var error = null;
             if (!unique) {
                 error = {field: 'name', message: 'The provided name is not unique'};
@@ -188,14 +185,14 @@ module.exports = function(pb) {
         var tasks  = [
 
             //parent
-            function(callback) {
-                self.validateNavItemParent(navItem.parent, function(err, validationError) {
-                    if (validationError) {
-                        errors.push(validationError);
-                    }
-                    callback(err, null);
-                });
-            },
+//            function(callback) {
+//                self.validateNavItemParent(navItem.parent, function(err, validationError) {
+//                    if (validationError) {
+//                        errors.push(validationError);
+//                    }
+//                    callback(err, null);
+//                });
+//            },
 
             //content
             function(callback) {
@@ -227,7 +224,7 @@ module.exports = function(pb) {
             function(callback) {
 
                 var params = {
-                    type: 'section',
+                    type: TYPE,
                     id: navItem[pb.DAO.getIdField()],
                     url: navItem.url,
                     site: self.site
@@ -242,14 +239,14 @@ module.exports = function(pb) {
             },
 
             //parent
-            function(callback) {
-                self.validateNavItemParent(navItem.parent, function(err, validationError) {
-                    if (validationError) {
-                        errors.push(validationError);
-                    }
-                    callback(err, null);
-                });
-            },
+//            function(callback) {
+//                self.validateNavItemParent(navItem.parent, function(err, validationError) {
+//                    if (validationError) {
+//                        errors.push(validationError);
+//                    }
+//                    callback(err, null);
+//                });
+//            },
 
             //editor
             function(callback) {
@@ -272,30 +269,30 @@ module.exports = function(pb) {
      * @param {String} parent
      * @param {Function} cb
      */
-    NavigationItemService.prototype.validateNavItemParent = function(parent, cb) {
-
-        var error = null;
-        if (!pb.validation.validateNonEmptyStr(parent, false)) {
-            error = {field: 'parent', message: 'The parent must be a valid nav item container ID'};
-            cb(null, error);
-        }
-        else if (parent) {
-
-            //ensure parent exists
-            var where = pb.DAO.getIdWhere(parent);
-            where.type = 'container';
-            var dao = new pb.DAO();
-            dao.count('section', where, function(err, count) {
-                if (count !== 1) {
-                    error = {field: 'parent', message: 'The parent is not valid'};
-                }
-                cb(err, error);
-            });
-        }
-        else {
-            cb(null, null);
-        }
-    };
+//    NavigationItemService.prototype.validateNavItemParent = function(parent, cb) {
+//
+//        var error = null;
+//        if (!pb.validation.validateNonEmptyStr(parent, false)) {
+//            error = {field: 'parent', message: 'The parent must be a valid nav item container ID'};
+//            cb(null, error);
+//        }
+//        else if (parent) {
+//
+//            //ensure parent exists
+//            var where = pb.DAO.getIdWhere(parent);
+//            where.type = 'container';
+//            var dao = new pb.DAO();
+//            dao.count('section', where, function(err, count) {
+//                if (count !== 1) {
+//                    error = {field: 'parent', message: 'The parent is not valid'};
+//                }
+//                cb(err, error);
+//            });
+//        }
+//        else {
+//            cb(null, null);
+//        }
+//    };
 
     /**
      *
@@ -315,8 +312,7 @@ module.exports = function(pb) {
 
         //ensure content exists
         var where = pb.DAO.getIdWhere(content);
-        var dao   = new pb.DAO();
-        dao.count(type, where, function(err, count) {
+        this.dao.count(type, where, function(err, count) {
             if (count !== 1) {
                 error = {field: 'item', message: 'The content is not valid'};
             }
@@ -360,6 +356,8 @@ module.exports = function(pb) {
     NavigationItemService.format = function(context, cb) {
         var dto = context.data;
         dto.name = pb.BaseController.sanitize(dto.name);
+        dto.description = pb.BaseController.sanitize(dto.description);
+        NavigationItemService.trimForType(dto);
         cb(null);
     };
 
@@ -373,7 +371,16 @@ module.exports = function(pb) {
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     NavigationItemService.merge = function(context, cb) {
-        context.object.name = context.data.name;
+        var dto = context.data;
+        var obj = context.object;
+        obj.name = dto.name;
+        obj.description = dto.description
+        obj.type = dto.type;
+        obj.link = dto.link;
+        obj.url = dto.url;
+        obj.new_tab = dto.new_tab;
+        obj.item = dto.item;
+        obj.editor = dto.editor;
         cb(null);
     };
 
@@ -388,28 +395,27 @@ module.exports = function(pb) {
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     NavigationItemService.validate = function(context, cb) {
-        var obj = context.data;
         var errors = context.validationErrors;
-
-        if (!pb.ValidationService.isNonEmptyStr(obj.name, true)) {
-            errors.push(BaseObjectService.validationFailure('name', 'Name is required'));
-
-            //no need to check the DB.  Short circuit it here
-            return cb(null, errors);
-        }
-
-        //validate name is not taken
-        var where = pb.DAO.getNotIdWhere(obj[pb.DAO.getIdField()]);
-        where.name = new RegExp('^' + util.escapeRegExp(obj.name) + '$', 'i');
-        context.service.dao.exists(TYPE, where, function(err, exists) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            else if (exists) {
-                errors.push(BaseObjectService.validationFailure('name', 'Name already exists'));
-            }
-            cb(null, errors);
-        });
+        context.service.validate(context);
+//        if (!pb.ValidationService.isNonEmptyStr(obj.name, true)) {
+//            errors.push(BaseObjectService.validationFailure('name', 'Name is required'));
+//
+//            //no need to check the DB.  Short circuit it here
+//            return cb(null, errors);
+//        }
+//
+//        //validate name is not taken
+//        var where = pb.DAO.getNotIdWhere(obj[pb.DAO.getIdField()]);
+//        where.name = new RegExp('^' + util.escapeRegExp(obj.name) + '$', 'i');
+//        context.service.dao.exists(TYPE, where, function(err, exists) {
+//            if (util.isError(err)) {
+//                return cb(err);
+//            }
+//            else if (exists) {
+//                errors.push(BaseObjectService.validationFailure('name', 'Name already exists'));
+//            }
+//            cb(null, errors);
+//        });
     };
 
     /**
@@ -469,7 +475,7 @@ module.exports = function(pb) {
      */
     NavigationItemService.trimForType = function(navItem) {
         if (navItem.type === CONTAINER) {
-            navItem.parent = null;
+            //navItem.parent = null;
             navItem.url    = null;
             navItem.editor = null;
             navItem.item   = null;
@@ -492,6 +498,7 @@ module.exports = function(pb) {
             navItem.url    = null;
             navItem.item   = null;
         }
+        //we don't care about the else condition.  We'll find the type invalid in the validation
     };
 
     //Event Registries
