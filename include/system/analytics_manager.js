@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2016  PencilBlue, LLC
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,14 +22,35 @@ var util   = require('../util.js');
 
 module.exports = function AnalyticsManagerModule(pb) {
 
+    //pb dependencies
+    var ValidationService = pb.ValidationService;
+
     /**
      * Provides functionality to render HTML snippets to report metrics back to
      * registered analytics providers.
      * @class AnalyticsManager
      * @constructor
+     * @param {Object} options
+     * @param {String} [options.site='global']
+     * @param {Integer} [options.timeout=25] The amount of time, in
+     * milliseconds, that the manager will wait for each provider to render.
      */
     function AnalyticsManager(options) {
+
+        /**
+         * The site context for the instance
+         * @property site
+         * @type {String}
+         */
         this.site = options.site || pb.SiteService.GLOBAL_SITE;
+
+        /**
+         * The amount of time, in milliseconds, that the manager will wait for
+         * each provider to render.
+         * @property timeout
+         * @type {Integer}
+         */
+        this.timeout = options.timeout || DEFAULT_TIMEOUT;
     }
 
     /**
@@ -41,6 +62,28 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @type {Object}
      */
     var PROVIDER_HOOKS = {};
+
+    /**
+     * The default amount of time, in milliseconds that the manager will wait
+     * for each provider to render.
+     * @private
+     * @static
+     * @readonly
+     * @property DEFAULT_TIMEOUT
+     * @type {Integer}
+     */
+    var DEFAULT_TIMEOUT = 25;
+
+    /**
+     * The value provided as the result of the rendering when there is nothing
+     * to perform for a task
+     * @private
+     * @static
+     * @readonly
+     * @property DEFAULT_RESULT
+     * @type {String}
+     */
+    var DEFAULT_RESULT = '';
 
     /**
      * Takes the provided request and session then checks with each of the
@@ -56,55 +99,97 @@ module.exports = function AnalyticsManagerModule(pb) {
      */
     AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
         var site = this.site;
-        var providerKeys = getKeys(site);
+        var timeout = this.timeout
+
+        //retrieve keys and ensure there are providers to process
+        var providerKeys = AnalyticsManager.getKeys(site);
+        if (providerKeys.length === 0) {
+            return cb(null, DEFAULT_RESULT);
+        }
+
+        //build the task list
+        var self = this;
         var tasks = util.getTasks(providerKeys, function(keys, i) {
-            return function(callback) {
-                if (pb.log.isSilly()) {
-                    pb.log.silly("AnalyticsManager: Rendering provider [%s] for URL [%s:%s]", keys[i], req.method, req.url);
-                }
-
-                var th = setTimeout(function() {
-                    pb.log.warn("AnalyticsManager: Rendering for provider [%s] timed out", keys[i]);
-
-                    th = null;
-                    callback(null, '');
-                }, 25);
-
-                var d = domain.create();
-                d.run(function() {
-                    var provider = PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE] || [];
-                    if (PROVIDER_HOOKS[site] && PROVIDER_HOOKS[site][keys[i]]) {
-                        provider = PROVIDER_HOOKS[site];
-                    }
-                    provider[keys[i]](req, session, ls, function(err, result) {
-                        if (util.isError(err)) {
-                            pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", keys[i], req.method, req.url, err.stack);
-                        }
-
-                        if (th) {
-                            clearTimeout(th);
-                            th = null;
-
-                            //the error is left out on purpose.  It is logged above
-                            //and we want all other providers to have a chance.
-                            callback(null, result);
-                        }
-                    });
-                });
-                d.on('error', function(err) {
-                    pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", keys[i], req.method, req.url, err.stack);
-                    if (th) {
-                        clearTimeout(th);
-                        th = null;
-
-                        callback(null, '');
-                    }
-                });
-            };
+            return self.buildRenderTask(keys[i], req, session, ls);
         });
         async.parallel(tasks, function(err, results) {
             cb(err, new pb.TemplateValue(results.join(''), false));
         });
+    };
+
+    AnalyticsManager.prototype.buildRenderTask = function(key, req, session, ls) {
+        var site = this.site;
+        var timeout = this.timeout;
+
+        return function(callback) {
+            if (pb.log.isSilly()) {
+                pb.log.silly("AnalyticsManager: Rendering provider [%s] for URL [%s:%s]", keys[i], req.method, req.url);
+            }
+
+            //build context object for builder functions to have access to params
+            var opts = {
+                method: req.method,
+                url: req.url,
+                key: key,
+                callback: callback,
+                th: null
+            };
+            opts.th = setTimeout(AnalyticsManager.buildTimeoutHandler(opts), timeout);
+
+            //create a domain for the task to operate within
+            var d = domain.create();
+            d.run(function() {
+                var provider = PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE] || [];
+                if (PROVIDER_HOOKS[site] && PROVIDER_HOOKS[site][key]) {
+                    provider = PROVIDER_HOOKS[site];
+                }
+                provider[key](req, session, ls, AnalyticsManager.buildProviderResponseHandler(opts));
+            });
+            d.once('error', AnalyticsManager.buildDomainErrorHandler(opts));
+        };
+    };
+
+    AnalyticsManager.buildProviderResponseHandler = function(opts) {
+        return function(err, result) {
+            if (util.isError(err)) {
+                pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", opts.key, opts.method, opts.url, err.stack);
+            }
+
+            //we only callback if the timeout handle exists.  When
+            //null, it means that the task already timed out and we
+            //shouldn't attempt to send back a result.
+            if (opts.th !== null) {
+                clearTimeout(opts.th);
+                opts.th = null;
+
+                //the error is left out on purpose.  It is logged above
+                //and we want all other providers to have a chance.
+                opts.callback(null, result);
+            }
+        };
+    };
+
+    AnalyticsManager.buildDomainErrorHandler = function(opts) {
+        return function(err) {
+            pb.log.error('AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s', opts.key, opts.method, opts.url, err.stack);
+
+            //only callback if the timeout handle is still in place
+            if (opts.th !== null) {
+                clearTimeout(opts.th);
+                opts.th = null;
+
+                opts.callback(null, DEFAULT_RESULT);
+            }
+        };
+    };
+
+    AnalyticsManager.buildTimeoutHandler = function(opts) {
+        return function() {
+            pb.log.warn("AnalyticsManager: Rendering for provider [%s] timed out", opts.key);
+
+            opts.th = null;
+            opts.callback(null, '');
+        };
     };
 
     /**
@@ -113,6 +198,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @static
      * @method registerProvider
      * @param {String} name The provider's name
+     * @param {String} [site='global']
      * @param {Function} onPageRendering A function that is called for every
      * requests that intends to execute HTML snippets to track analytics.  The
      * function is expected to take 4 parameters.  The first is the current Request
@@ -123,11 +209,13 @@ module.exports = function AnalyticsManagerModule(pb) {
      * plugin.
      */
     AnalyticsManager.registerProvider = function(name, site, onPageRendering) {
-        if (typeof site === 'function') {
+        if (util.isFunction(site)) {
             onPageRendering = site;
             site = pb.SiteService.GLOBAL_SITE;
         }
-        if (!pb.validation.validateNonEmptyStr(name) || AnalyticsManager.isRegistered(name, site) || !util.isFunction(onPageRendering)) {
+
+        if (!ValidationService.validateNonEmptyStr(name, true) ||
+            !util.isFunction(onPageRendering) || AnalyticsManager.isRegistered(name, site)) {
             return false;
         }
         if (!PROVIDER_HOOKS[site]) {
@@ -143,10 +231,13 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @static
      * @method unregisterProvider
      * @param {String} name
+     * @param {String} [site='global']
      * @return {Boolean} TRUE if was unregistered, FALSE if not found
      */
     AnalyticsManager.unregisterProvider = function(name, site) {
-        if (!site) { site = pb.SiteService.GLOBAL_SITE; }
+        if (!util.isString(site)) {
+            site = pb.SiteService.GLOBAL_SITE;
+        }
         if (!AnalyticsManager.isRegistered(name, site)) {
             return false;
         }
@@ -160,11 +251,15 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @static
      * @method isRegistered
      * @param {String} name The name of the analytics provider to check registration for
+     * @param {String} [site='global']
      * @return {Boolean} TRUE when the provider is registered, FALSE if not
      */
     AnalyticsManager.isRegistered = function(name, site) {
-        if (!site) { site = pb.SiteService.GLOBAL_SITE; }
-        return !(util.isNullOrUndefined(PROVIDER_HOOKS[site]) || util.isNullOrUndefined(PROVIDER_HOOKS[site][name]));
+        if (!util.isString(site)) {
+            site = pb.SiteService.GLOBAL_SITE;
+        }
+        return !util.isNullOrUndefined(PROVIDER_HOOKS[site]) &&
+            util.isFunction(PROVIDER_HOOKS[site][name]);
     };
 
     /**
@@ -181,30 +276,41 @@ module.exports = function AnalyticsManagerModule(pb) {
      * providers.
      */
     AnalyticsManager.onPageRender = function(req, session, ls, cb) {
-        var site = pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null;
-        if (checkForHook(site)) {
-            //short circuit when there are not tasks for the site.
-            return cb(null, '');
-        }
-        var managerInstance = new AnalyticsManager({ site: site });
+        var context = {
+            site: pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null
+        };
+        var managerInstance = new AnalyticsManager(context);
         managerInstance.gatherData(req, session, ls, cb);
     };
 
-    function checkForHook(site) {
-        return !PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE] ||
-            Object.keys(PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE]).length === 0
-        !PROVIDER_HOOKS[site] ||
-        Object.keys(PROVIDER_HOOKS[site]).length === 0;
-    }
+    AnalyticsManager.getKeys = function(site) {
+        var keyHash = {};
+        var keyFunc = keyHandler(keyHash);
 
-    function getKeys(site) {
-        var keyArray = Object.keys(PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE]) || [];
-        if(PROVIDER_HOOKS[site] && Object.keys(PROVIDER_HOOKS[site]).length > 0) {
-            return keyArray.concat(Object.keys(PROVIDER_HOOKS[site]))
+        //check for global keys.  They apply to all sites
+        if (PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE]) {
+            (Object.keys(PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE]) || []).forEach(keyFunc);
         }
-        return keyArray;
+
+        //check for non-global site keys
+        if(PROVIDER_HOOKS[site] && site !== pb.SiteService.GLOBAL_SITE) {
+            Object.keys(PROVIDER_HOOKS[site]).forEach(keyFunc);
+        }
+        return Object.keys(keyHash);
     }
 
+    /**
+     * @private
+     * @static
+     * @method keyHandler
+     * @param {Object} keyHash
+     * @return {Function}
+     */
+    function keyHandler(keyHash) {
+        return function(key) {
+            keyHash[key] = true;
+        };
+    }
 
     //exports
     return AnalyticsManager;
