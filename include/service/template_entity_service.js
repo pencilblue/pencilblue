@@ -38,8 +38,6 @@ module.exports = function TemplateEntityService(pb) {
         this.startMarker = startMarker;
         this.endMarker   = endMarker;
     }
-
-    //inheritance
     util.inherits(TemplateEntityService, pb.FSEntityService);
 
     /**
@@ -52,7 +50,6 @@ module.exports = function TemplateEntityService(pb) {
      */
     TemplateEntityService.prototype.get = function(key, cb){
         var self = this;
-
         var callback = function(err, content) {
 
             //log result
