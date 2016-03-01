@@ -4,7 +4,6 @@ node_js:
   - "0.12"
   - "4"
   - "iojs"
-  - "5"
 after_script:
   - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
   - rm -rf ./coverage
