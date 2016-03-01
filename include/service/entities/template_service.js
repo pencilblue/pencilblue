@@ -163,6 +163,15 @@ module.exports = function(pb) {
     var TEMPLATE_MIS_CACHE = {};
 
     /**
+     * The absolute path to the plugins directory
+     * @private
+     * @static
+     * @property CUSTOM_PATH_PREFIX
+     * @type {String}
+     */
+    var CUSTOM_PATH_PREFIX = path.join(pb.config.docRoot, 'plugins') + path.sep;
+
+    /**
      * A container that provides the mapping for global call backs.  These should
      * only be added to at the start of the application or on plugin install/update.
      *
@@ -340,7 +349,7 @@ module.exports = function(pb) {
             //now add the defalt if appropriate
             if (!TemplateService.isTemplateBlacklisted(pb.config.plugins.default, relativePath)) {
                 paths.push({
-                    plugin: activePlugins[i],
+                    plugin: pb.config.plugins.default,
                     path: TemplateService.getDefaultPath(relativePath)
                 });
             }
@@ -357,10 +366,11 @@ module.exports = function(pb) {
                     TEMPLATE_LOADER.get(paths[i].path, function(err, templateData) {
                         template = templateData;
                         doLoop   = util.isError(err) || !util.isObject(template);
-                        i++;
                         if (doLoop) {
                             TemplateService.blacklistTemplate(paths[i].plugin, relativePath);
                         }
+
+                        i++;
                         callback();
                     });
                 },
@@ -370,15 +380,6 @@ module.exports = function(pb) {
             );
         });
     };
-
-    TemplateService.isTemplateBlacklisted = function(theme, relativePath) {
-        return TEMPLATE_MIS_CACHE[theme + '|' + relativePath];
-    };
-
-    TemplateService.blacklistTemplate = function(theme, relativePath) {
-        pb.log.silly('TemplateService: Blacklisting template THEME=%s PATH=%s', theme, relativePath);
-        return (TEMPLATE_MIS_CACHE[theme + '|' + relativePath] = true);
-    }
 
     /**
      * Loads a template file along with any encountered sub-template files and
@@ -811,7 +812,7 @@ module.exports = function(pb) {
      * @return {string} The absolute path
      */
     TemplateService.getDefaultPath = function(templateLocation){
-        return path.join(pb.config.docRoot, 'plugins', pb.config.plugins.default, 'templates', templateLocation + '.html');
+        return CUSTOM_PATH_PREFIX + pb.config.plugins.default + '/templates/' + templateLocation + '.html';
     };
 
     /**
@@ -824,7 +825,7 @@ module.exports = function(pb) {
      * @return {string} The absolute path
      */
     TemplateService.getCustomPath = function(themeName, templateLocation){
-        return path.join(pb.config.docRoot, 'plugins', themeName, 'templates', templateLocation + '.html');
+        return CUSTOM_PATH_PREFIX + themeName + '/templates/' + templateLocation + '.html';
     };
 
     /**
@@ -902,6 +903,33 @@ module.exports = function(pb) {
             compiled.push(genPiece(TEMPLATE_PIECE_STATIC, text));
         }
         return compiled;
+    };
+
+    /**
+     * Checks to see if a template has been blacklisted
+     * @static
+     * @method isTemplateBlacklisted
+     * @param {String} theme
+     * @param {String} relativePath
+     * @return {Boolean}
+     */
+    TemplateService.isTemplateBlacklisted = function(theme, relativePath) {
+        return TEMPLATE_MIS_CACHE[theme + '|' + relativePath];
+    };
+
+    /**
+     * Blacklists a template for a theme.  This means that the template service
+     * will not consider this theme and path combination the next time it is
+     * prompted to check for its existence
+     * @static
+     * @method blacklistTemplate
+     * @param {String} theme
+     * @param {String} relativePath
+     * @return {Boolean}
+     */
+    TemplateService.blacklistTemplate = function(theme, relativePath) {
+        pb.log.silly('TemplateService: Blacklisting template THEME=%s PATH=%s', theme, relativePath);
+        return (TEMPLATE_MIS_CACHE[theme + '|' + relativePath] = true);
     };
 
     /**

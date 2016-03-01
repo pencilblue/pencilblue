@@ -64,6 +64,24 @@ module.exports = function AnalyticsManagerModule(pb) {
     var PROVIDER_HOOKS = {};
 
     /**
+     * Stores the registered runtime metrics for the providers
+     * @private
+     * @static
+     * @readonly
+     * @property STATS
+     * @type {Object}
+     */
+    var STATS = {
+        cumulative: {
+            count: 0,
+            average: 0,
+            min: Number.MAX_VALUE,
+            max: 0
+        },
+        providers: {}
+    };
+
+    /**
      * The default amount of time, in milliseconds that the manager will wait
      * for each provider to render.
      * @private
@@ -117,6 +135,16 @@ module.exports = function AnalyticsManagerModule(pb) {
         });
     };
 
+    /**
+     *
+     * @static
+     * @method buildRenderTask
+     * @param {String} key
+     * @param {Request} req
+     * @param {Object} session
+     * @param {Localization} ls
+     * @return {Function}
+     */
     AnalyticsManager.prototype.buildRenderTask = function(key, req, session, ls) {
         var site = this.site;
         var timeout = this.timeout;
@@ -132,13 +160,22 @@ module.exports = function AnalyticsManagerModule(pb) {
                 url: req.url,
                 key: key,
                 callback: callback,
-                th: null
+                th: null,
+                start: null
             };
-            opts.th = setTimeout(AnalyticsManager.buildTimeoutHandler(opts), timeout);
 
             //create a domain for the task to operate within
             var d = domain.create();
             d.run(function() {
+
+                //set the execution timeout.  We set it here and not outside of the
+                //domain to ensure that it gets a fair shot at running for the entire
+                //allotted timeout.  Setting it outside makes it subject to other lines
+                //of execution already in queue that will burn through the timeout
+                //before execution of this domain begins.
+                opts.start = new Date().getTime();
+                opts.th = setTimeout(AnalyticsManager.buildTimeoutHandler(opts), timeout);
+
                 var provider = PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE] || [];
                 if (PROVIDER_HOOKS[site] && PROVIDER_HOOKS[site][key]) {
                     provider = PROVIDER_HOOKS[site];
@@ -149,11 +186,27 @@ module.exports = function AnalyticsManagerModule(pb) {
         };
     };
 
+    /**
+     *
+     * @static
+     * @method buildProviderResponseHandler
+     * @param {Object} opts
+     * @param {String} opts.key
+     * @param {String} opts.method
+     * @param {String} opts.url
+     * @param {Integer} opts.start The epoch when the provider started execution
+     * @param {Object} opts.th The timeout handle for the provider execution
+     * @param {Function} opts.callback
+     * @return {Function}
+     */
     AnalyticsManager.buildProviderResponseHandler = function(opts) {
         return function(err, result) {
             if (util.isError(err)) {
                 pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", opts.key, opts.method, opts.url, err.stack);
             }
+
+            //collect runtime metrics
+            AnalyticsManager.updateStats(opts.start, opts.key);
 
             //we only callback if the timeout handle exists.  When
             //null, it means that the task already timed out and we
@@ -169,6 +222,19 @@ module.exports = function AnalyticsManagerModule(pb) {
         };
     };
 
+    /**
+     *
+     * @static
+     * @method buildDomainErrorHandler
+     * @param {Object} opts
+     * @param {String} opts.key
+     * @param {String} opts.method
+     * @param {String} opts.url
+     * @param {Integer} opts.start The epoch when the provider started execution
+     * @param {Object} opts.th The timeout handle for the provider execution
+     * @param {Function} opts.callback
+     * @return {Function}
+     */
     AnalyticsManager.buildDomainErrorHandler = function(opts) {
         return function(err) {
             pb.log.error('AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s', opts.key, opts.method, opts.url, err.stack);
@@ -178,11 +244,60 @@ module.exports = function AnalyticsManagerModule(pb) {
                 clearTimeout(opts.th);
                 opts.th = null;
 
+                //collect runtime metrics
+                AnalyticsManager.updateStats(opts.start, opts.key);
                 opts.callback(null, DEFAULT_RESULT);
             }
         };
     };
 
+    /**
+     * Updates the runtime statistics to include
+     * @static
+     * @method getStats
+     * @return {Object}
+     */
+    AnalyticsManager.updateStats = function(startTime, provider) {
+        var runTime = (new Date().getTime()) - startTime;
+        updateStatBlock(STATS.cumulative, runTime);
+        updateStatBlock(STATS.providers[provider], runTime);
+    };
+
+    /**
+     * @private
+     * @static
+     * @method updateStatBlock
+     * @param {Integer} runTime The amount of time that the provider ran in
+     * milliseconds
+     * @param {Object} block The block that contains the stats for the provider
+     */
+    function updateStatBlock(block, runTime) {
+        if (runTime > block.max) {
+            block.max = runTime;
+        }
+        if (runTime < block.min) {
+            block.min = runTime;
+        }
+        block.average = (runTime + (block.count * block.average)) / (++block.count);
+    }
+
+    /**
+     * Retrieves timing metrics for analytic providers.  Handy for debugging
+     * timeouts
+     * @static
+     * @method getStats
+     * @return {Object}
+     */
+    AnalyticsManager.getStats = function() {
+        return util.clone(STATS);
+    };
+
+    /**
+     * @static
+     * @method buildTimeoutHandler
+     * @param {Object}
+     * @return {Function}
+     */
     AnalyticsManager.buildTimeoutHandler = function(opts) {
         return function() {
             pb.log.warn("AnalyticsManager: Rendering for provider [%s] timed out", opts.key);
@@ -223,6 +338,14 @@ module.exports = function AnalyticsManagerModule(pb) {
         }
 
         PROVIDER_HOOKS[site][name] = onPageRendering;
+
+        //setup metrics
+        STATS.providers[name] = {
+            count: 0,
+            average: 0,
+            min: Number.MAX_VALUE,
+            max: 0
+        };
         return true;
     };
 
@@ -277,12 +400,19 @@ module.exports = function AnalyticsManagerModule(pb) {
      */
     AnalyticsManager.onPageRender = function(req, session, ls, cb) {
         var context = {
-            site: pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null
+            site: pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null,
+            timeout: pb.config.analytics.timeout
         };
         var managerInstance = new AnalyticsManager(context);
         managerInstance.gatherData(req, session, ls, cb);
     };
 
+    /**
+     * @static
+     * @method getKeys
+     * @param {String} site
+     * @return {Array}
+     */
     AnalyticsManager.getKeys = function(site) {
         var keyHash = {};
         var keyFunc = keyHandler(keyHash);
