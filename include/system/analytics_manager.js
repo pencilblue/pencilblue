@@ -116,11 +116,9 @@ module.exports = function AnalyticsManagerModule(pb) {
      * providers.
      */
     AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
-        var site = this.site;
-        var timeout = this.timeout
 
         //retrieve keys and ensure there are providers to process
-        var providerKeys = AnalyticsManager.getKeys(site);
+        var providerKeys = AnalyticsManager.getKeys(this.site);
         if (providerKeys.length === 0) {
             return cb(null, DEFAULT_RESULT);
         }
@@ -151,7 +149,7 @@ module.exports = function AnalyticsManagerModule(pb) {
 
         return function(callback) {
             if (pb.log.isSilly()) {
-                pb.log.silly("AnalyticsManager: Rendering provider [%s] for URL [%s:%s]", keys[i], req.method, req.url);
+                pb.log.silly("AnalyticsManager: Rendering provider [%s] for URL [%s:%s]", key, req.method, req.url);
             }
 
             //build context object for builder functions to have access to params
