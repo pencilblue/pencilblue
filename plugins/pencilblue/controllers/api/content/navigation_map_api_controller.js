@@ -20,6 +20,7 @@ module.exports = function(pb) {
     //PB dependencies
     var util              = pb.util;
     var AdminNavigation   = pb.AdminNavigation;
+    var AdminSubNavService = pb.AdminSubnavService;
     var BaseApiController = pb.BaseApiController;
     var BaseObjectService = pb.BaseObjectService;
 
@@ -42,6 +43,32 @@ module.exports = function(pb) {
         var map = AdminNavigation.get(this.session, activeItems, this.ls, this.site);
         var wrapper = BaseObjectService.getPagedResult(map, map.length);
         this.handleGet(cb)(null, wrapper);
+    };
+
+    /**
+     * Retrieves the sub-nav navigation for the authenticated party
+     * @method getAdminSubNavMap
+     * @param {Function} cb
+     */
+    NavigationMapApiController.prototype.getAdminSubNavMap = function(cb) {
+        var key = this.query.key;
+        var active = this.query.active || key;
+        AdminSubNavService.getWithSite(key, this.ls, active, {site: this.site}, this.handleMultiGet(cb));
+    };
+
+    /**
+     * @method handleMultiGet
+     * @param {Function} cb
+     * @returns {Function}
+     */
+    NavigationMapApiController.prototype.handleMultiGet = function(cb) {
+        var self = this;
+        return function(err, result) {
+            if (util.isArray(result)) {
+                result = BaseObjectService.getPagedResult(result, result.length);
+            }
+            self.handleGet(cb)(err, result);
+        };
     };
 
     //exports
