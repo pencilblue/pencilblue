@@ -62,7 +62,7 @@
   },
   "main": "./pencilblue.js",
   "engines": {
-    "node": ">= 0.11.0"
+    "node": ">= 0.11.0 <5"
   },
   "scripts": {
     "start": "node pencilblue.js",

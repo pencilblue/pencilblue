@@ -336,6 +336,11 @@ function PencilBlue(config){
             pb.server.getConnections(callback);
         });
 
+        //analytics average
+        pb.ServerRegistration.addItem('analytics', function(callback) {
+            callback(null, pb.AnalyticsManager.getStats());
+        });
+
         cb(null, true);
     };
 

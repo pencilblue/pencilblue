@@ -234,6 +234,14 @@ Configuration.getBaseConfig = function(multisite) {
             use_memory: true,
             use_cache: false,
 
+            // syncSettingsAtStartup will automatically keep all plugins
+            // per site up to date with its details.json counterpart.
+            // Existing plugin settings will not be affected. New
+            // settings will be added, removed settings will be deleted.
+            // NOTE: This can affect your spin up time slightly. This
+            // delay will scale with your number of sites and plugins.
+            syncSettingsAtStartup: false,
+
             //The timeout specifies how long in milliseconds a setting will exist
             //in memory before being flushed.  A value of 0 indicates that the
             //values will not be purged from memory once expired.
@@ -390,6 +398,15 @@ Configuration.getBaseConfig = function(multisite) {
 
             //The default amount of time that a lock will be persisted in seconds.
             timeout: 30
+        },
+
+        //Configures the AnalyticsManager
+        analytics: {
+
+            //the amount of time that the analytics manager will wait, in
+            //milliseconds, for a provider to complete its rendering before
+            //moving on
+            timeout: 50
         },
 
         //Pulls in the package.json file for PB and extracts the version so it is
