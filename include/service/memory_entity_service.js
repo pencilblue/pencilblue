@@ -80,13 +80,13 @@ module.exports = function MemoryEntityServiceModule(pb) {
         if(value == null && this.site !== GLOBAL_SITE && !this.onlyThisSite) {
             value = getGlobalValue(this, key);
         }
-        cb(null, value);
+        process.nextTick(function() { cb(null, value); });
     };
 
     function getSiteValue(self, key, site)
     {
         var rawVal = null;
-        if (self.storage.hasOwnProperty(site) && self.storage[site].hasOwnProperty(key)) {
+        if (typeof self.storage[site] !== 'undefined' && typeof self.storage[site][key] !== 'undefined') {
             rawVal = self.storage[site][key];
         }
 
@@ -115,7 +115,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
     }
 
     /**
-     * Set a value in memory.  Triggers a command to be sent to the cluster to 
+     * Set a value in memory.  Triggers a command to be sent to the cluster to
      * update the value
      * @method set
      * @param {String} key
@@ -164,7 +164,9 @@ module.exports = function MemoryEntityServiceModule(pb) {
             rawValue[this.keyField]   = key;
             rawValue[this.valueField] = value;
         }
-        this.storage[this.site] = {};
+        if (util.isNullOrUndefined(this.storage[this.site])) {
+            this.storage[this.site] = {};
+        }
         this.storage[this.site][key] = rawValue;
 
         //check for existing timeout
@@ -190,8 +192,8 @@ module.exports = function MemoryEntityServiceModule(pb) {
     };
 
     /**
-     * Sets a timeout to purge a key after the configured timeout has occurred.  If 
-     * a timeout has already been set it will be cleared and a new one will be 
+     * Sets a timeout to purge a key after the configured timeout has occurred.  If
+     * a timeout has already been set it will be cleared and a new one will be
      * created.
      * @method setKeyExpiration
      * @param {String} key The key for the value to be cleared
@@ -229,7 +231,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
     };
 
     /**
-     * Should be called once to clean up after the memory service instance.  
+     * Should be called once to clean up after the memory service instance.
      * Removes all storage items and clears any remaining timeouts.
      * @method dispose
      */
@@ -250,8 +252,8 @@ module.exports = function MemoryEntityServiceModule(pb) {
     };
 
     /**
-     * Retrieves the command type that is to be used to listen for changes to 
-     * key/value pairs within the registered instance 
+     * Retrieves the command type that is to be used to listen for changes to
+     * key/value pairs within the registered instance
      * @static
      * @method
      * @param {String} objType The type of object being referenced
@@ -262,7 +264,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
     };
 
     /**
-     * Creates a change handler that will update the value of a property when an 
+     * Creates a change handler that will update the value of a property when an
      * incomming command requests it.
      * @static
      * @method createChangeHandler

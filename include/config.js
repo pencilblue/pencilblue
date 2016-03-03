@@ -400,6 +400,15 @@ Configuration.getBaseConfig = function(multisite) {
             timeout: 30
         },
 
+        //Configures the AnalyticsManager
+        analytics: {
+
+            //the amount of time that the analytics manager will wait, in
+            //milliseconds, for a provider to complete its rendering before
+            //moving on
+            timeout: 50
+        },
+
         //Pulls in the package.json file for PB and extracts the version so it is
         //available in the configuration.
         version: require(path.join(Configuration.DOCUMENT_ROOT, 'package.json')).version
