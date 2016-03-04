@@ -21,6 +21,9 @@ var util = require('../../util.js');
 
 module.exports = function UrlServiceModule(pb) {
 
+    //dependencies
+    var RequestHandler = pb.RequestHandler;
+
     /**
      * A service that provides insight into the system's routes (URLs) along with
      * other utility functions to assist in examining and constructing URLs for
@@ -36,9 +39,6 @@ module.exports = function UrlServiceModule(pb) {
         this.onlyThisSite = onlyThisSite;
         this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
     }
-
-    //dependencies
-    var RequestHandler = pb.RequestHandler;
 
     /**
      * Takes the URL path and tests it against registered routes.

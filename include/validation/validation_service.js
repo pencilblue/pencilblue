@@ -20,7 +20,7 @@ var semver   = require('semver');
 var ObjectID = require('mongodb').ObjectID;
 var util     = require('../util.js');
 
-module.exports = function ValidationModule(pb) {
+module.exports = function (pb) {
 
     /**
      * Provides a set of functions for common validations.
@@ -166,7 +166,7 @@ module.exports = function ValidationModule(pb) {
 
         return util.isString(value) && value.search(VERSION_REGEX) !== -1;
     };
-    
+
     /**
      * Validates a version expression
      *
@@ -430,6 +430,6 @@ module.exports = function ValidationModule(pb) {
         }
         return util.isDate(val) && !isNaN(val.getTime());
     };
-    
+
     return ValidationService;
 };

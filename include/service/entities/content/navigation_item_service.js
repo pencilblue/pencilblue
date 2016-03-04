@@ -16,6 +16,7 @@
 */
 
 //dependencies
+var async = require('async');
 var util = require('../../../util.js');
 
 module.exports = function(pb) {
@@ -66,6 +67,12 @@ module.exports = function(pb) {
             context = {};
         }
 
+        /**
+         * @property urlService
+         * @type {UrlService}
+         */
+        this.urlService = new pb.UrlService(context.site, context.onlyThisSite);
+
         context.type = TYPE;
         NavigationItemService.super_.call(this, context);
     }
@@ -79,32 +86,31 @@ module.exports = function(pb) {
      */
     NavigationItemService.prototype.validate = function(context, cb) {
         var self   = this;
+        var navItem = context.data;
         var errors = context.validationErrors;
         if (!util.isObject(navItem)) {
-            errors.push({field: '', message: 'A valid navigation item must be provided'});
+            errors.push(BaseObjectService.validationFailure('', 'A valid navigation item must be provided'));
             return cb(null, errors);
         }
 
         //verify type
         if (!NavigationItemService.isValidType(navItem.type)) {
-            errors.push({field: 'type', message: 'An invalid type ['+navItem.type+'] was provided'});
+            errors.push(BaseObjectService.validationFailure('type', 'An invalid type ['+navItem.type+'] was provided'));
             return cb(null, errors);
         }
 
         //name
         this.validateNavItemName(navItem, function(err, validationError) {
             if (util.isError(err)) {
-                cb(err, errors);
-                return;
+                return cb(err, errors);
             }
-
             if (validationError) {
                 errors.push(validationError);
             }
 
             //description
-            if (!pb.validation.validateNonEmptyStr(navItem.name, true)) {
-                errors.push({field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
+            if (!pb.validation.isNonEmptyStr(navItem.description, false)) {
+                errors.push(BaseObjectService.validationFailure('description', 'An invalid description ['+navItem.description+'] was provided'));
             }
 
             //compile all errors and call back
@@ -142,8 +148,11 @@ module.exports = function(pb) {
      */
     NavigationItemService.prototype.validateLinkNavItem = function(navItem, cb) {
         var errors = [];
-        if (!pb.validation.validateUrl(navItem.link, true) && navItem.link.charAt(0) !== '/') {
-            errors.push({field: 'link', message: 'A valid link is required'});
+        if (util.isNullOrUndefined(navItem.link) || (!pb.ValidationService.isUrl(navItem.link, true) && navItem.link.charAt(0) !== '/')) {
+            errors.push(BaseObjectService.validationFailure('link', 'A valid link is required'));
+        }
+        if (!util.isBoolean(navItem.new_tab)) {
+            errors.push(BaseObjectService.validationFailure('new_tab', 'new_tab must be a Boolean value'));
         }
         process.nextTick(function() {
             cb(null, errors);
@@ -157,8 +166,8 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     NavigationItemService.prototype.validateNavItemName = function(navItem, cb) {
-        if (!pb.validation.validateNonEmptyStr(navItem.name, true) || navItem.name === 'admin') {
-            return cb(null, {field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
+        if (!pb.validation.isNonEmptyStr(navItem.name, true) || navItem.name === 'admin') {
+            return cb(null, BaseObjectService.validationFailure('name', 'An invalid name ['+navItem.name+'] was provided'));
         }
 
         var where = {
@@ -167,7 +176,7 @@ module.exports = function(pb) {
         this.dao.unique(TYPE, where, navItem[pb.DAO.getIdField()], function(err, unique) {
             var error = null;
             if (!unique) {
-                error = {field: 'name', message: 'The provided name is not unique'};
+                error = BaseObjectService.validationFailure('name', 'The provided name is not unique');
             }
             cb(err, error);
         });
@@ -204,7 +213,7 @@ module.exports = function(pb) {
                 });
             }
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err/*, results*/) {
             cb(err, errors);
         });
     };
@@ -222,6 +231,10 @@ module.exports = function(pb) {
 
             //url
             function(callback) {
+                if (util.isNullOrUndefined(navItem.url)) {
+                    errors.push(BaseObjectService.validationFailure('url', 'The url key is required'));
+                    return callback(null);
+                }
 
                 var params = {
                     type: TYPE,
@@ -229,10 +242,9 @@ module.exports = function(pb) {
                     url: navItem.url,
                     site: self.site
                 };
-                var urlService = new pb.UrlService();
-                urlService.existsForType(params, function(err, exists) {
+                self.urlService.existsForType(params, function(err, exists) {
                     if (exists) {
-                        errors.push({field: 'url', message: 'The url key ['+navItem.url+'] already exists'});
+                        errors.push(BaseObjectService.validationFailure('url', 'The url key ['+navItem.url+'] already exists'));
                     }
                     callback(err, null);
                 });
@@ -304,8 +316,8 @@ module.exports = function(pb) {
     NavigationItemService.prototype.validateNavItemContent = function(type, content, cb) {
 
         var error = null;
-        if (!pb.validation.validateNonEmptyStr(content, true)) {
-            error = {field: 'item', message: 'The content must be a valid ID'};
+        if (!pb.ValidationService.isNonEmptyStr(content, true)) {
+            error = BaseObjectService.validationFailure('item', 'The content must be a valid ID');
             cb(null, error);
             return;
         }
@@ -314,7 +326,7 @@ module.exports = function(pb) {
         var where = pb.DAO.getIdWhere(content);
         this.dao.count(type, where, function(err, count) {
             if (count !== 1) {
-                error = {field: 'item', message: 'The content is not valid'};
+                error = BaseObjectService.validationFailure('item', 'The content is not valid');
             }
             cb(err, error);
         });
@@ -329,8 +341,8 @@ module.exports = function(pb) {
     NavigationItemService.prototype.validateNavItemEditor = function(editor, cb) {
 
         var error = null;
-        if (!pb.validation.validateNonEmptyStr(editor, true)) {
-            error = {field: 'editor', message: 'The editor must be a valid user ID'};
+        if (!pb.ValidationService.isNonEmptyStr(editor, true)) {
+            error = BaseObjectService.validationFailure('editor', 'The editor must be a valid user ID');
             cb(null, error);
             return;
         }
@@ -338,7 +350,7 @@ module.exports = function(pb) {
         var service = new pb.UserService();
         service.hasAccessLevel(editor, pb.SecurityService.ACCESS_EDITOR, function(err, hasAccess) {
             if (!hasAccess) {
-                error = {field: 'editor', message: 'The editor is not valid'};
+                error = BaseObjectService.validationFailure('editor', 'The editor is not valid');
             }
             cb(err, error);
         });
@@ -373,6 +385,7 @@ module.exports = function(pb) {
     NavigationItemService.merge = function(context, cb) {
         var dto = context.data;
         var obj = context.object;
+        obj.type = dto.type;
         obj.name = dto.name;
         obj.description = dto.description
         obj.type = dto.type;
@@ -395,8 +408,7 @@ module.exports = function(pb) {
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     NavigationItemService.validate = function(context, cb) {
-        var errors = context.validationErrors;
-        context.service.validate(context);
+        context.service.validate(context, cb);
 //        if (!pb.ValidationService.isNonEmptyStr(obj.name, true)) {
 //            errors.push(BaseObjectService.validationFailure('name', 'Name is required'));
 //
