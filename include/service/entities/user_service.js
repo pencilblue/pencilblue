@@ -392,7 +392,7 @@ module.exports = function(pb) {
             },
             unverified_email: function(callback) {
                 dao.count(UNVERIFIED_TYPE, getWhere({email: email.toLowerCase()}), callback);
-            },
+            }
         };
         async.series(tasks, cb);
     };

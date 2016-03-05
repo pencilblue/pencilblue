@@ -211,6 +211,26 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
+            path: "/api/users",
+            handler: 'getAll',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'user_api_controller.js'),
+            content_type: 'application/json'
+        },
+        {
+            method: 'get',
+            path: "/api/users/:id",
+            handler: 'get',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'user_api_controller.js'),
+            content_type: 'application/json'
+        },
+        {
+            method: 'get',
             handler: 'login',
             path: "/user/login",
             auth_required: false,
@@ -1242,6 +1262,17 @@ module.exports = function Routes(pb){
             method: 'post',
             path: "/api/content/navigation/items",
             handler: "post",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/navigation_item_api_controller.js'),
+            request_body: ['application/json']
+        },
+        {
+            method: 'put',
+            path: "/api/content/navigation/items/:id",
+            handler: "put",
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,

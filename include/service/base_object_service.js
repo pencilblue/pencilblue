@@ -509,7 +509,7 @@ module.exports = function(pb) {
             //detect if we are doing an update or insert.  On update retrieve
             //the obj and call the merge event handlers
             self._retrieveOnUpdateAndMerge(dto, options, function(err, obj) {
-                if (util.isError(err) || util.isNullOrUndefined(obj)) {console.log(obj);
+                if (util.isError(err) || util.isNullOrUndefined(obj)) {
                     return cb(err, obj);
                 }
 
@@ -571,7 +571,7 @@ module.exports = function(pb) {
         var self     = this;
         var where    = this.getIdWhere(dto);
         var isCreate = util.isBoolean(options.isCreate) ? options.isCreate : !where;
-        var isUpdate = !isCreate;console.log('isCreate:'+isCreate);
+        var isUpdate = !isCreate;
 
         var onObjectRetrieved = function(err, obj) {
             if (util.isError(err) || util.isNullOrUndefined(obj)) {
