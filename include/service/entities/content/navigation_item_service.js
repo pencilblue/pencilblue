@@ -193,16 +193,6 @@ module.exports = function(pb) {
         var errors = [];
         var tasks  = [
 
-            //parent
-//            function(callback) {
-//                self.validateNavItemParent(navItem.parent, function(err, validationError) {
-//                    if (validationError) {
-//                        errors.push(validationError);
-//                    }
-//                    callback(err, null);
-//                });
-//            },
-
             //content
             function(callback) {
                 self.validateNavItemContent(navItem.type, navItem.item, function(err, validationError) {
@@ -250,16 +240,6 @@ module.exports = function(pb) {
                 });
             },
 
-            //parent
-//            function(callback) {
-//                self.validateNavItemParent(navItem.parent, function(err, validationError) {
-//                    if (validationError) {
-//                        errors.push(validationError);
-//                    }
-//                    callback(err, null);
-//                });
-//            },
-
             //editor
             function(callback) {
                 self.validateNavItemEditor(navItem.editor, function(err, validationError) {
@@ -274,37 +254,6 @@ module.exports = function(pb) {
             cb(err, errors);
         });
     };
-
-    /**
-     *
-     * @method validateNavItemParent
-     * @param {String} parent
-     * @param {Function} cb
-     */
-//    NavigationItemService.prototype.validateNavItemParent = function(parent, cb) {
-//
-//        var error = null;
-//        if (!pb.validation.validateNonEmptyStr(parent, false)) {
-//            error = {field: 'parent', message: 'The parent must be a valid nav item container ID'};
-//            cb(null, error);
-//        }
-//        else if (parent) {
-//
-//            //ensure parent exists
-//            var where = pb.DAO.getIdWhere(parent);
-//            where.type = 'container';
-//            var dao = new pb.DAO();
-//            dao.count('section', where, function(err, count) {
-//                if (count !== 1) {
-//                    error = {field: 'parent', message: 'The parent is not valid'};
-//                }
-//                cb(err, error);
-//            });
-//        }
-//        else {
-//            cb(null, null);
-//        }
-//    };
 
     /**
      *
@@ -409,25 +358,6 @@ module.exports = function(pb) {
      */
     NavigationItemService.validate = function(context, cb) {
         context.service.validate(context, cb);
-//        if (!pb.ValidationService.isNonEmptyStr(obj.name, true)) {
-//            errors.push(BaseObjectService.validationFailure('name', 'Name is required'));
-//
-//            //no need to check the DB.  Short circuit it here
-//            return cb(null, errors);
-//        }
-//
-//        //validate name is not taken
-//        var where = pb.DAO.getNotIdWhere(obj[pb.DAO.getIdField()]);
-//        where.name = new RegExp('^' + util.escapeRegExp(obj.name) + '$', 'i');
-//        context.service.dao.exists(TYPE, where, function(err, exists) {
-//            if (util.isError(err)) {
-//                return cb(err);
-//            }
-//            else if (exists) {
-//                errors.push(BaseObjectService.validationFailure('name', 'Name already exists'));
-//            }
-//            cb(null, errors);
-//        });
     };
 
     /**
@@ -487,7 +417,6 @@ module.exports = function(pb) {
      */
     NavigationItemService.trimForType = function(navItem) {
         if (navItem.type === CONTAINER) {
-            //navItem.parent = null;
             navItem.url    = null;
             navItem.editor = null;
             navItem.item   = null;
