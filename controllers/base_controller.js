@@ -152,8 +152,19 @@ module.exports = function BaseControllerModule(pb) {
             siteObj: this.siteObj
         };
 
+        //call the initSync function
+        this.initSync(props);
+
         cb();
     };
+
+    /**
+     * Provides a synchronous function means to intialize a controller.  It is
+     * meant to be called from the "init" function called by the request handler.
+     * @method initSync
+     * @param {Object} context See "init" for more details on properties
+     */
+    BaseController.prototype.initSync = function(context) {};
 
     /**
      * Creates a TemplateService instance

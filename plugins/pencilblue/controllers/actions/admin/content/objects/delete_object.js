@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Deletes an object
      */
@@ -56,11 +56,11 @@ module.exports = function(pb) {
                 if(util.isError(err) || recordsDeleted <= 0) {
                     return cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_DELETING'))
                     });
                 }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObject.name + ' ' + self.ls.get('DELETED'))});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObject.name + ' ' + self.ls.g('admin.DELETED'))});
             });
         });
     };

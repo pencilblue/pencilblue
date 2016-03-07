@@ -16,7 +16,7 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util         = pb.util;
 
@@ -31,48 +31,47 @@ module.exports = function(pb) {
 
     /**
      *
-     * @method onPostParamsRetrieved
+     * @method render
      */
     EditMediaActionController.prototype.render = function(cb) {
         var self = this;
         var vars = this.pathVars;
 
-        this.getJSONPostParams(function(err, post) {
-            delete post[pb.DAO.getIdField()];
+        var post = this.body;
+        delete post[pb.DAO.getIdField()];
 
-            var message = self.hasRequiredParams(post, self.getRequiredParams());
-            if(message) {
-                cb({
+        var message = self.hasRequiredParams(post, self.getRequiredParams());
+        if(message) {
+            return cb({
+                code: 400,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+            });
+        }
+
+        var mediaService = new pb.MediaService(null, self.site);
+        mediaService.loadById(vars.id, function(err, media) {
+            if(util.isError(err) || media === null) {
+                return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                 });
-                return;
             }
 
-            var mediaService = new pb.MediaService(null, self.site);
-            mediaService.loadById(vars.id, function(err, media) {
-                if(util.isError(err) || media === null) {
-                    cb({
-                        code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+            //update existing document
+            delete post.created;
+            delete post.last_modified;
+            delete post.object_type;
+            pb.DocumentCreator.update(post, media);
+            mediaService.save(media, function(err, result) {
+                if(util.isError(err) || util.isArray(result)) {
+                    return cb({
+                        code: 500,
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'))
                     });
-                    return;
                 }
 
-                //update existing document
-                pb.DocumentCreator.update(post, media);
-                mediaService.save(media, function(err, result) {
-                    if(util.isError(err) || util.isArray(result)) {
-                        cb({
-                            code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
-                        });
-                        return;
-                    }
-
-                    result.icon = pb.MediaService.getMediaIcon(media.media_type);
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, media.name + ' ' + self.ls.get('EDITED'), result)});
-                });
+                result.icon = pb.MediaService.getMediaIcon(media.media_type);
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, media.name + ' ' + self.ls.g('admin.EDITED'), result)});
             });
         });
     };
