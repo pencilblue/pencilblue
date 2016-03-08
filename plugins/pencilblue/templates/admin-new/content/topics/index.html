@@ -1,0 +1,27 @@
+^tmp_admin-new=head^
+  <script src="/js/admin-new/services/uid.js"></script>
+  <script src="/js/admin-new/factories/content/topics.js"></script>
+  <script src="/js/admin-new/controllers/topics/index.js"></script>
+  <div ng-app="pencilblue.admin.app" ng-controller="AdminTopicsListController">
+    ^tmp_admin-new=elements=left_nav^
+    ^tmp_admin-new=elements=pill_nav^
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row-fluid">
+          <div class="col-md-12">
+            <h1>^page_name^</h1>
+          </div>
+          <div class="col-md-8">
+            ^tmp_admin-new=elements=search^
+            <div class="btn-group topics-btn-group" ng-repeat="topic in topics">
+              <a class="btn btn-default" ng-href="/admin-new/content/topics/{{getTopicUid(topic)}}" ng-bind="topic.name"></a>
+              <button type="button" class="btn btn-default">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+^tmp_admin-new=footer^

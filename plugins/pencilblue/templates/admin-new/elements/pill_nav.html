@@ -1,0 +1,9 @@
+<script src="/js/admin-new/elements/pill_nav.js"></script>
+<div class="pill-nav-container" ng-controller="PillNavController" ng-mouseover="showMinorPillNav()" ng-mouseout="hideMinorPillNav()">
+  <a class="btn btn-primary pill-nav-item" href="/admin-new/content/topics/new">
+    <i class="fa fa-plus"></i>
+  </a>
+  <a class="btn btn-primary pill-nav-item pill-nav-item-minor" ng-class="{'available': minorPillNavOn === true, 'unavailable': minorPillNavOn === false}" href="/admin-new/content/topics/new">
+    <i class="fa fa-sort-amount-desc"></i>
+  </a>
+</div>

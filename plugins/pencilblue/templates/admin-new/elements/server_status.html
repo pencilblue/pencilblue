@@ -4,7 +4,7 @@
     <h3>^loc_SERVER^</h3>
     <i class="fa fa-2x fa-circle-o-notch fa-spin" ng-if="!cluster"></i>
   </div>
-  <div class="col-lg-3 col-md-4 col-sm-6" ng-repeat="node in cluster">
+  <div class="col-lg-3 col-md-4 col-sm-6" ng-repeat="node in cluster" ng-if="cluster.length && cluster.length <= 4">
     <div class="well well-sm">
       <h4>
         <i class="fa fa-fw {{getNodeIcon(node)}}"></i>
@@ -31,6 +31,37 @@
         <i class="fa fa-fw fa-edit has-tooltip"></i>
         <span ng-bind="node.last_modified | date:'MMM d'"></span>
       </span>
+    </div>
+  </div>
+  <div class="col-md-12" ng-if="cluster.length && cluster.length > 4">
+    <div class="well well-sm">
+      <table class="table table-condensed no-margin">
+        <thead>
+          <tr>
+            <th></th>
+            <th>^loc_SERVER^</th>
+            <th>^loc_MEMORY_USED^</th>
+            <th>^loc_UPTIME^</th>
+            <th>^loc_REQUESTS_TOTAL^</th>
+            <th>^loc_REQUESTS_CURRENT^</th>
+            <th>^loc_LAST_MODIFIED^</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="node in cluster">
+            <td><i class="fa fa-fw {{getNodeIcon(node)}}"></i></td>
+            <td>
+              <span ng-bind="node.ip + ':' + node.port"></span>
+              <span ng-bind="' (' + node.worker_id + ')'" ng-if="node.process_type === 'Worker'"></span>
+            </td>
+            <td ng-bind="getNodeMemoryPercentage(node)"></td>
+            <td ng-bind="getFormattedUptime(node.uptime)"></td>
+            <td ng-bind="node.requests"></td>
+            <td ng-bind="node.currentRequests"></td>
+            <td ng-bind="node.last_modified | date:'MMM d'"></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

@@ -24,7 +24,7 @@
       </li>
       <div class="children" ng-class="{'expanded': item.expanded, 'contracted': item.expanded === false}" ng-if="item.children">
         <ul ng-repeat="child in item.children">
-          <li>
+          <li ng-class="{'active': child.active}">
             <a ng-href="{{child.href}}">
               <i class="fa fa-fw fa-{{child.icon}}"></i>
               <span ng-bind="child.title"></span>
