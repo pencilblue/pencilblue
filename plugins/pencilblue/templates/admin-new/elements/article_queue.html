@@ -2,7 +2,7 @@
 <script src="/js/admin-new/elements/article_queue.js"></script>
 <div ng-controller="ArticleQueueController">
   <h3>Article Queue</h3>
-  <i class="fa fa-2x fa-circle-o-notch fa-spin" ng-if="!articles"></i>
+  <i class="fa fa-2x fa-refresh fa-spin" ng-if="!articles"></i>
   <div class="well well-sm" ng-repeat="article in articles">
     <h4>
       <i class="fa fa-fw" ng-class="{'fa-newspaper-o': !article.draft, 'fa-edit': article.draft}"></i>

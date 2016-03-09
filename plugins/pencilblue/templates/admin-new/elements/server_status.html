@@ -2,7 +2,7 @@
 <div ng-controller="ServerStatusController">
   <div class="col-md-12">
     <h3>^loc_SERVER^</h3>
-    <i class="fa fa-2x fa-circle-o-notch fa-spin" ng-if="!cluster"></i>
+    <i class="fa fa-2x fa-refresh fa-spin" ng-if="!cluster"></i>
   </div>
   <div class="col-lg-3 col-md-4 col-sm-6" ng-repeat="node in cluster" ng-if="cluster.length && cluster.length <= 4">
     <div class="well well-sm">

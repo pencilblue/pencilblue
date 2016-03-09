@@ -1,7 +1,7 @@
 <script src="/js/admin-new/elements/latest_news.js"></script>
 <div ng-controller="LatestNewsController">
   <h3>PencilBlue News</h3>
-  <i class="fa fa-2x fa-circle-o-notch fa-spin" ng-if="!newsCopy.length"></i>
+  <i class="fa fa-2x fa-refresh fa-spin" ng-if="!newsCopy.length"></i>
   <div class="well well-sm latest-news" ng-if="newsCopy.length">
     <div class="copy">
       <a ng-href="{{newsLink}}">
