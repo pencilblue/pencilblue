@@ -46,6 +46,23 @@ module.exports = function AdminTopicsControllerModule(pb) {
     });
   };
 
+  AdminTopicsController.getSubNavItems = function(key, ls, data) {
+      return [{
+          name: 'new_topic',
+          title: '',
+          icon: 'plus',
+          href: '/admin/content/topics/new'
+      }, {
+          name: 'import_topics',
+          title: '',
+          icon: 'upload',
+          href: '/admin/content/topics/import'
+      }, ];
+  };
+
+  //register admin sub-nav
+  pb.AdminSubnavService.registerFor('manage_topics', AdminTopicsController.getSubNavItems);
+
   //exports
   return AdminTopicsController;
 };

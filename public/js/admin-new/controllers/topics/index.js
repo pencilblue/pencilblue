@@ -14,6 +14,7 @@
   ])
   .controller('AdminTopicsListController', function($scope, $rootScope, $location, searchService, paginationService, uidService, topicsFactory) {
     $rootScope.activeLeftNavItems = ['content', 'topics'];
+    $rootScope.subNavKey = 'manage_topics';
 
     $scope.searchText = $location.search().q || '';
     $scope.paginationOffset = $location.search().offset || 0;

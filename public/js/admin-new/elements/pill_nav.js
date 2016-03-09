@@ -5,6 +5,19 @@
   .controller('PillNavController', function($scope, $http, $rootScope, $timeout) {
     var pillNavTimeout;
 
+    $scope.getPillNavItems = function() {
+      $http.get('/api/content/navigation/map/adminsubnav?key=' + $rootScope.subNavKey)
+      .success(function(result) {
+        for(var i = 0; i < result.data.length; i++) {
+          result.data[i].href = result.data[i].href.split('/admin').join('/admin-new');
+        }
+        $scope.pillNavItems = result.data;
+      })
+      .error(function(error, status) {
+
+      });
+    };
+
     $scope.showMinorPillNav = function() {
       $scope.minorPillNavOn = true;
       if(pillNavTimeout) {
@@ -17,7 +30,9 @@
         if(!$scope.mouseOverPillNav) {
           $scope.minorPillNavOn = false;
         }
-      }, 2000)
+      }, 2000);
     };
+
+    $scope.getPillNavItems();
   });
 }());
