@@ -69,6 +69,7 @@ module.exports = function (pb) {
      */
     GoogleAnalytics.onStartupWithContext = function(context, cb) {
         var result = pb.AnalyticsManager.registerProvider(PROVIDER_NAME, context.site, GoogleAnalytics.onRequest);
+        pb.AnalyticsManager.registerProvider(PROVIDER_NAME+'2', context.site, GoogleAnalytics.onRequest);
         cb(null, result);
     };
 

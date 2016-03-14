@@ -244,10 +244,10 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   /**
    * Wrapper for site-aware DAO.save.  Saves object to database
-   *
-   * @param dbObj
-   * @param options
-   * @param callback
+   * @method save
+   * @param {Object} dbObj
+   * @param {Object} [options]
+   * @param {Function} callback
    */
   SiteQueryService.prototype.save = function (dbObj, options, callback) {
     dbObj = modifySave(this.siteUid, dbObj);
@@ -256,6 +256,7 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   /**
    * Gets all collection names
+   * @method getCollections
    * @param {Function} cb
    */
   SiteQueryService.prototype.getCollections = function (cb) {
