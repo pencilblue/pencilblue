@@ -556,8 +556,8 @@ module.exports = function PluginSettingServiceModule(pb) {
     	if(!self.adminPluginSettingsService) {
             var opts = {
                 objType: 'plugin_settings',
-                useMemory: self.caching.useMemory,
-                useCache: self.caching.useCache,
+                useMemory: self.caching.use_memory,
+                useCache: self.caching.use_cache,
                 serviceName: 'PluginSettingService',
                 site: self.site,
                 onlyThisSite: true
@@ -578,8 +578,8 @@ module.exports = function PluginSettingServiceModule(pb) {
     	if(!self.adminThemeSettingsService) {
             var opts = {
                 objType: 'theme_settings',
-                useMemory: self.caching.useMemory,
-                useCache: self.caching.useCache,
+                useMemory: self.caching.use_memory,
+                useCache: self.caching.use_cache,
                 serviceName: 'ThemeSettingService',
                 site: self.site,
                 onlyThisSite: true
