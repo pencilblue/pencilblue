@@ -11,7 +11,7 @@ module.exports = function PluginSettingServiceModule(pb) {
      * @type {String}
      */
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
-    
+
     /**
      * @private
      * @static
@@ -28,14 +28,14 @@ module.exports = function PluginSettingServiceModule(pb) {
      */
     function PluginSettingService(siteUID){
 		//construct settings services
-        
+
         /**
          *
          * @property caching
          * @type {Object}
          */
         this.caching = pb.config.plugins.caching;
-        
+
         /**
          *
          * @property site
@@ -56,11 +56,11 @@ module.exports = function PluginSettingServiceModule(pb) {
          * @type {SimpleLayeredService}
          */
         this.pluginSettingsService = genSettingsService({
-            objType: 'plugin_settings', 
-            useMemory: this.caching.useMemory, 
-            useCache: this.caching.useCache, 
-            serviceName: 'PluginSettingService', 
-            site: this.site, 
+            objType: 'plugin_settings',
+            useMemory: this.caching.use_memory,
+            useCache: this.caching.use_cache,
+            serviceName: 'PluginSettingService',
+            site: this.site,
             onlyThisSite: false
         });
 
@@ -70,11 +70,11 @@ module.exports = function PluginSettingServiceModule(pb) {
          * @type {SimpleLayeredService}
          */
         this.themeSettingsService  = genSettingsService({
-            objType: 'theme_settings', 
-            useMemory: this.caching.useMemory, 
-            useCache: this.caching.useCache, 
-            serviceName: 'ThemeSettingService', 
-            site: this.site, 
+            objType: 'theme_settings',
+            useMemory: this.caching.use_memory,
+            useCache: this.caching.use_cache,
+            serviceName: 'ThemeSettingService',
+            site: this.site,
             onlyThisSite: false
         });
 	}
@@ -132,16 +132,16 @@ module.exports = function PluginSettingServiceModule(pb) {
     };
 
     /**
-     * Retrieves the settings for a plugin as hash of key/value pairs.  This 
-     * differs from the getSettings function because the getSettings function 
-     * provides the settings in their raw form as an array of objects containing 
-     * multiple properties.  In most circumstances just the k/v pair is needed and 
-     * not any additional information about the property.  The function takes the 
-     * raw settings array and transforms it into an object where the setting name 
+     * Retrieves the settings for a plugin as hash of key/value pairs.  This
+     * differs from the getSettings function because the getSettings function
+     * provides the settings in their raw form as an array of objects containing
+     * multiple properties.  In most circumstances just the k/v pair is needed and
+     * not any additional information about the property.  The function takes the
+     * raw settings array and transforms it into an object where the setting name
      * is the property and the setting value is the value.
      * @method getSettingsKV
      * @param {String} pluginName The unique ID of the plugin who settings are to be retrieved
-     * @param {Function} cb A callback that takes two parameters.  A error, if 
+     * @param {Function} cb A callback that takes two parameters.  A error, if
      * exists, and a hash of of the plugin's settings' names/values.
      */
     PluginSettingService.prototype.getSettingsKV = function(pluginName, cb) {
@@ -360,16 +360,16 @@ module.exports = function PluginSettingServiceModule(pb) {
     };
 
     /**
-     * Retrieves the theme settings for a plugin as hash of key/value pairs.  This 
-     * differs from the getThemeSettings function because the getThemeSettings function 
-     * provides the settings in their raw form as an array of objects containing 
-     * multiple properties.  In most circumstances just the k/v pair is needed and 
-     * not any additional information about the property.  The function takes the 
-     * raw settings array and transforms it into an object where the setting name 
+     * Retrieves the theme settings for a plugin as hash of key/value pairs.  This
+     * differs from the getThemeSettings function because the getThemeSettings function
+     * provides the settings in their raw form as an array of objects containing
+     * multiple properties.  In most circumstances just the k/v pair is needed and
+     * not any additional information about the property.  The function takes the
+     * raw settings array and transforms it into an object where the setting name
      * is the property and the setting value is the value.
      * @method getThemeSettingsKV
      * @param {String} pluginName The unique ID of the plugin who settings are to be retrieved
-     * @param {Function} cb A callback that takes two parameters.  A error, if 
+     * @param {Function} cb A callback that takes two parameters.  A error, if
      * exists, and a hash of of the plugin's settings' names/values.
      */
     PluginSettingService.prototype.getThemeSettingsKV = function(pluginName, cb) {
@@ -518,7 +518,7 @@ module.exports = function PluginSettingServiceModule(pb) {
      * @return {SimpleLayeredService}
      */
     function genSettingsService(opts) {
-        
+
         //add in-memory service
         var services = [];
 
@@ -555,11 +555,11 @@ module.exports = function PluginSettingServiceModule(pb) {
     function getAdminPluginSettingsService(self) {
     	if(!self.adminPluginSettingsService) {
             var opts = {
-                objType: 'plugin_settings', 
-                useMemory: self.caching.useMemory, 
-                useCache: self.caching.useCache, 
-                serviceName: 'PluginSettingService', 
-                site: self.site, 
+                objType: 'plugin_settings',
+                useMemory: self.caching.useMemory,
+                useCache: self.caching.useCache,
+                serviceName: 'PluginSettingService',
+                site: self.site,
                 onlyThisSite: true
             };
     		self.adminPluginSettingsService = genSettingsService(opts);
@@ -577,17 +577,17 @@ module.exports = function PluginSettingServiceModule(pb) {
     function getAdminThemeSettingsService(self) {
     	if(!self.adminThemeSettingsService) {
             var opts = {
-                objType: 'theme_settings', 
-                useMemory: self.caching.useMemory, 
-                useCache: self.caching.useCache, 
-                serviceName: 'ThemeSettingService', 
-                site: self.site, 
+                objType: 'theme_settings',
+                useMemory: self.caching.useMemory,
+                useCache: self.caching.useCache,
+                serviceName: 'ThemeSettingService',
+                site: self.site,
                 onlyThisSite: true
             };
     		self.adminThemeSettingsService = genSettingsService(opts);
     	}
     	return self.adminThemeSettingsService;
     }
-    
+
 	return PluginSettingService;
 };

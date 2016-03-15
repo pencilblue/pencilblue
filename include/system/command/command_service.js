@@ -127,7 +127,7 @@ module.exports = function CommandServiceModule(pb) {
      */
     CommandService.prototype.registerForType = function (type, handler) {
         var result = this.isRegistered(type, handler);
-        if (result !== CommandService.NOT_FOUND) {
+        if (result !== CommandService.NOT_FOUND && !!this.registrants[type]) {
             return false;
         }
 
@@ -413,7 +413,7 @@ module.exports = function CommandServiceModule(pb) {
             cb = options;
             options = {};
         }
-        else if (!pb.ValidationService.isObject(options, false)) {
+        else if (!pb.ValidationService.isObj(options, false)) {
             return cb(new Error('When provided the options parameter must be an object'));
         }
 

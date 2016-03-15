@@ -41,24 +41,18 @@ module.exports = function MemoryEntityServiceModule(pb) {
         this.objType    = options.objType;
         this.keyField   = options.keyField;
         this.valueField = options.valueField ? options.valueField : null;
-        this.storage    = STORAGE;
-        this.timers     = TIMERS;
         this.timeout    = options.timeout || 0;
-        this.changeHandler = MemoryEntityService.createChangeHandler(this);
         this.site       = options.site || GLOBAL_SITE;
         this.onlyThisSite = options.onlyThisSite ? true : false;
-
-        //register change handler
-        var commandInstance = pb.CommandService.getInstance();
-
-        //ensure we can get change events
-        // TODO fix memory leak here.  Each instance creates a handler but the dispose is now gone.  Need to make this generic.
-        commandInstance.registerForType(MemoryEntityService.getOnChangeType(this.objType), this.changeHandler);
 
         //ensure we are cleaning up after ourselves
         if (REAPER_HANDLE === null) {
             MemoryEntityService.startReaper();
         }
+
+        //ensure we can get change events.  If we're already registered the function will return false
+        var c = pb.CommandService.getInstance()
+            .registerForType(MemoryEntityService.getOnChangeType(), MemoryEntityService.changeHandler);
     }
 
     /**
@@ -120,13 +114,9 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @param  {Function} cb  Callback function
      */
     MemoryEntityService.prototype.get = function(key, cb){
-        var value = null;
-        if(this.site) {
-            value = getSiteValue(this, key, this.site);
-        }
-        if(value == null && this.site !== GLOBAL_SITE && !this.onlyThisSite) {
-            value = getGlobalValue(this, key);
-        }
+        var internalKey = MemoryEntityService.getKey(key, this.site, this.objType);
+        var value = getSiteValue(this, internalKey);
+
         process.nextTick(function() { cb(null, value); });
     };
 
@@ -135,13 +125,11 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @static
      * @method getSiteValue
      * @param self
-     * @param key
-     * @param site
+     * @param internalKey
      * @returns {*}
      */
-    function getSiteValue(self, key, site) {
+    function getSiteValue(self, internalKey) {
         var rawVal = null;
-        var internalKey = MemoryEntityService.getKey(key, site);
         if (typeof STORAGE[internalKey] !== 'undefined') {
             rawVal = STORAGE[internalKey];
         }
@@ -152,18 +140,6 @@ module.exports = function MemoryEntityServiceModule(pb) {
         }
 
         return getCorrectValueField(rawVal, self.valueField);
-    }
-
-    /**
-     * @private
-     * @static
-     * @method getGlobalValue
-     * @param self
-     * @param key
-     * @returns {*}
-     */
-    function getGlobalValue(self, key) {
-        return getSiteValue(self, key, GLOBAL_SITE);
     }
 
     /**
@@ -213,7 +189,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
      */
     MemoryEntityService.prototype._set = function(key, value, cb) {
         var rawValue = null;
-        var internalKey = MemoryEntityService.getKey(key, this.site);
+        var internalKey = MemoryEntityService.getKey(key, this.site, this.objType);
         if (STORAGE.hasOwnProperty(internalKey)) {
             rawValue = STORAGE[internalKey];
             if (this.valueField == null) {
@@ -251,10 +227,15 @@ module.exports = function MemoryEntityServiceModule(pb) {
             key: key,
             value: value,
             site: this.site,
+            objType: this.objType,
+            onlyThisSite: this.onlyThisSite,
+            keyField: this.keyField,
+            valueField: this.valueField,
+            timeout: this.timeout,
             ignoreme: true
         };
         pb.CommandService.getInstance()
-            .sendCommandToAllGetResponses(MemoryEntityService.getOnChangeType(this.objType), command, util.cb);
+            .sendCommandToAllGetResponses(MemoryEntityService.getOnChangeType(), command, util.cb);
     };
 
     /**
@@ -270,7 +251,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         }
 
         //check for existing timeout
-        var internalKey = MemoryEntityService.getKey(key, this.site);
+        var internalKey = MemoryEntityService.getKey(key, this.site, this.objType);
 
         //now set the timeout if configured to do so
         TIMERS[internalKey] = Date.now() + this.timeout;
@@ -284,7 +265,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @param  {Function} cb  Callback function
      */
     MemoryEntityService.prototype.purge = function(key, cb) {
-        var key = MemoryEntityService.getKey(key, this.site);
+        var key = MemoryEntityService.getKey(key, this.site, this.objType);
         var exists = !!STORAGE[key];
         if(exists) {
             delete STORAGE[key];
@@ -293,8 +274,8 @@ module.exports = function MemoryEntityServiceModule(pb) {
         process.nextTick(function() { cb(null, exists); });
     };
 
-    MemoryEntityService.getKey = function(key, site) {
-        return key + '-' + site;
+    MemoryEntityService.getKey = function(key, site, objType) {
+        return key + '-' + site + '-' + objType;
     };
 
     /**
@@ -305,8 +286,8 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @param {String} objType The type of object being referenced
      * @return {String} The command type to be registered for
      */
-    MemoryEntityService.getOnChangeType = function(objType) {
-        return TYPE + '-' + objType + '-change';
+    MemoryEntityService.getOnChangeType = function() {
+        return TYPE + '-change';
     };
 
     /**
@@ -315,10 +296,10 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @static
      * @method createChangeHandler
      */
-    MemoryEntityService.createChangeHandler = function(memoryEntityService) {
-        return function(command) {
-            memoryEntityService._set(command.key, command.value, command.site, util.cb);
-        };
+    MemoryEntityService.changeHandler = function(command) {
+
+        var memoryEntityService = new MemoryEntityService(command);
+        memoryEntityService._set(command.key, command.value, util.cb);
     };
 
     /**
@@ -364,8 +345,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         }
 
         //clean up by un registering the change handler to prevent memory leaks
-        pb.CommandService.getInstance().unregisterForType(MemoryEntityService.getOnChangeType(this.objType), this.changeHandler);
-        this.changeHandler = null;
+        pb.CommandService.getInstance().unregisterForType(MemoryEntityService.getOnChangeType(), MemoryEntityService.changeHandler);
 
         cb(null, true);
     };
