@@ -70,8 +70,22 @@ module.exports = function CommandServiceModule(pb) {
         mongo: pb.MongoCommandBroker
     };
 
+    /**
+     * Indicates that an error occurrred while attempting to check if a handler was registered
+     * @static
+     * @readonly
+     * @property ERROR_INDEX
+     * @type {number}
+     */
     CommandService.ERROR_INDEX = -2;
 
+    /**
+     * Indicates that the handler was not found
+     * @static
+     * @readonly
+     * @property NOT_FOUND
+     * @type {number}
+     */
     CommandService.NOT_FOUND = -1;
 
     /**

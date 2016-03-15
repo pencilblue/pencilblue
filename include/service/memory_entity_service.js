@@ -51,7 +51,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         }
 
         //ensure we can get change events.  If we're already registered the function will return false
-        var c = pb.CommandService.getInstance()
+        pb.CommandService.getInstance()
             .registerForType(MemoryEntityService.getOnChangeType(), MemoryEntityService.changeHandler);
     }
 
@@ -83,7 +83,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @private
      * @static
      * @property
-     * @type {IntervalHandle}
+     * @type {number}
      */
     var REAPER_HANDLE = null;
 
@@ -265,15 +265,22 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @param  {Function} cb  Callback function
      */
     MemoryEntityService.prototype.purge = function(key, cb) {
-        var key = MemoryEntityService.getKey(key, this.site, this.objType);
-        var exists = !!STORAGE[key];
+        var internalKey = MemoryEntityService.getKey(key, this.site, this.objType);
+        var exists = !!STORAGE[internalKey];
         if(exists) {
-            delete STORAGE[key];
-            delete TIMERS[key];
+            delete STORAGE[internalKey];
+            delete TIMERS[internalKey];
         }
         process.nextTick(function() { cb(null, exists); });
     };
 
+    /**
+     * Retrieves the internal key format for a given key
+     * @param {string} key
+     * @param {string} site
+     * @param {string} objType
+     * @returns {string}
+     */
     MemoryEntityService.getKey = function(key, site, objType) {
         return key + '-' + site + '-' + objType;
     };
@@ -323,6 +330,12 @@ module.exports = function MemoryEntityServiceModule(pb) {
         return reaped;
     };
 
+    /**
+     * Attempts to start the reaper that will remove expired keys from the in-memory cache
+     * @static
+     * @method startReaper
+     * @return {Boolean} TRUE if reaper is started, FALSE if it is already started
+     */
     MemoryEntityService.startReaper = function() {
         if (REAPER_HANDLE === null) {
             REAPER_HANDLE = setInterval(MemoryEntityService.reap, DEFAULT_REAPER_INTERVAL);
@@ -330,9 +343,17 @@ module.exports = function MemoryEntityServiceModule(pb) {
             pb.system.registerShutdownHook('MemoryEntityService', MemoryEntityService.dispose);
 
             pb.log.silly('MemoryEntityService: Reaper started');
+            return true;
         }
+        return false;
     };
 
+    /**
+     * Disposes of the storage and timers.  It also terminates the reaping of expired keys.
+     * @static
+     * @method dispose
+     * @param {Function} cb
+     */
     MemoryEntityService.dispose = function(cb) {
 
         //release data and timeout hashes
