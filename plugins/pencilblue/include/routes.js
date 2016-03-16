@@ -643,7 +643,8 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'media', 'edit_media.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            request_body: ['application/json', 'application/x-www-form-urlencoded']
         },
         {
             method: 'delete',
