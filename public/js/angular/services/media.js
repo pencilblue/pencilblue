@@ -26,7 +26,7 @@ angular.module('media', [])
         var deferred = $q.defer();
 
         $http.post('/actions/admin/content/media' + (mediaObject._id ? '/' + mediaObject._id : ''), mediaObject, {
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            headers: {'Content-Type': 'application/json'}
         })
         .success(function(result) {
             deferred.resolve(result);

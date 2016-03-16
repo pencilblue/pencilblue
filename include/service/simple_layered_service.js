@@ -61,8 +61,7 @@ module.exports = function SimpleLayeredServiceModule(pb) {
                 instance.services[i].get(key, function(err, result){
                     if (util.isError(err)){
                         resultNotFound = false;
-                        callback(err);
-                        return;
+                        return callback(err);
                     }
 
                     if (result || (typeof result === 'boolean' && result === false)) {
