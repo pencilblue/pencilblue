@@ -13,7 +13,7 @@ angular.module('paginate', [])
 			}
 		}
 
-		var pages = this.getPageArray(limit, itemCount);
+		var pages = this.getPageArray(offset, limit, itemCount);
 
 		cb(items, pages);
 	};
