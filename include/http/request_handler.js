@@ -767,7 +767,7 @@ module.exports = function RequestHandlerModule(pb) {
 
         // If we need to redirect to a different host
         if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
-            return this.doRedirect(pb.SiteService.getHostWithProtocol(redirectHost), '301');
+            return this.doRedirect(pb.SiteService.getHostWithProtocol(redirectHost), pb.HttpStatus.MOVED_PERMANENTLY);
         }
         this.siteObj = siteObj;
 
