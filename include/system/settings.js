@@ -128,7 +128,7 @@ module.exports = function SettingsModule(pb) {
 
         options.type = TYPE;
         SettingService.super_.call(this, options);
-    };
+    }
     util.inherits(SettingService, pb.BaseObjectService);
 
     /**
