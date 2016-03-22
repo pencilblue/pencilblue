@@ -210,12 +210,24 @@ module.exports = function CommentServiceModule(pb) {
      * @method getCommentingUser
      * @param {Object} user A user object
      */
-    CommentService.getCommentingUser = function(user) {
+    CommentService.prototype.getCommentingUser = function(user) {
         return {
             photo: user.photo,
-            name: pb.users.getFormattedName(user),
+            name: this.userService.getFormattedName(user),
             position: user.position
         };
+    };
+
+    /**
+     * Retrieves the necessary user information for a commenter
+     * @static
+     * @method getCommentingUser
+     * @param {Object} user A user object
+     */
+    CommentService.getCommentingUser = function(user) {
+        pb.log.warn('CommentService: Static function getCommentingUser is deprecated.  Create an instance and call it instead');
+        var service = new CommentService({});
+        return service.getCommentingUser(user);
     };
 
     /**

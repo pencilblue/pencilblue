@@ -246,7 +246,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method activateSite
      * @param {String} siteUid - site unique id
      * @param {Function} cb - callback to run after job is completed
-     * @returns {String} the job id
+     * @return {String} the job id
      */
     SiteService.prototype.activateSite = function(siteUid, cb) {
         cb = cb || util.cb;
@@ -265,7 +265,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method deactivateSite
      * @param {String} siteUid - site unique id
      * @param {Function} cb - callback to run after job is completed
-     * @returns {String} the job id
+     * @return {String} the job id
      */
     SiteService.prototype.deactivateSite = function(siteUid, cb) {
         cb = cb || util.cb;
@@ -286,7 +286,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String} options.hostname - result of site hostname edit/create
      * @param {String} options.displayName - result of site display name edit/create
      * @param {Function} cb - callback to run after job is completed
-     * @returns {String} the job id
+     * @return {String} the job id
      */
     SiteService.prototype.editSite = function(options, cb) {
         cb = cb || util.cb;
@@ -496,7 +496,7 @@ module.exports = function SiteServiceModule(pb) {
      * Returns true if siteid given is global or non-existant (to remain backwards compatible)
      * @method isGlobal
      * @param {String} siteid - the site id to check
-     * @returns {Boolean} true if global or does not exist
+     * @return {Boolean} true if global or does not exist
      */
     SiteService.isGlobal = function (siteid) {
         return (!siteid || siteid === SiteService.GLOBAL_SITE);
@@ -531,7 +531,7 @@ module.exports = function SiteServiceModule(pb) {
      * Central place to get the current site. Backwards compatible cleansing
      * @method getCurrentSite
      * @param {String} siteid - site is to cleanse
-     * @returns {String} SiteService.GLOBAL_SITE if not specified, or siteid otherwise
+     * @return {String} SiteService.GLOBAL_SITE if not specified, or siteid otherwise
      */
     SiteService.getCurrentSite = function (siteid) {
         return siteid || SiteService.GLOBAL_SITE;
@@ -541,7 +541,7 @@ module.exports = function SiteServiceModule(pb) {
      * Return site field from object.
      * @method getSiteFromObject
      * @param {Object} object
-     * @returns {String} the value of the object's site field key
+     * @return {String} the value of the object's site field key
      */
     SiteService.getSiteFromObject = function (object) {
         if (!object) {
@@ -554,7 +554,7 @@ module.exports = function SiteServiceModule(pb) {
      * Determine whether http or https is being used for the site and return hostname attached to http(s)
      * @method getHostWithProtocol
      * @param {String} hostname
-     * @returns {String} hostname with protocol attached
+     * @return {String} hostname with protocol attached
      */
     SiteService.getHostWithProtocol = function(hostname) {
         hostname = hostname.match(/^http/g) ? hostname : "//" + hostname;
@@ -582,7 +582,7 @@ module.exports = function SiteServiceModule(pb) {
 
                         taskCallback(null, {collection: collections[i].name});
                     });
-                }
+                };
             });
             async.parallel(tasks, function (err, results) {
                 if (pb.util.isError(err)) {
@@ -608,7 +608,7 @@ module.exports = function SiteServiceModule(pb) {
             hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
             active: pb.config.multisite.enabled ? false : true,
             defaultLocale: pb.Localization.getDefaultLocale(),
-            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function(a, i) { return true; }),
+            supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function() { return true; }),
             prevHostnames: []
         };
     };
@@ -621,7 +621,7 @@ module.exports = function SiteServiceModule(pb) {
             // Check for circular hostname references
             data.prevHostnames = data.prevHostnames.filter(function (hostname) {
                 return hostname !== newHostname;
-            })
+            });
             data.prevHostnames.push(prevHostname);
             pb.RequestHandler.redirectHosts[prevHostname] = newHostname;
             pb.RequestHandler.sites[prevHostname] = null;

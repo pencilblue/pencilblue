@@ -42,12 +42,12 @@ module.exports = function AuthTokenControllerModule(pb) {
             if(pb.util.isError(err)) {
                 return cb({
                     code: 500,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'))
                 });
             }
             cb({
                 code: 200,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('TOKEN_CREATED'), tokenInfo)
+                content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('sites.TOKEN_CREATED'), tokenInfo)
             });
         });
     };

@@ -36,7 +36,7 @@ module.exports = function(pb) {
         }
         this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid, this.onlyThisSite);
     }
-    
+
     /**
      *
      * @private
@@ -46,7 +46,7 @@ module.exports = function(pb) {
      * @type {String}
      */
     var CONTENT_SETTINGS_REF = 'content_settings';
-    
+
     /**
      *
      * @private
@@ -82,9 +82,9 @@ module.exports = function(pb) {
     ContentService.prototype.getSettings = function(cb){
         this.get(cb);
     };
-    
+
     /**
-     * Retrieves the content settings.  When settings are not found in storage 
+     * Retrieves the content settings.  When settings are not found in storage
      * the service will generate defaults and persist them.
      * @method get
      * @param {Function} cb Callback function
@@ -135,7 +135,7 @@ module.exports = function(pb) {
     };
 
     /**
-     * 
+     *
      * @static
      * @method getTimestampText
      * @param {Object} options
@@ -161,18 +161,18 @@ module.exports = function(pb) {
 
         var dateString = format;
         var monthNames = [
-          ls.get('JAN'),
-          ls.get('FEB'),
-          ls.get('MAR'),
-          ls.get('APR'),
-          ls.get('MAY'),
-          ls.get('JUN'),
-          ls.get('JUL'),
-          ls.get('AUG'),
-          ls.get('SEP'),
-          ls.get('OCT'),
-          ls.get('NOV'),
-          ls.get('DEC')
+          ls.g('timestamp.JAN'),
+          ls.g('timestamp.FEB'),
+          ls.g('timestamp.MAR'),
+          ls.g('timestamp.APR'),
+          ls.g('timestamp.MAY'),
+          ls.g('timestamp.JUN'),
+          ls.g('timestamp.JUL'),
+          ls.g('timestamp.AUG'),
+          ls.g('timestamp.SEP'),
+          ls.g('timestamp.OCT'),
+          ls.g('timestamp.NOV'),
+          ls.g('timestamp.DEC')
         ];
 
         var month = date.getMonth() + 1;
@@ -181,11 +181,11 @@ module.exports = function(pb) {
         month = (twoDigitDate && month < 10) ? '0' + month : month.toString();
         day   = (twoDigitDate && day < 10) ? '0' + day : day.toString();
 
-        dateString = dateString.split('YYYY').join(date.getFullYear());
-        dateString = dateString.split('yy').join(date.getYear());
-        dateString = dateString.split('M').join(monthNames[date.getMonth()]);
-        dateString = dateString.split('mm').join(month);
-        dateString = dateString.split('dd').join(day);
+        dateString = dateString.split('YYYY').join(date.getFullYear())
+            .split('yy').join(date.getYear())
+            .split('M').join(monthNames[date.getMonth()])
+            .split('mm').join(month)
+            .split('dd').join(day);
 
         if (typeof displayTime !== 'undefined' && displayTime) {
 
@@ -196,13 +196,14 @@ module.exports = function(pb) {
             }
             var ampm = '';
 
+            //format for 12 hour time
             if(timeFormat == '12') {
                 if(hours > 12) {
                     hours -= 12;
-                    ampm = ' '+ls.get('TIME_PM');
+                    ampm = ' ' + ls.g('timestamp.TIME_PM');
                 }
                 else {
-                    ampm = ' '+ls.get('TIME_AM');
+                    ampm = ' ' + ls.g('timestamp.TIME_AM');
                 }
             }
             if(twoDigitTime && hours < 10) {

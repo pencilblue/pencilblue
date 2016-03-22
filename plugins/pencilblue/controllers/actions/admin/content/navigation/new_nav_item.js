@@ -102,7 +102,7 @@ module.exports = function(pb) {
                 else if (!util.isObject(navItem)){
                     return cb({
                         code: 404,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                     });
                 }
 
@@ -165,7 +165,7 @@ module.exports = function(pb) {
     PersistNavItemController.prototype.handleError = function(err, cb) {
         return cb({
             code: 500,
-            content: BaseController.apiResponse(BaseController.API_ERROR, this.ls.get('ERROR_SAVING'))
+            content: BaseController.apiResponse(BaseController.API_ERROR, this.ls.g('generic.ERROR_SAVING'))
         });
     };
 
