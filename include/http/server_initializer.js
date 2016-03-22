@@ -33,6 +33,7 @@ function ServerInitializer(/*pb*/) {}
 /**
  * Initializes the server.  Depending on the configuration will start an HTTP
  * server and/or an HTTPs server.
+ * @method init
  * @param {Object} context
  * @param {Logger} context.log
  * @param {Object} context.config The PB config object

@@ -215,7 +215,7 @@ module.exports = function PluginServiceModule(pb) {
     /**
      * Get a array of active plugin names with site name as a prefix: site_name_plugin_name
      * @method getAllActivePluginNames
-     * @returns {Array} array of active plugin names with site name prefix.
+     * @return {Array} array of active plugin names with site name prefix.
      */
     PluginService.prototype.getAllActivePluginNames = function() {
         var pluginNames = [];
@@ -361,7 +361,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Retrieves the theme settings for the specified plugin only for the site set in the current plugin service
-     *
+     * @method getThemeSettingsBySite
      * @param pluginName
      * @param cb
      */
@@ -411,8 +411,8 @@ module.exports = function PluginServiceModule(pb) {
      * the callback.
      *
      * @method resetThemeSettings
-     * @param details The details object to extract the settings from
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
+     * @param {Object} details The details object to extract the settings from
+     * @param {Function} cb A callback that provides two parameters: cb(error, TRUE/FALSE).
      * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
      */
     PluginService.prototype.resetThemeSettings = function(details, cb) {
@@ -422,6 +422,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Deletes the plugin settings for when plugin uninstalls.
+     * @method purgePluginSettings
      * @param {String} pluginUid - the plugin unique id
      * @param {Function} cb - callback function
      */
@@ -432,6 +433,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Deletes the theme settings for when plugin uninstalls.
+     * @method purgeThemeSettings
      * @param {String} pluginUid - the plugin unique id
      * @param {Function} cb - callback function
      */
@@ -459,15 +461,20 @@ module.exports = function PluginServiceModule(pb) {
      * Retrieves a plugin descriptor (plugin document)
      *
      * @method getPlugin
-     * @param pluginIdentifier The identifier can either be an ObjectID or the
+     * @param {string} pluginIdentifier The identifier can either be an ObjectID or the
      * plugin name
-     * @param cb A callback that provides two parameters: cb(error, plugin).  If the
+     * @param {Function} cb A callback that provides two parameters: cb(error, plugin).  If the
      * plugin does exist null is provided.
      */
     PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
         this._pluginRepository.loadPluginAvailableToThisSite(pluginIdentifier, this.site, cb);
     };
 
+    /**
+     * @method getPluginBySite
+     * @param {string} pluginIdentifier
+     * @param {Function} cb
+     */
     PluginService.prototype.getPluginBySite = function(pluginIdentifier, cb) {
         this._pluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
     }
@@ -1121,7 +1128,7 @@ module.exports = function PluginServiceModule(pb) {
      * A cache is used to store already known plugin information that can be shared between sites to speed up the process.
      * @method getInitTasksForPlugin
      * @param {plugin} plugin The plugin details
-     * @returns {Array}
+     * @return {Array}
      */
     PluginService.prototype.getInitTasksForPlugin = function(plugin) {
         var self = this;

@@ -293,7 +293,7 @@ module.exports = function AnalyticsManagerModule(pb) {
     /**
      * @static
      * @method buildTimeoutHandler
-     * @param {Object}
+     * @param {Object} opts
      * @return {Function}
      */
     AnalyticsManager.buildTimeoutHandler = function(opts) {
