@@ -20,7 +20,6 @@ module.exports = function(pb) {
     //PB dependencies
     var util                  = pb.util;
     var SettingServiceFactory = pb.SettingServiceFactory;
-    var SecurityService       = pb.SecurityService;
 
     /**
      *

@@ -42,7 +42,7 @@ module.exports = function SettingsModule(pb) {
      * @static
      * @readonly
      * @property TYPE
-     * @type {Integer}
+     * @type {String}
      */
     var TYPE = 'setting';
 
@@ -173,6 +173,12 @@ module.exports = function SettingsModule(pb) {
         this.deleteSingle(options, cb);
     };
 
+    /**
+     * @static
+     * @method afterSave
+     * @param {Object} context
+     * @param {Function} cb
+     */
     SettingService.afterSave = function(context, cb) {
         context.service.cacheService.set(context.data.key, context.data.value, cb);
     };
