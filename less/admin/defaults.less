@@ -7,8 +7,19 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 0 10px 0;
 }
 
+h1 {
+  @media (max-width: 767px) {
+    margin-left: 30px;
+    font-size: 30px;
+  }
+}
+
 a {
   text-decoration: none;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
 }
 
 .clickable {

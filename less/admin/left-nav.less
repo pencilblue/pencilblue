@@ -1,14 +1,18 @@
 .left-nav {
-  .hidden-xs;
   position: fixed;
   top: 0;
-  left: 0;
+  left: -220px;
   padding: 0;
   width: 220px;
   height: 100%;
   background: @background-nav;
   border-right: 2px solid @background-nav-shadow;
   color: white;
+  z-index: 999999;
+
+  @media (min-width: 768px) {
+    left: 0;
+  }
 
   .site-logo {
     margin: 10px;
@@ -97,6 +101,59 @@
       border-bottom: none;
     }
   }
+
+  .left-nav-toggle {
+    .visible-xs;
+    position: absolute;
+    top: 10px;
+    left: 218px;
+    height: 34px;
+    width: 30px;
+    font-size: 20px;
+    font-weight: 400;
+    padding: 2px;
+    border-radius: 0 3px 3px 0;
+    background: @background-nav;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+  }
+}
+
+.left-nav.closed {
+  @media (max-width: 767px) {
+    left: -220px;
+    animation-name: close-left-nav;
+    animation-duration: 0.4s;
+    animation-timing-function: ease-in-out;
+  }
+}
+
+.left-nav.open {
+  @media (max-width: 767px) {
+    left: 0px;
+    animation-name: open-left-nav;
+    animation-duration: 0.4s;
+    animation-timing-function: ease-in-out;
+  }
+}
+
+@keyframes open-left-nav {
+  from {
+    left: -220px;
+  };
+  to {
+    left: 0;
+  };
+}
+
+@keyframes close-left-nav {
+  from {
+    left: 0;
+  };
+  to {
+    left: -220px;
+  };
 }
 
 @keyframes expand-left-nav-children {

@@ -1,5 +1,5 @@
 <script src="/js/admin-new/elements/left_nav.js"></script>
-<div class="left-nav" ng-controller="LeftNavController">
+<div class="left-nav" ng-class="{'closed': leftNavOpen === false, 'open': leftNavOpen}" ng-controller="LeftNavController">
   <a href="/admin-new">
     <img class="site-logo" src="/img/pb_logo.png" alt="PencilBlue"></img>
   </a>
@@ -34,4 +34,7 @@
       </div>
     </span>
   </ul>
+  <div class="left-nav-toggle" ng-click="leftNavOpen = !leftNavOpen">
+    <i class="fa fa-fw" ng-class="{'fa-angle-right': !leftNavOpen, 'fa-angle-left': leftNavOpen}"></i>
+  </div>
 </div>
