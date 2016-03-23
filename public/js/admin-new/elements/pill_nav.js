@@ -8,6 +8,8 @@
     $scope.getPillNavItems = function() {
       $http.get('/api/content/navigation/map/adminsubnav?key=' + $rootScope.subNavKey)
       .success(function(result) {
+        result.data = result.data || [];
+
         for(var i = 0; i < result.data.length; i++) {
           result.data[i].href = result.data[i].href.split('/admin').join('/admin-new');
         }

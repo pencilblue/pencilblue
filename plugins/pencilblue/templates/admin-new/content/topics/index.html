@@ -18,6 +18,9 @@
             <i class="fa fa-2x fa-refresh fa-spin" ng-if="!topics"></i>
             <div class="btn-group btn-group-sm topics-btn-group" ng-repeat="topic in topics" ng-if="topics">
               <a class="btn btn-default" ng-href="/admin-new/content/topics/{{getTopicUid(topic)}}" ng-bind="topic.name"></a>
+              <button type="button" class="btn hidden-xs" ng-class="{'btn-default': !topic.infoActive, 'btn-info': topic.infoActive}" ng-click="getTopicInfo(topic)">
+                <i class="fa fa-info-circle"></i>
+              </button>
               <button type="button" class="btn btn-default">
                 <i class="fa fa-trash"></i>
               </button>

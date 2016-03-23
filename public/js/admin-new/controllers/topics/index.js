@@ -31,6 +31,7 @@
         for(var i = 0; i < Math.ceil(total / $scope.paginationLimit); i++) {
           $scope.pages.push({});
         }
+        $scope.setLocationSearch();
       });
     };
 
@@ -52,6 +53,10 @@
         offset = $scope.pages.length - 1;
       }
 
+      if(offset === $scope.paginationOffset) {
+        return;
+      }
+
       $scope.paginationOffset = offset;
       $scope.getTopics();
     };
@@ -62,6 +67,13 @@
         offset: $scope.paginationOffset,
         limit: $scope.paginationLimit
       });
+    };
+
+    $scope.getTopicInfo = function(topic) {
+      for(var i = 0; i < $scope.topics.length; i++) {
+        $scope.topics[i].infoActive = false;
+      }
+      topic.infoActive = true;
     };
 
     $scope.getTopics();
