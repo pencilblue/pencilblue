@@ -21,7 +21,7 @@
               <button type="button" class="btn hidden-xs" ng-class="{'btn-default': !topic.infoActive, 'btn-info': topic.infoActive}" ng-click="getTopicInfo(topic)">
                 <i class="fa fa-info-circle"></i>
               </button>
-              <button type="button" class="btn btn-default">
+              <button type="button" class="btn btn-default" ng-click="confirmDeletion(topic)">
                 <i class="fa fa-trash"></i>
               </button>
             </div>
@@ -32,5 +32,6 @@
         </div>
       </div>
     </div>
+    ^tmp_admin-new=elements=deletion_modal^
   </div>
 ^tmp_admin-new=footer^

@@ -17,14 +17,14 @@
     $rootScope.subNavKey = 'manage_topics';
 
     $scope.searchText = $location.search().q || '';
-    $scope.paginationOffset = $location.search().offset || 0;
-    $scope.paginationLimit = $location.search().limit || 100;
+    $scope.paginationPage = parseInt($location.search().page) || 0;
+    $scope.paginationLimit = parseInt($location.search().limit) || 100;
     $scope.pages = [];
     $scope.deleteNameKey = 'name';
 
     $scope.getTopics = function() {
       $scope.topics = null;
-      topicsFactory.getTopics({q: $scope.searchText, $offset: $scope.paginationOffset, $limit: $scope.paginationLimit}, function(error, topics, total) {
+      topicsFactory.getTopics({q: $scope.searchText, $offset: $scope.paginationPage * $scope.paginationLimit, $limit: $scope.paginationLimit}, function(error, topics, total) {
         $scope.topics = topics;
         $scope.totalItems = total;
         $scope.pages = [];
@@ -40,8 +40,8 @@
     };
 
     $scope.search = function() {
+      $scope.paginationPage = 0;
       $scope.setLocationSearch();
-      $scope.paginationOffset = 0;
       $scope.getTopics();
     };
 
@@ -53,18 +53,18 @@
         offset = $scope.pages.length - 1;
       }
 
-      if(offset === $scope.paginationOffset) {
+      if(offset === $scope.paginationPage) {
         return;
       }
 
-      $scope.paginationOffset = offset;
+      $scope.paginationPage = offset;
       $scope.getTopics();
     };
 
     $scope.setLocationSearch = function() {
       $location.search({
         q: $scope.searchText.length ? $scope.searchText : null,
-        offset: $scope.paginationOffset,
+        page: $scope.paginationPage,
         limit: $scope.paginationLimit
       });
     };
@@ -74,6 +74,33 @@
         $scope.topics[i].infoActive = false;
       }
       topic.infoActive = true;
+    };
+
+    $scope.confirmDeletion = function(topic) {
+      $scope.objectToDelete = topic;
+      $scope.deletionNameKey = 'name';
+      angular.element('.deletion-modal').modal('show');
+    };
+
+    $scope.deleteObject = function() {
+      if(!$scope.objectToDelete) {
+        return;
+      }
+
+      $scope.deleting = true;
+      topicsFactory.deleteTopic($scope.objectToDelete._id || $scope.objectToDelete.id, function(error, result) {
+        if(error) {
+          $scope.deleting = false;
+          $scope.errorMessage = error.message;
+          angular.element('.deletion-modal').modal('hide');
+          return;
+        }
+
+        angular.element('.deletion-modal').modal('hide');
+        $scope.paginationPage = 0;
+        $scope.setLocationSearch();
+        $scope.getTopics();
+      });
     };
 
     $scope.getTopics();
