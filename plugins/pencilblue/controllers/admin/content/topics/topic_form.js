@@ -19,10 +19,10 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for creating and editing topics
      */
@@ -112,7 +112,7 @@ module.exports = function(pb) {
     };
 
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, TopicForm.getSubNavItems);
+    //pb.AdminSubnavService.registerFor(SUB_NAV_KEY, TopicForm.getSubNavItems);
 
     //exports
     return TopicForm;

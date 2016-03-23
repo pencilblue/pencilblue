@@ -15,7 +15,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = function AdminTopicsControllerModule(pb) {
+module.exports = function AdminTopicsFormControllerModule(pb) {
 
   //pb dependencies
   var util            = pb.util;
@@ -23,11 +23,11 @@ module.exports = function AdminTopicsControllerModule(pb) {
 
   /**
    * Interface for the admin dashboard
-   * @class AdminTopicsController
+   * @class AdminTopicsFormController
    * @constructor
    */
-  function AdminTopicsController(){}
-  util.inherits(AdminTopicsController, pb.BaseAdminController);
+  function AdminTopicsFormController(){}
+  util.inherits(AdminTopicsFormController, pb.BaseAdminController);
 
   /**
    *
@@ -36,14 +36,15 @@ module.exports = function AdminTopicsControllerModule(pb) {
    * @param cb
    *
    */
-  AdminTopicsController.prototype.render = function (cb) {
+  AdminTopicsFormController.prototype.render = function (cb) {
     this.setPageName(this.localizationService.get('TOPICS'));
-    this.ts.load('admin-new/content/topics/index', function(error, result) {
+    this.ts.registerLocal('topic_id', this.pathVars.id || '');
+    this.ts.load('admin-new/content/topics/form', function(error, result) {
       cb({content: result});
     });
   };
 
-  AdminTopicsController.getSubNavItems = function(key, ls, data) {
+  AdminTopicsFormController.getSubNavItems = function(key, ls, data) {
       return [{
           name: 'new_topic',
           title: '',
@@ -58,8 +59,8 @@ module.exports = function AdminTopicsControllerModule(pb) {
   };
 
   //register admin sub-nav
-  pb.AdminSubnavService.registerFor('manage_topics', AdminTopicsController.getSubNavItems);
+  pb.AdminSubnavService.registerFor('topic_form', AdminTopicsFormController.getSubNavItems);
 
   //exports
-  return AdminTopicsController;
+  return AdminTopicsFormController;
 };

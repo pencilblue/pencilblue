@@ -1,0 +1,42 @@
+^tmp_admin-new=head^
+  <script src="/js/admin-new/services/uid.js"></script>
+  <script src="/js/admin-new/directives/go_back.js"></script>
+  <script src="/js/admin-new/factories/content/topics.js"></script>
+  <script src="/js/admin-new/controllers/topics/form.js"></script>
+  <script>
+    var topicId = '^topic_id^';
+  </script>
+  <div ng-app="pencilblue.admin.app" ng-controller="AdminTopicsFormController">
+    ^tmp_admin-new=elements=left_nav^
+    ^tmp_admin-new=elements=pill_nav^
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row-fluid">
+          <div class="col-md-12">
+            <i class="fa fa-2x fa-refresh fa-spin" ng-if="!topic"></i>
+            <h1 ng-bind="'^loc_EDIT^ ' + topicName" ng-if="topicName"></h1>
+            <h1 ng-if="!topicId">^loc_NEW_TOPIC^</h1>
+          </div>
+          <div class="col-md-8" ng-if="topic">
+            <form name="topicForm" ng-submit="saveTopic()" no-validate>
+              <div class="form-group" ng-class="{'has-error': formSubmitted && !topicForm.name.$valid}">
+                <label>^loc_TOPIC_NAME^</label>
+                <input type="text" name="name" class="form-control" ng-model="topic.name" required></input>
+              </div>
+              ^tmp_admin-new=elements=alert^
+              <button type="button" class="btn btn-default" go-back>
+                <i class="fa fa-ban"></i>
+                ^loc_CANCEL^
+              </button>
+              <button type="submit" class="btn" ng-class="{'btn-primary': !saveSuccess, 'btn-success': saveSuccess}" ng-disabled="!topicForm.$valid || saveSuccess">
+                <i class="fa fa-save" ng-class="{'fa-save': !saving && !saveSuccess, 'fa-check': !saving && saveSuccess, 'fa-refresh fa-spin': saving}"></i>
+                ^loc_SAVE^
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    ^tmp_admin-new=elements=deletion_modal^
+  </div>
+^tmp_admin-new=footer^

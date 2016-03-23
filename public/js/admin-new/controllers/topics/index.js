@@ -20,7 +20,6 @@
     $scope.paginationPage = parseInt($location.search().page) || 0;
     $scope.paginationLimit = parseInt($location.search().limit) || 100;
     $scope.pages = [];
-    $scope.deleteNameKey = 'name';
 
     $scope.getTopics = function() {
       $scope.topics = null;
@@ -88,7 +87,7 @@
       }
 
       $scope.deleting = true;
-      topicsFactory.deleteTopic($scope.objectToDelete._id || $scope.objectToDelete.id, function(error, result) {
+      topicsFactory.deleteTopic($scope.getTopicUid($scope.objectToDelete), function(error, result) {
         if(error) {
           $scope.deleting = false;
           $scope.errorMessage = error.message;

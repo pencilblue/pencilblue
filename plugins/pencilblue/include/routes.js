@@ -1461,7 +1461,7 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin-new', 'index.js'),
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/index.js'),
             content_type: 'text/html'
         },
         {
@@ -1470,7 +1470,25 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin-new', 'content', 'topics', 'index.js'),
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/topics/index.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/topics/new",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/topics/form.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/topics/:id",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/topics/form.js'),
             content_type: 'text/html'
         }
     ];
