@@ -29,7 +29,7 @@ module.exports = function PluginRepositoryModule(pb) {
      * @type {String}
      */
     var PLUGIN_COLL = 'plugin';
-    
+
     /**
      * @private
      * @static
@@ -38,7 +38,7 @@ module.exports = function PluginRepositoryModule(pb) {
      * @type {String}
      */
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
-    
+
     /**
      * @private
      * @static
@@ -50,6 +50,7 @@ module.exports = function PluginRepositoryModule(pb) {
 
     /**
      * Empty constructor because this object uses static methods.
+     * @class PluginRepository
      * @constructor
      */
     function PluginRepository() {}

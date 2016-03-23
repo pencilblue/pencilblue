@@ -59,7 +59,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @static
      * @readonly
      * @property MULTISITE_NAV
-     * @returns {Array}
+     * @return {Array}
      */
     var MULTISITE_NAV = Object.freeze({
             id: 'site_entity',
@@ -77,7 +77,7 @@ module.exports = function AdminNavigationModule(pb) {
      * @static
      * @readonly
      * @property CONTENT_NAV
-     * @returns {Array}
+     * @return {Array}
      */
     var CONTENT_NAV = Object.freeze({
         id: 'content',

@@ -126,7 +126,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @method getSiteValue
      * @param self
      * @param internalKey
-     * @returns {*}
+     * @return {*}
      */
     function getSiteValue(self, internalKey) {
         var rawVal = null;
@@ -148,7 +148,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @method getCorrectValueField
      * @param rawVal
      * @param valueField
-     * @returns {*}
+     * @return {*}
      */
     function getCorrectValueField(rawVal, valueField) {
         var value = null;
@@ -276,10 +276,12 @@ module.exports = function MemoryEntityServiceModule(pb) {
 
     /**
      * Retrieves the internal key format for a given key
+     * @static
+     * @method getKey
      * @param {string} key
      * @param {string} site
      * @param {string} objType
-     * @returns {string}
+     * @return {string}
      */
     MemoryEntityService.getKey = function(key, site, objType) {
         return key + '-' + site + '-' + objType;
