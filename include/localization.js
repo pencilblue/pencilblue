@@ -482,43 +482,63 @@ module.exports = function LocalizationModule(pb) {
         Localization.storage = {};
         Localization.keys = {};
 
-        //create path to localization directory
-        var options = {
-            recursive: false,
-            filter: function(filePath) { return filePath.indexOf(JS_EXT) === filePath.length - JS_EXT.length; }
-        };
-        var localizationDir = path.join(pb.config.docRoot, 'public', 'localization');
-        util.getFiles(localizationDir, options, function(err, files) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
+        if(pb.config.localization && pb.config.localization.db){
+            var opts = {
+                where: {}
+            };
+            var queryService = new pb.SiteQueryService();
 
-            var compoundedResult = true;
-            files.forEach(function(file) {
-
-                //parse the file
-                var obj = null;
-                try {
-                    obj = require(file);
+            queryService.q("localizations", opts, function (err, result) {
+                if (util.isError(err)) {
+                    pb.log.error(err);
                 }
-                catch(e) {
-                    pb.log.warn('Localization: Failed to load core localization file [%s]. %s', absolutePath, e.stack);
-
-                    //we failed so skip this file
-                    return;
+                for(var i = 0; i < result.length; i++) {
+                    Localization.storage[result[i]._id] = result[0].storage[result[i]._id];
                 }
 
-                //convert file name to locale
-                var localeObj = Localization.parseLocaleStr(file);
+                return cb();
+            });
+        }
+            //create path to localization directory
+            var options = {
+                recursive: false,
+                filter: function (filePath) {
+                    return filePath.indexOf(JS_EXT) === filePath.length - JS_EXT.length;
+                }
+            };
+            var localizationDir = path.join(pb.config.docRoot, 'public', 'localization');
+            util.getFiles(localizationDir, options, function (err, files) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
 
-                //register the localization as defaults (call private method)
-                compoundedResult &= Localization._registerLocale(localeObj, obj);
+                var compoundedResult = true;
+                files.forEach(function (file) {
+
+                    //parse the file
+                    var obj = null;
+                    try {
+                        obj = require(file);
+                    }
+                    catch (e) {
+                        pb.log.warn('Localization: Failed to load core localization file [%s]. %s', absolutePath, e.stack);
+
+                        //we failed so skip this file
+                        return;
+                    }
+
+                    //convert file name to locale
+                    var localeObj = Localization.parseLocaleStr(file);
+
+                    //register the localization as defaults (call private method)
+                    compoundedResult &= Localization._registerLocale(localeObj, obj);
+                });
+
+                //set the supported locales
+                pb.log.debug("Localization: Supporting - " + JSON.stringify(Object.keys(Localization.supportedLookup)));
+                cb(null, compoundedResult);
             });
 
-            //set the supported locales
-            pb.log.debug("Localization: Supporting - " + JSON.stringify(Object.keys(Localization.supportedLookup)));
-            cb(null, compoundedResult);
-        });
     };
 
     /**
