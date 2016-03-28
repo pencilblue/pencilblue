@@ -269,7 +269,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
                 //incoming requests to determine if this the controller to execute.
                 //The route handler supports parameters and wild cards such as:
                 //"/user/:id/*
-                path: "/randomtext",
+                path: "/sample/random/text",
 
                 //indicates if the route requires the user to be authenticated in
                 //order to access the resource.  Defaults to false.

@@ -16,21 +16,31 @@
 */
 
 module.exports = function LocalizationApiControllerModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
 
+    //services
+    var dbLocalizationService = require("../../services/localization/db_localizations.js")(pb);
+    var fileLocalizationService = require("../../services/localization/file_localizations.js")(pb);
+
     /**
-     * 
+     *
      * @class LocalizationApiController
      * @constructor
      * @extends BaseController
      */
-    function LocalizationApiController(){}
+    function LocalizationApiController(){
+        if(pb.config.localization && pb.config.localization.db){
+            this.saveLocaleService = new dbLocalizationService();
+        } else {
+            this.saveLocaleService = new fileLocalizationService();
+        }
+    }
     util.inherits(LocalizationApiController, pb.BaseController);
 
     /**
-     * Retrieves the translation file and converts it to a JSON.  It then formats 
+     * Retrieves the translation file and converts it to a JSON.  It then formats
      * it such that it is valid javascript that can be executed client side.
      * @method getAsScript
      * @param {Function} cb
@@ -38,13 +48,39 @@ module.exports = function LocalizationApiControllerModule(pb) {
     LocalizationApiController.prototype.getAsScript = function(cb) {
         var locale = this.query.locale || this.ls.language;
         var plugin = this.query.plugin;
-        
+
         var package = pb.Localization.getLocalizationPackage(locale, { plugin: plugin });
         var content = {
             content: 'var loc = ' + JSON.stringify(package) + ';',
             content_type: 'text/javascript'
         };
         cb(content);
+    };
+
+    LocalizationApiController.prototype.saveLocales = function(cb) {
+        var post = this.body;
+        this.saveLocaleService.saveLocales(post, cb);
+    };
+
+    LocalizationApiController.prototype.getLocales = function (cb) {
+        var self = this;
+
+        if (!self.query.site || !self.query.plugin || !self.query.lang) {
+            return cb({
+                code: 500,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no site passed in')
+            });
+        }
+
+        self.saveLocaleService.getLocales(self.query, function(err, data){
+            if(err){
+                return cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'found no locales for this site/lang/plugin combination')
+                });
+            }
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, data)});
+        });
     };
 
     //exports

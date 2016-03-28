@@ -68,9 +68,8 @@ module.exports = function LocalizationModule(pb) {
     function setupAngularObj(self, cb){
         var pluginService = new pb.PluginService({site: self.site});
         var activePlugins = pluginService.getActivePluginNames();
-        var supportedLocales = {},
-            savedLocales = {},
-            selectedLocales = [],
+        var savedLocales = {},
+            selectedLocales,
             defaultLocale = pb.Localization.getDefaultLocale();
 
         self.ts.registerLocal("active_theme", new pb.TemplateValue(self.activeTheme,false));

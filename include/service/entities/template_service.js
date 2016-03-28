@@ -110,12 +110,7 @@ module.exports = function(pb) {
          * @property reprocess
          * @type {Boolean}
          */
-        if(pb.config.templateService.useReprocess) {
-            this.reprocess = true;
-        }
-        else {
             this.reprocess = false;
-        }
 
         /**
          * @property unregisteredFlagTemplate
