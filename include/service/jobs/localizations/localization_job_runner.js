@@ -1,43 +1,41 @@
 var util = require('../../../util.js');
 
-module.exports = function SiteJobRunnerModule(pb) {
+module.exports = function LocalizationJobRunnerModule(pb) {
 
     /**
      * Setup for running site activation job.
      * @constructor SiteJobRunner
      * @extends ClusterJobRunner
      */
-    function SiteJobRunner() {
-        SiteJobRunner.super_.call(this);
-
-        this.siteService = new pb.SiteService();
+    function LocalizationJobRunner() {
+        LocalizationJobRunner.super_.call(this);
     }
-    util.inherits(SiteJobRunner, pb.ClusterJobRunner);
+    util.inherits(LocalizationJobRunner, pb.ClusterJobRunner);
 
     /**
-     * The site for this instance of SiteJobRunner
+     * The site for this instance of LocalizationJobRunner
      * @type {string} - default to empty string
      */
-    SiteJobRunner.prototype.site = '';
+    LocalizationJobRunner.prototype.site = '';
 
     /**
-     * Set the site for an instance of SiteJobRunner.
+     * Set the site for an instance of LocalizationJobRunner.
      * @param {Object} options -
      * @param {String} options.uid - site unique id
      * @param {String} options.hostname - result of site hostname edit/create
      * @param {String} options.displayName - result of site display name edit/create
      * @returns {Object} the instance in which the site was set.
      */
-    SiteJobRunner.prototype.setSite = function(options) {
+    LocalizationJobRunner.prototype.setSite = function(options) {
         this.site = options;
         return this;
     };
 
     /**
-     * Get the current site of this instance of SiteJobRunner.
+     * Get the current site of this instance of LocalizationJobRunner.
      * @returns {Object} the site object
      */
-    SiteJobRunner.prototype.getSite = function() {
+    LocalizationJobRunner.prototype.getSite = function() {
         return this.site;
     };
 
@@ -52,7 +50,7 @@ module.exports = function SiteJobRunnerModule(pb) {
      * @param {Array} results - array of results from the tasks run
      * @param {Function} cb - callback function
      */
-    SiteJobRunner.prototype.processClusterResults = function(err, results, cb) {
+    LocalizationJobRunner.prototype.processClusterResults = function(err, results, cb) {
         if (util.isError(err)) {
             this.log(err.stack);
             return cb(err, results);
@@ -85,5 +83,5 @@ module.exports = function SiteJobRunnerModule(pb) {
     };
 
     //exports
-    return SiteJobRunner;
+    return LocalizationJobRunner;
 };

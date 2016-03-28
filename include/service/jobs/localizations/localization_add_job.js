@@ -50,7 +50,7 @@ module.exports = function LocalizationAddJobModule(pb) {
             },
 
             //add site to request handler site collection across cluster
-            self.createCommandTask('activate_site', activateCommand)
+            self.createCommandTask('update_localizations', activateCommand)
         ];
         cb(null, tasks);
     };
@@ -82,26 +82,22 @@ module.exports = function LocalizationAddJobModule(pb) {
     LocalizationAddJob.prototype.doPersistenceTasks = function(cb) {
         var site   = this.getSite();
         var tasks     = [
-            //set site to active in mongo
+            //update localization storage
             function(callback) {
-                var dao = new pb.DAO();
-                dao.loadByValue('uid', site.uid, 'site', function(err, site) {
+                var opts = {
+                    where: {_id: site}
+                };
+                var queryService = new pb.SiteQueryService({site: site, onlyThisSite: true});
+                queryService.q("localizations", opts, function (err, result) {
                     if (util.isError(err)) {
-                        return callback(err, null);
+                        pb.log.error(err);
+                        callback(err);
                     }
-                    if (!site) {
-                        return callback(new Error('Site not found'), null);
+                    if (result && result[0] && result[0].storage) {
+                        //This this needs to change to a method that removes things as well as adding them.
+                        pb.Localization.storage = util.deepMerge(result[0].storage, pb.Localization.storage);
                     }
-
-                    site.active = true;
-                    dao.save(site, function(err, result) {
-                        if(util.isError(err)) {
-                            return cb(err, null);
-                        }
-
-                        pb.RequestHandler.activateSite(site);
-                        callback(err, result);
-                    });
+                    callback(null, true);
                 });
             }
         ];
