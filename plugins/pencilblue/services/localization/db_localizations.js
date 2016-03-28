@@ -38,32 +38,6 @@ module.exports = function (pb) {
 
     util.inherits(Localization, pb.BaseObjectService);
 
-    function removeAllLocalesFromDoc(post, doc) {
-        var locale = splitLocale(post.lang);
-
-        var keySet = Object.keys(doc.storage[post.site]);
-        keySet = keySet.slice(2); // Remove isKey and isSite (will need to adapt when we remove isKey from the site level object)
-        for (var i = 0; i < keySet.length; i++) {
-            if (doc.storage[post.site][keySet[i]][locale.language] && doc.storage[post.site][keySet[i]][locale.language][locale.country]
-                && doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins[post.plugin]) {
-
-                delete doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins[post.plugin];
-                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins).length === 0) {
-                    delete doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins;
-                }
-                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][locale.language][locale.country]).length === 0) {
-                    delete doc.storage[post.site][keySet[i]][locale.language][locale.country];
-                }
-                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][locale.language]).length === 0) {
-                    delete doc.storage[post.site][keySet[i]][locale.language];
-                }
-                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]]).length <= 1) { // It will always have the isKey property, if it has more than 1 property that means it has children
-                    delete doc.storage[post.site][keySet[i]];
-                }
-            }
-        }
-        return doc;
-    }
 
     Localization.prototype.saveLocales = function (post, cb) {
         var self = this;
@@ -144,6 +118,45 @@ module.exports = function (pb) {
 
         return document;
 
+    }
+
+    /**
+     * Takes in a post body, and the localization document from the database, with these it will see if
+     * any of the keys in the document have the language, country, and plugin that are on the post body
+     * if it does, it will delete these values.  This is to allow for them to be rebuilt, thus allowing
+     * us to "delete" keys that were previously in use.
+     *
+     * It also cleans up the object structure to prevent orphaned branches in the document.  Keys that never
+     * resolve to a value
+     * @param post, the post body with siteId and the language/country that are being edited along with the plugin
+     * @param doc, the localization document from the database
+     * @returns a modified document that has had all occurrences of the affected language/country/plugin values removed
+     */
+    function removeAllLocalesFromDoc(post, doc) {
+        var locale = splitLocale(post.lang);
+
+        var keySet = Object.keys(doc.storage[post.site]);
+        keySet = keySet.slice(2); // Remove isKey and isSite (will need to adapt when we remove isKey from the site level object)
+        for (var i = 0; i < keySet.length; i++) {
+            if (doc.storage[post.site][keySet[i]][locale.language] && doc.storage[post.site][keySet[i]][locale.language][locale.country]
+                && doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins[post.plugin]) {
+
+                delete doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins[post.plugin];
+                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins).length === 0) {
+                    delete doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins;
+                }
+                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][locale.language][locale.country]).length === 0) {
+                    delete doc.storage[post.site][keySet[i]][locale.language][locale.country];
+                }
+                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][locale.language]).length === 0) {
+                    delete doc.storage[post.site][keySet[i]][locale.language];
+                }
+                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]]).length <= 1) { // It will always have the isKey property, if it has more than 1 property that means it has children
+                    delete doc.storage[post.site][keySet[i]];
+                }
+            }
+        }
+        return doc;
     }
 
     /**
