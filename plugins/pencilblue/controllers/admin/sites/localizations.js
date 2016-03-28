@@ -96,7 +96,7 @@ module.exports = function LocalizationModule(pb) {
         });
 
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-        self.ts.load('admin/sites/localization', function(err,result) {
+        self.ts.load('admin/localization/localization', function(err,result) {
             cb({content: result});
         });
     }
