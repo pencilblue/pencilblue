@@ -48,7 +48,7 @@ module.exports = function(pb) {
          * @property userService
          * @type {UserService}
          */
-        this.userService = context.userService || new pb.UserService(context);
+        this.userService = context.userService || new pb.UserService(context);console.log('here');console.log(this.userService);
     }
 
     /**

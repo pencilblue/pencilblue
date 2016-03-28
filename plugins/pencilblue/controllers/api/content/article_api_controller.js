@@ -96,6 +96,12 @@ module.exports = function(pb) {
             };
         }
 
+        var topicId = q.topic;
+        if (pb.ValidationService.isIdStr(topicId, true)) {
+            where = where || {};
+            where.article_topics = topicId;
+        }
+
         return {
             where: where,
             failures: failures

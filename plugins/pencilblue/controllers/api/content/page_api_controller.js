@@ -53,7 +53,7 @@ module.exports = function(pb) {
         };
         PageApiController.super_.prototype.init.apply(this, [context, init]);
     };
-    
+
     /**
      * Process the generic API options as well as the page specific "render" option
      * @method processQuery
@@ -90,6 +90,12 @@ module.exports = function(pb) {
                     {subheading: pattern},
                 ]
             };
+        }
+
+        var topicId = q.topic;
+        if (pb.ValidationService.isIdStr(topicId, true)) {
+            where = where || {};
+            where.page_topics = topicId;
         }
 
         return {
