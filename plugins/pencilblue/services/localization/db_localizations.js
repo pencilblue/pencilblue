@@ -18,7 +18,7 @@
 var path = require('path');
 var fs = require('fs');
 
-module.exports = function(pb) {
+module.exports = function (pb) {
 
     //pb dependencies
     var util = pb.util;
@@ -26,7 +26,7 @@ module.exports = function(pb) {
     /**
      * Saves the site's Localization settings
      */
-    function Localization(context){
+    function Localization(context) {
         if (!util.isObject(context)) {
             context = {};
         }
@@ -35,34 +35,44 @@ module.exports = function(pb) {
         Localization.super_.call(this, context);
         this.dao = new pb.DAO();
     }
+
     util.inherits(Localization, pb.BaseObjectService);
 
-    function removeAllLocalesFromDoc(post, doc){
-        var lang = "__"+post.lang.split('-')[0];
-        var country = "__"+post.lang.split('-')[1];
+    function removeAllLocalesFromDoc(post, doc) {
+        var locale = splitLocale(post.lang);
+
         var keySet = Object.keys(doc.storage[post.site]);
-        keySet = keySet.slice(2);
-        for(var i = 0; i < keySet.length; i++){
-            if(doc.storage[post.site][keySet[i]][lang] && doc.storage[post.site][keySet[i]][lang][country]){
-                delete doc.storage[post.site][keySet[i]][lang][country];
-            }
-            if(doc.storage[post.site][keySet[i]][lang] && Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][lang]).length === 0){
-                delete doc.storage[post.site][keySet[i]][lang];
-            }
-            if(doc.storage[post.site][keySet[i]] && Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]]).length <= 1){ // It will always have the isKey property, if it has more than 1 that means it has children
-                delete doc.storage[post.site][keySet[i]];
+        keySet = keySet.slice(2); // Remove isKey and isSite (will need to adapt when we remove isKey from the site level object)
+        for (var i = 0; i < keySet.length; i++) {
+            if (doc.storage[post.site][keySet[i]][locale.language] && doc.storage[post.site][keySet[i]][locale.language][locale.country]
+                && doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins[post.plugin]) {
+
+                delete doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins[post.plugin];
+                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins).length === 0) {
+                    delete doc.storage[post.site][keySet[i]][locale.language][locale.country].__plugins;
+                }
+                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][locale.language][locale.country]).length === 0) {
+                    delete doc.storage[post.site][keySet[i]][locale.language][locale.country];
+                }
+                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][locale.language]).length === 0) {
+                    delete doc.storage[post.site][keySet[i]][locale.language];
+                }
+                if (Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]]).length <= 1) { // It will always have the isKey property, if it has more than 1 property that means it has children
+                    delete doc.storage[post.site][keySet[i]];
+                }
             }
         }
         return doc;
     }
-    Localization.prototype.saveLocales = function(post, cb){
+
+    Localization.prototype.saveLocales = function (post, cb) {
         var self = this;
         var col = "localizations";
         var opts = {
-            where: {_id:post.site}
+            where: {_id: post.site}
         };
         this.getSingle(opts, function (err, doc) {
-            if(!doc || !doc.storage) {
+            if (!doc || !doc.storage) {
                 doc = {_id: post.site, storage: {}};
             }
             doc = removeAllLocalesFromDoc(post, doc);
@@ -95,10 +105,9 @@ module.exports = function(pb) {
         });
     };
 
-    Localization.prototype.getLocales = function(post, cb){
-        var self = this;
+    Localization.prototype.getLocales = function (post, cb) {
         var opts = {
-            where: {_id:post.site}
+            where: {_id: post.site}
         };
         this.getSingle(opts, function (err, result) {
             if (util.isError(err)) {
@@ -109,8 +118,15 @@ module.exports = function(pb) {
             cb(null, displayObj);
         });
     };
-
-    function formatDocument(element, data){
+    /**
+     * Converts a single locale key value pair from the admin panel into a single
+     * document for the database/locale storage object
+     *
+     * @param element, the key value object to be used in creation of the document
+     * @param data, the whole data object from the post, used to get the affected locale and plugin
+     * @returns document, a formatted document ready to be added to the sites storage object in the db
+     */
+    function formatDocument(element, data) {
 
         var locale = splitLocale(data.lang);
         var pluginText = "__plugins";
@@ -122,7 +138,7 @@ module.exports = function(pb) {
         document[locale.language][locale.country].__plugins = {};
         document[locale.language][locale.country][pluginText] = {};
         document[locale.language][locale.country][pluginText][data.plugin] = {
-            isParameterized:false,
+            isParameterized: false,
             value: element.value
         };
 
@@ -130,9 +146,19 @@ module.exports = function(pb) {
 
     }
 
-    function convertLocalesToDisplayObject(lang, selectedPlugin, site, data){
-        if(!data || !data.storage){
-            data = { storage: {}};
+    /**
+     * Does the inverse of the FormatDocument function.  Will take an item from the DB and
+     * convert it into a flatter structure that the admin panel will be able to use
+     *
+     * @param lang
+     * @param selectedPlugin
+     * @param site
+     * @param data
+     * @returns an array of key value objects for use on the admin panel
+     */
+    function convertLocalesToDisplayObject(lang, selectedPlugin, site, data) {
+        if (!data || !data.storage) {
+            data = {storage: {}};
         }
         var siteLocs = data.storage[site] || {};
         var localeObj = splitLocale(lang);
@@ -144,23 +170,24 @@ module.exports = function(pb) {
         return displayObj;
     }
 
-    function buildKVObject(data, localeObj, selectedPlugin){
+    function buildKVObject(data, localeObj, selectedPlugin) {
         var kvList = {};
         var keyList = Object.keys(data);
-        for(var i = 0; i < keyList.length; i++){
-            if(!data[keyList[i]].isSite){
+        for (var i = 0; i < keyList.length; i++) {
+            if (!data[keyList[i]].isSite) {
                 var value = checkKeyObject(data[keyList[i]], localeObj, selectedPlugin);
-                if(value){
-                    kvList[keyList[i]]=value;
+                if (value) {
+                    kvList[keyList[i]] = value;
                 }
             }
         }
         return kvList;
     }
-    function checkKeyObject(keyObj,localeObj,selectedPlugin){
-        if(keyObj[localeObj.language]){
-            if(keyObj[localeObj.language][localeObj.country]){
-                if(keyObj[localeObj.language][localeObj.country].__plugins) {
+
+    function checkKeyObject(keyObj, localeObj, selectedPlugin) {
+        if (keyObj[localeObj.language]) {
+            if (keyObj[localeObj.language][localeObj.country]) {
+                if (keyObj[localeObj.language][localeObj.country].__plugins) {
                     if (keyObj[localeObj.language][localeObj.country].__plugins[selectedPlugin]) {
                         return keyObj[localeObj.language][localeObj.country].__plugins[selectedPlugin].value;
                     }
@@ -170,11 +197,12 @@ module.exports = function(pb) {
         return '';
     }
 
-    function splitLocale(lang){
-        var locale = {country:'', language:''};
+    function splitLocale(lang) {
+        var locale = {country: '', language: ''};
         var langObj = lang.split('-');
-        if(langObj.length !== 2){
-            return new Error('lang couldnt be split into locale');
+        if (langObj.length !== 2) {
+            pb.log.error('Param lang: ' + lang + ' could not be split into a locale object!');
+            return locale;
         }
         locale.language = "__" + langObj[0];
         locale.country = "__" + langObj[1];
