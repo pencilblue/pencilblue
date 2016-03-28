@@ -358,20 +358,6 @@ module.exports = function DAOModule(pb) {
     };
 
     /**
-     * Used to help transition over to eliminating the MongoDB _id field.
-     * @static
-     * @method mapSimpleIdField
-     * @param doc
-     * @returns {object}
-     */
-    DAO.mapSimpleIdField = function(doc) {
-        if (typeof doc.id === 'undfined') {
-            doc._id;
-        }
-        return doc;
-    };
-
-    /**
      * Retrieves a reference to the DB with active connection
      * @method getDb
      * @param {Function} cb
@@ -426,6 +412,7 @@ module.exports = function DAOModule(pb) {
 
             //execute persistence operation
             db.collection(dbObj.object_type).save(dbObj, options, function(err/*, writeOpResult*/) {
+                DAO.mapSimpleIdField(dbObj);
                 cb(err, dbObj);
             });
         });
@@ -987,6 +974,20 @@ module.exports = function DAOModule(pb) {
      */
     DAO.areIdsEqual = function(id1, id2) {
         return id1.toString() === id2.toString();
+    };
+
+    /**
+     * Used to help transition over to eliminating the MongoDB _id field.
+     * @static
+     * @method mapSimpleIdField
+     * @param doc
+     * @returns {object}
+     */
+    DAO.mapSimpleIdField = function(doc) {
+        if (typeof doc.id === 'undefined') {
+            doc.id = doc._id;
+        }
+        return doc;
     };
 
     //exports
