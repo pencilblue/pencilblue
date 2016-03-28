@@ -37,6 +37,24 @@ module.exports = function(pb) {
     }
     util.inherits(Localization, pb.BaseObjectService);
 
+    function removeAllLocalesFromDoc(post, doc){
+        var lang = "__"+post.lang.split('-')[0];
+        var country = "__"+post.lang.split('-')[1];
+        var keySet = Object.keys(doc.storage[post.site]);
+        keySet = keySet.slice(2);
+        for(var i = 0; i < keySet.length; i++){
+            if(doc.storage[post.site][keySet[i]][lang] && doc.storage[post.site][keySet[i]][lang][country]){
+                delete doc.storage[post.site][keySet[i]][lang][country];
+            }
+            if(doc.storage[post.site][keySet[i]][lang] && Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]][lang]).length === 0){
+                delete doc.storage[post.site][keySet[i]][lang];
+            }
+            if(doc.storage[post.site][keySet[i]] && Object.getOwnPropertyNames(doc.storage[post.site][keySet[i]]).length <= 1){ // It will always have the isKey property, if it has more than 1 that means it has children
+                delete doc.storage[post.site][keySet[i]];
+            }
+        }
+        return doc;
+    }
     Localization.prototype.saveLocales = function(post, cb){
         var self = this;
         var col = "localizations";
@@ -47,7 +65,7 @@ module.exports = function(pb) {
             if(!doc || !doc.storage) {
                 doc = {_id: post.site, storage: {}};
             }
-
+            doc = removeAllLocalesFromDoc(post, doc);
             var objectHead = doc.storage;
             if (post.site) {
                 doc.storage[post.site] = doc.storage[post.site] || {isSite: true, isKey: true};
@@ -100,9 +118,7 @@ module.exports = function(pb) {
         document.__isKey = true;
 
         document[locale.language] = {};
-        document[locale.language].__isKey = true;
         document[locale.language][locale.country] = {};
-        document[locale.language][locale.country].__isKey = true;
         document[locale.language][locale.country].__plugins = {};
         document[locale.language][locale.country][pluginText] = {};
         document[locale.language][locale.country][pluginText][data.plugin] = {
