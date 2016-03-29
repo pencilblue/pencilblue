@@ -174,7 +174,7 @@ module.exports = function PB(config) {
     pb.SiteDeactivateJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_deactivate_job.js'))(pb);
     pb.SiteCreateEditJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_create_edit_job.js'))(pb);
     pb.LocalizationJobRunner = require(path.join(config.docRoot, '/include/service/jobs/localizations/localization_job_runner.js'))(pb);
-    pb.LocalizationAddJob    = require(path.join(config.docRoot, '/include/service/jobs/localizations/localization_add_job.js'))(pb);
+    pb.LocalizationUpdateJob    = require(path.join(config.docRoot, '/include/service/jobs/localizations/localization_update_job.js'))(pb);
 
     //Email settings and functions
     pb.EmailService = require(path.join(config.docRoot, '/include/email'))(pb);

@@ -64,8 +64,6 @@ module.exports = function LocalizationApiControllerModule(pb) {
             if(message.code && message.code == 500){
                 return cb(message);
             }
-            var localizationService = new pb.LocalizationService();
-            localizationService.updateLocalization(vars.id);
             cb(message);
         });
     };

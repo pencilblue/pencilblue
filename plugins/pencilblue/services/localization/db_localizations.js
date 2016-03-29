@@ -71,14 +71,15 @@ module.exports = function(pb) {
                         content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'ERROR_SAVING', result)
                     });
                 }
-
-                return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, 'SAVED')});
+                var localizationService = new pb.LocalizationService();
+                var jobId = localizationService.updateLocales(post.site);
+                var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, '', jobId);
+                cb({content: content});
             });
         });
     };
 
     Localization.prototype.getLocales = function(post, cb){
-        var self = this;
         var opts = {
             where: {_id:post.site}
         };

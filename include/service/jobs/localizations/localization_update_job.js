@@ -3,22 +3,22 @@
 var async = require('async');
 var util  = require('../../../util.js');
 
-module.exports = function LocalizationAddJobModule(pb) {
+module.exports = function LocalizationUpdateJobModule(pb) {
 
     /**
      * Job to pull the locales from the db and insert them in memory.
-     * @class LocalizationAddJob
+     * @class LocalizationUpdateJob
      * @constructor
      * @extends SiteJobRunner
      */
-    function LocalizationAddJob(){
-        LocalizationAddJob.super_.call(this);
+    function LocalizationUpdateJob(){
+        LocalizationUpdateJob.super_.call(this);
 
         //initialize
         this.init();
         this.setParallelLimit(1);
     }
-    util.inherits(LocalizationAddJob, pb.LocalizationJobRunner);
+    util.inherits(LocalizationUpdateJob, pb.LocalizationJobRunner);
 
     /**
      * Get tasks to update Localization storage across clusters.
@@ -26,7 +26,7 @@ module.exports = function LocalizationAddJobModule(pb) {
      * @override
      * @param {Function} cb - callback function
      */
-    LocalizationAddJob.prototype.getInitiatorTasks = function(cb) {
+    LocalizationUpdateJob.prototype.getInitiatorTasks = function(cb) {
         var self = this;
         //progress function
         var jobId = self.getId();
@@ -61,14 +61,27 @@ module.exports = function LocalizationAddJobModule(pb) {
      * @override
      * @param {Function} cb - callback function
      */
-    LocalizationAddJob.prototype.getWorkerTasks = function(cb) {
-        var self = this;
+    LocalizationUpdateJob.prototype.getWorkerTasks = function(cb) {
         var site = this.getSite();
         var tasks = [
-
-            //allow traffic to start routing for site
+            //update localization storage
             function(callback) {
-                self.siteService.startAcceptingSiteTraffic(site.uid, callback);
+                var opts = {
+                    where: {_id: site}
+                };
+                var queryService = new pb.SiteQueryService({site: site, onlyThisSite: true});
+                queryService.q("localizations", opts, function (err, result) {
+                    if (util.isError(err)) {
+                        pb.log.error(err);
+                        return callback(err);
+                    }
+                    if (result && result[0] && result[0].storage) {
+                        pb.Localization.storage[site] = result[0].storage[site];
+                    } else {
+                        pb.Localization.storage[site] = {};
+                    }
+                    callback(null, true);
+                });
             }
         ];
         cb(null, tasks);
@@ -79,7 +92,7 @@ module.exports = function LocalizationAddJobModule(pb) {
      * @method doPersistenceTasks
      * @param {Function} cb - callback function
      */
-    LocalizationAddJob.prototype.doPersistenceTasks = function(cb) {
+    LocalizationUpdateJob.prototype.doPersistenceTasks = function(cb) {
         var site   = this.getSite();
         var tasks     = [
             //update localization storage
@@ -91,11 +104,12 @@ module.exports = function LocalizationAddJobModule(pb) {
                 queryService.q("localizations", opts, function (err, result) {
                     if (util.isError(err)) {
                         pb.log.error(err);
-                        callback(err);
+                        return callback(err);
                     }
                     if (result && result[0] && result[0].storage) {
-                        //This this needs to change to a method that removes things as well as adding them.
-                        pb.Localization.storage = util.deepMerge(result[0].storage, pb.Localization.storage);
+                        pb.Localization.storage[site] = result[0].storage[site];
+                    } else {
+                        pb.Localization.storage[site] = {};
                     }
                     callback(null, true);
                 });
@@ -107,5 +121,5 @@ module.exports = function LocalizationAddJobModule(pb) {
     };
 
     //exports
-    return LocalizationAddJob;
+    return LocalizationUpdateJob;
 };
