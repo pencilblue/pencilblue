@@ -65,6 +65,36 @@
                             });
                 };
 
+                $scope.activeMaintenance = function(site) {
+                    site.name = site.displayName;
+                    $scope.actionPlugin = site;
+                    $scope.actionProgress = '0';
+                    $scope.consoleOutput = '';
+                    angular.element('#progress_modal').modal();
+                    $http.post('/actions/admin/sites/maintenance/activate/' + site.uid)
+                            .success(function(result) {
+                                $scope.onActivateOrDeactivateComplete(result);
+                            })
+                            .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
+                $scope.deactiveMaintenance = function(site) {
+                    site.name = site.displayName;
+                    $scope.actionPlugin = site;
+                    $scope.actionProgress = '0';
+                    $scope.consoleOutput = '';
+                    angular.element('#progress_modal').modal();
+                    $http.post('/actions/admin/sites/maintenance/deactivate/' + site.uid)
+                            .success(function(result) {
+                                $scope.onActivateOrDeactivateComplete(result);
+                            })
+                            .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
                 $scope.deleteSite = function(site) {
                     $http.delete('/actions/admin/sites/delete/' + site.uid)
                             .success(function(result) {

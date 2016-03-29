@@ -171,6 +171,8 @@ module.exports = function PB(config) {
     pb.SiteJobRunner         = require(path.join(config.docRoot, '/include/service/jobs/sites/site_job_runner.js'))(pb);
     pb.SiteActivateJob       = require(path.join(config.docRoot, '/include/service/jobs/sites/site_activate_job.js'))(pb);
     pb.SiteDeactivateJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_deactivate_job.js'))(pb);
+    pb.MaintenanceActivateJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/maintenance_activate_job.js'))(pb);
+    pb.MaintenanceDeactivateJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/maintenance_deactivate_job.js'))(pb);
     pb.SiteCreateEditJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_create_edit_job.js'))(pb);
 
     //Email settings and functions
