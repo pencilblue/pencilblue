@@ -79,11 +79,16 @@ module.exports = function LocalizationServiceModule(pb) {
 
         var name = util.format("UPDATE_LOCALES_FOR_%s", command.site);
         var job = new pb.LocalizationUpdateJob();
-        job.setRunAsInitiator(true);
-        job.init(name);
-        job.setSite({uid: siteUid});
-        job.run(cb);
-        return job.getId();
+        job.setRunAsInitiator(false);
+        job.init(name, command.jobId);
+        job.setSite(command.site);
+        job.run(function(err, result) {
+            var response = {
+                error: err ? err.stack : undefined,
+                result: result ? true : false
+            };
+            pb.CommandService.getInstance().sendInResponseTo(command, response);
+        });
     };
 
     /**

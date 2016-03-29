@@ -120,11 +120,12 @@
 
                     $http.post('/api/localizations/overrides', payload)
                             .success(function (result) {
-                                console.log(result);//$scope.onCreateOrEditComplete(result);
+                                $scope.onCreateOrEditComplete(result);
                             })
                             .error(function (error, status) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
+                                angular.element('#progress_modal').modal('hide');
                             });
                 };
 
@@ -203,7 +204,7 @@
 
                 $scope.onActionSuccess = function() {
                     $scope.actionIsComplete = true;
-                    $window.location.href = '/admin/plugins/premium/settings/redirects';
+                    $window.location.href = '/admin/localization';
                 };
 
                 $scope.onActionFailure = function(error) {
