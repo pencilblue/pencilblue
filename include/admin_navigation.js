@@ -59,11 +59,11 @@ module.exports = function AdminNavigationModule(pb) {
      * @static
      * @readonly
      * @property MULTISITE_NAV
-     * @returns {Array}
+     * @return {Array}
      */
     var MULTISITE_NAV = Object.freeze({
             id: 'site_entity',
-            title: 'MANAGE_SITES',
+            title: 'admin.MANAGE_SITES',
             icon: 'sitemap',
             href: '/admin/sites',
             access: SecurityService.ACCESS_ADMINISTRATOR
@@ -77,60 +77,60 @@ module.exports = function AdminNavigationModule(pb) {
      * @static
      * @readonly
      * @property CONTENT_NAV
-     * @returns {Array}
+     * @return {Array}
      */
     var CONTENT_NAV = Object.freeze({
         id: 'content',
-        title: 'CONTENT',
+        title: 'generic.CONTENT',
         icon: 'quote-right',
         href: '#',
         access: SecurityService.ACCESS_WRITER,
         children: [
             {
                 id: 'navigation',
-                title: 'NAVIGATION',
+                title: 'generic.NAVIGATION',
                 icon: 'th-large',
                 href: '/admin/content/navigation',
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'topics',
-                title: 'TOPICS',
+                title: 'admin.TOPICS',
                 icon: 'tags',
                 href: '/admin/content/topics',
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'pages',
-                title: 'PAGES',
+                title: 'admin.PAGES',
                 icon: 'file-o',
                 href: '/admin/content/pages',
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'articles',
-                title: 'ARTICLES',
+                title: 'admin.ARTICLES',
                 icon: 'files-o',
                 href: '/admin/content/articles',
                 access: SecurityService.ACCESS_WRITER
             },
             {
                 id: 'media',
-                title: 'MEDIA',
+                title: 'admin.MEDIA',
                 icon: 'camera',
                 href: '/admin/content/media',
                 access: SecurityService.ACCESS_WRITER
             },
             {
                 id: 'comments',
-                title: 'COMMENTS',
+                title: 'generic.COMMENTS',
                 icon: 'comments',
                 href: '/admin/content/comments',
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'custom_objects',
-                title: 'CUSTOM_OBJECTS',
+                title: 'admin.CUSTOM_OBJECTS',
                 icon: 'cubes',
                 href: '/admin/content/objects/types',
                 access: SecurityService.ACCESS_EDITOR
@@ -140,7 +140,7 @@ module.exports = function AdminNavigationModule(pb) {
 
     var PLUGINS_NAV = Object.freeze({
         id: 'plugins',
-        title: 'PLUGINS',
+        title: 'admin.PLUGINS',
         icon: 'puzzle-piece',
         href: '#',
         access: SecurityService.ACCESS_ADMINISTRATOR,
@@ -148,13 +148,13 @@ module.exports = function AdminNavigationModule(pb) {
             {
                 divider: true,
                 id: 'manage',
-                title: 'MANAGE',
+                title: 'generic.MANAGE',
                 icon: 'upload',
                 href: '/admin/plugins'
             },
             {
                 id: 'themes',
-                title: 'THEMES',
+                title: 'admin.THEMES',
                 icon: 'magic',
                 href: '/admin/themes'
             }
@@ -163,21 +163,21 @@ module.exports = function AdminNavigationModule(pb) {
 
     var USERS_NAV = Object.freeze({
         id: 'users',
-        title: 'USERS',
+        title: 'admin.USERS',
         icon: 'users',
         href: '#',
         access: SecurityService.ACCESS_EDITOR,
         children: [
             {
                 id: 'manage',
-                title: 'MANAGE',
+                title: 'generic.MANAGE',
                 icon: 'users',
                 href: '/admin/users',
                 access: SecurityService.ACCESS_EDITOR
             },
             {
                 id: 'permissions',
-                title: 'PERMISSIONS',
+                title: 'generic.PERMISSIONS',
                 icon: 'lock',
                 href: '/admin/users/permissions',
                 access: SecurityService.ACCESS_ADMINISTRATOR
@@ -187,7 +187,7 @@ module.exports = function AdminNavigationModule(pb) {
 
     var VIEW_SITE_NAV = Object.freeze({
         id: 'view_site',
-        title: 'VIEW_SITE',
+        title: 'admin.VIEW_SITE',
         icon: 'desktop',
         href: '/',
         access: SecurityService.ACCESS_WRITER
@@ -195,7 +195,7 @@ module.exports = function AdminNavigationModule(pb) {
 
     var LOGOUT_NAV = Object.freeze({
         id: 'logout',
-        title: 'LOGOUT',
+        title: 'generic.LOGOUT',
         icon: 'power-off',
         href: '/actions/logout',
         access: SecurityService.ACCESS_WRITER
@@ -212,28 +212,28 @@ module.exports = function AdminNavigationModule(pb) {
     function buildSettingsNavigation(site) {
         var settingsNav = {
             id: 'settings',
-            title: 'SETTINGS',
+            title: 'admin.SETTINGS',
             icon: 'cogs',
             href: '#',
             access: SecurityService.ACCESS_ADMINISTRATOR,
             children: [
                 {
                     id: 'site_settings',
-                    title: 'SITE_SETTINGS',
+                    title: 'admin.SITE_SETTINGS',
                     icon: 'cog',
                     href: '/admin/site_settings',
                     access: SecurityService.ACCESS_ADMINISTRATOR
                 },
                 {
                     id: 'content_settings',
-                    title: 'CONTENT',
+                    title: 'admin.CONTENT',
                     icon: 'quote-right',
                     href: '/admin/site_settings/content',
                     access: SecurityService.ACCESS_ADMINISTRATOR
                 },
                 {
                     id: 'email_settings',
-                    title: 'EMAIL',
+                    title: 'users.EMAIL',
                     icon: 'envelope',
                     href: '/admin/site_settings/email',
                     access: SecurityService.ACCESS_ADMINISTRATOR
@@ -244,7 +244,7 @@ module.exports = function AdminNavigationModule(pb) {
         if (pb.SiteService.isGlobal(site)) {
             settingsNav.children.push({
                 id: 'library_settings',
-                title: 'LIBRARIES',
+                title: 'site_settings.LIBRARIES',
                 icon: 'book',
                 href: '/admin/site_settings/libraries',
                 access: SecurityService.ACCESS_ADMINISTRATOR
@@ -369,13 +369,13 @@ module.exports = function AdminNavigationModule(pb) {
      * @private
      * @static
      * @method localizeNavigation
-     * @param navigation
-     * @param ls
-     * @return {*}
+     * @param {Array} navigation
+     * @param {Localization} ls
+     * @return {Array}
      */
     function localizeNavigation(navigation, ls) {
         navigation.forEach(function(nav) {
-            nav.title = ls.get(nav.title);
+            nav.title = ls.g(nav.title);
             if(util.isArray(nav.children)) {
                 nav.children = localizeNavigation(nav.children, ls);
             }
@@ -485,12 +485,12 @@ module.exports = function AdminNavigationModule(pb) {
     /**
      * Adds a new top level node
      * @static
-     * @method addToSite
+     * @method add
      * @param {Object} node
-     * @param site
+     * @param {String} [site='global']
      * @return {Boolean}
      */
-    AdminNavigation.addToSite = function (node, site) {
+    AdminNavigation.add = function(node, site) {
         if (util.isNullOrUndefined(site)) {
             site = GLOBAL_SITE;
         }
@@ -506,14 +506,29 @@ module.exports = function AdminNavigationModule(pb) {
     };
 
     /**
+     * Adds a new top level node
+     * @static
+     * @method addToSite
+     * @param {Object} node
+     * @param {String} site
+     * @return {Boolean}
+     */
+    AdminNavigation.addToSite = function (node, site) {
+        return AdminNavigation.add(node, site);
+    };
+
+    /**
      * Remove a navigation node
      * @static
-     * @method removeFromSite
+     * @method remove
      * @param id
-     * @param site
+     * @param {String} [site='global']
      * @return {boolean}
      */
-    AdminNavigation.removeFromSite = function (id, site) {
+    AdminNavigation.remove = function(id, site) {
+        if (util.isNullOrUndefined(site)) {
+            site = GLOBAL_SITE;
+        }
         if (!isDuplicate(id, buildNavigation(site))) {
             return false;
         }
@@ -550,6 +565,18 @@ module.exports = function AdminNavigationModule(pb) {
         });
 
         return true;
+    };
+
+    /**
+     * Remove a navigation node
+     * @static
+     * @method removeFromSite
+     * @param id
+     * @param {String} site
+     * @return {boolean}
+     */
+    AdminNavigation.removeFromSite = function (id, site) {
+        return AdminNavigation.remove(id, site);
     };
 
     /**

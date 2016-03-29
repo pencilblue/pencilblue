@@ -803,23 +803,23 @@ module.exports = function SectionServiceModule(pb) {
         return [
             {
                 value: "container",
-                label: ls.get('CONTAINER')
+                label: ls.g('generic.CONTAINER')
             },
             {
                 value: "section",
-                label: ls.get('SECTION')
+                label: ls.g('generic.SECTION')
             },
             {
                 value: "article",
-                label: ls.get('ARTICLE')
+                label: ls.g('generic.ARTICLE')
             },
             {
                 value: "page",
-                label: ls.get('PAGE')
+                label: ls.g('generic.PAGE')
             },
             {
                 value: "link",
-                label: ls.get('LINK')
+                label: ls.g('generic.LINK')
             },
         ];
     };

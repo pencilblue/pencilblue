@@ -33,6 +33,7 @@ function ServerInitializer(/*pb*/) {}
 /**
  * Initializes the server.  Depending on the configuration will start an HTTP
  * server and/or an HTTPs server.
+ * @method init
  * @param {Object} context
  * @param {Logger} context.log
  * @param {Object} context.config The PB config object
@@ -75,7 +76,7 @@ ServerInitializer.prototype._init = function(context, cb) {
 ServerInitializer.prototype.initHttp = function(context, cb) {
     context.log.info('ServerInitializer: HTTP server starting, binding on IP %s and port: %d', context.config.siteIP, context.config.sitePort);
     var server = this.getServer(context);
-    this.startServer(server, context.config.sitePort, context.config.siteIP, function(err, started){
+    this.startServer(server, context.config.sitePort, context.config.siteIP, function(err/*, started*/){
         cb(err, {
             server: server
         });
@@ -144,7 +145,7 @@ ServerInitializer.prototype.getServer = function(context) {
 ServerInitializer.prototype.getSslServer = function(context) {
     var options = this.getSslServerOptions(context.config);
     return https.createServer(options, context.onRequest);
-}
+};
 
 /**
  * @method getSslServerOptions
@@ -169,7 +170,7 @@ ServerInitializer.prototype.getSslServerOptions = function(config) {
         options.ca = fs.readFileSync(chainPath);
     }
     return options;
-}
+};
 
 /**
  * Does a simple start on a server object by binding to the specified IP address and port.

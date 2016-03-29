@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Edits an object type
      * @class EditObjectType
@@ -36,7 +36,7 @@ module.exports = function(pb) {
         if(!vars.id) {
             return cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
             });
         }
 
@@ -45,12 +45,12 @@ module.exports = function(pb) {
             if(util.isError(err) || !util.isObject(custObjType)) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                 });
             }
 
-            //TODO modify this approach to check for protected properties and allow 
-            //others.  Right now this will not allow additional fields if template 
+            //TODO modify this approach to check for protected properties and allow
+            //others.  Right now this will not allow additional fields if template
             //is overriden.
             var post = self.body;
             custObjType.name = post.name;
@@ -61,17 +61,17 @@ module.exports = function(pb) {
                 if(util.isError(err)) {
                     return cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'))
                     });
                 }
                 else if(util.isArray(result) && result.length > 0) {
                     return cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'), result)
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'), result)
                     });
                 }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObjType.name + ' ' + self.ls.get('EDITED'))});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, custObjType.name + ' ' + self.ls.g('admin.EDITED'))});
             });
         });
     };

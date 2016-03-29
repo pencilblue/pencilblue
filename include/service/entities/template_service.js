@@ -153,6 +153,25 @@ module.exports = function(pb) {
     var TEMPLATE_PIECE_FLAG   = 'flag';
 
     /**
+     * Tracks the template keys that do not exist on disk.  This allows us to
+     * skip disk reads after the first request for a non-existent template
+     * @private
+     * @static
+     * @property MIS_CACHE
+     * @type {Object}
+     */
+    var TEMPLATE_MIS_CACHE = {};
+
+    /**
+     * The absolute path to the plugins directory
+     * @private
+     * @static
+     * @property CUSTOM_PATH_PREFIX
+     * @type {String}
+     */
+    var CUSTOM_PATH_PREFIX = path.join(pb.config.docRoot, 'plugins') + path.sep;
+
+    /**
      * A container that provides the mapping for global call backs.  These should
      * only be added to at the start of the application or on plugin install/update.
      *
@@ -296,25 +315,44 @@ module.exports = function(pb) {
         var self = this;
 
         //build set of paths to search through
-        var hintedTheme   = this.getTheme();
-        var paths         = [];
-        if (hintedTheme) {
-            paths.push(TemplateService.getCustomPath(this.getTheme(), relativePath));
+        var paths = [];
+        var themePath = null;
+        var hintedTheme = this.getTheme();
+        if (hintedTheme && !TemplateService.isTemplateBlacklisted(hintedTheme, relativePath)) {
+            paths.push({
+                plugin: hintedTheme,
+                path: TemplateService.getCustomPath(hintedTheme, relativePath)
+            });
         }
 
         this._getActiveTheme(function(err, activeTheme){
 
-            if (activeTheme !== null) {
-                paths.push(TemplateService.getCustomPath(activeTheme, relativePath));
+            if (activeTheme !== null && !TemplateService.isTemplateBlacklisted(activeTheme, relativePath)) {
+                paths.push({
+                    plugin: activeTheme,
+                    path: TemplateService.getCustomPath(activeTheme, relativePath)
+                });
             }
 
             var activePlugins = self.pluginService.getActivePluginNames();
             for (var i = 0; i < activePlugins.length; i++) {
-                if (hintedTheme !== activePlugins[i] && pb.config.plugins.default !== activePlugins[i]) {
-                    paths.push(TemplateService.getCustomPath(activePlugins[i], relativePath));
+                if (!TemplateService.isTemplateBlacklisted(activePlugins[i], relativePath) &&
+                    hintedTheme !== activePlugins[i] && pb.config.plugins.default !== activePlugins[i]) {
+
+                    paths.push({
+                        plugin: activePlugins[i],
+                        path: TemplateService.getCustomPath(activePlugins[i], relativePath)
+                    });
                 }
             }
-            paths.push(TemplateService.getDefaultPath(relativePath));
+
+            //now add the defalt if appropriate
+            if (!TemplateService.isTemplateBlacklisted(pb.config.plugins.default, relativePath)) {
+                paths.push({
+                    plugin: pb.config.plugins.default,
+                    path: TemplateService.getDefaultPath(relativePath)
+                });
+            }
 
             //iterate over paths until a valid template is found
             var i        = 0;
@@ -325,9 +363,13 @@ module.exports = function(pb) {
                 function(callback) {
 
                     //attempt to load template
-                    TEMPLATE_LOADER.get(paths[i], function(err, templateData){
+                    TEMPLATE_LOADER.get(paths[i].path, function(err, templateData) {
                         template = templateData;
                         doLoop   = util.isError(err) || !util.isObject(template);
+                        if (doLoop) {
+                            TemplateService.blacklistTemplate(paths[i].plugin, relativePath);
+                        }
+
                         i++;
                         callback();
                     });
@@ -358,7 +400,7 @@ module.exports = function(pb) {
             if (util.isError(err)) {
                 return cb(err, null);
             }
-            else if (!templateContents) {
+            if (!templateContents) {
                 return cb(new Error('Failed to find a matching template for location: '+templateLocation), null);
             }
 
@@ -384,6 +426,7 @@ module.exports = function(pb) {
 
         //iterate parts
         var self  = this;
+        var isSilly = pb.log.isSilly();
         var tasks = util.getTasks(content.parts, function(parts, i) {
             return function(callback) {
 
@@ -395,7 +438,7 @@ module.exports = function(pb) {
                 else if (part.type === TEMPLATE_PIECE_FLAG) {
 
                     self.processFlag(part.val, function(err, subContent) {
-                        if (pb.log.isSilly()) {
+                        if (isSilly) {
                             var str = subContent;
                             if (util.isString(str) && str.length > 20) {
                                 str = str.substring(0, 17)+'...';
@@ -446,12 +489,10 @@ module.exports = function(pb) {
         var doFlagProcessing = function(flag, cb) {
             var tmp;
             if ((tmp = self.localCallbacks[flag]) !== undefined) {//local callbacks
-                self.handleReplacement(flag, tmp, cb);
-                return;
+                return self.handleReplacement(flag, tmp, cb);
             }
             else if ((tmp = GLOBAL_CALLBACKS[flag]) !== undefined) {//global callbacks
-                self.handleReplacement(flag, tmp, cb);
-                return;
+                return self.handleReplacement(flag, tmp, cb);
             }
             else if (flag.indexOf(LOCALIZATION_PREFIX) == 0 && self.localizationService) {//localization
 
@@ -592,7 +633,7 @@ module.exports = function(pb) {
      * @param {Object} model The model is inspect
      * @param {String} [modelName] The optional name of the model.  The name
      * will prefix all of the model's keys.
-     * @returns {Boolean} TRUE when all keys were successfully registered.
+     * @return {Boolean} TRUE when all keys were successfully registered.
      * FALSE if a single items fails to register.
      */
     TemplateService.prototype.registerModel = function(model, modelName) {
@@ -771,7 +812,7 @@ module.exports = function(pb) {
      * @return {string} The absolute path
      */
     TemplateService.getDefaultPath = function(templateLocation){
-        return path.join(pb.config.docRoot, 'plugins', pb.config.plugins.default, 'templates', templateLocation + '.html');
+        return CUSTOM_PATH_PREFIX + pb.config.plugins.default + '/templates/' + templateLocation + '.html';
     };
 
     /**
@@ -784,7 +825,7 @@ module.exports = function(pb) {
      * @return {string} The absolute path
      */
     TemplateService.getCustomPath = function(themeName, templateLocation){
-        return path.join(pb.config.docRoot, 'plugins', themeName, 'templates', templateLocation + '.html');
+        return CUSTOM_PATH_PREFIX + themeName + '/templates/' + templateLocation + '.html';
     };
 
     /**
@@ -862,6 +903,33 @@ module.exports = function(pb) {
             compiled.push(genPiece(TEMPLATE_PIECE_STATIC, text));
         }
         return compiled;
+    };
+
+    /**
+     * Checks to see if a template has been blacklisted
+     * @static
+     * @method isTemplateBlacklisted
+     * @param {String} theme
+     * @param {String} relativePath
+     * @return {Boolean}
+     */
+    TemplateService.isTemplateBlacklisted = function(theme, relativePath) {
+        return TEMPLATE_MIS_CACHE[theme + '|' + relativePath];
+    };
+
+    /**
+     * Blacklists a template for a theme.  This means that the template service
+     * will not consider this theme and path combination the next time it is
+     * prompted to check for its existence
+     * @static
+     * @method blacklistTemplate
+     * @param {String} theme
+     * @param {String} relativePath
+     * @return {Boolean}
+     */
+    TemplateService.blacklistTemplate = function(theme, relativePath) {
+        pb.log.silly('TemplateService: Blacklisting template THEME=%s PATH=%s', theme, relativePath);
+        return (TEMPLATE_MIS_CACHE[theme + '|' + relativePath] = true);
     };
 
     /**

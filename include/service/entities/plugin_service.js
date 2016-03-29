@@ -1,19 +1,19 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2015  PencilBlue, LLC
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //dependencies
 var fs      = require('fs');
@@ -215,7 +215,7 @@ module.exports = function PluginServiceModule(pb) {
     /**
      * Get a array of active plugin names with site name as a prefix: site_name_plugin_name
      * @method getAllActivePluginNames
-     * @returns {Array} array of active plugin names with site name prefix.
+     * @return {Array} array of active plugin names with site name prefix.
      */
     PluginService.prototype.getAllActivePluginNames = function() {
         var pluginNames = [];
@@ -361,7 +361,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Retrieves the theme settings for the specified plugin only for the site set in the current plugin service
-     *
+     * @method getThemeSettingsBySite
      * @param pluginName
      * @param cb
      */
@@ -411,8 +411,8 @@ module.exports = function PluginServiceModule(pb) {
      * the callback.
      *
      * @method resetThemeSettings
-     * @param details The details object to extract the settings from
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
+     * @param {Object} details The details object to extract the settings from
+     * @param {Function} cb A callback that provides two parameters: cb(error, TRUE/FALSE).
      * TRUE if the settings were successfully cleared and reloaded. FALSE if not.
      */
     PluginService.prototype.resetThemeSettings = function(details, cb) {
@@ -422,6 +422,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Deletes the plugin settings for when plugin uninstalls.
+     * @method purgePluginSettings
      * @param {String} pluginUid - the plugin unique id
      * @param {Function} cb - callback function
      */
@@ -432,6 +433,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Deletes the theme settings for when plugin uninstalls.
+     * @method purgeThemeSettings
      * @param {String} pluginUid - the plugin unique id
      * @param {Function} cb - callback function
      */
@@ -459,15 +461,20 @@ module.exports = function PluginServiceModule(pb) {
      * Retrieves a plugin descriptor (plugin document)
      *
      * @method getPlugin
-     * @param pluginIdentifier The identifier can either be an ObjectID or the
+     * @param {string} pluginIdentifier The identifier can either be an ObjectID or the
      * plugin name
-     * @param cb A callback that provides two parameters: cb(error, plugin).  If the
+     * @param {Function} cb A callback that provides two parameters: cb(error, plugin).  If the
      * plugin does exist null is provided.
      */
     PluginService.prototype.getPlugin = function(pluginIdentifier, cb) {
         this._pluginRepository.loadPluginAvailableToThisSite(pluginIdentifier, this.site, cb);
     };
 
+    /**
+     * @method getPluginBySite
+     * @param {string} pluginIdentifier
+     * @param {Function} cb
+     */
     PluginService.prototype.getPluginBySite = function(pluginIdentifier, cb) {
         this._pluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
     }
@@ -531,6 +538,63 @@ module.exports = function PluginServiceModule(pb) {
         options.valueField = 'settings';
         services.push(new pb.DBEntityService(options));
         return new pb.SimpleLayeredService(services, serviceName);
+    };
+
+    /**
+     * Compares the details loaded from the plugin config (details.json)
+     * with the database values pulled from getSettingsKV(). If a discrepancy
+     * is detected, the plugin settings are updated in the database so future
+     * calls to getSettingsKV() will have the latest values.
+     *
+     * @method syncSettings
+     * @param plugin {Object} The plugin object
+     * @param details {Object} The details object to extract the settings from
+     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
+     * TRUE/FALSE if an error occured.
+     */
+    PluginService.prototype.syncSettings = function(plugin, details, cb) {
+        var self = this;
+        this.getSettingsKV(plugin.dirName, function(err, settings) {
+            var isError = util.isError(err);
+            if (isError || !settings) {
+                if (isError) {
+                    pb.log.error("PluginService: Failed to load settings from plugin [%s]", plugin.uid);
+                }
+                return cb(err, !isError);
+            }
+
+            var discrepancy = false;
+            var formattedSettings = [];
+
+            // Detect new settings
+            details.settings.forEach(function(setting) {
+                var settingName = setting.name;
+                var val = settings[settingName];
+                if (typeof val === 'undefined') {
+                    discrepancy = true;
+                    val = setting.value;
+                    formattedSettings.push({name: settingName, value: val});
+                }
+                else {
+                    formattedSettings.push({name: settingName, value: val});
+                }
+            });
+
+            // If there's a size difference, there's a discrepancy
+            discrepancy = discrepancy || (details.settings.length !== Object.keys(settings).length);
+
+            // Return if no discrepancy was found
+            if (!discrepancy) {
+                return cb(null, true);
+            }
+
+            self.resetSettings({uid: plugin.uid, settings: formattedSettings}, function(err, result) {
+                if (util.isError(err)) {
+                    pb.log.error("PluginService: Failed to save off updated settings for plugin [%s]", plugin.uid);
+                }
+                cb(err, !util.isError(err));
+            });
+        });
     };
 
     /**
@@ -865,13 +929,13 @@ module.exports = function PluginServiceModule(pb) {
         var self  = this;
         var tasks = {
 
-             active: function(callback) {
-                 self.getActivePlugins(callback);
-             },
+            active: function(callback) {
+                self.getActivePlugins(callback);
+            },
 
-             inactive: function(callback) {
-                 self.getInactivePlugins(callback);
-             }
+            inactive: function(callback) {
+                self.getInactivePlugins(callback);
+            }
         };
         async.series(tasks, function(err, results) {
             if (util.isError(err)) {
@@ -1064,13 +1128,15 @@ module.exports = function PluginServiceModule(pb) {
      * A cache is used to store already known plugin information that can be shared between sites to speed up the process.
      * @method getInitTasksForPlugin
      * @param {plugin} plugin The plugin details
-     * @returns {Array}
+     * @return {Array}
      */
     PluginService.prototype.getInitTasksForPlugin = function(plugin) {
         var self = this;
         var details = null;
         var site = plugin.site || GLOBAL_SITE;
         var cached_plugin = PLUGIN_INIT_CACHE[plugin.uid] || null;
+        var syncSettingsAtStartup = pb.config.settings.syncSettingsAtStartup;
+        // TODO: Abstract the construction of these init tasks
         var site_independant_tasks = [
             //load the details file
             function(callback) {
@@ -1079,7 +1145,14 @@ module.exports = function PluginServiceModule(pb) {
                 if(!cached_plugin || !cached_plugin.details) {
                     return PluginService.loadDetailsFile(PluginService.getDetailsPath(plugin.dirName), function (err, loadedDetails) {
                         details = loadedDetails;
-                        callback(err, !!details);
+                        if (syncSettingsAtStartup && !pb.util.isError(err) && details) {
+                            // TODO: Can we sync these plugin settings without instantiating a new PluginService each time?
+                            var pluginService = new PluginService({site: site});
+                            pluginService.syncSettings(plugin, details, callback);
+                        }
+                        else {
+                            callback(err, !!details);
+                        }
                     });
                 }
                 callback(null, true);
@@ -1147,6 +1220,16 @@ module.exports = function PluginServiceModule(pb) {
         ];
 
         var tasks   = [
+            // Sync plugin settings
+            function(callback) {
+                if (cached_plugin && cached_plugin.details && syncSettingsAtStartup) {
+                    var pluginService = new PluginService({site: site});
+                    pluginService.syncSettings(plugin, cached_plugin.details, callback);
+                }
+                else {
+                    return callback(null, true);
+                }
+            },
 
             //register plugin & load main module
             function(callback) {
@@ -1579,7 +1662,7 @@ module.exports = function PluginServiceModule(pb) {
      * @return {Object} Service prototype
      */
     PluginService.prototype.getService = function(serviceName, pluginUid, site) {
-        pb.log.warn('PluginService: Instance function getService is deprecated. Use pb.PluginService.getService intead');
+        pb.log.warn('PluginService: Instance function getService is deprecated. Use pb.PluginService.getService instead: plugin:' + pluginUid + ' service:' + serviceName);
         try{
             return PluginService.getService(serviceName, pluginUid, site);
         }
@@ -1958,7 +2041,6 @@ module.exports = function PluginServiceModule(pb) {
         if (isError) {
             error = new Error("Faled to validate plugin details");
             error.validationErrors = errors;
-
             //log the validation errors
             errors.forEach(function(validationError) {
                 pb.log.error('PluginService:[%s] %s', details.uid, validationError);
@@ -2307,16 +2389,16 @@ module.exports = function PluginServiceModule(pb) {
         var name = util.format("IS_AVAILABLE_%s", command.pluginUid);
         var job  = new pb.PluginAvailableJob();
         job.setRunAsInitiator(false)
-        .init(name, command.jobId)
-        .setPluginUid(command.pluginUid)
-        .run(function(err, result) {
+            .init(name, command.jobId)
+            .setPluginUid(command.pluginUid)
+            .run(function(err, result) {
 
-            var response = {
-                error: err ? err.stack : undefined,
-                result: result ? true : false
-            };
-            pb.CommandService.getInstance().sendInResponseTo(command, response);
-        });
+                var response = {
+                    error: err ? err.stack : undefined,
+                    result: result ? true : false
+                };
+                pb.CommandService.getInstance().sendInResponseTo(command, response);
+            });
     };
 
     /**
@@ -2339,16 +2421,16 @@ module.exports = function PluginServiceModule(pb) {
         var name = util.format("INSTALL_DEPENDENCIES_%s", command.pluginUid);
         var job  = new pb.PluginDependenciesJob();
         job.setRunAsInitiator(false)
-        .init(name, command.jobId)
-        .setPluginUid(command.pluginUid)
-        .run(function(err, result) {
+            .init(name, command.jobId)
+            .setPluginUid(command.pluginUid)
+            .run(function(err, result) {
 
-            var response = {
-                error: err ? err.stack : undefined,
-                result: result ? true : false
-            };
-            pb.CommandService.getInstance().sendInResponseTo(command, response);
-        });
+                var response = {
+                    error: err ? err.stack : undefined,
+                    result: result ? true : false
+                };
+                pb.CommandService.getInstance().sendInResponseTo(command, response);
+            });
     };
 
     /**
@@ -2371,17 +2453,17 @@ module.exports = function PluginServiceModule(pb) {
         var name = util.format("INITIALIZE_PLUGIN_%s", command.pluginUid);
         var job  = new pb.PluginInitializeJob();
         job.setRunAsInitiator(false)
-        .init(name, command.jobId)
-        .setPluginUid(command.pluginUid)
-        .setSite(command.site)
-        .run(function(err, result) {
+            .init(name, command.jobId)
+            .setPluginUid(command.pluginUid)
+            .setSite(command.site)
+            .run(function(err, result) {
 
-            var response = {
-                error: err ? err.stack : undefined,
-                result: result ? true : false
-            };
-            pb.CommandService.getInstance().sendInResponseTo(command, response);
-        });
+                var response = {
+                    error: err ? err.stack : undefined,
+                    result: result ? true : false
+                };
+                pb.CommandService.getInstance().sendInResponseTo(command, response);
+            });
     };
 
     /**
