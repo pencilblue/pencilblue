@@ -100,7 +100,7 @@ module.exports = function LocalizationUpdateJobModule(pb) {
                 var opts = {
                     where: {_id: site}
                 };
-                var queryService = new pb.SiteQueryService({site: site, onlyThisSite: true});
+                var queryService = new pb.SiteQueryService({site: site, onlyThisSite: false});
                 queryService.q("localizations", opts, function (err, result) {
                     if (util.isError(err)) {
                         pb.log.error(err);

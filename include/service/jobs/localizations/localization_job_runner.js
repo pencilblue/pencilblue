@@ -27,7 +27,7 @@ module.exports = function LocalizationJobRunnerModule(pb) {
      * @returns {Object} the instance in which the site was set.
      */
     LocalizationJobRunner.prototype.setSite = function(options) {
-        this.site = options;
+        this.site = options.uid;
         return this;
     };
 
