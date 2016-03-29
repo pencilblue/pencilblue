@@ -151,7 +151,7 @@ module.exports = function BaseControllerModule(pb) {
             onlyThisSite: true,
             siteObj: this.siteObj
         };
-        
+
         cb()
     };
 

@@ -290,7 +290,8 @@ module.exports = function RandomTextViewControllerModule(pb) {
 
                 //specifies the controller prototype instance function that will be
                 //called to handle the incoming request.  Defaults to "render"
-                handler: "getRandomText"
+                handler: "getRandomText",
+                localization: true
             },
             {
                 method: 'get',

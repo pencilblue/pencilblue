@@ -31,6 +31,7 @@ module.exports = function LocalizationApiControllerModule(pb) {
      * @extends BaseController
      */
     function LocalizationApiController(){
+        //rename saveLocaleService
         if(pb.config.localization && pb.config.localization.db){
             this.saveLocaleService = new dbLocalizationService();
         } else {
@@ -59,7 +60,12 @@ module.exports = function LocalizationApiControllerModule(pb) {
 
     LocalizationApiController.prototype.saveLocales = function(cb) {
         var post = this.body;
-        this.saveLocaleService.saveLocales(post, cb);
+        this.saveLocaleService.saveLocales(post, function(message){
+            if(message.code && message.code == 500){
+                return cb(message);
+            }
+            cb(message);
+        });
     };
 
     LocalizationApiController.prototype.getLocales = function (cb) {
