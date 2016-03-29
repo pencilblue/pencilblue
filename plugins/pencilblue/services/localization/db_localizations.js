@@ -135,6 +135,10 @@ module.exports = function (pb) {
      * @returns a modified document that has had all occurrences of the affected language/country/plugin values removed
      */
     function removeAllLocalesFromDoc(post, doc) {
+        if(!doc.storage[post.site]){
+            return doc;
+        }
+
         var locale = splitLocale(post.lang);
 
         var keySet = Object.keys(doc.storage[post.site]);
