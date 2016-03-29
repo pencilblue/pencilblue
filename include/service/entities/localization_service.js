@@ -73,11 +73,11 @@ module.exports = function LocalizationServiceModule(pb) {
      */
     LocalizationService.onUpdateLocalesCommandReceived = function(command) {
         if (!util.isObject(command)) {
-            pb.log.error('SiteService: an invalid activate_site command object was passed. %s', util.inspect(command));
+            pb.log.error('LocalizationService: an invalid update_locales command object was passed. %s', util.inspect(command));
             return;
         }
 
-        var name = util.format("UPDATE_LOCALES_%s", command.site);
+        var name = util.format("UPDATE_LOCALES_FOR_%s", command.site);
         var job = new pb.LocalizationUpdateJob();
         job.setRunAsInitiator(false);
         job.init(name, command.jobId);

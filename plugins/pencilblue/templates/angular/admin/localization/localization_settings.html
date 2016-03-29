@@ -120,7 +120,6 @@
 
                     $http.post('/api/localizations/overrides', payload)
                             .success(function (result) {
-                                console.log(result);
                                 $scope.onCreateOrEditComplete(result);
                             })
                             .error(function (error, status) {
