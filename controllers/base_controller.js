@@ -152,7 +152,7 @@ module.exports = function BaseControllerModule(pb) {
             siteObj: this.siteObj
         };
 
-        cb();
+        cb()
     };
 
     /**

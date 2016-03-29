@@ -57,9 +57,9 @@
                     }
                 }
                 $scope.enabledLocales = [];
-                for(x in $scope.supportedLocales){
-                    if($scope.supportedLocales[x]){
-                        $scope.enabledLocales.push(x);
+                for(var i in $scope.supportedLocales){
+                    if($scope.supportedLocales[i]){
+                        $scope.enabledLocales.push(i);
                     }
                 }
                 if($scope.enabledLocales.length === 0)

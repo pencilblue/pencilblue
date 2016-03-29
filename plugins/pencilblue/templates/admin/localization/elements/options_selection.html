@@ -1,0 +1,16 @@
+<div class="row">
+    <div class="col-xs-6 col-xs-offset-3">
+        <label>^loc_LOCALIZATION_SITE_LABEL^</label>
+        <input name="siteName" type="text" class="form-control"
+               placeholder="^loc_SITE_NAME^"
+               ng-model="siteName" readonly>
+        <label>^loc_LOCALIZATION_SELECT_LANG_LABEL^</label>
+        <select class="localization-locale-dropdown" ng-change="getAllLocalizations()" ng-model="currentLocale">
+            <option ng-selected="{{lang === currentLocale}}" ng-repeat="lang in enabledLocales" value="{{lang}}">{{lang}}</option>
+        </select>
+        <label>^loc_LOCALIZATION_SELECT_PLUGIN_LABEL^</label>
+        <select class="localization-plugin-dropdown" ng-change="getAllLocalizations()" ng-model="currentPlugin">
+            <option ng-selected="{{plugin === currentPlugin}}" ng-repeat="plugin in activePlugins" value="{{plugin}}">{{plugin}}</option>
+        </select>
+    </div>
+</div>
