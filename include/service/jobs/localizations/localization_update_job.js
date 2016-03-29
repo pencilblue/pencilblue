@@ -50,7 +50,7 @@ module.exports = function LocalizationUpdateJobModule(pb) {
             },
 
             //add site to request handler site collection across cluster
-            self.createCommandTask('update_localizations', activateCommand)
+            self.createCommandTask('update_locales', activateCommand)
         ];
         cb(null, tasks);
     };

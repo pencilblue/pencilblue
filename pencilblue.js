@@ -70,6 +70,7 @@ function PencilBlue(config){
             this.initSessions,
             this.initPlugins,
             this.initSites,
+            this.initLocales,
             this.initServerRegistration,
             this.initCommandService,
             this.initLibraries,
@@ -159,6 +160,17 @@ function PencilBlue(config){
 
         var siteService = new pb.SiteService();
         siteService.initSites(cb);
+    };
+
+    /**
+     * Initializes Locales(s).
+     * @method initLocales
+     * @static
+     * @param {Function} cb - callback function
+     */
+    this.initLocales = function(cb) {
+        pb.LocalizationService.init();
+        cb(null, true);
     };
 
     /**
