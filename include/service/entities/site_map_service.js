@@ -256,7 +256,7 @@ module.exports = function(pb) {
                 return cb(err);
             }
             cb(null, new pb.TemplateValue(results.join(''), false));
-        })
+        });
     };
 
     /**
@@ -376,7 +376,7 @@ module.exports = function(pb) {
         }
         SITE_MAP_REGISTRY[type] = callback;
         return true;
-    }
+    };
 
     /**
      * Unregisters an item provider from the site map service

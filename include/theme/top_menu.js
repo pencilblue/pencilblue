@@ -118,17 +118,17 @@ module.exports = function TopMenuServiceModule(pb) {
                     accountButtons = [
                         {
                             icon: 'user',
-                            title: ls.get('ACCOUNT'),
+                            title: ls.g('admin.ACCOUNT'),
                             href: '/user/manage_account'
                         },
                         {
                             icon: 'rss',
-                            title: ls.get('SUBSCRIBE'),
+                            title: ls.g('generic.SUBSCRIBE'),
                             href: '/feed'
                         },
                         {
                             icon: 'power-off',
-                            title: ls.get('LOGOUT'),
+                            title: ls.g('generic.LOGOUT'),
                             href: '/actions/logout'
                         }
                     ];
@@ -139,12 +139,12 @@ module.exports = function TopMenuServiceModule(pb) {
                     [
                         {
                             icon: 'user',
-                            title: ls.get('ACCOUNT'),
+                            title: ls.g('admin.ACCOUNT'),
                             href: '/user/sign_up'
                         },
                         {
                             icon: 'rss',
-                            title: ls.get('SUBSCRIBE'),
+                            title: ls.g('generic.SUBSCRIBE'),
                             href: '/feed'
                         }
                     ];
@@ -155,7 +155,7 @@ module.exports = function TopMenuServiceModule(pb) {
                 [
                     {
                         icon: 'rss',
-                        title: ls.get('SUBSCRIBE'),
+                        title: ls.g('generic.SUBSCRIBE'),
                         href: '/feed'
                     }
                 ];
