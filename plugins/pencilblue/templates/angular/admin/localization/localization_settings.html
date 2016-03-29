@@ -57,9 +57,9 @@
                     }
                 }
                 $scope.enabledLocales = [];
-                for(x in $scope.supportedLocales){
-                    if($scope.supportedLocales[x]){
-                        $scope.enabledLocales.push(x);
+                for(var i in $scope.supportedLocales){
+                    if($scope.supportedLocales[i]){
+                        $scope.enabledLocales.push(i);
                     }
                 }
                 if($scope.enabledLocales.length === 0)
@@ -120,18 +120,18 @@
 
                     $http.post('/api/localizations/overrides', payload)
                             .success(function (result) {
-                                console.log(result);//$scope.onCreateOrEditComplete(result);
+                                $scope.onCreateOrEditComplete(result);
                             })
                             .error(function (error, status) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
+                                angular.element('#progress_modal').modal('hide');
                             });
                 };
 
                 $scope.onCreateOrEditComplete = function(result) {
                     $scope.actionPlugin = {name: result.message};
 
-                    // TODO: FIND OUT WHAT THIS IS
                     var jobId = result.data;
                     //poll for logs
                     var logHandle = null;
@@ -203,7 +203,7 @@
 
                 $scope.onActionSuccess = function() {
                     $scope.actionIsComplete = true;
-                    $window.location.href = '/admin/plugins/premium/settings/redirects';
+                    $window.location.href = '/admin/localization';
                 };
 
                 $scope.onActionFailure = function(error) {

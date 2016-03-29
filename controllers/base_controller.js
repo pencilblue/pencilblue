@@ -151,27 +151,20 @@ module.exports = function BaseControllerModule(pb) {
             onlyThisSite: true,
             siteObj: this.siteObj
         };
-        if(pb.config.localization && pb.config.localization.db){
-            var opts = {
-                where: {_id: self.site}
-            };
-            var queryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
 
-            queryService.q("localizations", opts, function (err, result) {
-                if (util.isError(err)) {
-                    pb.log.error(err);
-                }
-                if(result && result[0] && result[0].storage)
-                    pb.Localization.storage =  util.deepMerge(result[0].storage,pb.Localization.storage);
-                self.ls.siteName = self.site;
+        //call the initSync function
+        this.initSync(props);
 
-
-                cb();
-            });
-        } else {
-            cb();
-        }
+        cb();
     };
+
+    /**
+     * Provides a synchronous function means to initialize a controller.  It is
+     * meant to be called from the "init" function called by the request handler.
+     * @method initSync
+     * @param {Object} context See "init" for more details on properties
+     */
+    BaseController.prototype.initSync = function(/*context*/) {};
 
     /**
      * Creates a TemplateService instance
@@ -410,7 +403,6 @@ module.exports = function BaseControllerModule(pb) {
             try {
                 postParams = JSON.parse(raw.toString(encoding));
             }
-            //TODO - Needed? Can't we just pass err into the cb?
             catch(err) {
                 error = err;
             }

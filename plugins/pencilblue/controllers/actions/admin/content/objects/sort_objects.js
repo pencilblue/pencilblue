@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Sets the sorting of objects
      * @class SortObjectsActionController
@@ -35,7 +35,7 @@ module.exports = function(pb) {
         if(!pb.validation.isIdStr(vars.type_id, true)) {
             return cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
             });
         }
 
@@ -44,7 +44,7 @@ module.exports = function(pb) {
             if(util.isError(err) || !util.isObject(customObjectType)) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                 });
             }
 
@@ -53,7 +53,7 @@ module.exports = function(pb) {
                 if(util.isError(err)) {
                     return cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'))
                     });
                 }
 
@@ -67,17 +67,17 @@ module.exports = function(pb) {
                     if(util.isError(err)) {
                         return cb({
                             code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'))
                         });
                     }
                     else if (util.isArray(result) && result.length > 0) {
                         return cb({
                             code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'))
                         });
                     }
 
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObjectType.name + ' ' + self.ls.get('SORT_SAVED'))});
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObjectType.name + ' ' + self.ls.g('custom_objects.SORT_SAVED'))});
                 });
             });
         });

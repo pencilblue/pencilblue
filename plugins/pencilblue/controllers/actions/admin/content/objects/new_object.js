@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Creates an object
      * @class NewObjectActionController
@@ -36,7 +36,7 @@ module.exports = function(pb) {
         if(!vars.type_id) {
             cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
             });
             return
         }
@@ -46,7 +46,7 @@ module.exports = function(pb) {
             if(util.isError(err) || !util.isObject(customObjectType)) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                 });
             }
 
@@ -62,17 +62,17 @@ module.exports = function(pb) {
                 if(util.isError(err)) {
                     return cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'))
                     });
                 }
                 else if(util.isArray(result) && result.length > 0) {
                     return cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'), result)
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'), result)
                     });
                 }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObjectDocument.name + ' ' + self.ls.get('CREATED'), result)});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, customObjectDocument.name + ' ' + self.ls.g('admin.CREATED'), result)});
             });
         });
     };

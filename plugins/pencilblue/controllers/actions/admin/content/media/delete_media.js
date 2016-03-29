@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Deletes media
      * @class DeleteMediaController
@@ -55,7 +55,7 @@ module.exports = function(pb) {
             if(util.isError(err) || !mediaData) {
                 cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                 });
                 return;
             }
@@ -64,13 +64,13 @@ module.exports = function(pb) {
                 if(util.isError(err) || recordsDeleted <= 0) {
                     cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_DELETING'))
                     });
                     return;
                 }
 
                 self.removeLocal(mediaData, mservice, function(err) {
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, mediaData.name + ' ' + self.ls.get('DELETED'))});
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, mediaData.name + ' ' + self.ls.g('admin.DELETED'))});
                 });
             });
         });

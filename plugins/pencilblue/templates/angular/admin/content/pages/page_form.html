@@ -152,15 +152,11 @@
             });
         };
 
-        $scope.generateUrl = function(text) {
-			if (text) {
-				return text.replace(/\s+/g, '-').toLowerCase();
-			}
-		};
+        ^tmp_angular=admin=elements=generate_url^
 
 		$scope.getUrl = function() {
 			$scope.page.url = $scope.generateUrl($scope.page.headline);
-            
+
             $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page&' + $scope.siteKey + '=' + $scope.site)
             .success(function(result) {
                 $scope.urlAvailable = !result.data;

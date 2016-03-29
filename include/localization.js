@@ -67,6 +67,8 @@ module.exports = function LocalizationModule(pb) {
         /**
          * The currently active theme that should be prioritized when
          * performing key lookup
+         * @property activeTheme
+         * @type {string}
          */
         this.activeTheme = options.activeTheme;
 
@@ -482,45 +484,72 @@ module.exports = function LocalizationModule(pb) {
         Localization.storage = {};
         Localization.keys = {};
 
-        //create path to localization directory
-        var options = {
-            recursive: false,
-            filter: function(filePath) { return filePath.indexOf(JS_EXT) === filePath.length - JS_EXT.length; }
-        };
-        var localizationDir = path.join(pb.config.docRoot, 'public', 'localization');
-        util.getFiles(localizationDir, options, function(err, files) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
 
-            var compoundedResult = true;
-            files.forEach(function(file) {
-
-                //parse the file
-                var obj = null;
-                try {
-                    obj = require(file);
+            //create path to localization directory
+            var options = {
+                recursive: false,
+                filter: function (filePath) {
+                    return filePath.indexOf(JS_EXT) === filePath.length - JS_EXT.length;
                 }
-                catch(e) {
-                    pb.log.warn('Localization: Failed to load core localization file [%s]. %s', absolutePath, e.stack);
-
-                    //we failed so skip this file
-                    return;
+            };
+            var localizationDir = path.join(pb.config.docRoot, 'public', 'localization');
+            util.getFiles(localizationDir, options, function (err, files) {
+                if (util.isError(err)) {
+                    return cb(err);
                 }
 
-                //convert file name to locale
-                var localeObj = Localization.parseLocaleStr(file);
+                var compoundedResult = true;
+                files.forEach(function (file) {
 
-                //register the localization as defaults (call private method)
-                compoundedResult &= Localization._registerLocale(localeObj, obj);
+                    //parse the file
+                    var obj = null;
+                    try {
+                        obj = require(file);
+                    }
+                    catch (e) {
+                        pb.log.warn('Localization: Failed to load core localization file [%s]. %s', absolutePath, e.stack);
+
+                        //we failed so skip this file
+                        return;
+                    }
+
+                    //convert file name to locale
+                    var localeObj = Localization.parseLocaleStr(file);
+
+                    //register the localization as defaults (call private method)
+                    compoundedResult &= Localization._registerLocale(localeObj, obj);
+                });
+
+                //set the supported locales
+                pb.log.debug("Localization: Supporting - " + JSON.stringify(Object.keys(Localization.supportedLookup)));
+
+                if(pb.config.localization && pb.config.localization.db){
+                    loadLocalesFromDB(compoundedResult, cb);
+                }
+                else{
+                    cb(null, compoundedResult);
+                }
             });
 
-            //set the supported locales
-            pb.log.debug("Localization: Supporting - " + JSON.stringify(Object.keys(Localization.supportedLookup)));
-            cb(null, compoundedResult);
-        });
     };
 
+    function loadLocalesFromDB(compoundedResult, cb){
+        var opts = {
+            where: {}
+        };
+        var queryService = new pb.SiteQueryService();
+
+        queryService.q("localizations", opts, function (err, result) {
+            if (util.isError(err)) {
+                pb.log.error(err);
+            }
+            for(var i = 0; i < result.length; i++) {
+                Localization.storage[result[i]._id] = result[0].storage[result[i]._id];
+            }
+
+            return cb(null, compoundedResult);
+        });
+    }
     /**
      * Determines if there have been keys registered for the specified locale.
      * An example locale string would be: en-US.  Where the characters to the
@@ -777,7 +806,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {String|Object} locale
      * @param {Object} [options]
      * @param {String} [options.plugin]
-     * @returns {Boolean}
+     * @return {Boolean}
      */
     Localization.unregisterLocale = function(locale, options) {
         locale = parseLocale(locale);
@@ -800,7 +829,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {String} key
      * @param {Object} [options]
      * @param {String} [options.plugin]
-     * @returns {Boolean}
+     * @return {Boolean}
      */
     Localization.unregisterLocalization = function(locale, key, options) {
         locale = parseLocale(locale);

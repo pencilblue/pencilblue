@@ -4,10 +4,12 @@ var async = require('async');
 var util  = require('../../../util.js');
 
 module.exports = function SiteCreateEditJobModule(pb) {
+
     /**
      * Job to create/edit a site.
-     * @constructor SiteCreateEditJob
+     * @class SiteCreateEditJob
      * @extends SiteJobRunner
+     * @constructor
      */
     function SiteCreateEditJob(){
         SiteCreateEditJob.super_.call(this);

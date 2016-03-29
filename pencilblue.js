@@ -70,6 +70,7 @@ function PencilBlue(config){
             this.initSessions,
             this.initPlugins,
             this.initSites,
+            this.initLocales,
             this.initServerRegistration,
             this.initCommandService,
             this.initLibraries,
@@ -159,6 +160,17 @@ function PencilBlue(config){
 
         var siteService = new pb.SiteService();
         siteService.initSites(cb);
+    };
+
+    /**
+     * Initializes Locales(s).
+     * @method initLocales
+     * @static
+     * @param {Function} cb - callback function
+     */
+    this.initLocales = function(cb) {
+        pb.LocalizationService.init();
+        cb(null, true);
     };
 
     /**
@@ -336,6 +348,11 @@ function PencilBlue(config){
             pb.server.getConnections(callback);
         });
 
+        //analytics average
+        pb.ServerRegistration.addItem('analytics', function(callback) {
+            callback(null, pb.AnalyticsManager.getStats());
+        });
+
         cb(null, true);
     };
 
@@ -352,13 +369,17 @@ function PencilBlue(config){
     };
 };
 
-//start system only when the module is called directly
-if (require.main === module) {
-
+PencilBlue.startInstance = function() {
     var Configuration = require('./include/config.js');
     var config        = Configuration.load();
     var pb            = new PencilBlue(config);
     pb.start();
+    return pb;
+};
+
+//start system only when the module is called directly
+if (require.main === module) {
+    PencilBlue.startInstance();
 }
 
 //exports

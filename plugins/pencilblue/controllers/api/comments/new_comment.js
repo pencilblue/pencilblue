@@ -49,6 +49,11 @@ module.exports = function NewCommentModule(pb) {
                 cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'parameters missing'), code: 400});
                 return;
             }
+            
+            if(post.content.length < 5) {
+                cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'comment text to short'), code: 415});
+                return;
+            }
 
             self.siteQueryService.loadById(post.article, 'article', function(err, article) {
                 if(util.isError(err) || article == null) {
