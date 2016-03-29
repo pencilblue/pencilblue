@@ -81,7 +81,7 @@ module.exports = function LocalizationServiceModule(pb) {
         var job = new pb.LocalizationUpdateJob();
         job.setRunAsInitiator(false);
         job.init(name, command.jobId);
-        job.setSite(command.site);
+        job.setSite({uid: command.site});
         job.run(function(err, result) {
             var response = {
                 error: err ? err.stack : undefined,
