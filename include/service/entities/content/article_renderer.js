@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2016  PencilBlue, LLC
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -37,10 +37,30 @@ module.exports = function(pb) {
      */
     function ArticleRenderer(context) {
         if (context) {
+
+            /**
+             * @property commentService
+             * @type {CommentService}
+             */
             this.commentService = new pb.CommentService(context);
+
+            /**
+             * @property hostname
+             * @type {string}
+             */
             this.hostname = context.hostname;
         }
+
+        /**
+         * @property site
+         * @type {string}
+         */
         this.site = pb.SiteService.getCurrentSite(context.site);
+
+        /**
+         * @property onlyThisSite
+         * @type {boolean}
+         */
         this.onlyThisSite = context.onlyThisSite;
 
         /**
@@ -48,7 +68,7 @@ module.exports = function(pb) {
          * @property userService
          * @type {UserService}
          */
-        this.userService = context.userService || new pb.UserService(context);console.log('here');console.log(this.userService);
+        this.userService = context.userService || new pb.UserService(context);
     }
 
     /**
