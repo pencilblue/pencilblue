@@ -482,23 +482,7 @@ module.exports = function LocalizationModule(pb) {
         Localization.storage = {};
         Localization.keys = {};
 
-        if(pb.config.localization && pb.config.localization.db){
-            var opts = {
-                where: {}
-            };
-            var queryService = new pb.SiteQueryService();
 
-            queryService.q("localizations", opts, function (err, result) {
-                if (util.isError(err)) {
-                    pb.log.error(err);
-                }
-                for(var i = 0; i < result.length; i++) {
-                    Localization.storage[result[i]._id] = result[0].storage[result[i]._id];
-                }
-
-                return cb();
-            });
-        }
             //create path to localization directory
             var options = {
                 recursive: false,
@@ -536,11 +520,34 @@ module.exports = function LocalizationModule(pb) {
 
                 //set the supported locales
                 pb.log.debug("Localization: Supporting - " + JSON.stringify(Object.keys(Localization.supportedLookup)));
-                cb(null, compoundedResult);
+
+                if(pb.config.localization && pb.config.localization.db){
+                    loadLocalesFromDB(compoundedResult, cb);
+                }
+                else{
+                    cb(null, compoundedResult);
+                }
             });
 
     };
 
+    function loadLocalesFromDB(compoundedResult, cb){
+        var opts = {
+            where: {}
+        };
+        var queryService = new pb.SiteQueryService();
+
+        queryService.q("localizations", opts, function (err, result) {
+            if (util.isError(err)) {
+                pb.log.error(err);
+            }
+            for(var i = 0; i < result.length; i++) {
+                Localization.storage[result[i]._id] = result[0].storage[result[i]._id];
+            }
+
+            return cb(null, compoundedResult);
+        });
+    }
     /**
      * Determines if there have been keys registered for the specified locale.
      * An example locale string would be: en-US.  Where the characters to the
