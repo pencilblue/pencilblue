@@ -1441,6 +1441,28 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js'),
             request_body: ['application/json']
+        },
+
+        //media
+        {
+            method: 'get',
+            path: "/api/content/media/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/media",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
         }
     ];
 };
