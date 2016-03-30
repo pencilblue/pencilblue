@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ var util  = require('../../../util.js');
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var BaseObjectService    = pb.BaseObjectService;
     var ContentObjectService = pb.ContentObjectService;
@@ -30,21 +30,22 @@ module.exports = function(pb) {
      * Provides functions to interact with pages
      *
      * @class PageService
-     * @constructor
      * @extends BaseObjectService
+     * @constructor
+     * @param {object} context
      */
     function PageService(context){
         if (!util.isObject(context)) {
             context = {};
         }
-        
+
         context.type = TYPE;
         PageService.super_.call(this, context);
     }
     util.inherits(PageService, ContentObjectService);
-    
+
     /**
-     * 
+     *
      * @private
      * @static
      * @readonly
@@ -52,7 +53,7 @@ module.exports = function(pb) {
      * @type {String}
      */
     var TYPE = 'page';
-    
+
     /**
      * Provides the options for rendering
      * @method getRenderOptions
@@ -64,7 +65,7 @@ module.exports = function(pb) {
         if (!util.isObject(options)) {
             options = {};
         }
-        
+
         return util.merge(options, {
             readMore: false,
             renderComments: false,
@@ -72,16 +73,16 @@ module.exports = function(pb) {
             renderTimestamp: false
         });
     };
-    
+
     /**
      * Retrieves an instance of a content renderer
      * @method getRenderer
      * @return {PageRenderer}
      */
     PageService.prototype.getRenderer = function() {
-        return new pb.PageRenderer();
+        return new pb.PageRenderer(this.context);
     };
-    
+
     /**
      * Extracts an array of Topic IDs from the content that the content is associated with.
      * @method getTopicsForContent
@@ -91,13 +92,13 @@ module.exports = function(pb) {
     PageService.prototype.getTopicsForContent = function(content) {
         return content.page_topics;
     };
-    
+
     /**
-     * 
+     *
      * @static
-     * @method 
+     * @method
      * @param {Object} context
-     * @param {PageService} context.service An instance of the service that triggered 
+     * @param {PageService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -111,29 +112,29 @@ module.exports = function(pb) {
         dto.meta_desc = BaseObjectService.sanitize(dto.meta_desc);
         dto.url = BaseObjectService.sanitize(dto.url);
         dto.publish_date = BaseObjectService.getDate(dto.publish_date);
-        
+
         if (util.isArray(dto.meta_keywords)) {
             for (var i = 0; i < dto.meta_keywords.length; i++) {
                 dto.meta_keywords[i] = BaseObjectService.sanitize(dto.meta_keywords[i]);
             }
         }
-        
+
         cb(null);
     };
-    
+
     /**
-     * 
+     *
      * @static
-     * @method 
+     * @method
      * @param {Object} context
-     * @param {PageService} service An instance of the service that triggered 
+     * @param {PageService} service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     PageService.merge = function(context, cb) {
         var dto = context.data;
         var obj = context.object;
-        
+
         obj.author = dto.author;
         obj.publish_date = dto.publish_date;
         obj.meta_keywords = dto.meta_keywords;
@@ -153,29 +154,29 @@ module.exports = function(pb) {
 
         cb(null);
     };
-    
+
     /**
-     * 
+     *
      * @static
      * @method validate
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
-     * @param {PageService} context.service An instance of the service that triggered 
+     * @param {PageService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     PageService.validate = function(context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
-        
+
         if (!ValidationService.isIdStr(obj.author, true)) {
             errors.push(BaseObjectService.validationFailure('author', 'Author is required'));
         }
-        
+
         if (!ValidationService.isDate(obj.publish_date, true)) {
             errors.push(BaseObjectService.validationFailure('publish_date', 'Publish date is required'));
         }
-        
+
         if (!util.isArray(obj.meta_keywords)) {
             if (!util.isNullOrUndefined(obj.meta_keywords)) {
                 errors.push(BaseObjectService.validationFailure('meta_keywords', 'Meta Keywords must be an array'));
@@ -183,13 +184,13 @@ module.exports = function(pb) {
         }
         else {
             obj.meta_keywords.forEach(function(keyword, i) {
-                
+
                 if (!ValidationService.isNonEmptyStr(keyword, true)) {
                     errors.push(BaseObjectService.validationFailure('meta_keywords['+i+']', 'An invalid meta keyword was provided'));
                 }
             });
         }
-        
+
         if (!util.isArray(obj.page_media)) {
             if (!util.isNullOrUndefined(obj.page_media)) {
                 errors.push(BaseObjectService.validationFailure('page_media', 'Page Media must be an array'));
@@ -197,13 +198,13 @@ module.exports = function(pb) {
         }
         else {
             obj.page_media.forEach(function(mediaId, i) {
-                
+
                 if (!ValidationService.isIdStr(mediaId, true)) {
                     errors.push(BaseObjectService.validationFailure('page_media['+i+']', 'An invalid media ID was provided'));
                 }
             });
         }
-        
+
         if (!util.isArray(obj.page_topics)) {
             if (!util.isNullOrUndefined(obj.page_topics)) {
                 errors.push(BaseObjectService.validationFailure('page_topics', 'Page topics must be an array'));
@@ -211,56 +212,56 @@ module.exports = function(pb) {
         }
         else {
             obj.page_topics.forEach(function(topicId, i) {
-                
+
                 if (!ValidationService.isIdStr(topicId, true)) {
                     errors.push(BaseObjectService.validationFailure('page_topics['+i+']', 'An invalid topic ID was provided'));
                 }
             });
         }
-        
+
         if (!ValidationService.isNonEmptyStr(obj.url, true)) {
             errors.push(BaseObjectService.validationFailure('url', 'An invalid URL slug was provided'));
         }
-        
+
         if (!ValidationService.isNonEmptyStr(obj.headline, true)) {
             errors.push(BaseObjectService.validationFailure('headline', 'The headline is required'));
         }
-        
+
         if (!ValidationService.isNonEmptyStr(obj.subheading, false)) {
             errors.push(BaseObjectService.validationFailure('subheading', 'An invalid subheading was provided'));
         }
-        
+
         if (!util.isBoolean(obj.allow_comments)) {
             errors.push(BaseObjectService.validationFailure('allow_comments', 'An invalid allow comments value was provided'));
         }
-        
+
         if (!ValidationService.isStr(obj.focus_keyword, false)) {
             errors.push(BaseObjectService.validationFailure('focus_keyword', 'An invalid focus keyword was provided'));
         }
-        
+
         if (!ValidationService.isStr(obj.seo_title, false)) {
             errors.push(BaseObjectService.validationFailure('seo_title', 'An invalid SEO title was provided'));
         }
-        
+
         if (!ValidationService.isStr(obj.meta_desc, false)) {
             errors.push(BaseObjectService.validationFailure('meta_desc', 'An invalid meta description was provided'));
         }
-        
+
         if (!ValidationService.isIdStr(obj.thumbnail, false)) {
             errors.push(BaseObjectService.validationFailure('thumbnail', 'An invalid thumbnail media ID was provided'));
         }
-        
+
         if (obj.draft !== 1 && obj.draft !== 0) {
             errors.push(BaseObjectService.validationFailure('draft', 'An invalid draft value was provided.  Must be 1 or 0'));
         }
-        
+
         if (!ValidationService.isNonEmptyStr(obj.page_layout, true)) {
             errors.push(BaseObjectService.validationFailure('page_layout', 'The layout is required'));
         }
-        
+
         cb(null);
     };
-    
+
     /**
      *
      * @static
@@ -270,7 +271,7 @@ module.exports = function(pb) {
     PageService.setSectionClause = function(where, sectionId) {
         where.article_sections = sectionId + '';
     };
-    
+
     /**
      *
      * @static
@@ -280,11 +281,11 @@ module.exports = function(pb) {
     PageService.setTopicClause = function(where, topicId) {
         where.page_topics = topicId + '';
     };
-    
+
     //Event Registries
     BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, PageService.format);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, PageService.merge);
     BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, PageService.validate);
-    
+
     return PageService;
 };
