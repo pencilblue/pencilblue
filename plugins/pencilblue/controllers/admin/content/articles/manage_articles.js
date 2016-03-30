@@ -64,7 +64,7 @@ module.exports = function(pb) {
     };
 
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageArticles.getSubNavItems);
+    //pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageArticles.getSubNavItems);
 
     //exports
     return ManageArticles;

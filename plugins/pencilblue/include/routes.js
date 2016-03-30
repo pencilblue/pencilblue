@@ -1490,6 +1490,15 @@ module.exports = function Routes(pb){
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/topics/form.js'),
             content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/articles",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/articles/index.js'),
+            content_type: 'text/html'
         }
     ];
 };

@@ -1,0 +1,73 @@
+^tmp_admin-new=head^
+  <script src="/js/angular/services/search.js"></script>
+  <script src="/js/angular/services/pagination.js"></script>
+  <script src="/js/admin-new/services/uid.js"></script>
+  <script src="/js/admin-new/factories/content/articles.js"></script>
+  <script src="/js/admin-new/factories/content/topics.js"></script>
+  <script src="/js/admin-new/controllers/articles/index.js"></script>
+  <div ng-app="pencilblue.admin.app" ng-controller="AdminArticlesListController">
+    ^tmp_admin-new=elements=left_nav^
+    ^tmp_admin-new=elements=pill_nav^
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row-fluid">
+          <div class="col-md-12">
+            <h1>^page_name^</h1>
+          </div>
+          <div class="col-md-8">
+            ^tmp_admin-new=elements=search^
+            <i class="fa fa-2x fa-refresh fa-spin" ng-if="!articles"></i>
+            <table class="table table-striped table-hover list-table" ng-if="articles">
+              <thead>
+                <tr>
+                  <th>^loc_HEADLINE^</th>
+                  <th class="hidden-xs">^loc_AUTHOR^</th>
+                  <th>^loc_URL^</th>
+                  <th>^loc_PUBLISH_DATE^</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="clickable" ng-repeat="article in articles track by article._id" ng-click="gotoArticle(article)" ng-if="!article.hidden && !article.paginated">
+                  <td>
+                    <span ng-bind="article.headline"></span>&nbsp;
+                    <span class="badge" ng-if="article.status === articleStatus.DRAFT">^loc_DRAFT^</span>
+                  </td>
+                  <td class="hidden-xs" ng-bind="article.author_name"></td>
+                  <td ng-bind="'/' + article.url"></td>
+                  <td ng-bind="article.publish_date | date: 'yyyy-MM-dd HH:mm'"></td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button type="button" class="btn hidden-xs" ng-class="{'btn-default': !article.infoActive, 'btn-info': article.infoActive}" ng-click="getArticleInfo(article); $event.stopPropagation();">
+                        <i class="fa fa-info-circle"></i>
+                      </button>
+                      <button type="button" class="btn btn-default" ng-click="confirmDeletion(article); $event.stopPropagation();">
+                        <i class="fa fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div ng-if="articles">
+              ^tmp_admin-new=elements=pagination^
+            </div>
+          </div>
+          <div class="col-md-4" ng-if="contextArticle">
+            <h2 ng-bind="contextArticle.headline"></h2>
+            <div class="well well-sm context-article">
+              <h4 ng-bind="contextArticle.author_name"></h4>
+              <h5 ng-bind="contextArticle.publish_date | date: 'yyyy-MM-dd HH:mm'"></h5>
+              <div class="article-content" ng-bind-html="getArticleHtml(contextArticle)"></div>
+            </div>
+            <div ng-if="contextArticle.rendered_topics.length">
+              <h3>^loc_TOPICS^</h3>
+              <a class="btn btn-default context-btn" ng-repeat="topic in contextArticle.rendered_topics" ng-href="/admin-new/content/topics/{{getUid(topic)}}" ng-bind="topic.name"></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ^tmp_admin-new=elements=deletion_modal^
+  </div>
+^tmp_admin-new=footer^

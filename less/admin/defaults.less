@@ -7,7 +7,7 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 0 10px 0;
 }
 
-h1 {
+h1, .main-header h2, .main-header h3 {
   @media (max-width: 767px) {
     margin-left: 30px;
     font-size: 30px;
@@ -51,6 +51,14 @@ a {
   border-radius: 0;
 }
 
+.table {
+  background: @extra-light-gray;
+}
+
+.list-table {
+  margin-bottom: 0;
+}
+
 .progress {
   margin-bottom: 10px;
 }
@@ -61,4 +69,8 @@ a {
   @media(min-width: 768px) {
     margin-left: 220px;
   }
+}
+
+.context-btn {
+  margin: 0 5px 5px 0;
 }
