@@ -18,6 +18,7 @@
 //dependencies
 var fs      = require('fs');
 var npm     = require('npm');
+var bower   = require('bower');
 var path    = require('path');
 var process = require('process');
 var async   = require('async');
@@ -1180,7 +1181,7 @@ module.exports = function PluginServiceModule(pb) {
                 });
             },
 
-            //verify that dependencies are available
+            //verify that the npm dependencies are available
             function(callback) {
                 if (!util.isObject(details.dependencies) || details.dependencies === {}) {
                     //no dependencies were declared so we're good
@@ -1199,6 +1200,28 @@ module.exports = function PluginServiceModule(pb) {
                     //dependencies are missing, go install them
                     pb.log.silly('PluginService: Dependency check failed for plugin %s', plugin.name);
                     self.installPluginDependencies(plugin.dirName, details.dependencies, plugin, function (err, results) {
+                        callback(err, !util.isError(err));
+                    });
+                });
+            },
+
+            //verify that the bower dependencies are available
+            function(callback) {
+                if(!util.isObject(details.bowerDependencies) || details.bowerDependencies === {}) {
+                    //no bower dependencies declared so we're good
+                    return callback(null, true);
+                }
+
+                self.hasBowerDependencies(plugin, function(err, hasDependencies) {
+                    if(util.isError(err) || hasDependencies) {
+                        if(hasDependencies) {
+                            pb.log.silly('PluginService: Bower dependency chack passed for plugin %s', plugin.name);
+                        }
+                        return callback(err, true);
+                    }
+
+                    pb.log.silly('PluginService: Bower dependency check failed for plugin %s', plugin.name);
+                    self.installPluginBowerDependencies(plugin.dirName, details.bowerDependencies, plugin, function(err, results) {
                         callback(err, !util.isError(err));
                     });
                 });
@@ -1574,6 +1597,187 @@ module.exports = function PluginServiceModule(pb) {
             async.series(tasks, function(err, results) {
                 onDone(err, results);
             });
+        });
+    };
+
+    /**
+     * Verifies that a plugin has all required bower dependencies installed
+     * @method hasBowerDependencies
+     * @param {Object} plugin
+     * @param {Function} cb
+     */
+    PluginService.prototype.hasBowerDependencies = function(plugin, cb) {
+        if (!util.isObject(plugin.bowerDependencies) || plugin.bowerDependencies === {}) {
+            //no dependencies were declared so we're good
+            return cb(null, true);
+        }
+
+        //iterate over dependencies to ensure that they exist
+        var hasDependencies = true;
+        var tasks = util.getTasks(Object.keys(plugin.bowerDependencies), function(keys, i) {
+            return function(callback) {
+
+                //verify that the module exists and its package definition is available
+                var packagePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'public', 'bower_components', keys[i], '.bower.json');
+                var rootPackagePath = path.join(pb.config.docRoot, 'public', 'bower_components', keys[i], '.bower.json');
+                var checkPackageVersion = function(myPath) {
+                    //ensure that the version expression specified by the
+                    //dependency is satisfied by that provided by the package.json
+                    var package = {};
+                    try {
+                        package = require(myPath);
+                    }
+                    catch (e) {
+                        return false;
+                    }
+                    return semver.satisfies(package.version, plugin.bowerDependencies[keys[i]]);
+                };
+
+                async.some([packagePath, rootPackagePath], fs.exists, function(result) {
+                    if(!result) {
+                        hasDependencies = false;
+                        pb.log.warn('PluginService: Plugin %s is missing bower dependency %s', plugin.name, keys[i]);
+                        return callback(null, false)
+                    }
+                    var pluginDirSatisfied = checkPackageVersion(packagePath);
+                    var rootDirSatsified = checkPackageVersion(rootPackagePath);
+
+                    if(!pluginDirSatisfied && !rootDirSatsified) {
+                        hasDependencies = false;
+                        pb.log.warn('PluginService: Plugin %s has incorrect bower dependency version %s for %s', plugin.name, plugin.version, keys[i]);
+                    }
+
+                    callback(null, pluginDirSatisfied || rootDirSatsified);
+                });
+            };
+        });
+        async.parallel(tasks, function(err, results) {
+            cb(err, hasDependencies);
+        });
+    };
+
+    /**
+     * Installs the bower dependencies of a plugin
+     * @method installPluginBowerDependencies
+     * @param {String} pluginDirName
+     * @param {Object} dependencies
+     * @param {Object} plugin
+     * @param {Function} cb
+     */
+    PluginService.prototype.installPluginBowerDependencies = function(pluginDirName, dependencies, plugin, cb) {
+
+        //verify parameters
+        if (!pb.validation.isNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
+            return cb(new Error('The plugin directory name and the bower dependencies are required'));
+        }
+
+        //verify that another process isn't trying to install dependencies on the server
+        var self        = this;
+        var didLock     = false;
+        var retryCount  = 0;
+        var key         = pb.ServerRegistration.generateServerKey() + ':' + pluginDirName + ':bowerDependency:install';
+        var lockService = new pb.LockService();
+        async.until(
+            function() {
+                return didLock || retryCount >= MAX_DEPENDENCY_LOCK_RETRY_CNT;
+            },
+            function(callback) {
+
+                //try and acquire the lock
+                lockService.acquire(key, function(err, reply) {
+                    if (util.isError(err)) {
+                        return callback(err);
+                    }
+                    else if (reply) {
+                        didLock = true;
+                        return callback();
+                    }
+
+                    //wait a second to see if anything changes
+                    retryCount++;
+                    pb.log.silly('PluginService: Failed to acquire bower dependency installation lock for the %s time. Waiting for 1000ms.', retryCount);
+                    setTimeout(function() {
+
+                        //now check to see if another process installed the
+                        //dependencies.  If there is no plugin object then skip.
+                        callback();
+                    }, 1000);
+                });
+            },
+            function(err) {
+
+                //a callback function that allows for deleting the lock key
+                var onDone = function(err, result) {
+                    if (!didLock) {
+                        return cb(err, result);
+                    }
+                    lockService.release(key, function(error, didRelease) {
+                        cb(err || error, didRelease);
+                    });
+                };
+
+                //verify results
+                if (util.isError(err)) {
+                    return onDone(err);
+                }
+                else if (retryCount >= MAX_DEPENDENCY_LOCK_RETRY_CNT) {
+
+                    pb.log.warn('PluginService: Reached maximum retry count trying to verify bower dependencies');
+                    return onDone(null, false);
+                }
+
+                //proceed to check to see if all dependencies are there
+                self.hasBowerDependencies(plugin, function(err, hasDependencies) {
+                    if (hasDependencies) {
+                        pb.log.silly('PluginService: Assuming another process installed the bower dependencies because they were discovered. Skipping install');
+                        return onDone(err);
+                    }
+
+                    //dependencies are not available so install them while we have the lock
+                    pb.log.silly('PluginService: Installing bower dependencies for %s.', pluginDirName);
+                    self._installPluginBowerDependencies(pluginDirName, dependencies, function(err, result){
+                        onDone(err, result);
+                    });
+                });
+            }
+        );
+    };
+
+    /**
+     * Installs the bower dependencies of a plugin
+     * @method _installPluginBowerDependencies
+     * @private
+     * @param {String} pluginDirName
+     * @param {Object} dependencies
+     * @param {Function} cb
+     */
+    PluginService.prototype._installPluginBowerDependencies = function(pluginDirName, dependencies, cb) {
+
+        var prefixPath = path.join(PluginService.getPluginsDir(), pluginDirName);
+
+        var dependenciesToInstall = [];
+
+        util.forEach(dependencies, function(version, dependencyName) {
+            dependenciesToInstall.push(dependencyName + '#' + version);
+        });
+
+        var bowerRc = {
+            directory: path.join(prefixPath, 'public', 'bower_components'),
+            ignoredDependencies: []
+        };
+
+        bower.commands.list().on('end', function(list) {
+
+            //add pencilblue bower dependencies to ignored dependency list, because we do not want to have them installed in the plugins bower_components folder
+            util.forEach(list.pkgMeta.dependencies, function(packageVersion, packageName) {
+                bowerRc.ignoredDependencies.push(packageName);
+            });
+
+            bower.commands
+                .install(dependenciesToInstall, { save: false }, bowerRc)
+                .on('end', function (installed) {
+                    cb(null, null);
+                });
         });
     };
 
