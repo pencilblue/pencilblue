@@ -439,6 +439,8 @@ module.exports = {
         SITE_DEACTIVATED: 'Site deactivated',
         ACTIVATE: 'Activate',
         DEACTIVATE: 'Deactivate',
+        ACTIVE_MAINTENANCE: 'Active Maintenance',
+        DEACTIVE_MAINTENANCE: 'Dective Maintenance',
         EDIT_SITE: 'Edit Site',
         NEW_SITE: 'New Site',
         SITE_UPDATED: 'Site was successfully updated',
