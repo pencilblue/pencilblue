@@ -20,6 +20,7 @@ module.exports = function(pb) {
     //PB dependencies
     var util         = pb.util;
     var MediaService = pb.MediaService;
+    var BaseObjectService = pb.BaseObjectService;
 
     /**
      *
@@ -37,6 +38,33 @@ module.exports = function(pb) {
      */
     MediaApiController.prototype.initSync = function(context) {
         this.service = new MediaService(null, context.site, context.onlyThisSite);
+    };
+
+    /**
+     * Retrieves media
+     * @method getAll
+     * @param {Function} cb
+     */
+    MediaApiController.prototype.getAll = function(cb) {
+        var self = this;
+
+        var options = this.processQuery();
+        this.service.get(options, function(err, mediaArray) {
+            var wrapper = null;
+            if (mediaArray) {
+                wrapper = BaseObjectService.getPagedResult(mediaArray, mediaArray.length);
+            }
+            self.handleGet(cb)(err, wrapper);
+        });
+    };
+
+    /**
+     * Retrieves a single media item by ID
+     * @method get
+     * @param {Function} cb
+     */
+    MediaApiController.prototype.get = function(cb) {
+        this.service.loadById(this.pathVars.id, this.handleGet(cb));
     };
 
     /**
@@ -73,16 +101,6 @@ module.exports = function(pb) {
             where: where,
             failures: failures
         };
-    };
-
-    /**
-     * Retrieves media
-     * @method getAll
-     * @param {Function} cb
-     */
-    MediaApiController.prototype.getAll = function(cb) {
-        var options = this.processQuery();
-        this.service.get(options, this.handleGet(cb));
     };
 
     //exports
