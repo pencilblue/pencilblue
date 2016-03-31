@@ -33,9 +33,9 @@ module.exports = function LocalizationApiControllerModule(pb) {
     function LocalizationApiController(){
         //rename saveLocaleService
         if(pb.config.localization && pb.config.localization.db){
-            this.saveLocaleService = new dbLocalizationService();
+            this.LocaleService = new dbLocalizationService();
         } else {
-            this.saveLocaleService = new fileLocalizationService();
+            this.LocaleService = new fileLocalizationService();
         }
     }
     util.inherits(LocalizationApiController, pb.BaseController);
@@ -60,8 +60,8 @@ module.exports = function LocalizationApiControllerModule(pb) {
 
     LocalizationApiController.prototype.saveLocales = function(cb) {
         var post = this.body;
-        this.saveLocaleService.saveLocales(post, function(message){
-            if(message.code && message.code == 500){
+        this.LocaleService.saveLocales(post, function(message){
+            if(message.code && message.code === 500){
                 return cb(message);
             }
             cb(message);
@@ -78,7 +78,7 @@ module.exports = function LocalizationApiControllerModule(pb) {
             });
         }
 
-        self.saveLocaleService.getLocales(self.query, function(err, data){
+        self.LocaleService.getLocales(self.query, function(err, data){
             if(err){
                 return cb({
                     code: 500,
