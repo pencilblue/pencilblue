@@ -201,6 +201,14 @@ module.exports = function AdminNavigationModule(pb) {
         access: SecurityService.ACCESS_WRITER
     });
 
+    var LOCALIZATION_NAV = Object.freeze({
+        id: 'localization_settings',
+        title: 'LOCALIZATION',
+        icon: 'language',
+        href: '/admin/localization',
+        access: SecurityService.ACCESS_ADMINISTRATOR
+    });
+
     function buildSettingsNavigation(site) {
         var settingsNav = {
             id: 'settings',
@@ -242,11 +250,12 @@ module.exports = function AdminNavigationModule(pb) {
                 access: SecurityService.ACCESS_ADMINISTRATOR
             });
         }
+
         return Object.freeze(settingsNav);
     }
 
     function getDefaultNavigation(site) {
-        return util.clone([CONTENT_NAV, PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
+        return util.clone([CONTENT_NAV, PLUGINS_NAV, LOCALIZATION_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
     }
 
     function getMultiSiteNavigation() {
