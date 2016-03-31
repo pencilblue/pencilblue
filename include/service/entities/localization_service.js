@@ -15,8 +15,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var async = require('async');
-var url = require('url');
 var util  = require('../../util.js');
 
 module.exports = function LocalizationServiceModule(pb) {
