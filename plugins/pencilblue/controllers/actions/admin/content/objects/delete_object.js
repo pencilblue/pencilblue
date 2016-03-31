@@ -42,7 +42,7 @@ module.exports = function(pb) {
             return;
         }
 
-        var cos = new pb.CustomObjectService(self.site, true);
+        var cos = new pb.CustomObjectService(self.site, false);
         cos.loadById(vars.id, function(err, customObject) {
             if (util.isError(err)) {
                 return self.reqHandler.serveError(err);
