@@ -1463,6 +1463,17 @@ module.exports = function Routes(pb){
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+
+        //users
+        {
+            method: 'get',
+            path: "/api/users/me",
+            handler: "me",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
         }
     ];
 };

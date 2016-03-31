@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@ module.exports = function(pb) {
     //PB dependencies
     var util            = pb.util;
     var TopicService    = pb.TopicService;
-    var SecurityService = pb.SecurityService;
 
     /**
      *
@@ -33,26 +32,23 @@ module.exports = function(pb) {
 
     /**
      * Initializes the controller
-     * @method init
+     * @method initSync
      * @param {Object} context
-     * @param {Function} cb
      */
-    TopicApiController.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err) {
+    TopicApiController.prototype.initSync = function(/*context*/) {
 
-            /**
-             *
-             * @property service
-             * @type {TopicService}
-             */
-            self.service = new TopicService(self.getServiceContext());
-
-            cb(err, true);
-        };
-        TopicApiController.super_.prototype.init.apply(this, [context, init]);
+        /**
+         * @property service
+         * @type {TopicService}
+         */
+        this.service = new TopicService(this.getServiceContext());
     };
 
+    /**
+     * @method processWhere
+     * @param {object} q
+     * @returns {object} Two properties, the where clause and the failures array
+     */
     TopicApiController.prototype.processWhere = function(q) {
         var where = null;
         var failures = [];
