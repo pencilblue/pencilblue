@@ -1,0 +1,11 @@
+{
+    "SAMPLE_HELLO_WORLD": "Hello World!!!",
+    "PARAMETERIZED_KEY": "This is a parameterized key.  I can pass a string value like, {someString}, or a number like {someNumber}.  I can even pass JSON like, {json}",
+    "292e82ce-1e02-4858-98d8-e070493d85d8": {
+        "SAMPLE_HELLO_WORLD": "override of hello world"
+    },
+    "af2ba5b4-74c3-46f4-b883-067e39c0bf0d": {
+        "TEST_LOCAL": "Hi",
+        "TEST_LINK_LOC": "en-US/"
+    }
+}
