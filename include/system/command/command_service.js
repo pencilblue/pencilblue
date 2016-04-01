@@ -176,7 +176,7 @@ module.exports = function CommandServiceModule(pb) {
      * @method isRegistered
      * @param type
      * @param handler
-     * @returns {number} The index in the storage array where the handle to
+     * @return {number} The index in the storage array where the handle to
      * the function is kept.  CommandService.NOT_FOUND if the handle is not
      * registered for the type.  CommandService.ERROR_INDEX when the
      * parameters are invalid.

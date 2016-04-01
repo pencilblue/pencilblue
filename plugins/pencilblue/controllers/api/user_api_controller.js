@@ -32,18 +32,24 @@ module.exports = function(pb) {
 
     /**
      * Initializes the controller
-     * @method init
-     * @param {Object} context
-     * @param {Function} cb
+     * @method initSync
+     * @param {object} context
      */
     UserApiController.prototype.initSync = function(/*context*/) {
 
         /**
-         *
          * @property service
-         * @type {TopicService}
+         * @type {UserService}
          */
         this.service = new UserService(this.getServiceContext());
+    };
+
+    /**
+     * Retrieves the user object represented by the logged in user
+     * @param cb
+     */
+    UserApiController.prototype.me = function(cb) {
+        this.handleGet(cb)(null, this.session.authentication.user);
     };
 
     //exports

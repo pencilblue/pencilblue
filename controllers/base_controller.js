@@ -159,12 +159,12 @@ module.exports = function BaseControllerModule(pb) {
     };
 
     /**
-     * Provides a synchronous function means to intialize a controller.  It is
+     * Provides a synchronous function means to initialize a controller.  It is
      * meant to be called from the "init" function called by the request handler.
      * @method initSync
      * @param {Object} context See "init" for more details on properties
      */
-    BaseController.prototype.initSync = function(context) {};
+    BaseController.prototype.initSync = function(/*context*/) {};
 
     /**
      * Creates a TemplateService instance
@@ -403,7 +403,6 @@ module.exports = function BaseControllerModule(pb) {
             try {
                 postParams = JSON.parse(raw.toString(encoding));
             }
-            //TODO - Needed? Can't we just pass err into the cb?
             catch(err) {
                 error = err;
             }

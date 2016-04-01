@@ -291,7 +291,7 @@ module.exports = function DBManagerModule(pb) {
          * @method compareIndices
          * @param {Object} stored
          * @param {Object} defined
-         * @returns {boolean}
+         * @return {boolean}
          */
         this.compareIndices = function(stored, defined) {
             var keys = Object.keys(stored.key);
