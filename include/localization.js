@@ -544,7 +544,16 @@ module.exports = function LocalizationModule(pb) {
                 pb.log.error(err);
             }
             for(var i = 0; i < result.length; i++) {
-                Localization.storage[result[i]._id] = result[0].storage[result[i]._id];
+                var keyBlock = result[0].storage[result[i]._id];
+
+                Localization.storage[result[i]._id] = keyBlock;
+                for(var key in keyBlock){
+                    if(util.isObject(keyBlock[key])){
+                        var indexKey = result[i]._id + '.' + key;
+                        Localization.keys[indexKey] = true;
+                        Localization.keys[key] = true;
+                    }
+                }
             }
 
             return cb(null, compoundedResult);

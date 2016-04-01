@@ -62,26 +62,11 @@ module.exports = function LocalizationUpdateJobModule(pb) {
      * @param {Function} cb - callback function
      */
     LocalizationUpdateJob.prototype.getWorkerTasks = function(cb) {
-        var site = this.getSite();
+        var site  = this.getSite();
         var tasks = [
             //update localization storage
             function(callback) {
-                var opts = {
-                    where: {_id: site}
-                };
-                var queryService = new pb.SiteQueryService({site: site, onlyThisSite: true});
-                queryService.q("localizations", opts, function (err, result) {
-                    if (util.isError(err)) {
-                        pb.log.error(err);
-                        return callback(err);
-                    }
-                    if (result && result[0] && result[0].storage) {
-                        pb.Localization.storage[site] = result[0].storage[site];
-                    } else {
-                        pb.Localization.storage[site] = {};
-                    }
-                    callback(null, true);
-                });
+                loadLocalesFromDBPerSite(site, callback);
             }
         ];
         cb(null, tasks);
@@ -94,31 +79,44 @@ module.exports = function LocalizationUpdateJobModule(pb) {
      */
     LocalizationUpdateJob.prototype.doPersistenceTasks = function(cb) {
         var site   = this.getSite();
-        var tasks     = [
+        var tasks  = [
             //update localization storage
             function(callback) {
-                var opts = {
-                    where: {_id: site}
-                };
-                var queryService = new pb.SiteQueryService({site: site, onlyThisSite: false});
-                queryService.q("localizations", opts, function (err, result) {
-                    if (util.isError(err)) {
-                        pb.log.error(err);
-                        return callback(err);
-                    }
-                    if (result && result[0] && result[0].storage) {
-                        pb.Localization.storage[site] = result[0].storage[site];
-                    } else {
-                        pb.Localization.storage[site] = {};
-                    }
-                    callback(null, true);
-                });
+                loadLocalesFromDBPerSite(site, callback);
             }
         ];
         async.series(tasks, function(err/*, results*/) {
             cb(err, !util.isError(err));
         });
     };
+
+    function loadLocalesFromDBPerSite(site, callback){
+        var opts = {
+            where: {_id: site}
+        };
+        var queryService = new pb.SiteQueryService({site: site, onlyThisSite: false});
+        queryService.q("localizations", opts, function (err, result) {
+            if (util.isError(err)) {
+                pb.log.error(err);
+                return callback(err);
+            }
+            if (result && result[0] && result[0].storage) {
+                var keyBlock = result[0].storage[site];
+                pb.Localization.storage[site] = keyBlock;
+
+                for(var key in keyBlock){
+                    if(util.isObject(keyBlock[key])){
+                        var indexKey = site + '.' + key;
+                        pb.Localization.keys[indexKey] = true;
+                        pb.Localization.keys[key] = true;
+                    }
+                }
+            } else {
+                pb.Localization.storage[site] = {};
+            }
+            callback(null, true);
+        });
+    }
 
     //exports
     return LocalizationUpdateJob;
