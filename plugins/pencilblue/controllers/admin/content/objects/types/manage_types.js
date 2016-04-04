@@ -49,8 +49,9 @@ module.exports = function(pb) {
 
             service.findTypes(function (err, custObjTypes) {
                 custObjTypes = handleError(err, custObjTypes);
-
-                custObjTypes = globalObjTypes.concat(custObjTypes);
+                if(self.site !== 'global'){
+                    custObjTypes = globalObjTypes.concat(custObjTypes);
+                }
                 //none to manage
                 if (custObjTypes.length === 0) {
                     self.redirect('/admin/content/objects/types/new', cb);
