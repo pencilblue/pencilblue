@@ -18,7 +18,6 @@
 //dependencies
 var os      = require('os');
 var cluster = require('cluster');
-var process = require('process');
 var async   = require('async');
 var domain  = require('domain');
 var util    = require('../util.js');

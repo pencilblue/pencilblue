@@ -19,7 +19,7 @@
 var fs      = require('fs');
 var path    = require('path');
 var cluster = require('cluster');
-var process = require('process');
+var process = global.process || require('process');
 var util    = require('./util.js');
 var winston = require('winston');
 

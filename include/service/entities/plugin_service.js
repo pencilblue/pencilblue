@@ -19,7 +19,6 @@
 var fs      = require('fs');
 var npm     = require('npm');
 var path    = require('path');
-var process = require('process');
 var async   = require('async');
 var domain  = require('domain');
 var semver  = require('semver');
@@ -1455,7 +1454,7 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
 
         //verify parameters
-        if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
+        if (!pb.ValidationService.isNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
             return cb(new Error('The plugin directory name and the dependencies are required'));
         }
 
@@ -1566,14 +1565,11 @@ module.exports = function PluginServiceModule(pb) {
             var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
                 return function(callback) {
 
-                    var modVer  = keys[i]+'@'+dependencies[keys[i]];
-                    var command = [modVer];
+                    var command = [ keys[i]+'@'+dependencies[keys[i]] ];
                     npm.commands.install(command, callback);
                 };
             });
-            async.series(tasks, function(err, results) {
-                onDone(err, results);
-            });
+            async.series(tasks, onDone);
         });
     };
 
