@@ -1291,10 +1291,14 @@ module.exports = function PluginServiceModule(pb) {
 
                     //attempt to make connection
                     var d = domain.create();
-                    d.on('error', function(err) {
+                    var onDone = function(err, result) {
+                        d.removeAllListeners('error');
+                        callback(err, result);
+                    };
+                    d.once('error', function(err) {
                         if (timeoutProtect) {
                             clearTimeout(timeoutProtect);
-                            callback(err, false);
+                            onDone(err, false);
                         }
                         else {
                             pb.log.error('PluginService:[INIT] Plugin %s failed to start. %s', details.uid, err.stack);
@@ -1320,7 +1324,7 @@ module.exports = function PluginServiceModule(pb) {
                                 pb.log.debug('PluginService:[INIT] Plugin %s onStartup returned with result: %s', details.uid, didStart);
 
                                 clearTimeout(timeoutProtect);
-                                callback(err, didStart);
+                                onDone(err, didStart);
                             }
                         }
                     });

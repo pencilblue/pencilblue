@@ -105,7 +105,7 @@ module.exports = function DAOModule(pb) {
      * @param {String}   key        The key to search for
      * @param {*}        val        The value to search for
      * @param {String}   collection The collection to search in
-     * @param {Object}   opts Key value pair object to exclude the retrival of data
+     * @param {Object}   [opts] Key value pair object to exclude the retrieval of data
      * @param {Function} cb         Callback function
      */
     DAO.prototype.loadByValue = function(key, val, collection, opts, cb) {
