@@ -39,7 +39,7 @@
         "nodemailer": "0.7.1",
         "npm": "3.8.5",
         "process": "0.11.2",
-        "redis": "2.2.3",
+        "redis": "2.5.3",
         "sanitize-html": "1.11.4",
         "semver": "5.1.0",
         "winston": "2.2.0"
