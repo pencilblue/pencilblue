@@ -15,9 +15,6 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var path = require('path');
-var fs = require('fs');
-
 module.exports = function (pb) {
 
     //pb dependencies
