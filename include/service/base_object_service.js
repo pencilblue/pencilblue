@@ -498,7 +498,7 @@ module.exports = function(pb) {
         //do any object formatting that should be done before validation
         var self    = this;
         var context = this.getContext(dto);
-        context.isCreate = util.isBoolean(options.isCreate) ? options.isCreate : util.isNullOrUndefined(dto[pb.DAO.getIdField()]);
+        context.isCreate = util.isBoolean(options.isCreate) ? options.isCreate : util.isNullOrUndefined(dto[pb.DAO.getIdField() || dto.id]);
         context.isUpdate = !context.isCreate;
         self._emit(BaseObjectService.FORMAT, context, function(err) {
             if (util.isError(err)) {
@@ -606,7 +606,14 @@ module.exports = function(pb) {
      * @return {Object}
      */
     BaseObjectService.prototype.getIdWhere = function(dto) {
-        return dto[pb.DAO.getIdField()] ? pb.DAO.getIdWhere(dto[pb.DAO.getIdField()]) : null;
+        var idField = pb.DAO.getIdField();
+        if (dto.id) {
+            return pb.DAO.getIdWhere(dto.id);
+        }
+        else if (dto[idField]) {
+            return pb.DAO.getIdWhere(dto[idField]);
+        }
+        return null;
     };
 
     /**
