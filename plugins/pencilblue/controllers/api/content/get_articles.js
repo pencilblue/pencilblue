@@ -97,8 +97,8 @@ module.exports = function(pb) {
         var offset = parseInt(this.query.offset);
         if (isNaN(offset) || offset < 0) {
 
-            //the infinite scroll depends on this being the default.  It is old 
-            //legacy logic and should not be brought forward as the new new 
+            //the infinite scroll depends on this being the default.  It is old
+            //legacy logic and should not be brought forward as the new new
             //article API is built out.
             offset = this.contentSettings.articles_per_page;
         }
@@ -133,7 +133,7 @@ module.exports = function(pb) {
         var opts = {
             render: true,
             where: where,
-            order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}],
+            order: [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]],
             limit: limit,
             offset: offset
         };
