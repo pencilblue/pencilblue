@@ -26,7 +26,7 @@ var util   = require('../util.js');
  * @module Session
  */
 module.exports = function SessionModule(pb) {
-    
+
     /**
      * Responsible for managing user sessions
      *
@@ -49,7 +49,7 @@ module.exports = function SessionModule(pb) {
      * @type {String}
      */
     SessionHandler.HANDLER_PATH = path.join(pb.config.docRoot, 'include', 'session', 'storage', path.sep);
-    
+
     /**
      *
      * @static
@@ -58,7 +58,7 @@ module.exports = function SessionModule(pb) {
      * @type {String}
      */
     SessionHandler.HANDLER_SUFFIX = '_session_store.js';
-    
+
     /**
      *
      * @static
@@ -67,7 +67,7 @@ module.exports = function SessionModule(pb) {
      * @type {String}
      */
     SessionHandler.SID_KEY = 'uid';
-    
+
     /**
      *
      * @static
@@ -76,7 +76,7 @@ module.exports = function SessionModule(pb) {
      * @type {String}
      */
     SessionHandler.TIMEOUT_KEY = 'timeout';
-    
+
     /**
      *
      * @static
@@ -85,7 +85,7 @@ module.exports = function SessionModule(pb) {
      * @type {String}
      */
     SessionHandler.COOKIE_HEADER = 'parsed_cookies';
-    
+
     /**
      *
      * @static
@@ -94,9 +94,9 @@ module.exports = function SessionModule(pb) {
      * @type {String}
      */
     SessionHandler.COOKIE_NAME = 'session_id';
-    
+
     /**
-     * 
+     *
      * @method start
      * @param {Function} cb
      */
@@ -118,24 +118,14 @@ module.exports = function SessionModule(pb) {
         //check for active
         var sid = SessionHandler.getSessionIdFromCookie(request);
         if (!sid) {
-            cb(null, this.create(request));
-            return;
+            return cb(null, this.create(request));
         }
-
-        //check in local storage
-        var session = null;
 
         //session not available locally so check persistent storage
         var handler = this;
         this.sessionStore.get(sid, function(err, result){
-            if(err){
-                cb(err, null);
-                return;
-            }
-            else if(result){
-                //handler.setLocal(result);
-                cb(null, result);
-                return;
+            if(err || result){
+                return cb(err, result);
             }
 
             //session not found create one
@@ -207,7 +197,7 @@ module.exports = function SessionModule(pb) {
         session[SessionHandler.SID_KEY] = util.uniqueId();
         return session;
     };
-    
+
     /**
      * Shuts down the sesison handler and the associated session store
      * @method shutdown
@@ -260,7 +250,7 @@ module.exports = function SessionModule(pb) {
         }
         return SessionStoreModule(pb);
     };
-    
+
     /**
      * Retrieves an instance of the SessionStore specified in the sytem configuration
      * @static
@@ -305,6 +295,6 @@ module.exports = function SessionModule(pb) {
     SessionHandler.getSessionCookie = function(session) {
         return {session_id: session.uid, path: '/'};
     };
-    
+
     return SessionHandler;
 };
