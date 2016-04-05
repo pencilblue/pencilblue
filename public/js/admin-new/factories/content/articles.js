@@ -22,7 +22,8 @@
         get: {
           method: 'GET',
           params: {
-            id: '@id'
+            id: '@id',
+            render: '@render'
           }
         },
         save: {
@@ -50,8 +51,13 @@
         });
       },
 
-      getArticle: function(id, cb) {
-        var article = this.Article.get({id: id}, function() {
+      getArticle: function(id, render, cb) {
+        if(typeof cb === 'undefined') {
+          cb = render;
+          render = 0;
+        }
+
+        var article = this.Article.get({id: id, render: render}, function() {
           cb(null, article);
         }, function(error) {
           cb(error);

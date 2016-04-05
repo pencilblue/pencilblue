@@ -14,13 +14,15 @@ var cssDirectory;
 
 gulp.task('build:admin', function() {
   vendorFiles = [
+    './public/bower_components/moment/min/moment.min.js',
     './public/bower_components/jquery/dist/jquery.min.js',
     './public/bower_components/angular/angular.min.js',
     './public/bower_components/angular-route/angular-route.min.js',
     './public/bower_components/angular-sanitize/angular-sanitize.min.js',
     './public/bower_components/angular-resource/angular-resource.min.js',
     './public/bower_components/bootstrap/dist/js/bootstrap.min.js',
-    './public/bower_components/datetimepicker/jquery.datetimepicker.js',
+    './public/bower_components/moment-picker/dist/angular-moment-picker.min.js'
+
     /*'./public/bower_components/to-markdown/dist/to-markdown.js',
     './public/bower_components/markdown/bin/md2html.js',
     './public/bower_components/danialfarid-angular-file-upload/dist/ng-file-upload-all.js',

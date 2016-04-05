@@ -246,7 +246,7 @@ module.exports = function(pb) {
     };
 
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor('new_article', ArticleForm.getSubNavItems);
+    //pb.AdminSubnavService.registerFor('new_article', ArticleForm.getSubNavItems);
 
     //exports
     return ArticleForm;

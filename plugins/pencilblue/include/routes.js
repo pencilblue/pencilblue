@@ -1516,10 +1516,28 @@ module.exports = function Routes(pb){
         {
             method: 'get',
             path: "/admin-new/content/articles",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: pb.SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/articles/index.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/articles/new",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/articles/form.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/articles/:id",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/articles/form.js'),
             content_type: 'text/html'
         }
     ];

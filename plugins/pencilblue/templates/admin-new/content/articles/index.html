@@ -54,9 +54,11 @@
             </div>
           </div>
           <div class="col-md-4" ng-if="contextArticle">
-            <h2 ng-bind="contextArticle.headline"></h2>
+            <h2 class="clickable" ng-bind="contextArticle.headline" ng-click="gotoArticle(contextArticle)"></h2>
             <div class="well well-sm context-article">
-              <h4 ng-bind="contextArticle.author_name"></h4>
+              <h4>
+                <a ng-href="/admin-new/users/{{contextArticle.author}}" ng-bind="contextArticle.author_name"></a>
+              </h4>
               <h5 ng-bind="contextArticle.publish_date | date: 'yyyy-MM-dd HH:mm'"></h5>
               <div class="article-content" ng-bind-html="getArticleHtml(contextArticle)"></div>
             </div>

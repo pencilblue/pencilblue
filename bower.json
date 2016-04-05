@@ -21,6 +21,8 @@
     "danialfarid-angular-file-upload": "~11.2.3",
     "ng-sortable": "~1.3.2",
     "rangy-release": "~1.3.0",
-    "angular-resource": "~1.5.0"
+    "angular-resource": "~1.5.0",
+    "moment-picker": "~0.4.1",
+    "moment": "~2.12.0"
   }
 }

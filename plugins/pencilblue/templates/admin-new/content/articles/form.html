@@ -1,0 +1,147 @@
+^tmp_admin-new=head^
+  <script src="/js/admin-new/services/uid.js"></script>
+  <script src="/js/admin-new/directives/go_back.js"></script>
+  <script src="/js/admin-new/factories/content/articles.js"></script>
+  <script src="/js/admin-new/controllers/articles/form.js"></script>
+  <script>
+    var articleId = '^article_id^';
+  </script>
+  <div ng-app="pencilblue.admin.app" ng-controller="AdminArticlesFormController">
+    ^tmp_admin-new=elements=left_nav^
+    ^tmp_admin-new=elements=pill_nav^
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row-fluid">
+          <div class="col-md-12">
+            <i class="fa fa-2x fa-refresh fa-spin" ng-if="!article"></i>
+            <h1 ng-bind="'^loc_EDIT^ ' + headline" ng-if="headline"></h1>
+            <h1 ng-if="!articleId">^loc_NEW_TOPIC^</h1>
+          </div>
+          <div class="col-md-8" ng-if="article">
+            <form name="articleForm" ng-submit="saveArticle()" no-validate>
+              <div id="accordion" role="tablist">
+                <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="contentHeading">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#contentPanel" aria-expanded="true" aria-controls="contentPanel">
+                      <h4 class="panel-title">
+                        <i class="fa fa-fw fa-quote-left"></i>^loc_CONTENT^
+                      </h4>
+                    </a>
+                  </div>
+                  <div id="contentPanel" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="contentHeading">
+                    <div class="panel-body">
+                      <div class="form-group" ng-class="{'has-error': formSubmitted && !articleForm.headline.$valid}">
+                        <label>^loc_HEADLINE^</label>
+                        <input type="text" name="headline" class="form-control" ng-model="article.headline" required></input>
+                      </div>
+                      <div class="form-group">
+                        <label>^loc_SUBHEADING^</label>
+                        <input type="text" name="subheading" class="form-control" ng-model="article.subheading"></input>
+                      </div>
+                      <div class="form-group" ng-class="{'has-error': formSubmitted && !articleForm.url.$valid}">
+                        <label>^loc_URL^</label>
+                        <div class="input-group">
+                          <span class="input-group-addon">/article/</span>
+                          <input type="text" name="url" class="form-control" ng-model="article.url" required></input>
+                          <span class="input-group-btn">
+            								<button type="button" class="btn" ng-class="{'btn-secondary': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="articleForm.headline.$invalid">
+            									<span ng-if="urlGenerated === null">^loc_GENERATE^</span>
+            									<span ng-if="urlGenerated === true"><i class="fa fa-check"></i>&nbsp;^loc_GENERATED^</span>
+            									<span ng-if="urlGenerated === false"><i class="fa fa-ban"></i>&nbsp;^loc_NOT_GENERATED^</span>
+            								</button>
+                          </span>
+                          <span class="input-group-btn">
+            								<button type="button" class="btn" ng-class="{'btn-secondary': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!article.url.length">
+            									<span ng-if="urlAvailable === null">^loc_CHECK^</span>
+            									<span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
+            									<span ng-if="urlAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+            								</button>
+            							</span>
+                        </div>
+                      </div>
+                      <div class="form-group">
+            						<label>^loc_STANDALONE_TEMPLATE^</label>
+            						<select class="form-control" ng-model="article.template">
+            							<option value="">^loc_THEME_DEFAULT^</option>
+            							<option ng-value="template.theme_uid + '|' + template.file" ng-repeat="template in templates" ng-bind="template.theme_name + ': ' + template.name" ng-selected="article.template === (template.theme_uid + '|' + template.file)"></option>
+            						</select>
+            					</div>
+                      <div class="form-group" ng-if="availableAuthors.length">
+          							<label>^loc_AUTHOR^</label>
+          							<select class="form-control" ng-model="article.author" ng-options="getUid(availableAuthor) as availableAuthor.name for availableAuthor in availableAuthors"></select>
+            					</div>
+                      <div class="form-group">
+            						<label>^loc_PUBLISH_DATE^</label>
+                        <div class="input-group">
+                          <input class="form-control" ng-model="article.publish_date" ng-model-options="{updateOn: 'blur'}" moment-picker="article.publish_date"></input>
+                          <span class="input-group-btn">
+            								<button type="button" class="btn btn-secondary" ng-click="setPublishDateToNow()">
+            									^loc_NOW^
+            								</button>
+            							</span>
+                        </div>
+            					</div>
+                      <div class="form-group">
+          					    <label>^loc_ALLOW_COMMENTS^?</label><br/>
+          					    <div class="btn-group">
+        					        <button type="button" class="btn btn-default" ng-class="{'active': article.allow_comments}" ng-click="setCommentState(true)">^loc_YES^</button>
+        					        <button type="button" class="btn btn-default" ng-class="{'active': !article.allow_comments}" ng-click="setCommentState(false)">^loc_NO^</button>
+          					    </div>
+            					</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="seoHeading">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#seoPanel" aria-expanded="true" aria-controls="seoPanel">
+                      <h4 class="panel-title">
+                        <i class="fa fa-fw fa-tasks"></i>^loc_SEO^
+                      </h4>
+                    </a>
+                  </div>
+                  <div id="seoPanel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="seoHeading">
+                    <div class="panel-body">
+                      <div class="form-group">
+            						<label>^loc_FOCUS_KEYWORD^</label>
+            						<input type="text" class="form-control" ng-model="article.focus_keyword" placeholder="^loc_FOCUS_KEYWORD_PLACEHOLDER^"></input>
+            					</div>
+            					<div class="form-group">
+            						<label>^loc_SEO_TITLE^</label>
+            						<input type="text" class="form-control" ng-model="article.seo_title" placeholder="^loc_SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
+            					</div>
+            					<div class="form-group">
+            						<label>^loc_META_DESC^</label>
+            						<textarea class="form-control" ng-model="article.meta_desc" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
+            					</div>
+            					<div class="form-group">
+            						<label>^loc_META_KEYWORDS^</label>
+            						<input type="text" class="form-control" ng-model="article.meta_keywords" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
+            					</div>
+            					<div class="form-group" ng-if="article.article_media.length">
+            						<label>^loc_THUMBNAIL^</label>
+            						<select class="form-control" ng-model="article.thumbnail">
+            							<option ng-value="media._id" ng-repeat="media in article.article_media" ng-selected="article.thumbnail === media._id" ng-bind="media.name" ng-if="media.media_type === 'image'"></option>
+            						</select>
+            					</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              ^tmp_admin-new=elements=alert^
+              <button type="button" class="btn btn-default" go-back>
+                <i class="fa fa-ban"></i>
+                ^loc_CANCEL^
+              </button>
+              <button type="submit" class="btn" ng-class="{'btn-primary': !saveSuccess, 'btn-success': saveSuccess}" ng-disabled="!articleForm.$valid || saveSuccess">
+                <i class="fa fa-save" ng-class="{'fa-save': !saving && !saveSuccess, 'fa-check': !saving && saveSuccess, 'fa-refresh fa-spin': saving}"></i>
+                ^loc_SAVE^
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    ^tmp_admin-new=elements=deletion_modal^
+  </div>
+^tmp_admin-new=footer^
