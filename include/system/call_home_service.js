@@ -18,7 +18,6 @@
 //dependencies
 var os      = require('os');
 var https   = require('https');
-var process = require('process');
 var domain  = require('domain');
 var util    = require('../util.js');
 
@@ -136,7 +135,7 @@ module.exports = function CallHomeServiceModule(pb) {
         });
         d.run(getDomainRunner(options, postData));
     };
-    
+
     /**
      *
      * @private

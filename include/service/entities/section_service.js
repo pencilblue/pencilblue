@@ -16,7 +16,6 @@
 */
 
 //dependencies
-var process = require('process');
 var async   = require('async');
 var util    = require('../../util.js');
 

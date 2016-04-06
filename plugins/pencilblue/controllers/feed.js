@@ -19,7 +19,6 @@
 var path           = require('path');
 var HtmlEncoder    = require('htmlencode');
 var async          = require('async');
-var process        = require('process');
 
 module.exports = function FeedModule(pb) {
 

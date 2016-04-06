@@ -27,6 +27,13 @@ var path = require('path');
  */
 module.exports = function PB(config) {
 
+    //older versions of node did not have process as a core module.  We ensure that we have access to it here and ensure
+    // it is set as a global variable
+    if (!global.process) {
+        console.log('Process module imported as require');
+        global.process = require('process');
+    }
+
     //define what will become the global entry point into the server api.
     var pb = {};
 
