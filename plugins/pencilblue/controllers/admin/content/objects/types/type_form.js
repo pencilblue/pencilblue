@@ -19,10 +19,10 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for creating and editing custom object types
      */
@@ -58,7 +58,7 @@ module.exports = function(pb) {
 
     TypeForm.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService(self.site, true);
+        var cos = new pb.CustomObjectService(self.site, false);
 
         var tasks = {
             tabs: function(callback) {

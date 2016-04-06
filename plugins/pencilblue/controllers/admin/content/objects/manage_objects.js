@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for managing objects
      * @class ManageObjects
@@ -40,7 +40,7 @@ module.exports = function(pb) {
             return this.reqHandler.serve404();
         }
 
-        var service = new pb.CustomObjectService(self.site, true);
+        var service = new pb.CustomObjectService(self.site, false);
         service.loadTypeById(vars.type_id, function(err, custObjType) {
             if (util.isError(err)) {
                 return self.serveError(err);

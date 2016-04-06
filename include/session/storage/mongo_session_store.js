@@ -39,7 +39,7 @@ module.exports = function MongoSessionStoreModule(pb) {
      * @type {String}
      */
     var SESSION_COLLECTION_NAME = 'session';
-    
+
     /**
      * The cache lock key used when the index is needed to be modified
      * @private
@@ -59,7 +59,7 @@ module.exports = function MongoSessionStoreModule(pb) {
      */
     MongoSessionStore.prototype.get = function(sessionId, cb){
         var dao = new pb.DAO();
-        dao.loadByValue('uid', sessionId, SESSION_COLLECTION_NAME, cb);
+        dao.loadByValue('uid', sessionId, SESSION_COLLECTION_NAME, MongoSessionStore.getHandler(cb));
     };
 
     /**
@@ -76,12 +76,12 @@ module.exports = function MongoSessionStoreModule(pb) {
      * @param {Function} cb Callback of form cb(err, 'OK')
      */
     MongoSessionStore.prototype.set = function(session, cb){
-        var dao = new pb.DAO();
-
         //ensure an object type is set
         session.object_type = SESSION_COLLECTION_NAME;
+        session.timeout = new Date(session.timeout);
 
         //persist the session
+        var dao = new pb.DAO();
         dao.save(session, cb);
     };
 
@@ -115,7 +115,7 @@ module.exports = function MongoSessionStoreModule(pb) {
      */
     MongoSessionStore.prototype.start = function(cb){
         var self = this;
-        
+
         //prepare index values
         var expiry    = Math.floor(pb.config.session.timeout / util.TIME.MILLIS_PER_SEC);
         var procedure = {
@@ -123,18 +123,18 @@ module.exports = function MongoSessionStoreModule(pb) {
             spec: { timeout: 1 },
             options: { expireAfterSeconds: expiry }
         }
-        
+
         //ensure an index exists.  According to the MongoDB documentation ensure
         //index cannot modify a TTL value once it is created.  Therefore, we have
-        //to ensure that the index exists and then verify that the expiry matches.  
-        //When it doesn't match we must create a system lock, drop the index, and 
-        //recreate it.  Due to the permissions levels of some mongo hosting 
+        //to ensure that the index exists and then verify that the expiry matches.
+        //When it doesn't match we must create a system lock, drop the index, and
+        //recreate it.  Due to the permissions levels of some mongo hosting
         //providers the collMod command cannot be used.
         var TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js')(pb);
         var helper = new TTLIndexHelper();
         helper.ensureIndex(procedure, cb);
     };
-    
+
     /**
      * Constructs a query to find a session in Mongo
      *
@@ -147,6 +147,21 @@ module.exports = function MongoSessionStoreModule(pb) {
             uid: sessionId
         };
     };
-    
+
+    /**
+     * @static
+     * @method getHandler
+     * @param {Function} cb
+     * @returns {Function}
+     */
+    MongoSessionStore.getHandler = function(cb) {
+        return function(err, session) {
+            if (session && util.isDate(session.timeout)) {
+                session.timeout = session.timeout.getTime();
+            }
+            cb(err, session);
+        };
+    };
+
     return MongoSessionStore;
 };

@@ -346,6 +346,6 @@ describe('Localization', function() {
             filter: function(filePath) { return filePath.indexOf('.js') === filePath.length - '.js'.length; }
         };
         var dir = path.join(pb.config.docRoot, 'public/localization');
-        pb.utils.getFiles(dir, options, cb);
+        pb.util.getFiles(dir, options, cb);
     }
 });

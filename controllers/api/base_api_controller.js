@@ -172,9 +172,7 @@ module.exports = function(pb) {
                     pb.ValidationService.isNonEmptyStr(statement[0], true) &&
                     pb.ValidationService.isInt(statement[1], true)) {
 
-                    var ordering = {};
-                    ordering[statement[0]] = parseInt(statement[1]) > 0 ? pb.DAO.ASC : pb.DAO.DESC;
-                    order.push(ordering);
+                    order.push( [ statement[0], parseInt(statement[1]) > 0 ? pb.DAO.ASC : pb.DAO.DESC ] );
                 }
                 else {
 
