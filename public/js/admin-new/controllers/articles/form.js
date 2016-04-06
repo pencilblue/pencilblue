@@ -23,7 +23,10 @@
 
     $scope.getArticle = function() {
       if(!$scope.articleId) {
-        $scope.article = {};
+        $scope.article = {
+          article_topics: []
+        };
+        $rootScope.selectedTopics = $scope.article.article_topics;
         return;
       }
 
@@ -34,7 +37,7 @@
         $scope.article.created = moment($scope.article.created).toDate();
         $scope.article.last_modified = moment($scope.article.last_modified).toDate();
 
-        $rootScope.selectedTopics = article.article_topics;
+        $rootScope.selectedTopics = $scope.article.article_topics;
       });
     };
 
