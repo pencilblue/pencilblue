@@ -181,7 +181,7 @@ module.exports = function (pb) {
         var displayObj = {};
 
         displayObj.site = buildKVObject(siteLocs, localeObj, selectedPlugin);
-        displayObj.generic = buildKVObject(data.storage, localeObj, selectedPlugin);
+        displayObj.generic = buildKVObject(pb.Localization.storage, localeObj, selectedPlugin);
 
         return displayObj;
     }
