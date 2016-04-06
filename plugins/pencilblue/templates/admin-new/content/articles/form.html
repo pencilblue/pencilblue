@@ -44,7 +44,7 @@
                           <span class="input-group-addon">/article/</span>
                           <input type="text" name="url" class="form-control" ng-model="article.url" required></input>
                           <span class="input-group-btn">
-            								<button type="button" class="btn" ng-class="{'btn-secondary': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="articleForm.headline.$invalid">
+            								<button type="button" class="btn hidden-xs" ng-class="{'btn-secondary': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="articleForm.headline.$invalid">
             									<span ng-if="urlGenerated === null">^loc_GENERATE^</span>
             									<span ng-if="urlGenerated === true"><i class="fa fa-check"></i>&nbsp;^loc_GENERATED^</span>
             									<span ng-if="urlGenerated === false"><i class="fa fa-ban"></i>&nbsp;^loc_NOT_GENERATED^</span>
@@ -84,10 +84,25 @@
                       <div class="form-group">
           					    <label>^loc_ALLOW_COMMENTS^?</label><br/>
           					    <div class="btn-group">
-        					        <button type="button" class="btn btn-default" ng-class="{'active': article.allow_comments}" ng-click="setCommentState(true)">^loc_YES^</button>
-        					        <button type="button" class="btn btn-default" ng-class="{'active': !article.allow_comments}" ng-click="setCommentState(false)">^loc_NO^</button>
+        					        <button type="button" class="btn btn-default" ng-class="{'active': article.allow_comments}" ng-click="article.allow_comments = true">^loc_YES^</button>
+        					        <button type="button" class="btn btn-default" ng-class="{'active': !article.allow_comments}" ng-click="article.allow_comments = false">^loc_NO^</button>
           					    </div>
             					</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="topicsHeading">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#topicsPanel" aria-expanded="true" aria-controls="topicsPanel">
+                      <h4 class="panel-title">
+                        <i class="fa fa-fw fa-tags"></i>^loc_TOPICS^
+                      </h4>
+                    </a>
+                  </div>
+                  <div id="topicsPanel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="topicsHeading">
+                    <div class="panel-body">
+                      ^tmp_admin-new=elements=topics_select^
                     </div>
                   </div>
                 </div>

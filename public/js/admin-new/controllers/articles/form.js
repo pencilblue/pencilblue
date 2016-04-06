@@ -8,6 +8,7 @@
     'moment-picker',
     'pencilblue.admin.elements.leftNav',
     'pencilblue.admin.elements.pillNav',
+    'pencilblue.admin.elements.topicsSelect',
     'pencilblue.admin.services.uid',
     'pencilblue.admin.directives.goBack',
     'pencilblue.admin.factories.content.articles'
@@ -32,6 +33,8 @@
         $scope.article.publish_date = moment($scope.article.publish_date).toDate();
         $scope.article.created = moment($scope.article.created).toDate();
         $scope.article.last_modified = moment($scope.article.last_modified).toDate();
+
+        $rootScope.selectedTopics = article.article_topics;
       });
     };
 
