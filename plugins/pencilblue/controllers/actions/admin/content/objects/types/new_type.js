@@ -35,7 +35,7 @@ module.exports = function(pb) {
         var post = self.body;
         post.fields.name = {field_type: 'text'};
 
-        var service = new pb.CustomObjectService(self.site, true);
+        var service = new pb.CustomObjectService(self.site, false);
         service.saveType(post, function(err, result) {
             if(util.isError(err)) {
                 return cb({

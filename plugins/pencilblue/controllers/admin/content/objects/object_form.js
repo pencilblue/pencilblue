@@ -19,10 +19,10 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for editing an object
      * @class ObjectFormController
@@ -96,7 +96,7 @@ module.exports = function(pb) {
 
     ObjectFormController.prototype.gatherData = function(vars, cb) {
         var self = this;
-        var cos = new pb.CustomObjectService(self.site, true);
+        var cos = new pb.CustomObjectService(self.site, false);
 
         var tasks = {
             tabs: function(callback) {
@@ -193,7 +193,7 @@ module.exports = function(pb) {
                     return;
                 }
 
-                //TODO: This is REALLY bad for large systems.  This needs to move 
+                //TODO: This is REALLY bad for large systems.  This needs to move
                 //to an API call (searchable and pagable)
                 var query = {
                     where: pb.DAO.ANYWHERE,
