@@ -1,0 +1,90 @@
+^tmp_admin-new=head^
+  <script src="/js/admin-new/services/uid.js"></script>
+  <script src="/js/admin-new/services/preview.js"></script>
+  <script src="/js/admin-new/directives/go_back.js"></script>
+  <script src="/js/admin-new/factories/content/media.js"></script>
+  <script src="/js/admin-new/controllers/media/form.js"></script>
+  <script>
+    var mediaId = '^media_id^';
+  </script>
+  <div ng-app="pencilblue.admin.app" ng-controller="AdminMediaFormController">
+    ^tmp_admin-new=elements=left_nav^
+    ^tmp_admin-new=elements=pill_nav^
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row-fluid">
+          <div class="col-md-12">
+            <i class="fa fa-2x fa-refresh fa-spin" ng-if="!mediaItem"></i>
+            <h1 ng-bind="'^loc_EDIT^ ' + mediaName" ng-if="mediaName"></h1>
+            <h1 ng-if="!mediaId">^loc_NEW_MEDIA^</h1>
+          </div>
+          <div class="col-md-8" ng-if="mediaItem">
+            <form name="mediaForm" ng-submit="saveMedia()" no-validate>
+              <div id="accordion" role="tablist">
+                <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="contentHeading">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#contentPanel" aria-expanded="true" aria-controls="contentPanel">
+                      <h4 class="panel-title">
+                        <i class="fa fa-fw fa-camera"></i>^loc_CONTENT^
+                      </h4>
+                    </a>
+                  </div>
+                  <div id="contentPanel" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="contentHeading">
+                    <div class="panel-body">
+                      <div class="form-group">
+            						<button type="button" class="btn btn-default" ng-click="showMediaModal(false)">
+            							<i class="fa fa-link"></i>&nbsp;^loc_LINK_TO_MEDIA^...
+            						</button>
+            						<button type="button" class="btn btn-default" ng-click="showMediaModal(true)">
+            							<i class="fa fa-upload"></i>&nbsp;^loc_UPLOAD_MEDIA^...
+            						</button>
+            					</div>
+                      <div class="form-group" ng-class="{'has-error': formSubmitted && !mediaForm.name.$valid}">
+                        <label>^loc_NAME^</label>
+                        <input type="text" name="name" class="form-control" ng-model="mediaItem.name" required></input>
+                      </div>
+                      <div class="form-group">
+                        <label>^loc_CAPTION^</label>
+                        <input type="text" name="caption" class="form-control" ng-model="mediaItem.caption"></input>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="topicsHeading">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#topicsPanel" aria-expanded="true" aria-controls="topicsPanel">
+                      <h4 class="panel-title">
+                        <i class="fa fa-fw fa-tags"></i>^loc_TOPICS^
+                      </h4>
+                    </a>
+                  </div>
+                  <div id="topicsPanel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="topicsHeading">
+                    <div class="panel-body">
+                      ^tmp_admin-new=elements=topics_select^
+                    </div>
+                  </div>
+                </div>
+              </div>
+              ^tmp_admin-new=elements=alert^
+              <button type="button" class="btn btn-default" go-back>
+                <i class="fa fa-ban"></i>
+                ^loc_CANCEL^
+              </button>
+              <button type="submit" class="btn" ng-class="{'btn-primary': !saveSuccess, 'btn-success': saveSuccess}" ng-disabled="!mediaForm.$valid || saveSuccess">
+                <i class="fa fa-save" ng-class="{'fa-save': !saving && !saveSuccess, 'fa-check': !saving && saveSuccess, 'fa-refresh fa-spin': saving}"></i>
+                ^loc_SAVE^
+              </button>
+            </form>
+          </div>
+          <div class="col-md-4" ng-if="mediaItem.location">
+            <div class="well well-sm context-article">
+              <div class="text-center" ng-bind-html="getMediaPreview(mediaItem)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ^tmp_admin-new=elements=media_modal^
+  </div>
+^tmp_admin-new=footer^

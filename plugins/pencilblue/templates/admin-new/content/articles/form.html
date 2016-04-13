@@ -15,7 +15,7 @@
           <div class="col-md-12">
             <i class="fa fa-2x fa-refresh fa-spin" ng-if="!article"></i>
             <h1 ng-bind="'^loc_EDIT^ ' + headline" ng-if="headline"></h1>
-            <h1 ng-if="!articleId">^loc_NEW_TOPIC^</h1>
+            <h1 ng-if="!articleId">^loc_NEW_ARTICLE^</h1>
           </div>
           <div class="col-md-8" ng-if="article">
             <form name="articleForm" ng-submit="saveArticle()" no-validate>
@@ -157,6 +157,5 @@
         </div>
       </div>
     </div>
-    ^tmp_admin-new=elements=deletion_modal^
   </div>
 ^tmp_admin-new=footer^

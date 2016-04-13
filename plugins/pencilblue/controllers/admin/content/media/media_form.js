@@ -19,10 +19,10 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for adding and editing media
      * @class MediaForm
@@ -63,7 +63,7 @@ module.exports = function(pb) {
                             extensions[i] = '.' + extensions[i];
                         }
                     }
-                    
+
                     cb(null, new pb.TemplateValue(extensions.join(','), false));
                 });
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
@@ -86,7 +86,7 @@ module.exports = function(pb) {
             else{
                 data.pills = pills;
             }
-            
+
             //TODO: err first arg for style. User experience error when no pills?
             cb(pb.ClientJs.getAngularObjects(data));
         });
@@ -174,7 +174,7 @@ module.exports = function(pb) {
     };
 
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, MediaForm.getSubNavItems);
+    //pb.AdminSubnavService.registerFor(SUB_NAV_KEY, MediaForm.getSubNavItems);
 
     //exports
     return MediaForm;

@@ -1,0 +1,73 @@
+^tmp_admin-new=head^
+  <script src="/js/angular/services/search.js"></script>
+  <script src="/js/angular/services/pagination.js"></script>
+  <script src="/js/admin-new/services/uid.js"></script>
+  <script src="/js/admin-new/services/preview.js"></script>
+  <script src="/js/admin-new/factories/content/media.js"></script>
+  <script src="/js/admin-new/factories/content/topics.js"></script>
+  <script src="/js/admin-new/controllers/media/index.js"></script>
+  <div ng-app="pencilblue.admin.app" ng-controller="AdminMediaListController">
+    ^tmp_admin-new=elements=left_nav^
+    ^tmp_admin-new=elements=pill_nav^
+    <div class="page-content">
+      <div class="container-fluid">
+        <div class="row-fluid">
+          <div class="col-md-12">
+            <h1>^page_name^</h1>
+          </div>
+          <div class="col-md-8">
+            ^tmp_admin-new=elements=search^
+            <i class="fa fa-2x fa-refresh fa-spin" ng-if="!media"></i>
+            <table class="table table-striped table-hover list-table" ng-if="media">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>^loc_NAME^</th>
+                  <th class="hidden-xs">^loc_CAPTION^</th>
+                  <th>^loc_LAST_MODIFIED^</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="clickable" ng-repeat="mediaItem in media track by mediaItem._id" ng-click="gotoMedia(mediaItem)" ng-if="!mediaItem.hidden && !mediaItem.paginated">
+                  <td><i class="fa fa-fw fa-{{getMediaIcon(mediaItem)}}"></i></td>
+                  <td ng-bind="mediaItem.name"></td>
+                  <td class="hidden-xs" ng-bind="mediaItem.caption"></td>
+                  <td>
+                    <span class="hidden-xs no-wrap" ng-bind="mediaItem.last_modified | date: 'yyyy-MM-dd HH:mm'"></span>
+                    <span class="visible-xs no-wrap" ng-bind="mediaItem.last_modified | date: 'MM/dd/yy'"></span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button type="button" class="btn hidden-xs" ng-class="{'btn-default': !mediaItem.infoActive, 'btn-info': mediaItem.infoActive}" ng-click="getMediaInfo(mediaItem); $event.stopPropagation();">
+                        <i class="fa fa-info-circle"></i>
+                      </button>
+                      <button type="button" class="btn btn-default" ng-click="confirmDeletion(mediaItem); $event.stopPropagation();">
+                        <i class="fa fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div ng-if="media">
+              ^tmp_admin-new=elements=pagination^
+            </div>
+          </div>
+          <div class="col-md-4" ng-if="contextMedia">
+            <h2 class="clickable" ng-bind="contextMedia.name" ng-click="gotoMedia(contextMedia)"></h2>
+            <div class="well well-sm context-article">
+              <div class="text-center" ng-bind-html="getMediaPreview(contextMedia)"></div>
+              <div class="context-caption" ng-bind="contextMedia.caption" ng-if="contextMedia.caption.length"></div>
+            </div>
+            <div ng-if="contextMedia.rendered_topics.length">
+              <h3>^loc_TOPICS^</h3>
+              <a class="btn btn-default context-btn" ng-repeat="topic in contextMedia.rendered_topics" ng-href="/admin-new/content/topics/{{getUid(topic)}}" ng-bind="topic.name"></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    ^tmp_admin-new=elements=deletion_modal^
+  </div>
+^tmp_admin-new=footer^

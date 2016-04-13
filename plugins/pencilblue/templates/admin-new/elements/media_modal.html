@@ -1,0 +1,28 @@
+<div class="modal fade media-modal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <span ng-if="uploadingMedia">^loc_UPLOAD_MEDIA^</span>
+          <span ng-if="!uploadingMedia">^loc_LINK_TO_MEDIA^</span>
+        </h4>
+      </div>
+			<div class="modal-body" ng-if="!uploadingMedia">
+				<div class="form-group">
+          <label>^loc_MEDIA_URL^</label>
+          <input type="url" class="form-control" ng-model="linkedMedia.url" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
+        </div>
+			</div>
+			<div class="modal-footer" ng-if="!uploadingMedia">
+				<button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="linking">
+					<i class="fa fa-ban"></i>
+					^loc_CANCEL^
+				</button>
+				<button type="button" class="btn btn-primary" ng-click="linkToMedia(linkedMedia.url)" ng-disabled="linking">
+					<i class="fa" ng-class="{'fa-link': !linking, 'fa-refresh fa-spin': linking}"></i>
+					^loc_LINK^
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

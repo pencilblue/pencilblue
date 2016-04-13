@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for managing media
      */
@@ -95,7 +95,7 @@ module.exports = function(pb) {
     };
 
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageMedia.getSubNavItems);
+    //pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageMedia.getSubNavItems);
 
     //exports
     return ManageMedia;

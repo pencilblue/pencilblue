@@ -1550,6 +1550,33 @@ module.exports = function Routes(pb){
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/articles/form.js'),
             content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/media",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/media/index.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/media/new",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/media/form.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/media/:id",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/media/form.js'),
+            content_type: 'text/html'
         }
     ];
 };
