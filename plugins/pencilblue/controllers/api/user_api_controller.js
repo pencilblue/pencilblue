@@ -31,6 +31,26 @@ module.exports = function(pb) {
     util.inherits(UserApiController, pb.BaseApiController);
 
     /**
+     * The regular expression flag for saying ignore case
+     * @private
+     * @static
+     * @readonly
+     * @property ANY_CHARS
+     * @type {string}
+     */
+    var IGNORE_CASE = 'i';
+
+    /**
+     * The regular expression syntax for saying any character repeated 0 or more times
+     * @private
+     * @static
+     * @readonly
+     * @property ANY_CHARS
+     * @type {string}
+     */
+    var ANY_CHARS = '.*';
+
+    /**
      * Initializes the controller
      * @method initSync
      * @param {object} context
@@ -50,6 +70,62 @@ module.exports = function(pb) {
      */
     UserApiController.prototype.me = function(cb) {
         this.handleGet(cb)(null, this.session.authentication.user);
+    };
+
+    /**
+     * @method processWhere
+     * @param {object} q
+     * @returns {object} Two properties, the where clause and the failures array
+     */
+    UserApiController.prototype.processWhere = function(q) {
+        var where = {};
+        var failures = [];
+
+        //build query & get results
+        var search = q.q;
+        if (pb.ValidationService.isNonEmptyStr(search, true)) {
+
+            //build name search
+            var tokens = search.split(' ');
+            var first = tokens.shift();
+            var second = tokens.length > 0 ? tokens.join(' ') : first;
+            where.$or = [
+                {first_name: new RegExp(util.escapeRegExp(first) + ANY_CHARS, IGNORE_CASE)},
+                {last_name: new RegExp(util.escapeRegExp(second) + ANY_CHARS, IGNORE_CASE)},
+                {email: new RegExp(util.escapeRegExp(search) + ANY_CHARS, IGNORE_CASE)}
+            ];
+        }
+
+        //query on admin level
+        var role = q.role;
+        var isRoleArray;
+        if ( (isRoleArray = util.isArray(role)) || pb.ValidationService.isNonEmptyStr(role, true)) {
+
+            //force our processing to be the same
+            if (!isRoleArray) {
+                role = [role];
+            }
+
+            //extract only the integers
+            var inArray = [];
+            role.forEach(function(r) {
+                var accessLevel = parseInt(r);
+                if (!isNaN(accessLevel)) {
+
+                    inArray.push(accessLevel)
+                }
+            });
+
+            //set the IN query
+            if (inArray.length > 0) {
+                where.admin = {$in: inArray};
+            }
+        }
+
+        return {
+            where: where,
+            failures: failures
+        };
     };
 
     //exports
