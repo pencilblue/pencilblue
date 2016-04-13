@@ -61,10 +61,27 @@ module.exports = function(pb) {
     function NavigationMapService(context) {
 
         context.type = TYPE;
+
+        /**
+         * @property navigationItemService
+         * @type {NavigtationItemService}
+         */
+        this.navigationItemService = new pb.NavigationItemService(util.merge(context, {}));
+
         NavigationMapService.super_.call(this, context);
     }
     util.inherits(NavigationMapService, BaseObjectService);
 
+    /**
+     *
+     * @method merge
+     * @param {Object} context
+     * @param {Object} context.data The DTO sent by the incoming request
+     * @param {Object} context.object The object to be persisted
+     * @param {NavigationMapService} service An instance of the service that triggered
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
     NavigationMapService.prototype.merge = function(context, cb) {
         var dto = context.data;
         var obj = context.object;
@@ -72,6 +89,7 @@ module.exports = function(pb) {
         // create a quick lookup variable where we use the ID for the navigation
         // item as the key and an array of IDs that represent its ancestry
         obj.lookup = {};
+        obj.name = dto.name;
 
         //now we iterate, recursively, over the structure to merge into the object
         var q = [];
@@ -85,6 +103,7 @@ module.exports = function(pb) {
             });
         });
 
+        //process the queue
         var self = this;
         var subContext = util.merge(context, {});
         async.whilst(
@@ -141,16 +160,159 @@ module.exports = function(pb) {
 
     /**
      *
-     * @static
-     * @method
+     * @method format
      * @param {Object} context
-     * @param {NavigationItemService} service An instance of the service that triggered
+     * @param {NavigationMapService} service An instance of the service that triggered
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    NavigationMapService.prototype.format = function(context, cb) {
+        cb(null);
+    };
+
+    /**
+     *
+     * @method validate
+     * @param {Object} context
+     * @param {Object} context.data The entity that was provided for persistence
+     * @param {NavigationMapService} context.service An instance of the service that triggered
+     * the event that called this handler
+     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     */
+    NavigationMapService.prototype.validate = function(context, cb) {
+
+        //validate name
+        var tasks = [
+            util.wrapTask(this, this.validateName, [context]),
+            util.wrapTask(this, this.validateStructure, [context])
+        ];
+        async.series(tasks, cb);
+    };
+
+    NavigationMapService.prototype.validateName = function(context, cb) {
+        var entity = context.data;
+        var errors = context.validationErrors;
+
+        //check for a non-empty name
+        if (pb.ValidationService.isNonEmptyStr(entity.name, true)) {
+            errors.push(BaseObjectService.validationFailure('name', 'The name property must be non-empty'));
+            return cb();
+        }
+
+        //ensure that there is no name collision
+        this.dao.unique(this.type, { name: entity.name }, function(err, isUnique) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            if (!isUnique) {
+                errors.push(BaseObjectService.validationFailure('name', 'The name property must be unique'));
+            }
+            return cb();
+        });
+    };
+
+    NavigationMapService.prototype.validateStructure = function(context, cb) {
+        var entity = context.data;
+        var errors = context.validationErrors;
+
+        if (!util.isArray(entity.structure)) {
+            errors.push(BaseObjectService.validationFailure('structure', 'The structure property must be an array'));
+            return cb();
+        }
+        if (entity.structure.length === 0) {
+            return cb();
+        }
+
+        //load nav item cache
+        var self = this;
+        var opts = {
+            where: pb.DAO.getIdInWhere(NavigationMapService.extractItemIds(entity.structure))
+        };
+        this.navigationItemService.getAll(opts, function(err, navigationItems) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+
+            //transform to hash and set the cache on the context
+            context.navigationItems = util.objArrayToHash(navigationItems, pb.DAO.getIdField());
+
+            //validate each of the items in the structure
+            var tasks = util.getTasks(entity.structure, function(structure, i) {
+                return function(callback) {
+                    self.validateItem(structure[i], context, callback);
+                };
+            });
+            async.series(tasks, cb);
+        });
+    };
+
+    NavigationMapService.prototype.validateItem = function(item, context, cb) {
+        var errors = context.validationErrors;
+
+        //main validation
+        if (!context.navigationItems[item.id]) {
+            errors.push(BaseObjectService.validationFailure('id', 'The id property must be an array'));
+            return cb();
+        }
+
+        //validate children
+        if (!util.isArray(item.children)) {
+            errors.push(BaseObjectService.validationFailure('children', 'The children property must be an array'));
+            return cb();
+        }
+        if (item.children.length === 0) {
+            return cb();
+        }
+
+        //when children exist recursively call to validate
+        var self = this;
+        var tasks = util.getTasks(item.children, function(i, children) {
+            return function(callback) {
+
+                var ctx = util.merge(context, {});
+                ctx.parent = item;
+                self.validateItem(children[i], ctx, callback);
+            };
+        });
+        async.series(tasks, cb);
+    };
+
+    NavigationMapService.extractItemIds = function(structure) {
+        return NavigationMapService.extractItemValues(structure, function(item) { return item.id; });
+    };
+
+    NavigationMapService.extractItemValues = function(structure, valueExtractor) {
+        //populate the queue
+        var q = [];
+        util.arrayPushAll(structure, q);
+
+        var values = {};
+        while (q.length > 0) {
+
+            var item = q.shift();
+            if (util.isObject(item) && item.id) {//TODO fix the id reference
+                values[valueExtractor(item)] = true;
+
+                //Queue up children
+                if (util.isArray(item.children)) {
+                    util.arrayPushAll(item.children, q);
+                }
+            }
+        }
+        return Object.keys(values);
+    };
+
+    /**
+     *
+     * @static
+     * @method format
+     * @param {Object} context
+     * @param {NavigationMapService} service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     NavigationMapService.format = function(context, cb) {
-        //var dto = context.data;
-        cb(null);
+        context.service.format(context, cb);
     };
 
     /**
@@ -158,7 +320,7 @@ module.exports = function(pb) {
      * @static
      * @method
      * @param {Object} context
-     * @param {NavigationItemService} service An instance of the service that triggered
+     * @param {NavigationMapService} service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -173,7 +335,7 @@ module.exports = function(pb) {
      * @method validate
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
-     * @param {NavigationItemService} context.service An instance of the service that triggered
+     * @param {NavigationMapService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
