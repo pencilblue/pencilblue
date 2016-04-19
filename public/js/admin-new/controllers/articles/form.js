@@ -11,9 +11,10 @@
     'pencilblue.admin.elements.topicsSelect',
     'pencilblue.admin.services.uid',
     'pencilblue.admin.directives.goBack',
-    'pencilblue.admin.factories.content.articles'
+    'pencilblue.admin.factories.content.articles',
+    'pencilblue.admin.factories.users'
   ])
-  .controller('AdminArticlesFormController', function($scope, $rootScope, $window, uidService, articlesFactory) {
+  .controller('AdminArticlesFormController', function($scope, $rootScope, $window, uidService, articlesFactory, usersFactory) {
     $rootScope.activeLeftNavItems = ['content', 'articles'];
     $rootScope.subNavKey = 'article_form';
 
@@ -38,6 +39,13 @@
         $scope.article.last_modified = moment($scope.article.last_modified).toDate();
 
         $rootScope.selectedTopics = $scope.article.article_topics;
+      });
+    };
+
+    $scope.getAvailableAuthors = function() {
+      usersFactory.getUsers({role: [1, 2, 3, 4]}, function(error, users) {
+        console.log(users);
+        $scope.availableAuthors = users;
       });
     };
 
@@ -77,5 +85,6 @@
     }, true);
 
     $scope.getArticle();
+    $scope.getAvailableAuthors();
   });
 }());

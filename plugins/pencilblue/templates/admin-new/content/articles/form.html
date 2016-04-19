@@ -2,6 +2,7 @@
   <script src="/js/admin-new/services/uid.js"></script>
   <script src="/js/admin-new/directives/go_back.js"></script>
   <script src="/js/admin-new/factories/content/articles.js"></script>
+  <script src="/js/admin-new/factories/users.js"></script>
   <script src="/js/admin-new/controllers/articles/form.js"></script>
   <script>
     var articleId = '^article_id^';
@@ -66,9 +67,12 @@
             							<option ng-value="template.theme_uid + '|' + template.file" ng-repeat="template in templates" ng-bind="template.theme_name + ': ' + template.name" ng-selected="article.template === (template.theme_uid + '|' + template.file)"></option>
             						</select>
             					</div>
-                      <div class="form-group" ng-if="availableAuthors.length">
+                      <div class="form-group">
           							<label>^loc_AUTHOR^</label>
-          							<select class="form-control" ng-model="article.author" ng-options="getUid(availableAuthor) as availableAuthor.name for availableAuthor in availableAuthors"></select>
+          							<select class="form-control" ng-model="article.author" ng-options="getUid(availableAuthor) as (availableAuthor.first_name + ' ' + availableAuthor.last_name) for availableAuthor in availableAuthors" ng-if="availableAuthors.length"></select>
+                        <div ng-if="!availableAuthors.length">
+                          <i class="fa fa-refresh fa-spin"></i>
+                        </div>
             					</div>
                       <div class="form-group">
             						<label>^loc_PUBLISH_DATE^</label>
