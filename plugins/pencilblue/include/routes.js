@@ -1209,6 +1209,16 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/navigation_map_api_controller.js')
         },
+        {
+            method: 'get',
+            path: "/api/content/navigation/map/adminsubnav",
+            handler: "getAdminSubNavMap",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/navigation_map_api_controller.js')
+        },
 
         //articles
         {
@@ -1464,16 +1474,6 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
         },
-        {
-            method: 'delete',
-            path: "/api/content/media/:id",
-            handler: "delete",
-            content_type: 'application/json',
-            auth_required: true,
-            inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
-            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
-        },
 
         //users
         {
@@ -1484,6 +1484,161 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/users",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/users/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
+        },
+        {
+            method: 'delete',
+            path: "/api/users/:id",
+            handler: "delete",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
+        },
+
+        //comments
+        {
+            method: 'get',
+            path: "/api/content/comments",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/comments/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
+        },
+        {
+            method: 'delete',
+            path: "/api/content/comments/:id",
+            handler: "delete",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
+        },
+
+        // NEW ADMIN
+
+        {
+            method: 'get',
+            path: "/admin-new",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/index.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/topics",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/topics/index.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/topics/new",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/topics/form.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/topics/:id",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/topics/form.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/articles",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/articles/index.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/articles/new",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/articles/form.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/articles/:id",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/articles/form.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/media",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/media/index.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/media/new",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/media/form.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin-new/content/media/:id",
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/media/form.js'),
+            content_type: 'text/html'
         }
     ];
 };
