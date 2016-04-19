@@ -39,7 +39,7 @@ module.exports = function(pb) {
             });
         }
 
-        var service = new pb.CustomObjectService(self.site, true);
+        var service = new pb.CustomObjectService(self.site, false);
         service.loadTypeById(vars.type_id, function(err, customObjectType) {
             if(util.isError(err) || !util.isObject(customObjectType)) {
                 return cb({

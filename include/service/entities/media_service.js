@@ -515,7 +515,7 @@ module.exports = function MediaServiceModule(pb) {
     /**
      * Renders the media represented by the provided media flag
      * @method render
-     * @param {String} The media resource ID
+     * @param {String} flag The media resource ID
      * @param {Object} options
      * @param {Object} [options.attrs] The desired HTML attributes that will be
      * added to the element that provides the rendering
