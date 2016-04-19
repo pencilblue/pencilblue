@@ -11,6 +11,7 @@
     'pencilblue.admin.elements.topicsSelect',
     'pencilblue.admin.services.uid',
     'pencilblue.admin.directives.goBack',
+    'pencilblue.admin.directives.wysiwyg',
     'pencilblue.admin.factories.content.articles',
     'pencilblue.admin.factories.users'
   ])
