@@ -49,7 +49,7 @@
       });
     };
 
-    $scope.getArticleUid = function(article) {
+    $scope.getUid = function(article) {
       return uidService.getUid(article);
     };
 
