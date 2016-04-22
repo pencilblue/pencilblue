@@ -22,7 +22,7 @@
                 action = 'put';
             }
 
-            $http[action](url, {name: $scope.topic.name})
+            $http[action](url, $scope.topic)
             .success(function(result) {
                 $scope.successMessage = result.message;
                 if(!$scope.topic._id) {
