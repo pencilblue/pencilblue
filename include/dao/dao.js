@@ -759,6 +759,7 @@ module.exports = function DAOModule(pb) {
     /**
      * Creates a where clause that equates to select where [idProp] is in the
      * specified array of values.
+     * @deprecated
      * @static
      * @method getIDInWhere
      * @param {Array} objArray The array of acceptable values
@@ -776,7 +777,7 @@ module.exports = function DAOModule(pb) {
      * @static
      * @method getIdInWhere
      * @param {Array} objArray The array of acceptable values
-     * @param {String} idProp The property that holds a referenced ID value
+     * @param {String} [idProp] The property that holds a referenced ID value
      * @return {Object} Where clause
      */
     DAO.getIdInWhere = function(objArray, idProp) {

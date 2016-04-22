@@ -16,12 +16,13 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Returns the HTML for a media preview
+     * @deprecated
      * @class GetMediaPreviewApiController
      * @constructor
      * @extends BaseController
@@ -73,7 +74,7 @@ module.exports = function(pb) {
     };
 
     /**
-     * When the rendering is complete this function can be called to serialize the 
+     * When the rendering is complete this function can be called to serialize the
      * result back to the client in the standard API wrapper format.
      * @method renderComplete
      * @param {Error} err

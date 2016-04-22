@@ -747,7 +747,7 @@ module.exports = function(pb) {
      * Creates a new Error representative of a validation error
      * @static
      * @method validationError
-     * @param {Array} validationFailures
+     * @param {Array|string} validationFailures
      * @return {Error}
      */
     BaseObjectService.validationError = function(validationFailures) {
@@ -762,12 +762,25 @@ module.exports = function(pb) {
      * the current principal did not have authroization to perform.
      * @static
      * @method forbiddenError
-     * @param {String} message
+     * @param {String} [message]
      * @return {Error}
      */
     BaseObjectService.forbiddenError = function(message) {
         var error = new Error(message || 'Forbidden');
         error.code = 403;
+        return error;
+    };
+
+    /**
+     * Creates a new Error representative of the inability to locate the requested resource
+     * @static
+     * @method notFound
+     * @param {String} [message]
+     * @return {Error}
+     */
+    BaseObjectService.notFound = function(message) {
+        var error = new Error(message || 'Not Found');
+        error.code = 404;
         return error;
     };
 

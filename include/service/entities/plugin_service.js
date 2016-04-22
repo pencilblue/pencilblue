@@ -439,13 +439,13 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.purgeThemeSettings = function(pluginUid, cb) {
         var settingService = getPluginSettingService(this);
         settingService.purgeThemeSettings(pluginUid, cb);
-    }
+    };
 
     /**
      * Indicates if a plugin by the specified identifier is installed.
      *
      * @method isInstalled
-     * @param pluginIdentifer The identifier can either be an ObjectID or the
+     * @param {string} pluginIdentifier The identifier can either be an ObjectID or the
      * plugin name
      * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
      * TRUE if the plugin is installed, FALSE if not.
@@ -476,7 +476,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.getPluginBySite = function(pluginIdentifier, cb) {
         this._pluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
-    }
+    };
 
     /**
      * Retrieves the plugins that have themes associated with them
@@ -494,7 +494,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.getPluginsWithThemesBySite = function(cb) {
         this._pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
-    }
+    };
 
     /**
      * Convenience function to generate a service to handle settings for a plugin.

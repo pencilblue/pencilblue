@@ -58,6 +58,67 @@ module.exports = function(pb) {
         });
     };
 
+    MediaApiController.prototype.post = function(cb) {
+
+        //determine type
+
+        //validate as given type
+
+        //save content stream
+
+        //persist meta
+
+
+        cb({content: ''});
+    };
+
+    MediaApiController.prototype.renderByLocation = function(cb) {
+        var options = MediaApiController.buildRenderOptionsFromQuery(this.query);
+        this.service.renderByLocation(options, MediaApiController.onMediaRenderComplete(cb));
+    };
+
+    MediaApiController.prototype.renderById = function(cb) {
+        var id = this.pathVars.id;
+        var options = MediaApiController.buildRenderOptionsFromQuery(this.query);
+        this.service.renderById(id, options, MediaApiController.onMediaRenderComplete(cb));
+    };
+
+    MediaApiController.prototype.downloadById = function(cb) {
+        var self = this;
+        var id = this.pathVars.id;
+        this.service.getContentStreamById(id, function(err, streamWrapper) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            if (!streamWrapper || !streamWrapper.stream) {
+                return cb(BaseObjectService.notFound());
+            }
+
+            //set the mime type if we can guess with a good level of certainty
+            if (streamWrapper.mime) {
+                self.res.setHeader('content-type', mime);
+            }
+
+            //now pipe the stream out as the response
+            streamWrapper.stream.once('end', function() {
+                    //do nothing. content was streamed out and closed
+                })
+                .once('error', function(err) {
+
+                    //check for file level not found
+                    if (err.message.indexOf('ENOENT') === 0) {
+                        self.reqHandler.serve404();
+                    }
+                    else {//some provider error - just serve it up
+                        pb.log.error('Failed to load media: MIME=%s ID=%s', streamWrapper.mime, id);
+                        err.code = isNaN(err.code) ? 500 : err.code;
+                        self.reqHandler.serveError(err);
+                    }
+                })
+                .pipe(self.res);
+        });
+    };
+
     /**
      * Retrieves a single media item by ID
      * @method get
@@ -100,6 +161,39 @@ module.exports = function(pb) {
         return {
             where: where,
             failures: failures
+        };
+    };
+
+    /**
+     * When the rendering is complete this function can be called to serialize the
+     * result back to the client in the standard API wrapper format.
+     * @static
+     * @method onMediaRenderComplete
+     * @param {Function} cb
+     * @return {Function}
+     */
+    MediaApiController.onMediaRenderComplete = function(cb) {
+        return function(err, html) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            else if (!html) {
+                //serve 404 in non-traditional way.  This allows us to keep the response light.  We don't want to serve the
+                // whole 404 page for a snippet
+                return cb({
+                    code: 404,
+                    content: ''
+                });
+            }
+            cb({content: html});
+        };
+    };
+
+    MediaApiController.buildRenderOptionsFromQuery = function(q) {
+        return {
+            view: q.view || 'view',
+            type: q.type,
+            location: q.location
         };
     };
 
