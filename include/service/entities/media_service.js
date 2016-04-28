@@ -655,7 +655,7 @@ module.exports = function MediaServiceModule(pb) {
      */
     MediaService.parseMediaFlag = function(flag) {
         pb.log.warn('MediaService: parseMediaFlag is deprecated. Use MediaServiceV2.parseMediaFlag');
-        return pb.MediaService.parseMediaFlag(flag);
+        return pb.MediaServiceV2.parseMediaFlag(flag);
     };
 
     /**
