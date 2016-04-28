@@ -28,7 +28,7 @@ module.exports = function(pb) {
     var ValidationService = pb.ValidationService;
 
     /**
-     * Provides functions to interact with articles
+     * Provides functions to interact with media objects.  This also includes interacting with the media contents
      *
      * @class MediaServiceV2
      * @constructor
@@ -48,7 +48,7 @@ module.exports = function(pb) {
          * @property topicService
          * @type {TopicService}
          */
-        this.topicService = new pb.TopicService(util.clone(context));
+        this.topicService = new pb.TopicService(util.merge(context, {}));
 
         /**
          * @property provider
@@ -103,6 +103,131 @@ module.exports = function(pb) {
         pb.media.renderers.KickStarterMediaRenderer,
         pb.media.renderers.PdfMediaRenderer
     ];
+
+    /**
+     *
+     * @method getContentStreamByPath
+     * @param {String} mediaPath
+     * @param {Function} cb
+     */
+    MediaServiceV2.prototype.getContentStreamByPath = function(mediaPath, cb) {
+        this.provider.getStream(mediaPath, cb);
+    };
+
+    /**
+     * @method getContentStreamById
+     * @param {string} id
+     * @param {Function} cb
+     */
+    MediaServiceV2.prototype.getContentStreamById = function(id, cb) {
+        var self = this;
+        var tasks = [
+            function(callback) { self.dao.loadById(id, TYPE, callback); },
+            function(media, callback) {
+                if (!media) {
+                    return callback(null, null);
+                }
+                self.provider.getStream(media.location, function(err, stream) {
+                    callback(err, stream ? {
+                        stream: stream,
+                        mime: media.mime || pb.RequestHandler.getMimeFromPath(media.location)
+                    } : null);
+                });
+            }
+        ];
+        async.waterfall(tasks, cb);
+    };
+
+    /**
+     * Renders a resource by type and location (mediaId).
+     * @method renderByLocation
+     * @param {Object} options
+     * @param {String} options.location The unique media identifier for the type
+     * @param {String} [options.type] The type of provider that knows how to render
+     * the resource
+     * @param {Object} [options.attrs] The desired HTML attributes that will be
+     * added to the element that provides the rendering
+     * @param {Object} [options.style] The desired style overrides for the media
+     * @param {String} [options.view] The view type that the media will be rendered
+     * for (view, editor, post).  Any style options provided will override those
+     * provided by the default style associated with the view.
+     * @param {boolean} [options.isFile=false]
+     * @param {Function} cb A callback that provides two parameters.  An Error if
+     * exists and the rendered HTML content for the media resource.
+     */
+    MediaServiceV2.prototype.renderByLocation = function(options, cb) {
+        var result = options.type ? MediaServiceV2.getRendererByType(options.type) : MediaServiceV2.getRenderer(options.location, options.isFile);
+        if (!result) {
+            var failures = [ BaseObjectService.validationFailure('type', 'An invalid type was provided') ];
+            var err = BaseObjectService.validationError(failures);
+            return cb(err, null);
+        }
+
+        //set style properties if we can
+        if (options.view) {
+            options.style = MediaServiceV2.getStyleForView(result.renderer, options.view, options.style);
+        }
+
+        result.renderer.render(options, options, cb);
+    };
+
+    /**
+     * Renders a media resource by ID where ID refers the to the media descriptor
+     * id.
+     * @method renderById
+     * @param {String} id The media resource ID
+     * @param {Object} options
+     * @param {Object} [options.attrs] The desired HTML attributes that will be
+     * added to the element that provides the rendering
+     * @param {Object} [options.style] The desired style overrides for the media
+     * @param {String} [options.view] The view type that the media will be rendered
+     * for (view, editor, post).  Any style options provided will override those
+     * provided by the default style associated with the view.
+     * @param {Function} cb A callback that provides two parameters. An Error if
+     * exists and the rendered HTML content for the media resource.
+     */
+    MediaServiceV2.prototype.renderById = function(id, options, cb) {
+        var self = this;
+
+        this.dao.loadById(id, TYPE, function (err, media) {
+            if (util.isError(err) || !media) {
+                return cb(err, null);
+            }
+
+            //render
+            self.render(media, options, cb);
+        });
+    };
+
+    /**
+     * Renders the media represented by the provided media descriptor.
+     * @method render
+     * @param {String} The media resource ID
+     * @param {Object} options
+     * @param {Object} [options.attrs] The desired HTML attributes that will be
+     * added to the element that provides the rendering
+     * @param {Object} [options.style] The desired style overrides for the media
+     * @param {String} [options.view] The view type that the media will be rendered
+     * for (view, editor, post).  Any style options provided will override those
+     * provided by the default style associated with the view.
+     * @param {Function} cb A callback that provides two parameters. An Error if
+     * exists and the rendered HTML content for the media resource.
+     */
+    MediaServiceV2.prototype.render = function(media, options, cb) {
+        //retrieve renderer
+        var result = MediaServiceV2.getRendererByType(media.media_type);
+        if (!result) {
+            return cb(null, null);
+        }
+
+        //set style properties if we can
+        if (options.view) {
+            options.style = MediaServiceV2.getStyleForView(result.renderer, options.view, options.style);
+        }
+
+        //render media
+        result.renderer.render(media, options, cb);
+    };
 
     /**
      *
@@ -178,7 +303,7 @@ module.exports = function(pb) {
 
         //ensure the media name is unique
         var where = { name: obj.name };
-        this.dao.unique(MediaService.COLL, where, obj[DAO.getIdField()], function(err, isUnique) {
+        this.dao.unique(TYPE, where, obj[DAO.getIdField()], function(err, isUnique) {
             if(util.isError(err)) {
                 return cb(err);
             }
@@ -318,13 +443,13 @@ module.exports = function(pb) {
      * @static
      * @method getRendererByType
      * @param {String} mediaUrl The media URL
-     * @param {Boolean} isFile TRUE if the URL represents an uploaded file, FALSE if not
+     * @param {Boolean} [isFile=false] TRUE if the URL represents an uploaded file, FALSE if not
      * @return {MediaRenderer} A media renderer interface implementation or NULL if
      * none support the given URL.
      */
     MediaServiceV2.getRenderer = function(mediaUrl, isFile) {
         if (typeof isFile === 'undefined') {
-            isFile = MediaService.isFile(mediaUrl);
+            isFile = MediaServiceV2.isFile(mediaUrl);
         }
 
         for (var i = 0; i < REGISTERED_MEDIA_RENDERERS.length; i++) {
@@ -717,6 +842,17 @@ module.exports = function(pb) {
         var clone = util.clone(base);
         util.merge(overrides, clone);
         return clone;
+    };
+
+    /**
+     * Determines if the media URI is a file.  It is determined to be a file if and
+     * only if the URI does not begin with "http" or "//".
+     * @static
+     * @method isFile
+     * @param {String} mediaUrl A URI string that points to a media resource
+     */
+    MediaServiceV2.isFile = function(mediaUrl) {
+        return mediaUrl.indexOf('http') !== 0 && mediaUrl.indexOf('//') !== 0;
     };
 
     //Event Registries

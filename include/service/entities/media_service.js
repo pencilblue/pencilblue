@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -26,17 +26,16 @@ module.exports = function MediaServiceModule(pb) {
 
     /**
      * Provides information on media
-     *
-     * @module Services
-     * @submodule Entities
+     * @deprecated
      * @class MediaService
      * @constructor
-     * @param provider
-     * @param site          Site uid to be used for this service
-     * @param onlyThisSite  Whether this service should only return media associated with specified site
-     *                      or fallback to global if not found in specified site
+     * @param {MediaProvider} provider
+     * @param {string} site Site uid to be used for this service
+     * @param {boolean} onlyThisSite Whether this service should only return media associated with specified site
+     * or fallback to global if not found in specified site
      */
     function MediaService(provider, site, onlyThisSite) {
+        pb.log.warn('MediaService is deprecated. Please use MediaServiceV2');
 
         /**
          * @property site
@@ -56,7 +55,7 @@ module.exports = function MediaServiceModule(pb) {
         this.siteQueryService = new pb.SiteQueryService(context);
 
         if (util.isNullOrUndefined(provider)) {
-            provider = MediaService.loadMediaProvider(context);
+            provider = pb.MediaServiceV2.loadMediaProvider(context);
         }
         if (!provider) {
             throw new Error('A valid media provider is required. Please check your configuration');
@@ -68,15 +67,6 @@ module.exports = function MediaServiceModule(pb) {
          */
         this.provider = provider;
     }
-
-    /**
-     * @deprecated
-     * @private
-     * @static
-     * @property INSTANCE
-     * @type {MediaProvider}
-     */
-    var INSTANCE = null;
 
     /**
      * The collection where media descriptors are persisted
@@ -102,13 +92,13 @@ module.exports = function MediaServiceModule(pb) {
      * Deletes a media descriptor by ID
      * @method deleteById
      * @param {String|ObjectID} mid
-     * @param {Object} [options]
+     * @param {Object} [options] not used in implementation
      * @param {Function} cb
      */
     MediaService.prototype.deleteById = function(mid, options, cb) {
         if (util.isFunction(options)) {
             cb     = options;
-            optons = {delete_content: true};
+            options = {delete_content: true};
         }
 
         var self = this;
@@ -119,7 +109,7 @@ module.exports = function MediaServiceModule(pb) {
      * Persists a media descriptor
      * @method save
      * @param {Object} media
-     * @param {Object} [options]
+     * @param {Object} [options] Options object is not actually used in this implementation
      * @param {Function} cb
      */
     MediaService.prototype.save = function(media, options, cb) {
@@ -199,7 +189,7 @@ module.exports = function MediaServiceModule(pb) {
 
             //set the link and icon if specified
             if (options.format_media) {
-                MediaService.formatMedia(media);
+                pb.MediaServiceV2.formatMedia(media);
             }
             cb(null, media);
         });
@@ -257,7 +247,7 @@ module.exports = function MediaServiceModule(pb) {
      * @param {Function} cb
      */
     MediaService.prototype.setContent = function(fileDataStrOrBuff, fileName, cb) {
-        var mediaPath = MediaService.generateMediaPath(fileName);
+        var mediaPath = pb.MediaServiceV2.generateMediaPath(fileName);
         this.provider.set(fileDataStrOrBuff, mediaPath, function(err, result) {
             cb(err, { mediaPath: mediaPath, result: result});
         });
@@ -271,7 +261,7 @@ module.exports = function MediaServiceModule(pb) {
      * @param {Function} cb
      */
     MediaService.prototype.setContentStream = function(stream, fileName, cb) {
-        var mediaPath = MediaService.generateMediaPath(fileName);
+        var mediaPath = pb.MediaServiceV2.generateMediaPath(fileName);
         this.provider.setStream(stream, mediaPath, function(err, result) {
             cb(err, { mediaPath: mediaPath, result: result});
         });
@@ -284,7 +274,7 @@ module.exports = function MediaServiceModule(pb) {
      * @param {Function} cb
      */
     MediaService.prototype.createContentWriteStream = function(fileName, cb) {
-        var mediaPath = MediaService.generateMediaPath(fileName);
+        var mediaPath = pb.MediaServiceV2.generateMediaPath(fileName);
         this.provider.createWriteStream(mediaPath, function(err, stream) {
             var result = {
                 mediaPath: mediaPath,
@@ -369,7 +359,7 @@ module.exports = function MediaServiceModule(pb) {
      * @deprecated
      * @static
      * @method unregisterRenderer
-     * @param {Function|Object} interfaceImplementation A prototype or object that implements the media renderer interface
+     * @param {Function|Object} interfaceToUnregister A prototype or object that implements the media renderer interface
      * @return {Boolean} TRUE if unregistered, FALSE if not
      */
     MediaService.unregisterRenderer = function(interfaceToUnregister) {
@@ -380,19 +370,20 @@ module.exports = function MediaServiceModule(pb) {
     /**
      * Determines if the media URI is a file.  It is determined to be a file if and
      * only if the URI does not begin with "http" or "//".
+     * @deprecated
      * @static
      * @method isFile
      * @param {String} mediaUrl A URI string that points to a media resource
      */
     MediaService.isFile = function(mediaUrl) {
+        pb.log.warn('MediaService: isFile is deprecated. Use MediaServiceV2.isFile instead');
         return mediaUrl.indexOf('http') !== 0 && mediaUrl.indexOf('//') !== 0;
     };
 
     /**
      * Generates a media descriptor for a given media URL
      * @method getMediaDescriptor
-     * @param {String} mediaURL
-     * @param {Boolean} isFile Indicates if the media resource was uploaded to the server.
+     * @param {String} mediaUrl
      * @param {Function} cb A callback with two parameters. First, an Error if
      * occurred and second is an object that describes the media resource described
      * by the given media URL
@@ -401,7 +392,7 @@ module.exports = function MediaServiceModule(pb) {
 
         //get the type
         var isFile = mediaUrl.indexOf('http') !== 0 && mediaUrl.indexOf('//') !== 0;
-        var result = MediaService.getRenderer(mediaUrl, isFile);
+        var result = pb.MediaServiceV2.getRenderer(mediaUrl, isFile);
         if (result === null) {
             pb.log.warn('MediaService: No media renderer could be found for URI [%s]', mediaUrl);
             return cb(null, null);
@@ -451,11 +442,12 @@ module.exports = function MediaServiceModule(pb) {
      * @param {String} [options.view] The view type that the media will be rendered
      * for (view, editor, post).  Any style options provided will override those
      * provided by the default style associated with the view.
+     * @param {boolean} [options.isFile=false]
      * @param {Function} cb A callback that provides two parameters.  An Error if
      * exists and the rendered HTML content for the media resource.
      */
     MediaService.prototype.renderByLocation = function(options, cb) {
-        var result = options.type ? MediaService.getRendererByType(options.type) : MediaService.getRenderer(mediaUrl);
+        var result = options.type ? pb.MediaServiceV2.getRendererByType(options.type) : pb.MediaServiceV2.getRenderer(options.location, options.isFile);
         if (!result) {
             var failures = [ BaseObjectService.validationFailure('type', 'An invalid type was provided') ];
             var err = BaseObjectService.validationError(failures);
@@ -464,7 +456,7 @@ module.exports = function MediaServiceModule(pb) {
 
         //set style properties if we can
         if (options.view) {
-            options.style = MediaService.getStyleForView(result.renderer, options.view, options.style);
+            options.style = pb.MediaServiceV2.getStyleForView(result.renderer, options.view, options.style);
         }
 
         result.renderer.render(options, options, cb);
@@ -474,7 +466,7 @@ module.exports = function MediaServiceModule(pb) {
      * Renders a media resource by ID where ID refers the to the media descriptor
      * id.
      * @method renderById
-     * @param {String} The media resource ID
+     * @param {String} id The media resource ID
      * @param {Object} options
      * @param {Object} [options.attrs] The desired HTML attributes that will be
      * added to the element that provides the rendering
@@ -501,7 +493,7 @@ module.exports = function MediaServiceModule(pb) {
     /**
      * Renders the media represented by the provided media flag
      * @method render
-     * @param {String} flag The media resource ID
+     * @param {String|Object} flag The media resource ID
      * @param {Object} options
      * @param {Object} [options.attrs] The desired HTML attributes that will be
      * added to the element that provides the rendering
@@ -514,7 +506,7 @@ module.exports = function MediaServiceModule(pb) {
      */
     MediaService.prototype.renderByFlag = function(flag, options, cb) {
         if (util.isString(flag)) {
-            flag = MediaService.parseMediaFlag(flag);
+            flag = pb.MediaServiceV2.parseMediaFlag(flag);
         }
         if (!flag) {
             return cb(new Error('An invalid flag was passed'));
@@ -551,14 +543,14 @@ module.exports = function MediaServiceModule(pb) {
      */
     MediaService.prototype.render = function(media, options, cb) {
         //retrieve renderer
-        var result = MediaService.getRendererByType(media.media_type);
+        var result = pb.MediaServiceV2.getRendererByType(media.media_type);
         if (!result) {
             return cb(null, null);
         }
 
         //set style properties if we can
         if (options.view) {
-            options.style = MediaService.getStyleForView(result.renderer, options.view, options.style);
+            options.style = pb.MediaServiceV2.getStyleForView(result.renderer, options.view, options.style);
         }
 
         //render media

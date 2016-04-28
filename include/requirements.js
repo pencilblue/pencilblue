@@ -253,6 +253,7 @@ module.exports = function PB(config) {
 
     //providers and service
     pb.MediaService = require(path.join(config.docRoot, '/include/service/entities/media_service.js'))(pb);
+    pb.MediaServiceV2 = require(path.join(config.docRoot, '/include/service/entities/content/media_service_v2.js'))(pb);
 
     //content services
     pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js')(pb);

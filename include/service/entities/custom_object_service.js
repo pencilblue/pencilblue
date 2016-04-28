@@ -906,8 +906,6 @@ module.exports = function CustomObjectServiceModule(pb) {
             if (util.isError(err) || errors.length > 0) {
                 return cb(err, errors);
             }
-
-            var dao = new pb.DAO();
             self.siteQueryService.save(custObj, cb);
         });
     };

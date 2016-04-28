@@ -18,12 +18,13 @@
 module.exports = function(pb) {
 
     //PB dependencies
-    var util         = pb.util;
-    var MediaService = pb.MediaService;
+    var util              = pb.util;
+    var MediaServiceV2    = pb.MediaServiceV2;
     var BaseObjectService = pb.BaseObjectService;
 
     /**
-     *
+     * Provides access to media descriptors and the content that backs them.  It also provides a mechanism for
+     * constructing snippets of HTML to more easily display content for various purposes.
      * @class MediaApiController
      * @constructor
      * @extends BaseApiController
@@ -32,57 +33,42 @@ module.exports = function(pb) {
     util.inherits(MediaApiController, pb.BaseApiController);
 
     /**
-     * Initializes the controller
+     * Initializes the controller by instantiating the service
      * @method initSync
      * @param {object} context
      */
-    MediaApiController.prototype.initSync = function(context) {
-        this.service = new MediaService(null, context.site, context.onlyThisSite);
+    MediaApiController.prototype.initSync = function(/*context*/) {
+        this.service = new MediaServiceV2(this.getServiceContext());
     };
+
 
     /**
-     * Retrieves media
-     * @method getAll
-     * @param {Function} cb
+     * Renders HTML for a piece of media based on the location (URL or mediaId) and type.  The type is required if the
+     * fully qualified URL is not provided as the location
+     * @method renderByLocation
+     * @param {function} cb
      */
-    MediaApiController.prototype.getAll = function(cb) {
-        var self = this;
-
-        var options = this.processQuery();
-        this.service.get(options, function(err, mediaArray) {
-            var wrapper = null;
-            if (mediaArray) {
-                wrapper = BaseObjectService.getPagedResult(mediaArray, mediaArray.length);
-            }
-            self.handleGet(cb)(err, wrapper);
-        });
-    };
-
-    MediaApiController.prototype.post = function(cb) {
-
-        //determine type
-
-        //validate as given type
-
-        //save content stream
-
-        //persist meta
-
-
-        cb({content: ''});
-    };
-
     MediaApiController.prototype.renderByLocation = function(cb) {
         var options = MediaApiController.buildRenderOptionsFromQuery(this.query);
         this.service.renderByLocation(options, MediaApiController.onMediaRenderComplete(cb));
     };
 
+    /**
+     * Renders HTML for a piece of media based on the ID of the media descriptor.
+     * @method renderById
+     * @param {function} cb
+     */
     MediaApiController.prototype.renderById = function(cb) {
         var id = this.pathVars.id;
         var options = MediaApiController.buildRenderOptionsFromQuery(this.query);
         this.service.renderById(id, options, MediaApiController.onMediaRenderComplete(cb));
     };
 
+    /**
+     * Downloads a piece of media by the media descriptor's ID
+     * @method downloadById
+     * @param {function} cb
+     */
     MediaApiController.prototype.downloadById = function(cb) {
         var self = this;
         var id = this.pathVars.id;
@@ -96,7 +82,7 @@ module.exports = function(pb) {
 
             //set the mime type if we can guess with a good level of certainty
             if (streamWrapper.mime) {
-                self.res.setHeader('content-type', mime);
+                self.res.setHeader('content-type', streamWrapper.mime);
             }
 
             //now pipe the stream out as the response
@@ -117,15 +103,6 @@ module.exports = function(pb) {
                 })
                 .pipe(self.res);
         });
-    };
-
-    /**
-     * Retrieves a single media item by ID
-     * @method get
-     * @param {Function} cb
-     */
-    MediaApiController.prototype.get = function(cb) {
-        this.service.loadById(this.pathVars.id, this.handleGet(cb));
     };
 
     /**
@@ -189,6 +166,13 @@ module.exports = function(pb) {
         };
     };
 
+    /**
+     * Constructs the options for a query for render.
+     * @static
+     * @method buildRenderOptionsFromQuery
+     * @param {object} q
+     * @returns {{view: (*|string), type: *, location: *}}
+     */
     MediaApiController.buildRenderOptionsFromQuery = function(q) {
         return {
             view: q.view || 'view',

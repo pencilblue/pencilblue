@@ -1456,6 +1456,35 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
+            path: "/api/content/media/:id/download",
+            handler: "downloadById",
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/media/:id/render",
+            handler: "renderById",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/media/render",
+            handler: "renderByLocation",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+        {
+            method: 'get',
             path: "/api/content/media",
             handler: "getAll",
             content_type: 'application/json',

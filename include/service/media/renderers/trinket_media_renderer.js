@@ -217,7 +217,7 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * represented by the media Id
      */
     TrinketMediaRenderer.getEmbedUrl = function(mediaId) {
-        return 'https://trinket.io/embed/python/' + mediaId;
+        return mediaId.indexOf('http') === 0 ? mediaId : 'https://trinket.io/embed/python/' + mediaId;
     };
 
     /**

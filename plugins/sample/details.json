@@ -3,7 +3,7 @@
     "name": "Sample Plugin",
 	"description": "This is a sample description just to give an idea of what this field should contain.  Provide details about the overall goal of the plugin along with any details information",
     "version": "0.2.0",
-    "pb_version": "0.5.x",
+    "pb_version": "0.6.x",
 	"icon": "/imgs/sample.ico",
 	"author": {
 		"name": "John Doe",
