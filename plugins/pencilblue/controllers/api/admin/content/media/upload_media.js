@@ -21,12 +21,13 @@ var formidable = require('formidable');
 var async      = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Uploads a media file to the system
+     * @deprecated
      * @class UploadMediaController
      * @constructor
      */
@@ -41,7 +42,7 @@ module.exports = function(pb) {
         this.errored = 0;
     }
     util.inherits(UploadMediaController, pb.BaseController);
-    
+
     /**
      * Initializes the controller
      * @method init

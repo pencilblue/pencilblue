@@ -19,6 +19,7 @@
 var util  = require('../../../util.js');
 var async = require('async');
 var path = require('path');
+var fs = require('fs');
 
 module.exports = function(pb) {
 
@@ -254,6 +255,11 @@ module.exports = function(pb) {
             errors.push(BaseObjectService.validationFailure('content', 'Invalid content was provided'));
         }
 
+        //validate the caption
+        if (!ValidationService.isStr(obj.caption, false)) {
+            errors.push(BaseObjectService.validationFailure('caption', 'Caption must be a valid string'));
+        }
+
         //validate other stuff
         var tasks = [
             util.wrapTask(this, this.validateName, [context]),
@@ -267,8 +273,16 @@ module.exports = function(pb) {
         var errors = context.validationErrors;
 
         if (!util.isArray(obj.media_topics)) {
-            errors.push(BaseObjectService.validationFailure('media_topics[' + index + ']', item + ' is not a valid reference'))
+            errors.push(BaseObjectService.validationFailure('media_topics', 'A valid array of topic IDs must be provided'));
+            return cb();
         }
+
+        //don't bother check the DB is the array is empty.
+        if (obj.media_topics.length === 0) {
+            return cb();
+        }
+
+        //verify that each topic exists
         var opts = {
             select: {name: 1},
             where: DAO.getIdInWhere(obj.media_topics)
@@ -296,14 +310,14 @@ module.exports = function(pb) {
         var obj = context.data;
         var errors = context.validationErrors;
 
-        if (ValidationService.isNonEmptyStr(obj.name, true)) {
+        if (!ValidationService.isNonEmptyStr(obj.name, true)) {
             errors.push(BaseObjectService.validationFailure('name', 'The name cannot be empty'));
             return cb();
         }
 
         //ensure the media name is unique
         var where = { name: obj.name };
-        this.dao.unique(TYPE, where, obj[DAO.getIdField()], function(err, isUnique) {
+        this.dao.unique(TYPE, where, obj.id, function(err, isUnique) {
             if(util.isError(err)) {
                 return cb(err);
             }
@@ -315,8 +329,15 @@ module.exports = function(pb) {
     };
 
     MediaServiceV2.prototype.persistContent = function(context, cb) {
-        var content = context.data.content;
-        //TODO
+        var obj = context.data;
+        var fileDescriptor = obj.content;
+
+        //delete file reference before persistence
+        delete obj.content;
+
+        //generate a random media ID
+        var stream = fs.createReadStream(fileDescriptor.path);
+        this.provider.setStream(stream, obj.location, cb);
     };
 
     /**
@@ -331,14 +352,16 @@ module.exports = function(pb) {
      */
     MediaServiceV2.onFormat = function(context, cb) {
         var dto = context.data;
-        dto.name = BaseObjectService.sanitize(dto.headline);
-        dto.caption = BaseObjectService.sanitize(dto.subheading);
+        dto.name = BaseObjectService.sanitize(dto.name);
+        dto.caption = BaseObjectService.sanitize(dto.caption);
 
         //when media topics are presented as a string then delimit them and convert to an array
         if (ValidationService.isNonEmptyStr(dto.media_topics, true)) {
             dto.media_topics = dto.media_topics.split(',');
         }
-
+        else if (util.isNullOrUndefined(dto.media_topics) || dto.media_topics === '') {
+            dto.media_topics = [];
+        }
         cb(null);
     };
 
@@ -359,6 +382,7 @@ module.exports = function(pb) {
 
         obj.name = dto.name;
         obj.caption = dto.caption;
+        obj.media_topics = dto.media_topics;
 
         if (!dto.content) {
             //no content was sent so we should rely on what is already available
@@ -371,17 +395,16 @@ module.exports = function(pb) {
 
             //ensure the content is available for validation
             obj.content = dto.content;
-            obj.mime = obj.content.type;
-            obj.fileName = obj.content.name;
-            obj.fileSize = obj.content.size;
-            mediaUrl = path.join(obj.content.path, obj.content.name);
+            obj.meta = obj.meta || {};
+            obj.meta.mime = obj.content.type;
+            obj.meta.fileName = obj.content.name;
+            obj.meta.fileSize = obj.content.size;
+            mediaUrl = MediaServiceV2.generateMediaPath(obj.content.name);
         }
         else if (util.isString(dto.content)) {
             //we were given a link, clear out any old refs to a file based media obj
             mediaUrl = dto.content;
-            delete obj.mime;
-            delete obj.fileName;
-            delete obj.fileSize;
+            obj.meta = {};
         }
 
         //determine type
@@ -396,7 +419,7 @@ module.exports = function(pb) {
         var tasks = {
 
             meta: function(callback) {
-                renderer.getMeta(mediaUrl, isFile, callback);
+                renderer.getMeta(mediaUrl, obj.isFile, callback);
             },
 
             thumbnail: function(callback) {
@@ -408,11 +431,14 @@ module.exports = function(pb) {
             }
         };
         async.series(tasks, function(err, taskResult) {
-            obj.media_type = renderer.type;
-            obj.icon = renderer.getIcon(result.type),
-            obj.thumbnail = taskResult.thumbnail,
-            obj.location = taskResult.mediaId,
-            obj.meta = taskResult.meta
+            obj.media_type = result.type;
+            if (taskResult) {
+                obj.icon = renderer.getIcon(result.type);
+                obj.thumbnail = taskResult.thumbnail;
+                obj.location = taskResult.mediaId;
+                util.merge(taskResult.meta, obj.meta);
+            }
+            cb(err);
         });
     };
 
@@ -444,7 +470,7 @@ module.exports = function(pb) {
      * @method getRendererByType
      * @param {String} mediaUrl The media URL
      * @param {Boolean} [isFile=false] TRUE if the URL represents an uploaded file, FALSE if not
-     * @return {MediaRenderer} A media renderer interface implementation or NULL if
+     * @return {MediaRenderer|null} A media renderer interface implementation or NULL if
      * none support the given URL.
      */
     MediaServiceV2.getRenderer = function(mediaUrl, isFile) {
