@@ -11,12 +11,12 @@
       <div class="container-fluid">
         <div class="row-fluid">
           <div class="col-md-12">
-            <h1>^page_name^</h1>
+            <h1 ng-if="topics">^page_name^</h1>
+            <i class="fa fa-2x fa-refresh fa-spin page-spinner" ng-if="!topics"></i>
           </div>
-          <div class="col-md-8">
+          <div class="col-md-8" ng-if="topics">
             ^tmp_admin-new=elements=search^
-            <i class="fa fa-2x fa-refresh fa-spin" ng-if="!topics"></i>
-            <div class="btn-group btn-group-sm topics-btn-group" ng-repeat="topic in topics" ng-if="topics">
+            <div class="btn-group btn-group-sm topics-btn-group" ng-repeat="topic in topics">
               <a class="btn btn-default" ng-href="/admin-new/content/topics/{{getTopicUid(topic)}}" ng-bind="topic.name"></a>
               <button type="button" class="btn hidden-xs" ng-class="{'btn-default': !topic.infoActive, 'btn-info': topic.infoActive}" ng-click="getTopicInfo(topic)">
                 <i class="fa fa-info-circle"></i>

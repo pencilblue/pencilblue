@@ -46,14 +46,14 @@ module.exports = function AdminArticlesControllerModule(pb) {
   AdminArticlesController.getSubNavItems = function(key, ls, data) {
     return [{
       name: 'new_article',
-      title: '',
+      title: ls.get('NEW_ARTICLE'),
       icon: 'plus',
       href: '/admin/content/articles/new'
     }];
   };
 
   //register admin sub-nav
-  pb.AdminSubnavService.registerFor('manage_topics', AdminArticlesController.getSubNavItems);
+  pb.AdminSubnavService.registerFor('manage_articles', AdminArticlesController.getSubNavItems);
 
   //exports
   return AdminArticlesController;

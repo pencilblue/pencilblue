@@ -47,15 +47,20 @@ module.exports = function AdminTopicsFormControllerModule(pb) {
   AdminTopicsFormController.getSubNavItems = function(key, ls, data) {
       return [{
           name: 'new_topic',
-          title: '',
+          title: ls.get('NEW_TOPIC'),
           icon: 'plus',
           href: '/admin/content/topics/new'
       }, {
           name: 'import_topics',
-          title: '',
+          title: ls.get('IMPORT_TOPICS'),
           icon: 'upload',
           href: '/admin/content/topics/import'
-      }, ];
+      }, {
+          name: 'list_topics',
+          title: ls.get('MANAGE_TOPICS'),
+          icon: 'list',
+          href: '/admin/content/topics'
+      }];
   };
 
   //register admin sub-nav

@@ -1,6 +1,6 @@
 <script src="/js/admin-new/elements/pill_nav.js"></script>
 <div class="pill-nav-container" ng-controller="PillNavController" ng-mouseover="showMinorPillNav()" ng-mouseout="hideMinorPillNav()">
-  <a class="btn btn-primary pill-nav-item" ng-class="{'pill-nav-item-minor': $index > 0, 'available': $index > 0 && minorPillNavOn === true, 'unavailable': $index > 0 && minorPillNavOn === false}" ng-href="{{item.href}}" ng-repeat="item in pillNavItems">
+  <a class="btn btn-primary pill-nav-item" ng-class="{'pill-nav-item-minor': $index > 0, 'available': $index > 0 && minorPillNavOn === true, 'unavailable': $index > 0 && minorPillNavOn === false}" ng-href="{{item.href}}" ng-repeat="item in pillNavItems" title="{{item.title}}">
     <i class="fa fa-{{item.icon}}"></i>
   </a>
 </div>

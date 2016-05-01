@@ -46,12 +46,12 @@ module.exports = function AdminTopicsControllerModule(pb) {
   AdminTopicsController.getSubNavItems = function(key, ls, data) {
       return [{
           name: 'new_topic',
-          title: '',
+          title: ls.get('NEW_TOPIC'),
           icon: 'plus',
           href: '/admin/content/topics/new'
       }, {
           name: 'import_topics',
-          title: '',
+          title: ls.get('IMPORT_TOPICS'),
           icon: 'upload',
           href: '/admin/content/topics/import'
       }, ];

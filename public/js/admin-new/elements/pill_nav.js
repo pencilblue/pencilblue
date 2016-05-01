@@ -14,6 +14,16 @@
           result.data[i].href = result.data[i].href.split('/admin').join('/admin-new');
         }
         $scope.pillNavItems = result.data;
+
+        $timeout(function() {
+          angular.element('.pill-nav-container .pill-nav-item').tooltip({
+            placement: 'bottom',
+            delay: {
+              show: 400,
+              hide: 100
+            }
+          });
+        }, 250);
       })
       .error(function(error, status) {
 

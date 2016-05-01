@@ -47,9 +47,14 @@ module.exports = function AdminArticlesFormControllerModule(pb) {
   AdminArticlesFormController.getSubNavItems = function(key, ls, data) {
     return [{
       name: 'new_article',
-      title: '',
+      title: ls.get('NEW_ARTICLE'),
       icon: 'plus',
       href: '/admin/content/articles/new'
+    }, {
+        name: 'list_articles',
+        title: ls.get('MANAGE_ARTICLES'),
+        icon: 'list',
+        href: '/admin/content/articles'
     }];
   };
 

@@ -17,7 +17,7 @@
       <div class="container-fluid">
         <div class="row-fluid">
           <div class="col-md-12">
-            <i class="fa fa-2x fa-refresh fa-spin" ng-if="!article"></i>
+            <i class="fa fa-2x fa-refresh fa-spin page-spinner" ng-if="!article"></i>
             <h1 ng-bind="'^loc_EDIT^ ' + headline" ng-if="headline"></h1>
             <h1 ng-if="!articleId">^loc_NEW_ARTICLE^</h1>
           </div>
@@ -162,9 +162,9 @@
               </button>
             </form>
           </div>
-          <div class="col-md-4" ng-if="articleId">
+          <div class="col-md-4 hidden-xs" ng-if="articleId">
             <h2>^loc_PREVIEW^</h2>
-            <div class="well well-sm">
+            <div class="well well-sm context-article">
               <i class="fa fa-2x fa-refresh fa-spin" ng-if="!articlePreview"></i>
               <div ng-bind-html="getArticlePreviewHtml()" ng-if="articlePreview"></i>
             </div>

@@ -12,12 +12,12 @@
       <div class="container-fluid">
         <div class="row-fluid">
           <div class="col-md-12">
-            <h1>^page_name^</h1>
+            <h1 ng-if="articles">^page_name^</h1>
+            <i class="fa fa-2x fa-refresh fa-spin page-spinner" ng-if="!articles"></i>
           </div>
-          <div class="col-md-8">
+          <div class="col-md-8" ng-if="articles">
             ^tmp_admin-new=elements=search^
-            <i class="fa fa-2x fa-refresh fa-spin" ng-if="!articles"></i>
-            <table class="table table-striped table-hover list-table" ng-if="articles">
+            <table class="table table-striped table-hover list-table">
               <thead>
                 <tr>
                   <th>^loc_HEADLINE^</th>
