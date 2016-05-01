@@ -45,4 +45,22 @@ describe('BaseObjectService', function() {
             instance.getIdWhere(dto).should.eql({_id: 'abc'});
         });
     });
+
+    describe('BaseObjectService.parseBoolean', function () {
+
+        ['1', true, 1].forEach(function(val) {
+
+            it('should return true when passed ' +val + ' as the parameter', function() {
+                BaseObjectService.parseBoolean(val).should.eql(true);
+            });
+        });
+
+        ['0', false, 0, 1.1, 2.2, -1, null, undefined].forEach(function(val) {
+
+            it('should return false when passed ' +val + ' as the parameter', function() {
+                BaseObjectService.parseBoolean(val).should.eql(false);
+            });
+        });
+    })
+
 });
