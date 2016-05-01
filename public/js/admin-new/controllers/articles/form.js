@@ -15,7 +15,7 @@
     'pencilblue.admin.factories.content.articles',
     'pencilblue.admin.factories.users'
   ])
-  .controller('AdminArticlesFormController', function($scope, $rootScope, $window, uidService, articlesFactory, usersFactory) {
+  .controller('AdminArticlesFormController', function($scope, $rootScope, $sce, $window, uidService, articlesFactory, usersFactory) {
     $rootScope.activeLeftNavItems = ['content', 'articles'];
     $rootScope.subNavKey = 'article_form';
 
@@ -40,12 +40,23 @@
         $scope.article.last_modified = moment($scope.article.last_modified).toDate();
 
         $rootScope.selectedTopics = $scope.article.article_topics;
+
+        $scope.getArticlePreview();
       });
+    };
+
+    $scope.getArticlePreview = function() {
+      articlesFactory.getArticle($scope.articleId, 1, function(error, article) {
+        $scope.articlePreview = article.article_layout;
+      });
+    };
+
+    $scope.getArticlePreviewHtml = function() {
+      return $sce.trustAsHtml($scope.articlePreview);
     };
 
     $scope.getAvailableAuthors = function() {
       usersFactory.getUsers({role: [1, 2, 3, 4]}, function(error, users) {
-        console.log(users);
         $scope.availableAuthors = users;
       });
     };
@@ -72,6 +83,7 @@
 
         if($scope.articleId) {
           $scope.headline = $scope.article.headline;
+          $scope.getArticlePreview();
         }
         else {
           $window.location = '/admin-new/content/articles/' + uidService.getUid(article);

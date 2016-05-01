@@ -6,6 +6,7 @@
   <script src="/js/admin-new/factories/users.js"></script>
   <script src="/js/admin-new/controllers/articles/form.js"></script>
   ^tmp_admin-new=elements=wysiwyg_scripts^
+  ^localization_script^
   <script>
     var articleId = '^article_id^';
   </script>
@@ -47,19 +48,17 @@
                           <span class="input-group-addon">/article/</span>
                           <input type="text" name="url" class="form-control" ng-model="article.url" required></input>
                           <span class="input-group-btn">
-            								<button type="button" class="btn hidden-xs" ng-class="{'btn-secondary': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="articleForm.headline.$invalid">
+            								<button type="button" class="btn hidden-xs" ng-class="{'btn-default': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="articleForm.headline.$invalid">
             									<span ng-if="urlGenerated === null">^loc_GENERATE^</span>
             									<span ng-if="urlGenerated === true"><i class="fa fa-check"></i>&nbsp;^loc_GENERATED^</span>
             									<span ng-if="urlGenerated === false"><i class="fa fa-ban"></i>&nbsp;^loc_NOT_GENERATED^</span>
             								</button>
-                          </span>
-                          <span class="input-group-btn">
-            								<button type="button" class="btn" ng-class="{'btn-secondary': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!article.url.length">
+                            <button type="button" class="btn" ng-class="{'btn-default': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!article.url.length">
             									<span ng-if="urlAvailable === null">^loc_CHECK^</span>
             									<span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
             									<span ng-if="urlAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
             								</button>
-            							</span>
+                          </span>
                         </div>
                       </div>
                       <div class="form-group">
@@ -81,7 +80,7 @@
                         <div class="input-group">
                           <input class="form-control" ng-model="article.publish_date" ng-model-options="{updateOn: 'blur'}" moment-picker="article.publish_date"></input>
                           <span class="input-group-btn">
-            								<button type="button" class="btn btn-secondary" ng-click="setPublishDateToNow()">
+            								<button type="button" class="btn btn-default" ng-click="setPublishDateToNow()">
             									^loc_NOW^
             								</button>
             							</span>
@@ -153,15 +152,22 @@
                 </div>
               </div>
               ^tmp_admin-new=elements=alert^
-              <button type="button" class="btn btn-default" go-back>
+              <button type="button" class="btn btn-default btn-shadow" go-back>
                 <i class="fa fa-ban"></i>
                 ^loc_CANCEL^
               </button>
-              <button type="submit" class="btn" ng-class="{'btn-primary': !saveSuccess, 'btn-success': saveSuccess}" ng-disabled="!articleForm.$valid || saveSuccess">
+              <button type="submit" class="btn btn-shadow" ng-class="{'btn-primary': !saveSuccess, 'btn-success': saveSuccess}" ng-disabled="!articleForm.$valid || saveSuccess">
                 <i class="fa fa-save" ng-class="{'fa-save': !saving && !saveSuccess, 'fa-check': !saving && saveSuccess, 'fa-refresh fa-spin': saving}"></i>
                 ^loc_SAVE^
               </button>
             </form>
+          </div>
+          <div class="col-md-4" ng-if="articleId">
+            <h2>^loc_PREVIEW^</h2>
+            <div class="well well-sm">
+              <i class="fa fa-2x fa-refresh fa-spin" ng-if="!articlePreview"></i>
+              <div ng-bind-html="getArticlePreviewHtml()" ng-if="articlePreview"></i>
+            </div>
           </div>
         </div>
       </div>
