@@ -41,10 +41,6 @@ module.exports = function(pb) {
      */
     function MediaServiceV2(context) {
 
-
-        this.site = pb.SiteService.getCurrentSite(context.site);
-        this.onlyThisSite = context.onlyThisSite;
-
         /**
          * @property topicService
          * @type {TopicService}
@@ -587,7 +583,7 @@ module.exports = function(pb) {
         }
 
         var flag   = content.substring(startIndex, endIndex + 1);
-        var result = MediaService.parseMediaFlag(flag);
+        var result = MediaServiceV2.parseMediaFlag(flag);
         if (result) {
             result.startIndex = startIndex;
             result.endIndex = endIndex;

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ module.exports = function(pb) {
 
     //pb dependencies
     var util = pb.util;
+    var MediaServiceV2 = pb.MediaServiceV2;
 
     /**
      * Returns the HTML for a media preview
@@ -29,6 +30,10 @@ module.exports = function(pb) {
      */
     function GetMediaPreviewApiController(){}
     util.inherits(GetMediaPreviewApiController, pb.BaseAdminController);
+
+    GetMediaPreviewApiController.prototype.initSync = function(/*context*/) {
+        this.service = new MediaServiceV2(this.getServiceContext());
+    };
 
     /**
      * Renders the preview
@@ -51,9 +56,8 @@ module.exports = function(pb) {
         var options = {
             view: 'view'
         };
-        var mediaService = new pb.MediaService(null, self.site, true);
         if (get.id) {
-            mediaService.renderById(get.id, options, function(err, html) {
+            this.service.renderById(get.id, options, function(err, html) {
                 self.renderComplete(err, html, cb);
             });
         }
@@ -64,7 +68,7 @@ module.exports = function(pb) {
                 location: get.location,
                 type: get.type
             };
-            mediaService.renderByLocation(renderOptions, function(err, html) {
+            this.service.renderByLocation(renderOptions, function(err, html) {
                 self.renderComplete(err, html, cb);
             });
         }

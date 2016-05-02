@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 var async = require('async');
 
 module.exports = function SetupActionControllerModule(pb) {
-    
+
     //pb dependencies
     var util            = pb.util;
     var CallHomeService = pb.CallHomeService;
@@ -32,10 +32,10 @@ module.exports = function SetupActionControllerModule(pb) {
      */
     function SetupActionController(){}
     util.inherits(SetupActionController, pb.BaseController);
-    
+
     /**
-     * The setup events are ran in sequence.  The error key is mapped to the 
-     * task index + 1 so that on error you can check the result length to 
+     * The setup events are ran in sequence.  The error key is mapped to the
+     * task index + 1 so that on error you can check the result length to
      * determine which task errored.
      * @private
      * @static
@@ -128,9 +128,9 @@ module.exports = function SetupActionControllerModule(pb) {
                 pb.RequestHandler.DEFAULT_THEME, callback);
             },
             function(callback) {
-                //Do nothing here because it calls set under the covers.  
-                //We assume it does what it is supposed to.  Attempting to 
-                //set the settings again will only cause a failure due to a 
+                //Do nothing here because it calls set under the covers.
+                //We assume it does what it is supposed to.  Attempting to
+                //set the settings again will only cause a failure due to a
                 //duplicate key
                 var contentService = new pb.ContentService();
                 contentService.getSettings(callback);

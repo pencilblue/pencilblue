@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ var fs   = require('fs');
 var util = require('../util.js');
 
 module.exports = function JSONFSEntityServiceModule(pb) {
-    
+
     /**
      * JSON file system storage service
      *

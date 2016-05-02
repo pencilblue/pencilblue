@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 var util = require('../../util.js');
 
 module.exports = function MongoRegistrationProviderModule(pb) {
-    
+
     /**
      * Implements the necessary functions in order to be able to create and manage
      * a service registry for PB processes in the cluster.  This provider uses MongoDB
@@ -96,9 +96,9 @@ module.exports = function MongoRegistrationProviderModule(pb) {
 
         //ensure an index exists.  According to the MongoDB documentation ensure
         //index cannot modify a TTL value once it is created.  Therefore, we have
-        //to ensure that the index exists and then verify that the expiry matches.  
-        //When it doesn't match we must create a system lock, drop the index, and 
-        //recreate it.  Due to the permissions levels of some mongo hosting 
+        //to ensure that the index exists and then verify that the expiry matches.
+        //When it doesn't match we must create a system lock, drop the index, and
+        //recreate it.  Due to the permissions levels of some mongo hosting
         //providers the collMod command cannot be used.
         var TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js')(pb);
         var helper = new TTLIndexHelper();
