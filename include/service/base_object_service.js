@@ -350,6 +350,7 @@ module.exports = function(pb) {
      * that was found or NULL if no object could be found. The function will
      * trigger the "get" event.
      * @method get
+     * @param {string} id
      * @param {Object} [options]
      * @param {Function} cb A callback that takes two parameters.  The first is
      * an error, if occurred. The second is the object with the specified ID
@@ -894,6 +895,31 @@ module.exports = function(pb) {
             limit: limit,
             offset: offset
         };
+    };
+
+    /**
+     * Extracts a boolean value from the provided value.  Null or undefined values will return false.  Strings of '1' or
+     * 'true' (case sensitive) will return TRUE.  All other values will return false.
+     * @param {string|boolean} val
+     * @returns {boolean}
+     */
+    BaseObjectService.parseBoolean = function(val) {
+        if (util.isNullOrUndefined(val)) {
+            return false;
+        }
+        if (util.isBoolean(val)) {
+            return val;
+        }
+
+        //check for other truths
+        switch (val) {
+            case '1':
+            case 'true':
+            case 1:
+                return true;
+            default:
+                return false;
+        }
     };
 
     /**

@@ -62,8 +62,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     BaseApiController.prototype.get = function(cb) {
-        var id = this.pathVars.id;
-        this.service.get(id, this.handleGet(cb));
+        this.service.get(this.pathVars.id, this.processQuery(), this.handleGet(cb));
     };
 
     /**

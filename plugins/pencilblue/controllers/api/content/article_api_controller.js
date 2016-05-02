@@ -18,9 +18,10 @@
 module.exports = function(pb) {
 
     //PB dependencies
-    var util             = pb.util;
-    var ArticleServiceV2 = pb.ArticleServiceV2;
-    var CommentService   = pb.CommentService;
+    var util              = pb.util;
+    var ArticleServiceV2  = pb.ArticleServiceV2;
+    var BaseObjectService = pb.BaseObjectService;
+    var CommentService    = pb.CommentService;
 
     /**
      *
@@ -60,7 +61,7 @@ module.exports = function(pb) {
      */
     ArticleApiController.prototype.processQuery = function() {
         var options = ArticleApiController.super_.prototype.processQuery.apply(this);
-        options.render = !!this.query.render; //pass 1 for true, 0 or nothing for false
+        options.render = BaseObjectService.parseBoolean(this.query.render);
         return options;
     };
 
