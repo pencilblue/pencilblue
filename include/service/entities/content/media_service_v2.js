@@ -203,7 +203,8 @@ module.exports = function(pb) {
     /**
      * Renders the media represented by the provided media descriptor.
      * @method render
-     * @param {String} The media resource ID
+     * @param {object} media The media resource ID
+     * @param {string} media.media_type
      * @param {Object} options
      * @param {Object} [options.attrs] The desired HTML attributes that will be
      * added to the element that provides the rendering
@@ -317,7 +318,7 @@ module.exports = function(pb) {
 
         //ensure the media name is unique
         var where = { name: obj.name };
-        this.dao.unique(TYPE, where, obj.id, function(err, isUnique) {
+        this.dao.unique(TYPE, where, obj[DAO.getIdField()], function(err, isUnique) {
             if(util.isError(err)) {
                 return cb(err);
             }
@@ -346,7 +347,7 @@ module.exports = function(pb) {
      * @method onFormat
      * @param {Object} context
      * @param {object} context.data The incoming request body
-     * @param {MediaServiceV2} service An instance of the service that triggered
+     * @param {MediaServiceV2} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -470,7 +471,7 @@ module.exports = function(pb) {
      * @method getRendererByType
      * @param {String} mediaUrl The media URL
      * @param {Boolean} [isFile=false] TRUE if the URL represents an uploaded file, FALSE if not
-     * @return {MediaRenderer|null} A media renderer interface implementation or NULL if
+     * @return {object|null} A media renderer interface implementation or NULL if
      * none support the given URL.
      */
     MediaServiceV2.getRenderer = function(mediaUrl, isFile) {
@@ -500,7 +501,7 @@ module.exports = function(pb) {
      * @static
      * @method getRendererByType
      * @param {String} type The media type
-     * @return {MediaRenderer} A media renderer interface implementation or NULL if
+     * @return {object|null} A media renderer interface implementation or NULL if
      * none support the given type.
      */
     MediaServiceV2.getRendererByType = function(type) {
@@ -541,12 +542,12 @@ module.exports = function(pb) {
         var flag = '^media_display_'+mid+'/';
 
         var cnt = 0;
-        for (var opt in options) {
+        Object.keys(options).forEach(function(opt) {
             if (cnt++ > 0) {
                 flag += ',';
             }
             flag += opt + ':' + options[opt];
-        }
+        });
         flag += '^';
         return flag;
     };
@@ -604,8 +605,8 @@ module.exports = function(pb) {
      * <li>cleanFlag - The media flag stripped of the start and end markers</li>
      * </ul>
      * @static
-     * @method .
-     * @param {String} content The content string that potentially contains 1 or more media flags
+     * @method parseMediaFlag
+     * @param {String} flag The content string that potentially contains 1 or more media flags
      * @return {Object} An object that contains the information about the parsed media flag.
      */
     MediaServiceV2.parseMediaFlag = function(flag) {
@@ -625,7 +626,7 @@ module.exports = function(pb) {
 
         var style = {};
         if (parts[1] && parts[1].length) {
-            var attrs = parts[1].split(',').forEach(function(item) {
+            parts[1].split(',').forEach(function(item) {
                 var division = item.split(':');
                 style[division[0]] = division[1];
             });
@@ -702,7 +703,7 @@ module.exports = function(pb) {
      * Unregisters a media renderer
      * @static
      * @method unregisterRenderer
-     * @param {Function|Object} interfaceImplementation A prototype or object that implements the media renderer interface
+     * @param {Function|Object} interfaceToUnregister A prototype or object that implements the media renderer interface
      * @return {Boolean} TRUE if unregistered, FALSE if not
      */
     MediaServiceV2.unregisterRenderer = function(interfaceToUnregister) {

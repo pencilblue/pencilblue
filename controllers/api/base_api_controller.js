@@ -19,6 +19,7 @@ module.exports = function(pb) {
 
     //PB dependencies
     var util = pb.util;
+    var BaseObjectService = pb.BaseObjectService;
 
     /**
      *
@@ -344,9 +345,7 @@ module.exports = function(pb) {
      * @method notFound
      */
     BaseApiController.prototype.notFound = function(cb) {
-        var error = new Error('NOT FOUND');
-        error.code = 404;
-        cb(error);
+        cb(BaseObjectService.notFound('NOT FOUND'));
     };
 
     //exports
