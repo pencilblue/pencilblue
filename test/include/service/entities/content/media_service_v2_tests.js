@@ -70,4 +70,81 @@ describe('MediaServiceV2', function() {
             });
         });
     });
+
+    describe('MediaServiceV2.isFile', function() {
+
+        [null, 1, undefined, 2.2, true, false].forEach(function(val) {
+            it('should throw when passed a non string value '+val, function() {
+                MediaServiceV2.isFile.bind(val).should.throwError();
+            });
+        });
+
+        ['http', '//', 'https://', 'http://go.for.it/gotIt.jpg', '//go.for.it/gotIt.jpg'].forEach(function(val) {
+            it('should return true when passed a string with a valid file prefix "'+val+'"', function() {
+                MediaServiceV2.isFile(val).should.eql(false);
+            });
+        });
+
+        ['htt', '/go.for.it', '/var/lib', 'go.for.it/gotIt.jpg', ' //', ' http'].forEach(function(val) {
+            it('should return false when passed a string with a valid file prefix "'+val+'"', function() {
+                MediaServiceV2.isFile(val).should.eql(true);
+            });
+        });
+    });
+
+    describe('MediaServiceV2.isFile', function() {
+
+        it('should throw when an invalid renderer is passed', function() {
+            MediaServiceV2.getStyleForView.bind(null, 'view', {}).should.throwError();
+        });
+
+        it('should retrieve the base style from the renderer and apply the overrides', function() {
+            var renderer = {
+                getStyle: function(view) {
+                    return {
+                        width: '100px',
+                        height: '200px'
+                    }
+                }
+            };
+
+            var overrides = {
+                height: '201px'
+            };
+            var result = MediaServiceV2.getStyleForView(renderer, 'editor', overrides);
+            result.should.eql({
+                width: '100px',
+                height: '201px'
+            });
+        });
+    });
+
+    describe('MediaServiceV2.getMediaIcon', function() {
+
+        [true, 1, 2.2, false, null, undefined, 'something', ''].forEach(function(val) {
+            it('should return empty string when an invalid type ' + val + ' is provided', function() {
+                MediaServiceV2.getMediaIcon(val).should.eql('');
+            });
+        });
+
+        [
+            { v: 'image', e: 'picture-o' },
+            { v: 'audio', e: '' },
+            { v: 'dailymotion', e: '' },
+            { v: 'instagram', e: 'instagram' },
+            { v: 'kickstarter', e: 'dollar' },
+            { v: 'pdf', e: 'file-pdf-o' },
+            { v: 'slideshare', e: 'list-alt' },
+            { v: 'storify', e: 'arrow-circle-right' },
+            { v: 'trinket', e: 'key fa-flip-horizontal' },
+            { v: 'video', e: 'film' },
+            { v: 'vimeo', e: 'vimeo-square' },
+            { v: 'vine', e: 'vine' },
+            { v: 'youtube', e: 'youtube' },
+        ].forEach(function(testCase) {
+            it('should return ' + testCase.e + ' when the type ' + testCase.v + ' is passed', function() {
+                MediaServiceV2.getMediaIcon(testCase.v).should.eql(testCase.e);
+            });
+        });
+    });
 });

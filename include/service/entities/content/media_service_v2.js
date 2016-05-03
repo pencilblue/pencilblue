@@ -875,7 +875,7 @@ module.exports = function(pb) {
      * @param {String} mediaUrl A URI string that points to a media resource
      */
     MediaServiceV2.isFile = function(mediaUrl) {
-        return mediaUrl.indexOf('http') !== 0 && mediaUrl.indexOf('//') !== 0;
+        return !(mediaUrl.indexOf('http') === 0 || mediaUrl.indexOf('//') === 0);
     };
 
     //Event Registries
