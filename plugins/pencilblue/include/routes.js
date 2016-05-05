@@ -1467,7 +1467,7 @@ module.exports = function Routes(pb){
             method: 'get',
             path: "/api/content/media/:id/render",
             handler: "renderById",
-            content_type: 'application/json',
+            content_type: 'text/html',
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_WRITER,
