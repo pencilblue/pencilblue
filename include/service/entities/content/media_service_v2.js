@@ -886,4 +886,4 @@ module.exports = function(pb) {
 
     //exports
     return MediaServiceV2;
-}
+};

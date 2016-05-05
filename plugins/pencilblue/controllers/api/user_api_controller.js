@@ -112,7 +112,7 @@ module.exports = function(pb) {
                 var accessLevel = parseInt(r);
                 if (!isNaN(accessLevel)) {
 
-                    inArray.push(accessLevel)
+                    inArray.push(accessLevel);
                 }
             });
 

@@ -50,7 +50,6 @@ module.exports = function(pb) {
      * @method
      */
     GetMediaEmbedApiController.prototype.render = function(cb) {
-        var self = this;
         var get = this.query;
 
         //validation
