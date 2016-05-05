@@ -260,9 +260,36 @@ describe('MediaServiceV2', function() {
         });
     });
 
-    describe('MediaService Renderer Registration', function() {
-        var renderer = function(){};
+    describe('MediaService.formatMedia', function() {
 
-        MediaServiceV2.isRegistered(renderer).should.eql(false);
+        it('should populate icon and link fields on each media item when passed an array of media entities', function() {
+            var media = [
+                {
+                    media_type: 'youtube',
+                    location: 'abcdef'
+                }
+            ];
+            var expected = [
+                {
+                    media_type: 'youtube',
+                    icon: 'youtube',
+                    link: 'https://www.youtube.com/watch?v=abcdef',
+                    location: 'abcdef'
+                }
+            ];
+            MediaServiceV2.formatMedia(media).should.eql(expected);
+        });
+    });
+
+    describe('MediaService Renderer Registration', function() {
+
+        it('should successfully register and unregister a provider', function() {
+            var renderer = function(){};
+            MediaServiceV2.isRegistered(renderer).should.eql(false);
+            MediaServiceV2.registerRenderer(renderer).should.eql(true);
+            MediaServiceV2.isRegistered(renderer).should.eql(true);
+            MediaServiceV2.unregisterRenderer(renderer).should.eql(true);
+            MediaServiceV2.isRegistered(renderer).should.eql(false);
+        });
     });
 });
