@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,10 +16,10 @@
 */
 
 module.exports = function SiteMapModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Robots.txt file
      */

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 var path = require('path');
 
 module.exports = function PluginPublicContentControllerModule(pb) {
-    
+
     //PB dependencies
     var util           = pb.util;
     var PluginService  = pb.PluginService;
@@ -56,7 +56,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
 
         //serve up the content
         var resourcePath = path.join(pluginPublicDir, postPluginPath);
-        
+
         //remove qsvars before loading files
         this.reqHandler.servePublicContent(resourcePath.split('?')[0]);
     };

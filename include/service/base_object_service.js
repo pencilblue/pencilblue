@@ -76,7 +76,6 @@ module.exports = function(pb) {
 
     /**
      * The event that is triggered before the count query is executed
-     * @private
      * @static
      * @readonly
      * @property BEFORE_COUNT
@@ -87,7 +86,6 @@ module.exports = function(pb) {
     /**
      * The event that is triggered before the query is executed to retrieve
      * results
-     * @private
      * @static
      * @readonly
      * @property BEFORE_GET_ALL
@@ -97,7 +95,6 @@ module.exports = function(pb) {
 
     /**
      * The event that is triggered when querying for one or more resources
-     * @private
      * @static
      * @readonly
      * @property GET_ALL
@@ -108,7 +105,6 @@ module.exports = function(pb) {
     /**
      * The event that is triggered before the query is executed to retrieve
      * an item by ID
-     * @private
      * @static
      * @readonly
      * @property BEFORE_GET
@@ -118,7 +114,6 @@ module.exports = function(pb) {
 
     /**
      * The event that is triggered when retrieving a resource by ID
-     * @private
      * @static
      * @readonly
      * @property GET_ALL
@@ -128,7 +123,6 @@ module.exports = function(pb) {
 
     /**
      * The event that is triggered when a DTO is passed to the save function
-     * @private
      * @static
      * @readonly
      * @property FORMAT
@@ -139,7 +133,6 @@ module.exports = function(pb) {
     /**
      * The event that is triggered when a DTO is passed to the save function
      * and after the format event has completed
-     * @private
      * @static
      * @readonly
      * @property MERGE
@@ -150,7 +143,6 @@ module.exports = function(pb) {
     /**
      * The event that is triggered when a DTO is passed to the save function
      * and after the merge event has completed
-     * @private
      * @static
      * @readonly
      * @property VALIDATE
@@ -162,7 +154,6 @@ module.exports = function(pb) {
      * The event that is triggered when a DTO is passed to the save function
      * and aftr the validate event has completed.  When validation failures
      * occur this event will not fire.
-     * @private
      * @static
      * @readonly
      * @property BEFORE_SAVE
@@ -173,7 +164,6 @@ module.exports = function(pb) {
     /**
      * The event that is triggered when a DTO is passed to the save function
      * and after the save operation has completed successfully.
-     * @private
      * @static
      * @readonly
      * @property AFTER_SAVE
@@ -183,7 +173,6 @@ module.exports = function(pb) {
 
     /**
      * The event that is triggered when the delete function is called.
-     * @private
      * @static
      * @readonly
      * @property BEFORE_DELETE
@@ -194,7 +183,6 @@ module.exports = function(pb) {
     /**
      * The event that is triggered when the delete function is called and after
      * the delete operation has completed successfully.
-     * @private
      * @static
      * @readonly
      * @property AFTER_DELETE
@@ -509,7 +497,7 @@ module.exports = function(pb) {
             //detect if we are doing an update or insert.  On update retrieve
             //the obj and call the merge event handlers
             self._retrieveOnUpdateAndMerge(dto, options, function(err, obj) {
-                if (util.isError(err) || util.isNullOrUndefined(obj)) {console.log(obj);
+                if (util.isError(err) || util.isNullOrUndefined(obj)) {
                     return cb(err, obj);
                 }
 
@@ -571,7 +559,7 @@ module.exports = function(pb) {
         var self     = this;
         var where    = this.getIdWhere(dto);
         var isCreate = util.isBoolean(options.isCreate) ? options.isCreate : !where;
-        var isUpdate = !isCreate;console.log('isCreate:'+isCreate);
+        var isUpdate = !isCreate;
 
         var onObjectRetrieved = function(err, obj) {
             if (util.isError(err) || util.isNullOrUndefined(obj)) {
@@ -748,7 +736,7 @@ module.exports = function(pb) {
      * Creates a new Error representative of a validation error
      * @static
      * @method validationError
-     * @param {Array} validationFailures
+     * @param {Array|string} validationFailures
      * @return {Error}
      */
     BaseObjectService.validationError = function(validationFailures) {
@@ -763,12 +751,25 @@ module.exports = function(pb) {
      * the current principal did not have authroization to perform.
      * @static
      * @method forbiddenError
-     * @param {String} message
+     * @param {String} [message]
      * @return {Error}
      */
     BaseObjectService.forbiddenError = function(message) {
         var error = new Error(message || 'Forbidden');
         error.code = 403;
+        return error;
+    };
+
+    /**
+     * Creates a new Error representative of the inability to locate the requested resource
+     * @static
+     * @method notFound
+     * @param {String} [message]
+     * @return {Error}
+     */
+    BaseObjectService.notFound = function(message) {
+        var error = new Error(message || 'Not Found');
+        error.code = 404;
         return error;
     };
 

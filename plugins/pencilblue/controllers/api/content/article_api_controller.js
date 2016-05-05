@@ -18,10 +18,10 @@
 module.exports = function(pb) {
 
     //PB dependencies
-    var util             = pb.util;
-    var ArticleServiceV2 = pb.ArticleServiceV2;
+    var util              = pb.util;
+    var ArticleServiceV2  = pb.ArticleServiceV2;
     var BaseObjectService = pb.BaseObjectService;
-    var CommentService   = pb.CommentService;
+    var CommentService    = pb.CommentService;
 
     /**
      *
@@ -34,31 +34,24 @@ module.exports = function(pb) {
 
     /**
      * Initializes the controller
-     * @method init
+     * @method initSync
      * @param {Object} context
-     * @param {Function} cb
      */
-    ArticleApiController.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err) {
+    ArticleApiController.prototype.initSync = function(/*context*/) {
 
-            /**
-             *
-             * @property service
-             * @type {ArticleServiceV2}
-             */
-            self.service = new ArticleServiceV2(self.getServiceContext());
+        /**
+         *
+         * @property service
+         * @type {ArticleServiceV2}
+         */
+        this.service = new ArticleServiceV2(this.getServiceContext());
 
-            /**
-             *
-             * @property commentService
-             * @type {CommentService}
-             */
-            self.commentService = new CommentService(self.getServiceContext());
-
-            cb(err, true);
-        };
-        ArticleApiController.super_.prototype.init.apply(this, [context, init]);
+        /**
+         *
+         * @property commentService
+         * @type {CommentService}
+         */
+        this.commentService = new CommentService(this.getServiceContext());
     };
 
     /**
@@ -91,15 +84,23 @@ module.exports = function(pb) {
             where = {
                 $or: [
                     {headline: pattern},
-                    {subheading: pattern},
+                    {subheading: pattern}
                 ]
             };
         }
 
+        //search by topic
         var topicId = q.topic;
         if (pb.ValidationService.isIdStr(topicId, true)) {
             where = where || {};
             where.article_topics = topicId;
+        }
+
+        //search by author
+        var authorId = q.author;
+        if (pb.ValidationService.isIdStr(authorId, true)) {
+            where = where || {};
+            where.author = authorId;
         }
 
         return {
