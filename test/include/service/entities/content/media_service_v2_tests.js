@@ -140,11 +140,129 @@ describe('MediaServiceV2', function() {
             { v: 'video', e: 'film' },
             { v: 'vimeo', e: 'vimeo-square' },
             { v: 'vine', e: 'vine' },
-            { v: 'youtube', e: 'youtube' },
+            { v: 'youtube', e: 'youtube' }
         ].forEach(function(testCase) {
             it('should return ' + testCase.e + ' when the type ' + testCase.v + ' is passed', function() {
                 MediaServiceV2.getMediaIcon(testCase.v).should.eql(testCase.e);
             });
         });
+    });
+
+    describe('MediaServiceV2.generateFilename', function() {
+
+        [true, 1, 2.2, false, null, undefined, [], {}].forEach(function(val) {
+            it('should throw error when an invalid value ' + val + ' is passed', function () {
+                MediaServiceV2.generateFilename.bind(val).should.throwError();
+            });
+        });
+
+        it('should append the extension of the original filename to the generated filename', function() {
+            var originalFilename = 'selfie.jpg';
+            MediaServiceV2.generateFilename(originalFilename).indexOf('.jpg').should.be.greaterThan(0);
+        });
+
+        it('should not append an extension to the generated filename when the original does not have one', function() {
+            var originalFilename = 'selfie';
+            MediaServiceV2.generateFilename(originalFilename).indexOf('.jpg').should.eql(-1);
+        });
+    });
+
+    describe('MediaServiceV2.generateMediaPath', function() {
+
+        it('should generate a path and filename with the correct extension of the original filename', function() {
+            var originalFilename = 'selfie.png';
+            var result = MediaServiceV2.generateMediaPath(originalFilename);
+            result.indexOf('.png').should.be.greaterThan(0);
+            result.indexOf('/media/').should.eql(0);
+        });
+    });
+
+    describe('MediaServiceV2.getStyleForPosition', function() {
+
+        ['left', 'right', 'center'].forEach(function(val) {
+            it('should provide a style when the position '+val+' is passed', function() {
+                MediaServiceV2.getStyleForPosition(val).length.should.be.greaterThan(0);
+            });
+        });
+
+        it('should return an empty string when passed an invalid position', function() {
+            MediaServiceV2.getStyleForPosition('somerandomthing').should.eql('');
+        });
+    });
+
+    describe('MediaServiceV2.getSupportedExtensions', function() {
+
+        it('should provide the default set of extensions', function() {
+            var exts = MediaServiceV2.getSupportedExtensions();
+            var expected = [
+                'jpg',
+                'jpeg',
+                'pdf',
+                'png',
+                'svg',
+                'webp',
+                'gif',
+                'mp4',
+                'ogg',
+                'ogv',
+                'webm'
+            ];
+            exts.length.should.eql(expected.length);
+            expected.forEach(function(ext) {
+                exts.indexOf(ext).should.not.eql(-1);
+            });
+        });
+    });
+
+    describe('MediaServiceV2.extractNextMediaFlag', function() {
+
+        it('should return null when no media flag is present in the content', function() {
+            var result = MediaServiceV2.extractNextMediaFlag('');
+            should(result).be.null;
+        });
+
+        it('should return null when there is not an end to the media flag', function() {
+            var result = MediaServiceV2.extractNextMediaFlag('^media_display_');
+            should(result).be.null;
+        });
+
+        it('should extract the media flag from the string and parse it', function() {
+            MediaServiceV2.extractNextMediaFlag('look here: ^media_display_1881181818/width:21px,height:22%^ hello world').should.eql({
+                id: '1881181818',
+                style: {
+                    width: '21px',
+                    height: '22%'
+                },
+                startIndex: 11,
+                endIndex: 58,
+                flag: '^media_display_1881181818/width:21px,height:22%^',
+                cleanFlag: 'media_display_1881181818/width:21px,height:22%'
+            });
+        });
+    });
+
+    describe('MediaServiceV2.getMediaFlag', function() {
+
+        it('should create a media flag when provided an id and style options', function() {
+            MediaServiceV2.getMediaFlag('190abc', {width: '100', height: 28}).should.eql('^media_display_190abc/width:100,height:28^');
+        });
+    });
+
+    describe('MediaServiceV2.getRenderer', function() {
+
+        it('should retrieve the renderer when provided a valid media URL', function() {
+            MediaServiceV2.getRenderer('//hello.world.jpg', false).should.not.be.null;
+        });
+
+        it('should return null when a media URL is provided that the registered renderers do not support', function() {
+            var result = MediaServiceV2.getRenderer('//hello.world.abc', false);
+            should(result).be.null;
+        });
+    });
+
+    describe('MediaService Renderer Registration', function() {
+        var renderer = function(){};
+
+        MediaServiceV2.isRegistered(renderer).should.eql(false);
     });
 });

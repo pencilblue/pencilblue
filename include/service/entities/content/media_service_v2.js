@@ -749,7 +749,7 @@ module.exports = function(pb) {
 
     /**
      * The default editor implementations all for three position values to declared
-     * for embeded media (none, left, right, center).  These values map to HTML
+     * for embedded media (none, left, right, center).  These values map to HTML
      * alignments.  This function retrieves the HTML style attribute for the
      * provided position.
      * @static
