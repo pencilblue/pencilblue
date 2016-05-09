@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
 */
 
 module.exports = function NewCommentModule(pb) {
-    
+
     //pb dependencies
     var util           = pb.util;
     var BaseController = pb.BaseController;
-    
+
     /**
      * Creates a new comment
      */
@@ -49,7 +49,7 @@ module.exports = function NewCommentModule(pb) {
                 cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'parameters missing'), code: 400});
                 return;
             }
-            
+
             if(post.content.length < 5) {
                 cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'comment text to short'), code: 415});
                 return;

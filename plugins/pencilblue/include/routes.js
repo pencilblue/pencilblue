@@ -180,7 +180,7 @@ module.exports = function Routes(pb){
             method: 'post',
             path: "/actions/user/manage_account/change_password",
             auth_required: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'manage_account', 'change_password.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'manage_account', 'change_password.js')
         },
         {
             method: 'post',
@@ -209,7 +209,7 @@ module.exports = function Routes(pb){
             method: 'get',
             path: "/actions/user/verify_email",
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'verify_email.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'user', 'verify_email.js')
         },
         {
             method: 'get',
@@ -229,7 +229,7 @@ module.exports = function Routes(pb){
             method: 'get',
             path: "/user/sign_up",
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'sign_up.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'sign_up.js')
         },
         {
             method: 'get',
@@ -244,7 +244,7 @@ module.exports = function Routes(pb){
             handler: 'login',
             path: "/user/login",
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'login.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'login.js')
         },
         {
             method: 'get',
@@ -953,7 +953,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'manage_users.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'manage_users.js')
         },
         {
             method: 'get',
@@ -961,7 +961,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'unverified_users.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'unverified_users.js')
         },
         {
             method: 'get',
@@ -969,7 +969,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js')
         },
         {
             method: 'get',
@@ -977,7 +977,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js')
         },
         {
             method: 'get',
@@ -985,7 +985,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'change_password.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'change_password.js')
         },
         {
             method: 'post',
@@ -1013,7 +1013,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_user.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_user.js')
         },
         {
             method: 'delete',
@@ -1021,7 +1021,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_unverified_user.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_unverified_user.js')
         },
         {
             method: 'get',
@@ -1029,7 +1029,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'verify_user.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'verify_user.js')
         },
         {
             method: 'post',
@@ -1037,7 +1037,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'change_password.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'change_password.js')
         },
         {
             method: 'get',
@@ -1045,7 +1045,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js')
         },
         {
             method: 'post',
@@ -1053,7 +1053,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js')
         },
 
         // SITE SETTINGS
@@ -1219,13 +1219,13 @@ module.exports = function Routes(pb){
             access_level: pb.SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'elements', 'wysiwyg.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'elements', 'wysiwyg.js')
       	},
         {
             handler: 'setLocale',
             path: "/user/locale",
             auth_required: false,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'locale_view_controller.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'user', 'locale_view_controller.js')
       	},
 
         //navigation
@@ -1486,6 +1486,35 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
+            path: "/api/content/media/:id/download",
+            handler: "downloadById",
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/media/:id/render",
+            handler: "renderById",
+            content_type: 'text/html',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/media/render",
+            handler: "renderByLocation",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+        {
+            method: 'get',
             path: "/api/content/media",
             handler: "getAll",
             content_type: 'application/json',
@@ -1493,6 +1522,38 @@ module.exports = function Routes(pb){
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+        {
+            method: 'delete',
+            path: "/api/content/media/:id",
+            handler: "delete",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
+        },
+        {
+            method: 'post',
+            path: "/api/content/media",
+            handler: "post",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js'),
+            request_body: ['multipart/form-data']
+        },
+        {
+            method: 'put',
+            path: "/api/content/media/:id",
+            handler: "put",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js'),
+            request_body: ['multipart/form-data']
         },
 
         //users
@@ -1504,6 +1565,68 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/users",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/users/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
+        },
+        {
+            method: 'delete',
+            path: "/api/users/:id",
+            handler: "delete",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
+        },
+
+        //comments
+        {
+            method: 'get',
+            path: "/api/content/comments",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/comments/:id",
+            handler: "get",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_WRITER,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
+        },
+        {
+            method: 'delete',
+            path: "/api/content/comments/:id",
+            handler: "delete",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
         }
     ];
 };

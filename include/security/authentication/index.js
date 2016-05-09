@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
 var util = require('../../util.js');
 
 module.exports = function AuthenticationModule(pb) {
-    
+
     /**
      *
      * @class UsernamePasswordAuthentication
      * @constructor
      */
     function UsernamePasswordAuthentication() {}
-    
+
     /**
      *
      * @method authenticate
@@ -79,7 +79,7 @@ module.exports = function AuthenticationModule(pb) {
      */
     function FormAuthentication() {}
     util.inherits(FormAuthentication, UsernamePasswordAuthentication);
-    
+
     /**
      * @method authenticate
      * @param {Object} postObj

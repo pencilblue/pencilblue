@@ -58,7 +58,7 @@ module.exports = function(pb) {
                     });
                 }
 
-                mediaDocument.icon = pb.MediaService.getMediaIcon(mediaDocument.media_type);
+                mediaDocument.icon = pb.MediaServiceV2.getMediaIcon(mediaDocument.media_type);
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, mediaDocument.name + ' ' + self.ls.g('admin.ADDED'), mediaDocument)});
             });
         });

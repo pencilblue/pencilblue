@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -196,11 +196,11 @@ module.exports = function PluginInstallJobModule(pb) {
                 var hasContextOnInstall = util.isFunction(mainModule.onInstallWithContext);
                 if (!util.isNullOrUndefined(mainModule) && (hasBasicOnInstall || hasContextOnInstall)) {
                     self.log("Executing %s 'onInstall' function", details.uid);
-                
+
                     if (hasBasicOnInstall) {
                         return mainModule.onInstall(callback);
                     }
-                    
+
                     mainModule.onInstallWithContext({ site: site }, callback);
                 }
                 else {

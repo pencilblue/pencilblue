@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ var util = require('../../util.js');
 var path = require('path');
 
 module.exports = function(pb) {
-    
+
     /**
      *
      * @class LockService
@@ -34,7 +34,7 @@ module.exports = function(pb) {
         if (!provider) {
             throw new Error('A valid lock provider is required. Please check your configuration. Set logging level to "silly" for more info');
         }
-        
+
         /**
          *
          * @property provider
@@ -42,7 +42,7 @@ module.exports = function(pb) {
          */
         this.provider = provider;
     }
-    
+
     /**
      * Attempts to acquire a semaphore with the given name
      * @method acquire
@@ -57,11 +57,11 @@ module.exports = function(pb) {
             cb = options;
             options = {};
         }
-        
+
         var opts = {
             timeout: options.timeout || pb.config.locks.timeout,
             payload: options.payload || {
-            
+
                 server: pb.ServerRegistration.generateServerKey(),
                 instance: pb.ServerRegistration.generateKey(),
                 date: new Date()
@@ -69,7 +69,7 @@ module.exports = function(pb) {
         };
         this.provider.acquire(name, opts, cb);
     };
-    
+
     /**
      * Retrieves the payload for the lock
      * @method get
@@ -79,7 +79,7 @@ module.exports = function(pb) {
     LockService.prototype.get = function(name, cb) {
         this.provider.get(name, cb);
     };
-    
+
     /**
      * Releases the lock
      * @method release
@@ -90,13 +90,13 @@ module.exports = function(pb) {
     LockService.prototype.release = function(name, options, cb) {
         this.provider.release(name, options, cb);
     };
-    
+
     /**
-     * Inspects the current PB configuration to determine what lock provider to 
+     * Inspects the current PB configuration to determine what lock provider to
      * instantiate and return
      * @static
      * @method loadProvider
-     * @return {LockProvider} An instance of a media provider or NULL when no 
+     * @return {LockProvider} An instance of a media provider or NULL when no
      * provider can be loaded.
      */
     LockService.loadProvider = function() {
@@ -106,7 +106,7 @@ module.exports = function(pb) {
         else if (pb.config.locks.provider === 'db') {
             return new pb.locks.providers.DbLockProvider();
         }
-        
+
         var instance = null;
         var paths = [path.join(pb.config.docRoot, pb.config.locks.provider), pb.config.locks.provider];
         for(var i = 0; i < paths.length; i++) {
@@ -121,6 +121,6 @@ module.exports = function(pb) {
         }
         return instance;
     };
-    
+
     return LockService;
 };

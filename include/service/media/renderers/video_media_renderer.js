@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -225,7 +225,7 @@ module.exports = function VideoMediaRendererModule(pb) {
 
         //construct HTML snippet
         var embedUrl = VideoMediaRenderer.getEmbedUrl(media.location);
-        var html = '<video ' + BaseMediaRenderer.getAttributeStr(options.attrs) +
+        var html = '<video ' + BaseMediaRenderer.getAttributeStr(options.attrs) + ' ' +
             BaseMediaRenderer.getStyleAttrStr(options.style) +
             ' controls><source src="' + HtmlEncoder.htmlEncode(embedUrl) + '"';
 
