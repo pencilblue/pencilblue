@@ -42,27 +42,7 @@ module.exports = function LocalizationModule(pb) {
      */
     Localization.prototype.render = function(cb) {
         var self = this;
-        var id = this.site;
-        var dao = new pb.DAO();
-        dao.loadByValue('uid', id, 'site', function(err, data) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-
-            var options = {};
-            if (data) {
-                options.isNew = false;
-                options.display = data.displayName.toString();
-                options.host = data.hostname.toString();
-                self.savedLocales = data.supportedLocales;
-                options.defaultLocale = data.defaultLocale;
-                options.isActive = data.active;
-                options.uid = data.uid;
-            }
-
-            setupAngularObj(self, cb);
-        });
-
+        setupAngularObj(self, cb);
     };
 
     function setupAngularObj(self, cb){
