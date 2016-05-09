@@ -156,7 +156,7 @@ module.exports = function DBManagerModule(pb) {
          * @return {Boolean} Whether the pool has been connected
          */
         this.hasConnected = function(name){
-            return dbs.hasOwnProperty(name);
+            return typeof dbs[name] !== 'undefined';
         };
 
         /**

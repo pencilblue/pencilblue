@@ -190,7 +190,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
     MemoryEntityService.prototype._set = function(key, value, cb) {
         var rawValue = null;
         var internalKey = MemoryEntityService.getKey(key, this.site, this.objType);
-        if (STORAGE.hasOwnProperty(internalKey)) {
+        if (STORAGE[internalKey]) {
             rawValue = STORAGE[internalKey];
             if (this.valueField == null) {
                 rawValue = value;

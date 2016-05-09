@@ -287,10 +287,10 @@ module.exports = function AdminNavigationModule(pb) {
      * @param {String} site
      */
     function getAdditionsInScope(additions, site) {
-        if (additions.hasOwnProperty(site)) {
+        if (additions[site]) {
             return util.clone(additions[site]);
         }
-        else if (additions.hasOwnProperty(pb.SiteService.GLOBAL_SITE)) {
+        else if (additions[pb.SiteService.GLOBAL_SITE]) {
             return util.clone(additions[pb.SiteService.GLOBAL_SITE]);
         }
         return util.clone(additions);
