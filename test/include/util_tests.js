@@ -1,5 +1,7 @@
 
 //dependencies
+var process = require('process');
+var semver = require('semver');
 var async  = require('async');
 var should = require('should');
 var path   = require('path');
@@ -1056,10 +1058,6 @@ describe('Util', function() {
                 Type3.staticFunc.should.eql(staticFuncFor3);
             });
 
-            it('prototype functions of the inheriting type that do not exist on the super prototype should remain in tact', function() {
-                Type3.prototype.getAll.should.eql(getAll);
-            });
-
             it('prototype functions of the super type that are not implemented by the inheriting type should be inherited', function() {
                 Type3.prototype.set.should.eql(Type1.prototype.set);
             });
@@ -1067,6 +1065,20 @@ describe('Util', function() {
             it('prototype functions of the inheriting type should not be overriden by the super type', function() {
                 Type3.prototype.get.should.eql(Type3.prototype.get);
             });
+
+            //I hate myself for this but there is a breaking change between v4 and v5 that causes a difference in behavior.
+            // Documenting it as a unit test.
+            var nodeVersion = semver.clean(process.version);
+            if (semver.satisfies(nodeVersion, '>=5')) {
+                it('Node >= 5 - prototype functions of the inheriting type that do not exist on the super prototype should remain in tact', function() {
+                    Type3.prototype.getAll.should.eql(getAll);
+                });
+            }
+            else {
+                it('Node < 5 - prototype functions of the inheriting type that do not exist on the super prototype should not remain in tact', function() {
+                    should(Type3.prototype.getAll).eql(undefined);
+                });
+            }
         });
     });
 });
