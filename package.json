@@ -46,6 +46,7 @@
     "winston": "2.2.0"
   },
   "devDependencies": {
+    "bower": "^1.7.9",
     "coveralls": "2.11.9",
     "del": "^2.2.0",
     "gulp": "^3.9.1",
