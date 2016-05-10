@@ -26,7 +26,7 @@ Installation
 
 [![LAUNCH ON OpenShift](http://launch-shifter.rhcloud.com/launch/LAUNCH ON.svg)](https://hub.openshift.com/quickstarts/deploy/159-pencilblue)
 
-The instructions below assume that Node.js [0.11, 5) and MongoDB [2, 3) are installed on your machine. If they are not then please visit http://nodejs.org and http://www.mongodb.org to install them.
+The instructions below assume that Node.js [0.11, 6] and MongoDB [2, 3) are installed on your machine. If they are not then please visit http://nodejs.org and http://www.mongodb.org to install them.
 
 ##### PencilBlue Command-line interface
  1. Install the pencilblue-cli module: ```sudo npm install -g pencilblue-cli```

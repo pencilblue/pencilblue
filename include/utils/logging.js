@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ var winston = require('winston');
 var util    = require('../util.js');
 
 module.exports = function LogFactory(config){
-    
+
     //verify that we have a valid logging configuration provided
     if (!util.isObject(config.logging)) {
         config.logging = {};
@@ -31,24 +31,24 @@ module.exports = function LogFactory(config){
         config.logging.level = "info";
     }
     if (!util.isArray(config.logging.transports)) {
-        
+
         //initialize transports with console by default
         config.logging.transports = [
             new (winston.transports.Console)({ level: config.logging.level, timestamp: true, label: cluster.worker ? cluster.worker.id : 'M'}),
         ];
-        
+
         //when a log file path is provided log to a file
         if (util.isString(config.logging.file)) {
-            
+
             //ensure the directory structure exists
             util.mkdirsSync(config.logging.file, true, util.cb);
-            
+
             //add the transport
             var fileTransport = new (winston.transports.File)({ filename: config.logging.file, level: config.logging.level, timestamp: true });
             config.logging.transports.push(fileTransport);
         }
     }
-    
+
     //configure winston
 	var logger =  new (winston.Logger)({
 	    transports: config.logging.transports,

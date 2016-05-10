@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,29 +27,22 @@ module.exports = function (pb) {
      * @constructor
      * @extends BaseController
      */
-    function MediaContentController() {};
+    function MediaContentController() {}
     util.inherits(MediaContentController, pb.BaseController);
 
     /**
      * Initializes the controller
-     * @method init
+     * @method initSync
      * @param {Object} context
-     * @param {Function} cb
      */
-    MediaContentController.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err) {
+    MediaContentController.prototype.initSync = function(/*context*/) {
 
-            /**
-             * An instance of MediaService that leverages the default media provider
-             * @property service
-             * @type {TopicService}
-             */
-            self.service = new pb.MediaService(null, context.site, true);
-
-            cb(err, true);
-        };
-        MediaContentController.super_.prototype.init.apply(this, [context, init]);
+        /**
+         * An instance of MediaService that leverages the default media provider
+         * @property service
+         * @type {MediaServiceV2}
+         */
+        this.service = new pb.MediaServiceV2(this.getServiceContext());
     };
 
     /**
@@ -57,7 +50,7 @@ module.exports = function (pb) {
      * @param {Function} cb
      */
     MediaContentController.prototype.render = function(cb) {
-        var self      = this;
+        var self = this;
 
         var mime = pb.RequestHandler.getMimeFromPath(this.req.url);
         if (mime) {
@@ -79,7 +72,6 @@ module.exports = function (pb) {
                     self.reqHandler.serve404();
                 }
                 else {
-                    pb.log.error('Failed to load media: MIME=%s PATH=%s', mime, mediaPath);
                     err.code = isNaN(err.code) ? 500 : err.code;
                     self.reqHandler.serveError(err);
                 }

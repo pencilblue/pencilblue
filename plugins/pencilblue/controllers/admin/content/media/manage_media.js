@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ module.exports = function(pb) {
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site),
                     pills: pills,
-                    media: pb.MediaService.formatMedia(mediaData)
+                    media: pb.MediaServiceV2.formatMedia(mediaData)
                 });
             //TODO: err first arg for style. User experience error when no pills?
             cb(angularObjects);

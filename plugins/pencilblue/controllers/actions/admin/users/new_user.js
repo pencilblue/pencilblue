@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,17 +16,17 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util        = pb.util;
     var UserService = pb.UserService;
-    
+
     /**
      * Creates a new user
      */
     function NewUser(){}
     util.inherits(NewUser, pb.BaseApiController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -36,14 +36,14 @@ module.exports = function(pb) {
     NewUser.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
+
             /**
-             * 
+             *
              * @property service
              * @type {UserService}
              */
             self.service = new UserService(self.getServiceContext());
-                
+
             cb(err, true);
         };
         NewUser.super_.prototype.init.apply(this, [context, init]);

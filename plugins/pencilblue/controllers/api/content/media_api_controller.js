@@ -18,12 +18,13 @@
 module.exports = function(pb) {
 
     //PB dependencies
-    var util         = pb.util;
-    var MediaService = pb.MediaService;
+    var util              = pb.util;
+    var MediaServiceV2    = pb.MediaServiceV2;
     var BaseObjectService = pb.BaseObjectService;
 
     /**
-     *
+     * Provides access to media descriptors and the content that backs them.  It also provides a mechanism for
+     * constructing snippets of HTML to more easily display content for various purposes.
      * @class MediaApiController
      * @constructor
      * @extends BaseApiController
@@ -32,39 +33,76 @@ module.exports = function(pb) {
     util.inherits(MediaApiController, pb.BaseApiController);
 
     /**
-     * Initializes the controller
+     * Initializes the controller by instantiating the service
      * @method initSync
      * @param {object} context
      */
-    MediaApiController.prototype.initSync = function(context) {
-        this.service = new MediaService(null, context.site, context.onlyThisSite);
+    MediaApiController.prototype.initSync = function(/*context*/) {
+        this.service = new MediaServiceV2(this.getServiceContext());
+    };
+
+
+    /**
+     * Renders HTML for a piece of media based on the location (URL or mediaId) and type.  The type is required if the
+     * fully qualified URL is not provided as the location
+     * @method renderByLocation
+     * @param {function} cb
+     */
+    MediaApiController.prototype.renderByLocation = function(cb) {
+        var options = MediaApiController.buildRenderOptionsFromQuery(this.query);
+        this.service.renderByLocation(options, MediaApiController.onMediaRenderComplete(cb));
     };
 
     /**
-     * Retrieves media
-     * @method getAll
-     * @param {Function} cb
+     * Renders HTML for a piece of media based on the ID of the media descriptor.
+     * @method renderById
+     * @param {function} cb
      */
-    MediaApiController.prototype.getAll = function(cb) {
+    MediaApiController.prototype.renderById = function(cb) {
+        var id = this.pathVars.id;
+        var options = MediaApiController.buildRenderOptionsFromQuery(this.query);
+        this.service.renderById(id, options, MediaApiController.onMediaRenderComplete(cb));
+    };
+
+    /**
+     * Downloads a piece of media by the media descriptor's ID
+     * @method downloadById
+     * @param {function} cb
+     */
+    MediaApiController.prototype.downloadById = function(cb) {
         var self = this;
-
-        var options = this.processQuery();
-        this.service.get(options, function(err, mediaArray) {
-            var wrapper = null;
-            if (mediaArray) {
-                wrapper = BaseObjectService.getPagedResult(mediaArray, mediaArray.length);
+        var id = this.pathVars.id;
+        this.service.getContentStreamById(id, function(err, streamWrapper) {
+            if (util.isError(err)) {
+                return cb(err);
             }
-            self.handleGet(cb)(err, wrapper);
-        });
-    };
+            if (!streamWrapper || !streamWrapper.stream) {
+                return cb(BaseObjectService.notFound());
+            }
 
-    /**
-     * Retrieves a single media item by ID
-     * @method get
-     * @param {Function} cb
-     */
-    MediaApiController.prototype.get = function(cb) {
-        this.service.loadById(this.pathVars.id, this.handleGet(cb));
+            //set the mime type if we can guess with a good level of certainty
+            if (streamWrapper.mime) {
+                self.res.setHeader('content-type', streamWrapper.mime);
+            }
+
+            //now pipe the stream out as the response
+            streamWrapper.stream.once('end', function() {
+                    //do nothing. content was streamed out and closed
+                })
+                .once('error', function(err) {
+
+                    //check for file level not found
+                    if (err.message.indexOf('ENOENT') === 0) {
+                        self.reqHandler.serve404();
+                    }
+                    else {//some provider error - just serve it up
+                        pb.log.error('Failed to load media: MIME=%s ID=%s', streamWrapper.mime, id);
+                        err.code = isNaN(err.code) ? 500 : err.code;
+                        self.reqHandler.serveError(err);
+                    }
+                })
+                .pipe(self.res);
+        });
     };
 
     /**
@@ -100,6 +138,46 @@ module.exports = function(pb) {
         return {
             where: where,
             failures: failures
+        };
+    };
+
+    /**
+     * When the rendering is complete this function can be called to serialize the
+     * result back to the client in the standard API wrapper format.
+     * @static
+     * @method onMediaRenderComplete
+     * @param {Function} cb
+     * @return {Function}
+     */
+    MediaApiController.onMediaRenderComplete = function(cb) {
+        return function(err, html) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            else if (!html) {
+                //serve 404 in non-traditional way.  This allows us to keep the response light.  We don't want to serve the
+                // whole 404 page for a snippet
+                return cb({
+                    code: 404,
+                    content: ''
+                });
+            }
+            cb({content: html});
+        };
+    };
+
+    /**
+     * Constructs the options for a query for render.
+     * @static
+     * @method buildRenderOptionsFromQuery
+     * @param {object} q
+     * @returns {{view: (*|string), type: *, location: *}}
+     */
+    MediaApiController.buildRenderOptionsFromQuery = function(q) {
+        return {
+            view: q.view || 'view',
+            type: q.type,
+            location: q.location
         };
     };
 
