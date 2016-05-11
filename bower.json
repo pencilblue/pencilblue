@@ -24,6 +24,10 @@
     "moment-picker": "~0.4.1",
     "moment": "~2.12.0",
     "rangy": "~1.3.0",
-    "to-markdown": "~3.0.0"
+    "to-markdown": "~3.0.0",
+    "fontawesome": "~4.6.2"
+  },
+  "resolutions": {
+    "angular": "~1.5.0"
   }
 }
