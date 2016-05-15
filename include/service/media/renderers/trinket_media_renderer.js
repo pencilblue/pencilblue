@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -217,7 +217,7 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * represented by the media Id
      */
     TrinketMediaRenderer.getEmbedUrl = function(mediaId) {
-        return 'https://trinket.io/embed/python/' + mediaId;
+        return mediaId.indexOf('http') === 0 ? mediaId : 'https://trinket.io/embed/python/' + mediaId;
     };
 
     /**

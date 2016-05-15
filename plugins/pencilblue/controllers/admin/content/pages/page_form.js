@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -119,7 +119,7 @@ module.exports = function(pb) {
             }
             data.page.page_topics = topics;
         }
-        
+
         var objects = {
             navigation: pb.AdminNavigation.get(this.session, ['content', 'pages'], this.ls, this.site),
             pills: self.getAdminPills(this.getActivePill(), this.ls, this.getActivePill(), data),

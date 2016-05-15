@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -190,7 +190,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
     MemoryEntityService.prototype._set = function(key, value, cb) {
         var rawValue = null;
         var internalKey = MemoryEntityService.getKey(key, this.site, this.objType);
-        if (STORAGE.hasOwnProperty(internalKey)) {
+        if (STORAGE[internalKey]) {
             rawValue = STORAGE[internalKey];
             if (this.valueField == null) {
                 rawValue = value;

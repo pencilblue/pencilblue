@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 var url     = require('url');
 var fs      = require('fs');
 var path    = require('path');
-var process = require('process');
 var async   = require('async');
 var domain  = require('domain');
 var Cookies = require('cookies');
@@ -71,6 +70,16 @@ module.exports = function RequestHandlerModule(pb) {
         'application/x-www-form-urlencoded': pb.FormBodyParser,
         'multipart/form-data': pb.FormBodyParser
     };
+
+    /**
+     * Provides the list of directories that are publicly available
+     * @private
+     * @static
+     * @readonly
+     * @property PUBLIC_ROUTE_PREFIXES
+     * @type {Array}
+     */
+    var PUBLIC_ROUTE_PREFIXES = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', '/favicon.ico', '/docs/', '/bower_components/'];
 
     /**
      * The fallback theme (pencilblue)
@@ -559,17 +568,19 @@ module.exports = function RequestHandlerModule(pb) {
      * Derives the locale and localization instance.
      * @method deriveLocalization
      * @param {Object} context
-     * @param {Object} context.session
+     * @param {Object} [context.session]
      * @param {String} [context.routeLocalization]
      */
     RequestHandler.prototype.deriveLocalization = function(context) {
         var opts = {};
 
         var sources = [
-            context.routeLocalization,
-            context.session.locale,
-            this.req.headers[pb.Localization.ACCEPT_LANG_HEADER]
+            context.routeLocalization
         ];
+        if (context.session) {
+            sources.push(context.session.locale);
+        }
+        sources.push(this.req.headers[pb.Localization.ACCEPT_LANG_HEADER]);
         if (this.siteObj) {
             opts.supported = Object.keys(this.siteObj.supportedLocales);
             sources.push(this.siteObj.defaultLocale);
@@ -597,8 +608,7 @@ module.exports = function RequestHandlerModule(pb) {
         var self = this;
         fs.readFile(absolutePath, function(err, content){
             if (err) {
-                self.serve404();
-                return;
+                return self.serve404();
             }
 
             //build response structure
@@ -658,9 +668,8 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Boolean} TRUE if mapped to a public resource directory, FALSE if not
      */
     RequestHandler.isPublicRoute = function(path){
-        var publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', '/favicon.ico', '/docs/', '/bower_components/'];
-        for (var i = 0; i < publicRoutes.length; i++) {
-            if (path.indexOf(publicRoutes[i]) == 0) {
+        for (var i = 0; i < PUBLIC_ROUTE_PREFIXES.length; i++) {
+            if (path.indexOf(PUBLIC_ROUTE_PREFIXES[i]) == 0) {
                 return true;
             }
         }
@@ -715,11 +724,12 @@ module.exports = function RequestHandlerModule(pb) {
         getActiveTheme(function(error, activeTheme) {
 
             //build out params for handlers
+            self.localizationService = self.localizationService || self.deriveLocalization({});
             var params = {
                 mime: self.themeRoute && self.themeRoute.content_type ? self.themeRoute.content_type : 'text/html',
                 error: err,
                 request: self.req,
-                localization: self.localization,
+                localization: self.localizationService,
                 activeTheme: activeTheme,
                 reqHandler: self,
                 errorCount: self.errorCount
@@ -1039,10 +1049,11 @@ module.exports = function RequestHandlerModule(pb) {
      * by gathering all initialization parameters and calling the controller's
      * "init" function.
      * @method doRender
-     * @param {Object} pathVars The URL path's variables
-     * @param {BaseController} cInstance An instance of the controller to be executed
-     * @param {Object} themeRoute
-     * @param {String} activeTheme The user set active theme
+     * @param {object} context
+     * @param {Object} context.pathVars The URL path's variables
+     * @param {BaseController} context.cInstance An instance of the controller to be executed
+     * @param {Object} context.themeRoute
+     * @param {String} context.activeTheme The user set active theme
      */
     RequestHandler.prototype.doRender = function(context) {
         var self  = this;

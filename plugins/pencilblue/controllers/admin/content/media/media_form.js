@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,10 +19,11 @@
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+    var MediaServiceV2 = pb.MediaServiceV2;
+
     /**
      * Interface for adding and editing media
      * @class MediaForm
@@ -33,6 +34,11 @@ module.exports = function(pb) {
 
     //statics
     var SUB_NAV_KEY = 'media_form';
+
+    MediaForm.prototype.initSync = function(/*context*/) {
+
+        this.service = new MediaServiceV2(this.getServiceContext());
+    };
 
     /**
     * @method render
@@ -57,13 +63,13 @@ module.exports = function(pb) {
                 self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.get('NEW_MEDIA'));
                 self.ts.registerLocal('acceptable_extensions', function(flag, cb) {
                     //get acceptable file extensions
-                    var extensions = pb.MediaService.getSupportedExtensions();
+                    var extensions = pb.MediaServiceV2.getSupportedExtensions();
                     for (var i = 0; i < extensions.length; i++) {
                         if (extensions[i].charAt(0) !== '.') {
                             extensions[i] = '.' + extensions[i];
                         }
                     }
-                    
+
                     cb(null, new pb.TemplateValue(extensions.join(','), false));
                 });
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
@@ -86,7 +92,7 @@ module.exports = function(pb) {
             else{
                 data.pills = pills;
             }
-            
+
             //TODO: err first arg for style. User experience error when no pills?
             cb(pb.ClientJs.getAngularObjects(data));
         });
@@ -95,6 +101,7 @@ module.exports = function(pb) {
     MediaForm.prototype.gatherData = function(vars, cb) {
         var self = this;
 
+        var media = null;
         var tasks = {
             tabs: function(callback) {
                 var tabs   =
@@ -116,15 +123,6 @@ module.exports = function(pb) {
                 callback(null, pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site));
             },
 
-            topics: function(callback) {
-                var opts = {
-                    select: pb.DAO.PROJECT_ALL,
-                    where: pb.DAO.ANYWHERE,
-                    order: {name: pb.DAO.ASC}
-                };
-                self.siteQueryService.q('topic', opts, callback);
-            },
-
             media: function(callback) {
                 if(!vars.id) {
                     return callback(null, {
@@ -132,10 +130,23 @@ module.exports = function(pb) {
                         site: self.site
                     });
                 }
+                self.service.get(vars.id, function(err, mediaEntity) {
+                    media = mediaEntity;
+                    callback(err, mediaEntity);
+                });
+            },
 
-                var mediaService = new pb.MediaService(null, self.site, true);
-                mediaService.loadById(vars.id, callback);
-            }
+            topics: function(callback) {
+                if (!media) {
+                    return callback(null, []);
+                }
+                var opts = {
+                    select: pb.DAO.PROJECT_ALL,
+                    where: pb.DAO.getIdInWhere(media.media_topics),
+                    order: {name: pb.DAO.ASC}
+                };
+                self.siteQueryService.q('topic', opts, callback);
+            },
         };
         async.series(tasks, cb);
     };
@@ -146,8 +157,8 @@ module.exports = function(pb) {
             return topics;
         }
 
-        for(i = 0; i < data.media.media_topics.length; i++) {
-            for(j = 0; j < data.topics.length; j++) {
+        for(var i = 0; i < data.media.media_topics.length; i++) {
+            for(var j = 0; j < data.topics.length; j++) {
                 if(pb.DAO.areIdsEqual(data.topics[j][pb.DAO.getIdField()], data.media.media_topics[i])) {
                     topics.push(data.topics[j]);
                     data.topics.splice(j, 1);

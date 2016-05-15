@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 var fs      = require('fs');
 var path    = require('path');
 var cluster = require('cluster');
-var process = require('process');
+var process = global.process || require('process');
 var util    = require('./util.js');
 var winston = require('winston');
 

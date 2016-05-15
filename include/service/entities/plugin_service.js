@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2016  PencilBlue, LLC
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 var fs      = require('fs');
 var npm     = require('npm');
 var path    = require('path');
-var process = require('process');
 var async   = require('async');
 var domain  = require('domain');
 var semver  = require('semver');
@@ -440,13 +439,13 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.purgeThemeSettings = function(pluginUid, cb) {
         var settingService = getPluginSettingService(this);
         settingService.purgeThemeSettings(pluginUid, cb);
-    }
+    };
 
     /**
      * Indicates if a plugin by the specified identifier is installed.
      *
      * @method isInstalled
-     * @param pluginIdentifer The identifier can either be an ObjectID or the
+     * @param {string} pluginIdentifier The identifier can either be an ObjectID or the
      * plugin name
      * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
      * TRUE if the plugin is installed, FALSE if not.
@@ -477,7 +476,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.getPluginBySite = function(pluginIdentifier, cb) {
         this._pluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
-    }
+    };
 
     /**
      * Retrieves the plugins that have themes associated with them
@@ -495,7 +494,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.getPluginsWithThemesBySite = function(cb) {
         this._pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
-    }
+    };
 
     /**
      * Convenience function to generate a service to handle settings for a plugin.
@@ -1292,10 +1291,14 @@ module.exports = function PluginServiceModule(pb) {
 
                     //attempt to make connection
                     var d = domain.create();
-                    d.on('error', function(err) {
+                    var onDone = function(err, result) {
+                        d.removeAllListeners('error');
+                        callback(err, result);
+                    };
+                    d.once('error', function(err) {
                         if (timeoutProtect) {
                             clearTimeout(timeoutProtect);
-                            callback(err, false);
+                            onDone(err, false);
                         }
                         else {
                             pb.log.error('PluginService:[INIT] Plugin %s failed to start. %s', details.uid, err.stack);
@@ -1321,7 +1324,7 @@ module.exports = function PluginServiceModule(pb) {
                                 pb.log.debug('PluginService:[INIT] Plugin %s onStartup returned with result: %s', details.uid, didStart);
 
                                 clearTimeout(timeoutProtect);
-                                callback(err, didStart);
+                                onDone(err, didStart);
                             }
                         }
                     });
@@ -1455,7 +1458,7 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
 
         //verify parameters
-        if (!pb.validation.validateNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
+        if (!pb.ValidationService.isNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
             return cb(new Error('The plugin directory name and the dependencies are required'));
         }
 
@@ -1566,14 +1569,11 @@ module.exports = function PluginServiceModule(pb) {
             var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
                 return function(callback) {
 
-                    var modVer  = keys[i]+'@'+dependencies[keys[i]];
-                    var command = [modVer];
+                    var command = [ keys[i]+'@'+dependencies[keys[i]] ];
                     npm.commands.install(command, callback);
                 };
             });
-            async.series(tasks, function(err, results) {
-                onDone(err, results);
-            });
+            async.series(tasks, onDone);
         });
     };
 

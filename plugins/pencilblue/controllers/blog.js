@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2016  PencilBlue, LLC
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ module.exports = function(pb) {
 
     BlogViewController.prototype.init = function(context, cb) {
         var self = this;
-        var init = function(err) {
+        var init = function(/*err*/) {
 
             //get content settings
             var contentService = new pb.ContentService({site: this.site});
@@ -87,7 +87,7 @@ module.exports = function(pb) {
         var opts = {
             render: true,
             limit: self.contentSettings.articles_per_page || 5,
-            order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}]
+            order: [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]]
         };
         self.service.getPublished(opts, cb);
     };

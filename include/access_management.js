@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -77,6 +77,41 @@ module.exports = function(pb) {
     SecurityService.ACCESS_ADMINISTRATOR = 4;
 
     /**
+     * Provides an array of all of the system roles.  It provides their numeric value as well as the unique string key
+     * @static
+     * @readonly
+     * @property SYSTEM_ROLES
+     * @type {Array}
+     */
+    SecurityService.SYSTEM_ROLES = Object.freeze([
+        {
+            key: 'ACCESS_USER',
+            localizationKey: 'generic.ACCESS_USER',
+            value: 0
+        },
+        {
+            key: 'ACCESS_WRITER',
+            localizationKey: 'generic.ACCESS_WRITER',
+            value: 1
+        },
+        {
+            key: 'ACCESS_EDITOR',
+            localizationKey: 'generic.ACCESS_EDITOR',
+            value: 2
+        },
+        {
+            key: 'ACCESS_MANAGING_EDITOR',
+            localizationKey: 'generic.ACCESS_MANAGING_EDITOR',
+            value: 3
+        },
+        {
+            key: 'ACCESS_ADMINISTRATOR',
+            localizationKey: 'generic.ACCESS_ADMINISTRATOR',
+            value: 4
+        }
+    ]);
+
+    /**
      *
      * @private
      * @static
@@ -94,12 +129,10 @@ module.exports = function(pb) {
      * @property ROLE_VAL_TO_NAME
      * @type {Array}
      */
-    var ROLE_VAL_TO_NAME = {};
-    ROLE_VAL_TO_NAME[SecurityService.ACCESS_USER]            = 'ACCESS_USER';
-    ROLE_VAL_TO_NAME[SecurityService.ACCESS_WRITER]          = 'ACCESS_WRITER';
-    ROLE_VAL_TO_NAME[SecurityService.ACCESS_EDITOR]          = 'ACCESS_EDITOR';
-    ROLE_VAL_TO_NAME[SecurityService.ACCESS_MANAGING_EDITOR] = 'ACCESS_MANAGING_EDITOR';
-    ROLE_VAL_TO_NAME[SecurityService.ACCESS_ADMINISTRATOR]   = 'ACCESS_ADMINISTRATOR';
+    var ROLE_VAL_TO_NAME = SecurityService.SYSTEM_ROLES.reduce(function(prev, curr) {
+        prev[curr.value] = curr.key;
+        return prev;
+    }, {});
 
     /**
      *
@@ -143,13 +176,10 @@ module.exports = function(pb) {
             throw new Error('The localization parameter cannot be null');
         }
 
-        return {
-            'ACCESS_USER': ls.g('generic.ACCESS_USER'),
-            'ACCESS_WRITER': ls.g('generic.ACCESS_WRITER'),
-            'ACCESS_EDITOR': ls.g('generic.ACCESS_EDITOR'),
-            'ACCESS_MANAGING_EDITOR': ls.g('generic.ACCESS_MANAGING_EDITOR'),
-            'ACCESS_ADMINISTRATOR': ls.g('generic.ACCESS_ADMINISTRATOR'),
-        };
+        return SecurityService.SYSTEM_ROLES.reduce(function(prev, curr) {
+            prev[curr.key] = ls.g(curr.localizationKey);
+            return prev;
+        }, {});
     };
 
     /**
@@ -247,7 +277,7 @@ module.exports = function(pb) {
      * One way encrypt a string
      *
      * @method encrypt
-     * @param {String} valString
+     * @param {String} valStr
      * #return {String} Encrypted string
      */
     SecurityService.encrypt = function(valStr) {

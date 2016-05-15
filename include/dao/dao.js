@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -105,7 +105,7 @@ module.exports = function DAOModule(pb) {
      * @param {String}   key        The key to search for
      * @param {*}        val        The value to search for
      * @param {String}   collection The collection to search in
-     * @param {Object}   opts Key value pair object to exclude the retrival of data
+     * @param {Object}   [opts] Key value pair object to exclude the retrieval of data
      * @param {Function} cb         Callback function
      */
     DAO.prototype.loadByValue = function(key, val, collection, opts, cb) {
@@ -335,6 +335,9 @@ module.exports = function DAOModule(pb) {
                 cursor.limit(options.limit);
             }
 
+            //ensure that an "id" value is provided
+            cursor.map(DAO.mapSimpleIdField);
+
             //log the result
             if(pb.config.db.query_logging){
                 var query = "DAO: %s %j FROM %s.%s WHERE %j";
@@ -355,7 +358,7 @@ module.exports = function DAOModule(pb) {
     };
 
     /**
-     * Retrieves a refernce to the DB with active connection
+     * Retrieves a reference to the DB with active connection
      * @method getDb
      * @param {Function} cb
      */
@@ -409,6 +412,7 @@ module.exports = function DAOModule(pb) {
 
             //execute persistence operation
             db.collection(dbObj.object_type).save(dbObj, options, function(err/*, writeOpResult*/) {
+                DAO.mapSimpleIdField(dbObj);
                 cb(err, dbObj);
             });
         });
@@ -755,6 +759,7 @@ module.exports = function DAOModule(pb) {
     /**
      * Creates a where clause that equates to select where [idProp] is in the
      * specified array of values.
+     * @deprecated
      * @static
      * @method getIDInWhere
      * @param {Array} objArray The array of acceptable values
@@ -772,7 +777,7 @@ module.exports = function DAOModule(pb) {
      * @static
      * @method getIdInWhere
      * @param {Array} objArray The array of acceptable values
-     * @param {String} idProp The property that holds a referenced ID value
+     * @param {String} [idProp] The property that holds a referenced ID value
      * @return {Object} Where clause
      */
     DAO.getIdInWhere = function(objArray, idProp) {
@@ -921,6 +926,12 @@ module.exports = function DAOModule(pb) {
 
         //update for current changes
         dbObject.last_modified = now;
+
+        // for the mongo implementation we ensure that the ID is also standardized.  We include the _id but prefer
+        // having a standard "id" to keep consistent across all DB platforms that we might support.
+        if (dbObject._id) {
+            dbObject.id = dbObject._id;
+        }
     };
 
     /**
@@ -964,6 +975,20 @@ module.exports = function DAOModule(pb) {
      */
     DAO.areIdsEqual = function(id1, id2) {
         return id1.toString() === id2.toString();
+    };
+
+    /**
+     * Used to help transition over to eliminating the MongoDB _id field.
+     * @static
+     * @method mapSimpleIdField
+     * @param doc
+     * @returns {object}
+     */
+    DAO.mapSimpleIdField = function(doc) {
+        if (typeof doc.id === 'undefined') {
+            doc.id = doc._id;
+        }
+        return doc;
     };
 
     //exports

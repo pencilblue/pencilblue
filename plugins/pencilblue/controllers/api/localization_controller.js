@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,12 +16,12 @@
 */
 
 module.exports = function LocalizationApiControllerModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
 
     /**
-     * 
+     *
      * @class LocalizationApiController
      * @constructor
      * @extends BaseController
@@ -30,7 +30,7 @@ module.exports = function LocalizationApiControllerModule(pb) {
     util.inherits(LocalizationApiController, pb.BaseController);
 
     /**
-     * Retrieves the translation file and converts it to a JSON.  It then formats 
+     * Retrieves the translation file and converts it to a JSON.  It then formats
      * it such that it is valid javascript that can be executed client side.
      * @method getAsScript
      * @param {Function} cb
@@ -38,7 +38,7 @@ module.exports = function LocalizationApiControllerModule(pb) {
     LocalizationApiController.prototype.getAsScript = function(cb) {
         var locale = this.query.locale || this.ls.language;
         var plugin = this.query.plugin;
-        
+
         var package = pb.Localization.getLocalizationPackage(locale, { plugin: plugin });
         var content = {
             content: 'var loc = ' + JSON.stringify(package) + ';',

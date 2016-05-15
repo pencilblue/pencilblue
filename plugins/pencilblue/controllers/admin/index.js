@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,11 +19,11 @@
 var async = require('async');
 
 module.exports = function AdminIndexControllerModule(pb) {
-    
+
     //pb dependencies
     var util            = pb.util;
     var SecurityService = pb.SecurityService;
-    
+
     /**
      * Interface for the admin dashboard
      * @class AdminIndexController

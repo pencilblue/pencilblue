@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -84,7 +84,7 @@ module.exports = function RedisCommandBrokerModule(pb) {
         var clients = [this.subscribeClient, this.publishClient, ];
         for (var i = 0; i < clients.length; i++) {
             try {
-                clients[i].end();
+                clients[i].quit();
             }
             catch(e) {
                 pb.log.silly('RedisCommandBroker: Error shutting down client: %s', e.stack);

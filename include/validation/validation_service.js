@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -166,7 +166,7 @@ module.exports = function ValidationModule(pb) {
 
         return util.isString(value) && value.search(VERSION_REGEX) !== -1;
     };
-    
+
     /**
      * Validates a version expression
      *
@@ -430,6 +430,6 @@ module.exports = function ValidationModule(pb) {
         }
         return util.isDate(val) && !isNaN(val.getTime());
     };
-    
+
     return ValidationService;
 };

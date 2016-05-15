@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,36 +19,36 @@
 var util = require('../../../util.js');
 
 module.exports = function(pb) {
-    
+
     /**
      * A lock provider that leverages the DB to create semaphores
      * @class DbLockProvider
      * @constructor
      */
     function DbLockProvider() {}
-    
+
     /**
      *
      * @private
-     * @static 
+     * @static
      * @readonly
      * @property LOCK_COLLECTION
      * @type {String}
      */
     var LOCK_COLLECTION = 'lock';
-    
+
     /**
      *
      * @private
-     * @static 
+     * @static
      * @readonly
      * @property EXPECTED_ERROR_CODE
      * @type {Integer}
      */
     var EXPECTED_ERROR_CODE = 11000;
-    
+
     /**
-     * Attempts to acquire the lock with the given name.  
+     * Attempts to acquire the lock with the given name.
      * @method acquire
      * @param {String} name
      * @param {Object} [options={}]
@@ -61,10 +61,10 @@ module.exports = function(pb) {
             cb = options;
             options = {}
         }
-        
+
         //calculate the lock expiration
         var timeout = new Date(Date.now() + (options.timeout * 1000));
-        
+
         //try and acquire the lock
         var lock = {
             object_type: LOCK_COLLECTION,
@@ -76,14 +76,14 @@ module.exports = function(pb) {
         dao.save(lock, function(err, result) {
             if (util.isError(err)) {
                 pb.log.silly('DbLockProvider: Failed to insert lock document: CODE=%s\n%s', err.code, err.stack);
-                //when unique constraint error occurs send no error.  It means 
+                //when unique constraint error occurs send no error.  It means
                 //the lock exists
                 return cb(err.code === EXPECTED_ERROR_CODE ? null : err, false);
             }
             cb(null, true);
         });
     };
-    
+
     /**
      * Retrieves the payload for the lock
      * @method get
@@ -99,7 +99,7 @@ module.exports = function(pb) {
             cb(err, result);
         });
     };
-    
+
     /**
      * Releases the lock
      * @method release
@@ -112,13 +112,13 @@ module.exports = function(pb) {
             cb = options;
             options = {};
         }
-        
+
         var where = {
             name: name
         };
         var dao = new pb.DAO();
         dao.delete(where, LOCK_COLLECTION, cb);
     };
-    
+
     return DbLockProvider;
 };

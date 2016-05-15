@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,16 +19,16 @@
 var util = require('../../../util.js');
 
 module.exports = function(pb) {
-    
+
     /**
      * A lock provider that leverages the cache to create semaphores
      * @class CacheLockProvider
      * @constructor
      */
     function CacheLockProvider() {}
-    
+
     /**
-     * Attempts to acquire the lock with the given name.  
+     * Attempts to acquire the lock with the given name.
      * @method acquire
      * @param {String} name
      * @param {Object} [options={}]
@@ -41,20 +41,20 @@ module.exports = function(pb) {
             cb = options;
             options = {}
         }
-        
+
         //try and acquire the lock
         pb.cache.setnx(name, JSON.stringify(options.payload), function(err, reply) {
             if (util.isError(err) || !reply) {
-                return cb(err, false);   
+                return cb(err, false);
             }
-            
+
             //lock was created not ensure it will expire
             pb.cache.expire(name, options.timeout /*sec*/, function(err, result) {
                 cb(err, result ? true : false);
             });
         });
     };
-    
+
     /**
      * Retrieves the payload for the lock
      * @method get
@@ -74,7 +74,7 @@ module.exports = function(pb) {
             cb(err, result);
         });
     };
-    
+
     /**
      * Releases the lock
      * @method release
@@ -87,11 +87,11 @@ module.exports = function(pb) {
             cb = options;
             options = {};
         }
-        
+
         pb.cache.del(name, function(err, result) {
             cb(err, result ? true : false);
         });
     };
-    
+
     return CacheLockProvider;
 };
