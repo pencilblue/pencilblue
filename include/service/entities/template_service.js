@@ -34,10 +34,10 @@ module.exports = function(pb) {
      *
      * @class TemplateService
      * @constructor
-     * @module Services
-     * @submodule Entities
-     * @param {Object} [localizationService] The localization service object
-     * @param {String} siteUid context site for this service
+     * @param {Object} opts The localization service object
+     * @param {Localization} opts.ls
+     * @param {string} opts.activeTheme
+     * @param {string} opts.site
      */
     function TemplateService(opts){
         var localizationService;
@@ -126,7 +126,7 @@ module.exports = function(pb) {
 
         /**
          * @property settingService
-         * @type {SettingService}
+         * @type {SimpleLayeredService}
          */
         this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid);
 
@@ -144,8 +144,6 @@ module.exports = function(pb) {
     var TEMPLATE_PREFIX_LEN     = TEMPLATE_PREFIX.length;
     var LOCALIZATION_PREFIX     = 'loc_';
     var LOCALIZATION_PREFIX_LEN = LOCALIZATION_PREFIX.length;
-    var SYSTEM_PREFIX           = 'system_';
-    var SYSTEM_PREFIX_LEN       = SYSTEM_PREFIX.length;
 
     var TEMPLATE_LOADER = null;
 
@@ -279,7 +277,7 @@ module.exports = function(pb) {
      * @param {Boolean} reprocess
      */
     TemplateService.prototype.setReprocess = function(reprocess) {
-        this.reprocess = reprocess ? true : false;
+        this.reprocess = !!reprocess;
     };
 
     /**
@@ -316,7 +314,6 @@ module.exports = function(pb) {
 
         //build set of paths to search through
         var paths = [];
-        var themePath = null;
         var hintedTheme = this.getTheme();
         if (hintedTheme && !TemplateService.isTemplateBlacklisted(hintedTheme, relativePath)) {
             paths.push({
@@ -346,7 +343,7 @@ module.exports = function(pb) {
                 }
             }
 
-            //now add the defalt if appropriate
+            //now add the default if appropriate
             if (!TemplateService.isTemplateBlacklisted(pb.config.plugins.default, relativePath)) {
                 paths.push({
                     plugin: pb.config.plugins.default,
@@ -355,22 +352,22 @@ module.exports = function(pb) {
             }
 
             //iterate over paths until a valid template is found
-            var i        = 0;
+            var j        = 0;
             var doLoop   = true;
             var template = null;
             async.whilst(
-                function(){return i < paths.length && doLoop;},
+                function(){return j < paths.length && doLoop;},
                 function(callback) {
 
                     //attempt to load template
-                    TEMPLATE_LOADER.get(paths[i].path, function(err, templateData) {
+                    TEMPLATE_LOADER.get(paths[j].path, function(err, templateData) {
                         template = templateData;
                         doLoop   = util.isError(err) || !util.isObject(template);
                         if (doLoop) {
-                            TemplateService.blacklistTemplate(paths[i].plugin, relativePath);
+                            TemplateService.blacklistTemplate(paths[j].plugin, relativePath);
                         }
 
-                        i++;
+                        j++;
                         callback();
                     });
                 },
@@ -516,7 +513,6 @@ module.exports = function(pb) {
                 self.handleTemplateReplacement(flag, function(err, template) {
                     cb(null, template);
                 });
-                return;
             }
             else {
 
@@ -568,7 +564,7 @@ module.exports = function(pb) {
      *
      * @method handleReplacement
      * @param {string} flag The flag to transform
-     * @param {mixed} replacement The value can either be a function to handle the
+     * @param {*} replacement The value can either be a function to handle the
      * replacement or a value.
      * @param {function} cb Callback function
      */
@@ -580,7 +576,7 @@ module.exports = function(pb) {
             if (content instanceof TemplateValue) {
                 content = content.val();
             }
-            else if (util.isObject(content) || util.isString(content)){;
+            else if (util.isObject(content) || util.isString(content)){
                 content = HtmlEncoder.htmlEncode(content.toString());
             }
 
@@ -611,7 +607,7 @@ module.exports = function(pb) {
      * @method registerLocal
      * @param {string} flag The flag name to map to the value when encountered in a
      * template.
-     * @param {mixed} callbackFunctionOrValue The function to execute to perform the
+     * @param {*} callbackFunctionOrValue The function to execute to perform the
      * transformation or the value to substitute in place of the flag.
      * @return {Boolean} TRUE when registered successfully, FALSE if not
      */
@@ -661,7 +657,6 @@ module.exports = function(pb) {
             var flag = (prefix ? prefix + '.' : prefix) + key;
             if (util.isObject(value) && !(value instanceof TemplateValue)) {
 
-                var result = true;
                 util.forEach(value, function(value, key) {
                     queue.push({
                         key: key,
@@ -679,13 +674,12 @@ module.exports = function(pb) {
         while (queue.length > 0 && completedResult) {
             var item = queue.shift();
             completedResult &= register(item.prefix, item.key, item.value);
-        };
+        }
         return completedResult;
     };
 
     /**
      * Retrieves the content template names and locations for the active theme.
-     *
      * @method getTemplatesForActiveTheme
      * @param {function} cb A call back that provides two parameters: cb(err, [{templateName: templateLocation])
      */
@@ -722,12 +716,7 @@ module.exports = function(pb) {
 
                 var templates = [];
                 if (plugin && plugin.theme && plugin.theme.content_templates) {
-
-                    for (var j = 0; j < plugin.theme.content_templates.length; j++) {
-
-                        var template = plugin.theme.content_templates[j];
-                        templates.push(template);
-                    }
+                    util.arrayPushAll(plugin.theme.content_templates, templates);
                 }
                 cb(err, templates);
             });
@@ -759,7 +748,7 @@ module.exports = function(pb) {
      * @method isFlag
      * @param {String} content
      * @param {String} flag
-     * @return {String}
+     * @return {boolean}
      */
     TemplateService.isFlag = function(content, flag) {
         return util.isString(content) && (content.length === 0 || ('^'+flag+'^') === content);
@@ -791,9 +780,9 @@ module.exports = function(pb) {
      *
      * @static
      * @method registerGlobal
-     * @param {string} flag The flag name to map to the value when encountered in a
+     * @param {string} key The flag name to map to the value when encountered in a
      * template.
-     * @param {mixed} callbackFunctionOrValue The function to execute to perform the
+     * @param {*} callbackFunctionOrValue The function to execute to perform the
      * transformation or the value to substitute in place of the flag.
      * @return {Boolean} TRUE when registered successfully, FALSE if not
      */
@@ -821,6 +810,7 @@ module.exports = function(pb) {
      *
      * @static
      * @method getCustomPath
+     * @param {string} themeName
      * @param {string} templateLocation
      * @return {string} The absolute path
      */
@@ -842,14 +832,14 @@ module.exports = function(pb) {
      * @return {Array} The array template parts
      */
     TemplateService.compile = function(text, start, end) {
-        if (!pb.validation.validateNonEmptyStr(text, true)) {
+        if (!pb.ValidationService.isNonEmptyStr(text, true)) {
             pb.log.warn('TemplateService: Cannot parse the content because it is not a valid string: '+text);
             return [];
         }
-        if (!pb.validation.validateNonEmptyStr(start, true)) {
+        if (!pb.ValidationService.isNonEmptyStr(start, true)) {
             start = '^';
         }
-        if (!pb.validation.validateNonEmptyStr(end, true)) {
+        if (!pb.ValidationService.isNonEmptyStr(end, true)) {
             end = '^';
         }
 
@@ -862,10 +852,8 @@ module.exports = function(pb) {
         };
 
         var i;
-        var pipe      = 0;
         var flag      = null;
-        var static    = null;
-        var flagFound = 0;
+        var staticContent = null;
         var compiled  = [];
         while ( (i = text.indexOf(start)) >= 0) {
 
@@ -875,11 +863,11 @@ module.exports = function(pb) {
 
                 //determine precursing static content & flag
                 flag   = text.substring(start_pos, end_pos);
-                static = text.substring(0, start_pos - start.length);
+                staticContent = text.substring(0, start_pos - start.length);
 
                 //add the static content
-                if (static) {
-                    compiled.push(genPiece(TEMPLATE_PIECE_STATIC, static));
+                if (staticContent) {
+                    compiled.push(genPiece(TEMPLATE_PIECE_STATIC, staticContent));
                 }
 
                 //add the flag
@@ -938,7 +926,7 @@ module.exports = function(pb) {
      * instructions.
      * @class TemplateValue
      * @constructor
-     * @param {String} The raw value to be included in the template processing
+     * @param {String} {val} The raw value to be included in the template processing
      * @param {Boolean} [htmlEncode=true] Indicates if the value should be
      * encoded during serialization.
      */
