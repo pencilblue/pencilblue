@@ -1,6 +1,7 @@
 .jshintrc
 .project
 .idea
+.vscode
 public/media/
 public/docs/
 public/bower_components/

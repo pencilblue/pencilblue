@@ -1049,10 +1049,11 @@ module.exports = function RequestHandlerModule(pb) {
      * by gathering all initialization parameters and calling the controller's
      * "init" function.
      * @method doRender
-     * @param {Object} pathVars The URL path's variables
-     * @param {BaseController} cInstance An instance of the controller to be executed
-     * @param {Object} themeRoute
-     * @param {String} activeTheme The user set active theme
+     * @param {object} context
+     * @param {Object} context.pathVars The URL path's variables
+     * @param {BaseController} context.cInstance An instance of the controller to be executed
+     * @param {Object} context.themeRoute
+     * @param {String} context.activeTheme The user set active theme
      */
     RequestHandler.prototype.doRender = function(context) {
         var self  = this;
