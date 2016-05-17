@@ -386,7 +386,7 @@ module.exports = function CommandServiceModule(pb) {
      * @method sendInResponseTo
      * @param {Object} command The command that was sent to ths process
      * @param {Object} responseCommand The command to send back to the entity that sent the first command.
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Command ID)
+     * @param {Function} [cb] A callback that provides two parameters: cb(Error, Command ID)
      */
     CommandService.prototype.sendInResponseTo = function (command, responseCommand, cb) {
         if (!util.isObject(command)) {

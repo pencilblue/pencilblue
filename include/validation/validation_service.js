@@ -117,10 +117,10 @@ module.exports = function ValidationModule(pb) {
 
     /**
      * Validates an email address
-     *
+     * @deprecated
      * @method validateEmail
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.validateEmail = function(value, required) {
         return ValidationService.isEmail(value, required);
@@ -131,7 +131,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isEmail
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isEmail = function(value, required) {
         if (!value && !required) {
@@ -146,7 +146,7 @@ module.exports = function ValidationModule(pb) {
      * @deprecated
      * @method validateVersionNum
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.validateVersionNum = function(value, required) {
         return ValidationService.isVersionNum(value, required);
@@ -157,7 +157,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isVersionNum
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isVersionNum = function(value, required) {
         if (!value && !required) {
@@ -172,7 +172,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isVersionExpression
      * @param {String} expression
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isVersionExpression = function(expression, required) {
         if (!expression && !required) {
@@ -186,7 +186,7 @@ module.exports = function ValidationModule(pb) {
      * @deprecated
      * @method validateUrl
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.validateUrl = function(value, required) {
         return ValidationService.isUrl(value, required);
@@ -197,7 +197,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isUrl
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isUrl = function(value, required) {
         if (!value && !required) {
@@ -212,7 +212,7 @@ module.exports = function ValidationModule(pb) {
      * @deprecated
      * @method validateSafeFileName
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.validateSafeFileName = function(value, required) {
         return ValidationService.isSafeFileName(value, required);
@@ -223,7 +223,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isSafeFileName
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isSafeFileName = function(value, required) {
         if (!value && !required) {
@@ -238,7 +238,7 @@ module.exports = function ValidationModule(pb) {
      * @deprecated
      * @method validateStr
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.validateStr = function(value, required) {
         return ValidationService.isStr(value, required);
@@ -249,7 +249,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isStr
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isStr = function(value, required) {
         if (!value && !required) {
@@ -263,7 +263,7 @@ module.exports = function ValidationModule(pb) {
      * @deprecated
      * @method validateNonEmptyStr
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.validateNonEmptyStr = function(value, required) {
         return ValidationService.isNonEmptyStr(value, required);
@@ -274,7 +274,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isNonEmptyStr
      * @param {String} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isNonEmptyStr = function(value, required) {
         if (!value && !required) {
@@ -288,7 +288,7 @@ module.exports = function ValidationModule(pb) {
      * @deprecated
      * @method validateArray
      * @param {Array} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.validateArray = function(value, required) {
         return ValidationService.isArray(value, required);
@@ -299,7 +299,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isArray
      * @param {Array} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isArray = function(value, required) {
         if (!value && !required) {
@@ -313,7 +313,7 @@ module.exports = function ValidationModule(pb) {
      * @deprecated
      * @method validateObject
      * @param {Object} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.validateObject = function(value, required) {
         return ValidationService.isObj(value, required);
@@ -324,7 +324,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isObject
      * @param {Object} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isObj = function(value, required) {
         if (!value && !required) {
@@ -340,7 +340,7 @@ module.exports = function ValidationModule(pb) {
      * @param {Integer} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
-     * @param {Boolean} Indicates if the value must be a number rather than a string representing a number.
+     * @param {Boolean} strict Indicates if the value must be a number rather than a string representing a number.
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     ValidationService.isInt = function(val, required, strict) {
@@ -359,10 +359,10 @@ module.exports = function ValidationModule(pb) {
      * Validates that the value is a float.
      * @static
      * @method isFloat
-     * @param {Float} val The value under test
+     * @param {number} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
-     * @param {Boolean} Indicates if the value must be a number rather than a string representing a number.
+     * @param {Boolean} strict Indicates if the value must be a number rather than a string representing a number.
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     ValidationService.isFloat = function(val, required, strict) {
@@ -370,7 +370,7 @@ module.exports = function ValidationModule(pb) {
             return true;
         }
 
-        var parsed = parseFloat(val, 10);
+        var parsed = parseFloat(val);
         if (strict && val !== parsed) {
             return false;
         }
@@ -422,6 +422,7 @@ module.exports = function ValidationModule(pb) {
      * @static
      * @method isDate
      * @param {*} val The value under test
+     * @param {boolean} [required=false]
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     ValidationService.isDate = function(val, required) {
