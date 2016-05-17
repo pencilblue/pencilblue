@@ -172,7 +172,7 @@ Util.getTasks = function (iterable, getTaskFunction) {
  * prototype function needs to be called with a specific context.
  * @static
  * @method wrapTask
- * @param {Function} context The value of "this" for the function to be called
+ * @param {*} context The value of "this" for the function to be called
  * @param {Function} func The function to be executed
  * @param {Array} [argArray] The arguments to be supplied to the func parameter
  * when executed.

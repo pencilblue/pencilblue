@@ -1038,7 +1038,7 @@ module.exports = function PluginServiceModule(pb) {
                 return cb(err);
             }
             else if (!util.isArray(plugins)) {
-                var err = new Error('An array of plugins was expected but found ['+(typeof plugins)+']['+util.inspect(plugins)+'] instead.');
+                err = new Error('An array of plugins was expected but found ['+(typeof plugins)+']['+util.inspect(plugins)+'] instead.');
                 pb.log.error('PluginService %s', err.stack);
                 return cb(err, plugins);
             }
@@ -1064,26 +1064,6 @@ module.exports = function PluginServiceModule(pb) {
                 };
             });
             async.series(tasks, function(err, results) {
-
-                for (var i = 0; i < results.length; i++) {
-
-                    var result = results[i];
-                    if (result.initialized === true) {
-                        pb.log.debug('PluginService: Plugin [%s] was successfully initialized', result.plugin.name);
-                    }
-                    else {
-                        pb.log.warn('PluginService: Plugin [%s] failed to initialize. INITIALIZED=%s', result.plugin.name, result.initialized);
-                    }
-                    if (result.error) {
-                        pb.log.error('PluginService: The following error was produced while initializing the %s plugin: %s', result.plugin.name, result.error.stack);
-                        if (util.isArray(result.error.validationErrors)) {
-                            result.error.validationErrors.forEach(function(item) {
-                                pb.log.warn('PluginService: Plugin %s validation error: %s', result.plugin.uid, item.toString());
-                            });
-                        }
-                    }
-                }
-
                 cb(err, true);
             });
         });
@@ -1092,31 +1072,37 @@ module.exports = function PluginServiceModule(pb) {
     /**
      * Initializes a plugin during startup or just after a plugin has been installed.
      * @method initPlugin
-     * @param {plugin} plugin The plugin details
+     * @param {object} plugin The plugin details
      * @param {function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     PluginService.prototype.initPlugin = function(plugin, cb) {
-        var self = this;
-
         if (typeof plugin !== 'object') {
-            cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initilize the plugin'), null);
-            return;
+            return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initilize the plugin'), null);
         }
 
         pb.log.debug("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
 
         var tasks = this.getInitTasksForPlugin(plugin);
 
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err/*, results*/) {
             //cleanup on error
             if (util.isError(err)) {
                 delete ACTIVE_PLUGINS[plugin.uid];
+
+                //log it all
+                var hasValidationErrs = !!err.validationErrors;
+                pb.log.error('PluginService:[%s] failed to initialize: %s', plugin.uid, hasValidationErrs ? err.message : err.stack);
+                if (hasValidationErrs) {
+                    err.validationErrors.forEach(function(validationError) {
+                        pb.log.error('PluginService:[%s] details.json validation error FIELD=%s MSG=%s', plugin.uid, validationError.field, validationError.message);
+                    });
+                }
+            }
+            else {
+                pb.log.debug('PluginService:[%s] successfully initialized', plugin.name, plugin.uid);
             }
 
-            //callback with final result
-            var success = !util.isError(err);
-            pb.log.info('PluginService: Initialized plugin %s (%s). RESULT=[%s]', plugin.name, plugin.uid, success);
-            cb(err, success);
+            cb(err, !util.isError(err));
         });
     };
 
@@ -1427,14 +1413,14 @@ module.exports = function PluginServiceModule(pb) {
                         return callback(null, false)
                     }
                     var pluginDirSatisfied = checkPackageVersion(packagePath);
-                    var rootDirSatsified = checkPackageVersion(rootPackagePath);
+                    var rootDirSatisfied = checkPackageVersion(rootPackagePath);
 
-                    if(!pluginDirSatisfied && !rootDirSatsified) {
+                    if(!pluginDirSatisfied && !rootDirSatisfied) {
                         hasDependencies = false;
                         pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, plugin.version, keys[i]);
                     }
 
-                    callback(null, pluginDirSatisfied || rootDirSatsified);
+                    callback(null, pluginDirSatisfied || rootDirSatisfied);
                 });
             };
         });
@@ -1811,250 +1797,20 @@ module.exports = function PluginServiceModule(pb) {
             return;
         }
 
-        //setup
-        var errors = [];
-        var v      = pb.ValidationService;
-
-        //validate uid
-        if (!v.isSafeFileName(details.uid, true)) {
-            errors.push("The uid field must be provided and can only contain alphanumerics, underscores, and dashes");
-        }
-
-        //validate display name
-        if (!v.isNonEmptyStr(details.name, true)) {
-            errors.push("An invalid name ["+details.name+"] was provided");
-        }
-
-        //validate description
-        if (!v.isNonEmptyStr(details.description, true)) {
-            errors.push("A valid description must be provided");
-        }
-
-        //validate version
-        if (!v.isVersionNum(details.version, true)) {
-            errors.push("An invalid version number ["+details.version+"] was provided.  Must match the form: xx.xx.xx");
-        }
-
-        if (util.isString(details.pb_version)) {
-            if (!v.isVersionExpression(details.pb_version, true)) {
-                errors.push('An invalid version expression "' + details.pb_version + '" was provided.');
+        var validationService = new pb.PluginValidationService({});
+        validationService.validate(details, {}, function(err, validationErrors) {
+            if (util.isError(err)) {
+                return cb(err);
             }
 
-            //validate pb_version in config against pb version
-            else if (!semver.satisfies(pb.config.version, details.pb_version)) {
-                errors.push("Version " + details.pb_version + " is incompatible with PencilBlue version " + pb.config.version);
+            //check for validation error
+            validationErrors = validationErrors || [];
+            if (validationErrors.length > 0) {
+                err = new Error("Failed to validate plugin details");
+                err.validationErrors = validationErrors;
             }
-        }
-
-
-
-        //validate icon
-        if (details.icon) {
-            if (!util.isString(details.icon) || !PluginService.validateIconPath(details.icon, pluginDirName)) {
-                errors.push("The optional plugin icon must be a valid path to an image");
-            }
-        }
-
-        //validate author block
-        if (details.author) {
-            var author = details.author;
-
-            //validate name
-            if (!v.isNonEmptyStr(author.name, true)) {
-                errors.push("A valid author name must be provided");
-            }
-
-            //validate email
-            if (!v.isEmail(author.email, true)) {
-                errors.push("A valid author email must be provided");
-            }
-
-            //validate website
-            if (!v.isUrl(author.website, false)) {
-                errors.push("The website address is not a valid URL");
-            }
-
-            //validate contributors
-            if (author.contributors) {
-                if (v.isArray(author.contributors, true)) {
-
-                    for (var i = 0; i < author.contributors.length; i++) {
-
-                        var cont = author.contributors[i];
-                        if (v.isObj(cont, true)) {
-
-                            //validate contributor name
-                            if (!v.isNonEmptyStr(cont.name, true)) {
-                                errors.push("The contributor name at position "+i+" must be provided");
-                            }
-
-                            //validate contributor email
-                            if (!v.isEmail(cont.email, false)) {
-                                errors.push("The contributor email at position "+i+" is invalid");
-                            }
-                        }
-                        else {
-                            errors.push("The contributor at position "+i+" must be an object");
-                        }
-                    }
-                }
-                else {
-                    errors.push("The author contributors block must be an array");
-                }
-            }
-        }
-        else {
-            errors.push("The author block is required");
-        }
-
-        //validate plugin settings
-        if (details.settings) {
-
-            if (v.isArray(details.settings, true)) {
-
-                //validate each setting
-                for (var i = 0; i < details.settings.length; i++) {
-
-                    //set any errors derived
-                    var settingErrs = PluginService.validateSetting(details.settings[i], i);
-                    for (var j = 0; j < settingErrs.length; j++) {
-                        errors.push(settingErrs[j]);
-                    }
-                }
-            }
-            else {
-                errors.push("The settings block must be an array");
-            }
-        }
-
-        //validate permissions
-        if (v.isObj(details.permissions, true)) {
-
-            var validKeys = {"ACCESS_USER": 1, "ACCESS_WRITER": 1, "ACCESS_EDITOR": 1, "ACCESS_MANAGING_EDITOR": 1};
-            for (var key in details.permissions) {
-
-                //validate permission key
-                if (validKeys[key] === undefined) {
-                    errors.push(new Error("An invalid permissions map key ["+key+"] was provided"));
-                }
-                else {
-                    var val = details.permissions[key];
-                    if (v.isArray(val, true)) {
-
-                        for (var i = 0; i < details.permissions[key].length; i++) {
-                            if (!v.isNonEmptyStr(details.permissions[key][i], true)) {
-                                errors.push("The value at position "+i+" for permissions map key ["+key+"] is invalid");
-                            }
-                        }
-                    }
-                    else {
-                        errors.push("Permissions map key ["+key+"] was provided must provide an array of permissions");
-                    }
-                }
-            }
-        }
-        else {
-            errors.push("The permissions block is required and must be an object");
-        }
-
-        //validate main module
-        if (v.isObj(details.main_module, true)) {
-
-            if (!PluginService.validateMainModulePath(details.main_module.path, pluginDirName)) {
-                errors.push("An invalid main module path and/or file was provided");
-            }
-        }
-        else {
-            errors.push("The main module block is required and must be an object");
-        }
-
-        //validate theme
-        if (details.theme) {
-
-            if (v.isObj(details.theme, true)) {
-
-                //validate settings block
-                if (details.theme.settings) {
-
-                    if (v.isArray(details.theme.settings, true)) {
-
-                        //validate each setting
-                        for (var i = 0; i < details.theme.settings.length; i++) {
-
-                            //set any errors derived
-                            var settingErrs = PluginService.validateSetting(details.theme.settings[i], i);
-                            for (var j = 0; j < settingErrs.length; j++) {
-                                errors.push(settingErrs[j]);
-                            }
-                        }
-                    }
-                    else {
-                        errors.push("The theme settings block must be an array");
-                    }
-                }
-
-                //validate theme content templates
-                if (details.theme.content_templates) {
-
-                    if (v.isArray(details.theme.content_templates, true)) {
-
-                        //validate each content template
-                        for (var i = 0; i < details.theme.content_templates.length; i++) {
-
-                            var template = details.theme.content_templates[i];
-                            if (v.isObj(template, true)) {
-
-                                //validate content template name
-                                if (!v.isNonEmptyStr(template.name, true)) {
-                                    errors.push("The content template name at position "+i+" is invalid");
-                                }
-
-                                //validate content template file
-                                if (!v.isSafeFileName(template.file, true)) {
-                                    errors.push("The content template file at position "+i+" is invalid");
-                                }
-                            }
-                            else {
-                                errors.push("The content template at position "+i+" is invalid");
-                            }
-                        }
-                    }
-                    else {
-                        errors.push("The content templates property must be an array");
-                    }
-                }
-            }
-            else {
-                errors.push("The theme block must be an object");
-            }
-        }
-
-        //validate the plugin's dependencies
-        if (details.dependencies) {
-            if (!util.isObject(details.dependencies)) {
-                errors.push("The dependencies block must be an object");
-            }
-            else {
-                for (var moduleName in details.dependencies) {
-                    if (!pb.ValidationService.isNonEmptyStr(details.dependencies[moduleName], true)) {
-                        errors.push("An invalid dependencies ["+moduleName+"] with version ["+(typeof details.dependencies[moduleName])+"]["+details.dependencies[moduleName]+"] was found");
-                    }
-                }
-            }
-        }
-
-        //prepare validation response
-        var error   = null;
-        var isError = errors.length > 0;
-        if (isError) {
-            error = new Error("Faled to validate plugin details");
-            error.validationErrors = errors;
-            //log the validation errors
-            errors.forEach(function(validationError) {
-                pb.log.error('PluginService:[%s] %s', details.uid, validationError);
-            });
-        }
-        cb(error, !isError);
+            cb(err, validationErrors.length === 0);
+        });
     };
 
     /**

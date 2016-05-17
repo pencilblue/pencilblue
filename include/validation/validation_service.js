@@ -27,8 +27,6 @@ module.exports = function ValidationModule(pb) {
      *
      * @class ValidationService
      * @constructor
-     * @module Services
-     * @submodule Validation
      */
     function ValidationService(){}
 

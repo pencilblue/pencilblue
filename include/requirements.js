@@ -275,5 +275,7 @@ module.exports = function PB(config) {
     pb.MediaLoader           = ArticleServiceModule.MediaLoader;
     pb.CommentService        = require(config.docRoot+'/include/theme/comments.js')(pb);
 
+    pb.PluginValidationService = require(path.join(config.docRoot, '/include/service/entities/plugins/plugin_validation_service.js'))(pb);
+
     return pb;
 };
