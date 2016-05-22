@@ -1708,6 +1708,18 @@ module.exports = function Routes(pb){
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/content/media/form.js'),
             content_type: 'text/html'
+        },
+
+        // USERS
+
+        {
+            method: 'get',
+            path: "/admin-new/users",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/users/index.js'),
+            content_type: 'text/html'
         }
     ];
 };

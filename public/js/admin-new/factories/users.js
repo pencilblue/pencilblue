@@ -82,7 +82,7 @@
       },
 
       saveNewUser: function(user, cb) {
-        var user = this.User.saveNew({}, user, function() {
+        this.User.saveNew({}, user, function() {
           cb(null, user);
         }, function(error) {
           cb(error);

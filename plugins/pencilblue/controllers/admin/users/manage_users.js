@@ -82,7 +82,7 @@ module.exports = function(pb) {
     };
 
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageUsers.getSubNavItems);
+    //pb.AdminSubnavService.registerFor(SUB_NAV_KEY, ManageUsers.getSubNavItems);
 
     //exports
     return ManageUsers;

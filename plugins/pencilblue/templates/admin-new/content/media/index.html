@@ -29,7 +29,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr class="clickable" ng-repeat="mediaItem in media track by mediaItem._id" ng-click="gotoMedia(mediaItem)" ng-if="!mediaItem.hidden && !mediaItem.paginated">
+                <tr class="clickable" ng-repeat="mediaItem in media" ng-click="gotoMedia(mediaItem)" ng-if="!mediaItem.hidden && !mediaItem.paginated">
                   <td><i class="fa fa-fw fa-{{getMediaIcon(mediaItem)}}"></i></td>
                   <td ng-bind="mediaItem.name"></td>
                   <td class="hidden-xs" ng-bind="mediaItem.caption"></td>
