@@ -1609,8 +1609,19 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
         },
 
-        // NEW ADMIN
+        //roles
+        {
+            method: 'get',
+            path: "/api/roles",
+            handler: "getAll",
+            content_type: 'application/json',
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
+            controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user/role_api_controller.js')
+        },
 
+        // NEW ADMIN
         {
             method: 'get',
             path: "/admin-new/elements/wysiwyg",
@@ -1618,7 +1629,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/admin-new/elements/wysiwyg.js'),
-      	},
+        },
         {
             method: 'get',
             path: "/admin-new",

@@ -11,7 +11,7 @@
     'pencilblue.admin.elements.pillNav',
     'pencilblue.admin.services.uid',
     'pencilblue.admin.factories.users',
-    'pencilblue.admin.content.articles'
+    'pencilblue.admin.factories.content.articles'
   ])
   .controller('AdminUsersListController', function($scope, $rootScope, $location, searchService, paginationService, uidService, usersFactory, articlesFactory) {
     $rootScope.activeLeftNavItems = ['users', 'manage'];
