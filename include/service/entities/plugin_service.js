@@ -1382,51 +1382,8 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb
      */
     PluginService.prototype.hasDependencies = function(plugin, cb) {
-        if (!util.isObject(plugin.dependencies) || plugin.dependencies === {}) {
-            //no dependencies were declared so we're good
-            return cb(null, true);
-        }
-
-        //iterate over dependencies to ensure that they exist
-        var hasDependencies = true;
-        var tasks = util.getTasks(Object.keys(plugin.dependencies), function(keys, i) {
-            return function(callback) {
-
-                //verify that the module exists and its package definition is available
-                var packagePath = path.join(PluginService.getPluginsDir(), plugin.dirName, 'node_modules', keys[i], 'package.json');
-                var rootPackagePath = path.join(pb.config.docRoot, 'node_modules', keys[i], 'package.json');
-                var checkPackageVersion = function(myPath) {
-                    //ensure that the version expression specified by the
-                    //dependency is satisfied by that provided by the package.json
-                    try {
-                        return semver.satisfies(require(myPath).version, plugin.dependencies[keys[i]]);
-                    }
-                    catch (e) {
-                        return false;
-                    }
-                };
-
-                async.some([packagePath, rootPackagePath], fs.exists, function(result) {
-                    if(!result) {
-                        hasDependencies = false;
-                        pb.log.warn('PluginService: Plugin %s is missing dependency %s', plugin.name, keys[i]);
-                        return callback(null, false)
-                    }
-                    var pluginDirSatisfied = checkPackageVersion(packagePath);
-                    var rootDirSatisfied = checkPackageVersion(rootPackagePath);
-
-                    if(!pluginDirSatisfied && !rootDirSatisfied) {
-                        hasDependencies = false;
-                        pb.log.warn('PluginService: Plugin %s has incorrect dependency version %s for %s', plugin.name, plugin.version, keys[i]);
-                    }
-
-                    callback(null, pluginDirSatisfied || rootDirSatisfied);
-                });
-            };
-        });
-        async.parallel(tasks, function(err/*, results*/) {
-            cb(err, hasDependencies);
-        });
+        var npmPluginDependencyService = new pb.NpmPluginDependencyService();
+        npmPluginDependencyService.hasDependencies(plugin, {}, cb);
     };
 
     /**
@@ -1444,119 +1401,8 @@ module.exports = function PluginServiceModule(pb) {
             return cb(new Error('The plugin directory name and the dependencies are required'));
         }
 
-        //verify that another process isn't trying to install dependencies on the server
-        var self        = this;
-        var didLock     = false;
-        var retryCount  = 0;
-        var key         = pb.ServerRegistration.generateServerKey() + ':' + pluginDirName + ':dependency:install';
-        var lockService = new pb.LockService();
-        async.until(
-            function() {
-                return didLock || retryCount >= MAX_DEPENDENCY_LOCK_RETRY_CNT;
-            },
-            function(callback) {
-
-                //try and acquire the lock
-                lockService.acquire(key, function(err, reply) {
-                    if (util.isError(err)) {
-                        return callback(err);
-                    }
-                    else if (reply) {
-                        didLock = true;
-                        return callback();
-                    }
-
-                    //wait a second to see if anything changes
-                    retryCount++;
-                    pb.log.silly('PluginService: Failed to acquire dependency installation lock for the %s time. Waiting for 1000ms.', retryCount);
-                    setTimeout(function() {
-
-                        //now check to see if another process installed the
-                        //dependencies.  If there is no plugin object then skip.
-                        callback();
-                    }, 1000);
-                });
-            },
-            function(err) {
-
-                //a callback function that allows for deleting the lock key
-                var onDone = function(err, result) {
-                    if (!didLock) {
-                        return cb(err, result);
-                    }
-                    lockService.release(key, function(error, didRelease) {
-                        cb(err || error, didRelease);
-                    });
-                };
-
-                //verify results
-                if (util.isError(err)) {
-                    return onDone(err);
-                }
-                else if (retryCount >= MAX_DEPENDENCY_LOCK_RETRY_CNT) {
-
-                    pb.log.warn('PluginService: Reached maximum retry count trying to verify dependencies');
-                    return onDone(null, false);
-                }
-
-                //proceed to check to see if all dependencies are there
-                self.hasDependencies(plugin, function(err, hasDependencies) {
-                    if (hasDependencies) {
-                        pb.log.silly('PluginService: Assuming another process installed dependencies because they were discovered. Skipping install');
-                        return onDone(err);
-                    }
-
-                    //dependencies are not available so install them while we have the lock
-                    pb.log.silly('PluginService: Installing dependencies for %s.', pluginDirName);
-                    self._installPluginDependencies(pluginDirName, dependencies, function(err, result){
-                        onDone(err, result);
-                    });
-                });
-            }
-        );
-    };
-
-    PluginService.prototype._installPluginDependencies = function(pluginDirName, dependencies, cb) {
-
-        var statements = [];
-        var logit = function(message) {
-            statements.push(message);
-        };
-        var onDone = function(err, results) {
-            npm.removeListener('log', logit);
-            cb(err, results);
-        };
-
-        //ensure the node_modules directory exists
-        var prefixPath = path.join(PluginService.getPluginsDir(), pluginDirName);
-
-        //log and load
-        var config = {
-            prefix: prefixPath
-        };
-        npm.on('log', logit);
-        npm.load(config, function(err) {
-            if (util.isError(err)) {
-                onDone(err);
-                return;
-            }
-
-            //we set the prefix manually here.  See:
-            //https://github.com/pencilblue/pencilblue/issues/214
-            //this is a hack to keep it working until the npm team can decouple the
-            //npmconf module from npm and create a scenario where it can be reloaded.
-            npm.config.prefix = prefixPath;
-
-            //lines up the install tasks
-            var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
-                return function(callback) {
-
-                    var command = [ keys[i]+'@'+dependencies[keys[i]] ];
-                    npm.commands.install(command, callback);
-                };
-            });
-            async.series(tasks, onDone);
-        });
+        var npmDependencyService = new pb.NpmPluginDependencyService();
+        npmDependencyService.installAll(plugin, {}, cb);
     };
 
     /**
