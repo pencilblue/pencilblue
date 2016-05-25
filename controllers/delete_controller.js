@@ -179,7 +179,7 @@ module.exports = function(pb) {
      *
      * @method getDataOnSuccess
      * @param {Array} results
-     * @return {String}
+     * @return {object}
      */
     DeleteController.prototype.getDataOnSuccess = function(/*results*/) {
         return pb.RequestHandler.generateRedirect(this.getSuccessRedirect());
