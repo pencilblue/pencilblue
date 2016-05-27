@@ -319,6 +319,26 @@ describe('Localization', function() {
     });
 
     describe('Localization.unregisterLocale', function() {
+
+        it('should return true and no longer be supported when a valid locale is unregistered', function() {
+            var locale = 'en-US';
+            Localization.unregisterLocale(locale).should.eql(true);
+            Localization.isSupported(locale).should.eql(false);
+        });
+
+        it('should return false when an unregistered locale is passed', function() {
+            Localization.unregisterLocale('we-WE').should.eql(false);
+        });
+
+        [null, undefined, ''].forEach(function(val) {
+
+            it('should throw when passed an invalid locale: '+val, function() {
+                Localization.unregisterLocale.bind(null, [val]).should.throwError();
+            });
+        });
+    });
+
+    describe('Localization.registerLocale', function() {
         //TODO
     });
 
@@ -326,8 +346,25 @@ describe('Localization', function() {
         //TODO
     });
 
-    describe('Localization.registerLocale', function() {
-        //TODO
+    describe('Localization.unregisterLocalization', function() {
+
+        it('should throw when not passed a locale', function() {
+            Localization.unregisterLocalization.bind(null, [null]).should.throwError();
+        });
+
+        it('should throw when not passed a key', function() {
+            Localization.unregisterLocalization.bind(null, ['en-US', 'general.SUCCESS']).should.throwError();
+        });
+
+        it('should return false when the key is not found', function() {
+            Localization.unregisterLocalization('en-US', 'general.non-existing').should.eql(false);
+        });
+
+        it('should return false when provided an existing key and country code with a plugin that has not registered the key', function() {
+            Localization.unregisterLocalization('en-US', 'general.TEMPLATES', {plugin: 'non-existing'}).should.eql(false);
+        });
+
+        //TODO should return true when provided an existing key and country code with a plugin that has registered the key
     });
 
     function getLocalizationFiles(cb) {

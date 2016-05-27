@@ -39,7 +39,7 @@ function Util(){}
  * @static
  * @method clone
  * @param {Object} object The object to clone
- * @return {Object} Cloned object
+ * @return {Object|Array} Cloned object
  */
 Util.clone = function(object){
     return JSON.parse(JSON.stringify(object));
