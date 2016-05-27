@@ -97,7 +97,7 @@
                     <td class="available_description">
                         <span ng-bind="available.description"></span>
                         <ul>
-                            <li ng-repeat="validationError in available.validationErrors" ng-bind="validationError"></li>
+                            <li ng-repeat="validationError in available.validationErrors">{{validationError.field}}: {{validationError.message}}</li>
                         </ul>
                     </td>
                     <td>
@@ -132,7 +132,7 @@
                     <td class="global_active_description">
                         <span ng-bind="installed.description"></span>
                         <ul>
-                            <li ng-repeat="validationError in installed.validationErrors" ng-bind="validationError"></li>
+                            <li ng-repeat="validationError in installed.validationErrors">{{validationError.field}}: {{validationError.message}}</li>
                         </ul>
                     </td>
                     <td>

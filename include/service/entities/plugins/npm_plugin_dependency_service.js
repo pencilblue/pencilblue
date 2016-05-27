@@ -32,6 +32,7 @@ module.exports = function (pb) {
     /**
      * @class NpmPluginDependencyService
      * @constructor
+     * @extends PluginDependencyService
      */
     function NpmPluginDependencyService(){}
     util.inherits(NpmPluginDependencyService, PluginDependencyService);
@@ -43,7 +44,7 @@ module.exports = function (pb) {
      * @param {string} plugin.uid
      * @param {object} plugin.dependencies
      * @param {object} options
-     * @param {Function} cb
+     * @param {Function} cb (Error, Boolean)
      */
     NpmPluginDependencyService.prototype.hasDependencies = function(plugin, options, cb) {
         if (!util.isObject(plugin.dependencies) || plugin.dependencies === {}) {
@@ -57,6 +58,13 @@ module.exports = function (pb) {
         this.areSatisfied(plugin.dependencies, context, PluginDependencyService.getResultReducer(plugin.uid, cb));
     };
 
+    /**
+     * Inspects each NPM dependency to see if it is already installed for the plugin or the platform.
+     * @param {object} dependencies Key value pairs of moduleName => versionExpression
+     * @param {object} context
+     * @param {string} pluginUid
+     * @param cb (Error, Array({{success: boolean, validationFailures: Array}}))
+     */
     NpmPluginDependencyService.prototype.areSatisfied = function(dependencies, context, cb) {
         var self = this;
         var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
@@ -75,6 +83,7 @@ module.exports = function (pb) {
      * Checks to see if the module exists and its package definition is available.  It will first check the root level
      * (installation directory's node_modules folder) then inspect the node_modules directory for the plugin.  In
      * addition to existence one of the paths must satisfy the version expression provided for the dependency
+     * @method isSatisfied
      * @param {object} context
      * @param {string} context.moduleName
      * @param {string} context.versionExpression
@@ -120,6 +129,16 @@ module.exports = function (pb) {
         });
     };
 
+    /**
+     * Responsible for ensuring that all dependencies for a plugin are installed by iterating over the "dependencies"
+     * property of the plugin.  Each iteration calls the "install" function
+     * @private
+     * @method _installAll
+     * @param {object} plugin
+     * @param {string} plugin.uid The plugin identifier
+     * @param {object} options
+     * @param {function} cb (Error, Boolean)
+     */
     NpmPluginDependencyService.prototype._installAll = function(plugin, options, cb) {
         var self = this;
 
@@ -147,6 +166,16 @@ module.exports = function (pb) {
         });
     };
 
+    /**
+     * Installs the dependency by calling NPM.
+     * @private
+     * @method _install
+     * @param {object} context
+     * @param {string} context.pluginUid
+     * @param {string} context.moduleName
+     * @param {string} context.versionExpression
+     * @param {function} cb
+     */
     NpmPluginDependencyService.prototype._install = function(context, cb) {//setting to skip config
         var isConfigured = !!context.configuration;
         NpmPluginDependencyService.configure(context.pluginUid, context, function(err, configuration) {
@@ -162,14 +191,38 @@ module.exports = function (pb) {
         });
     };
 
+    /**
+     * Generates the path to an NPM module for the specified plugin
+     * @static
+     * @method getPluginPathToPackageJson
+     * @param {string} pluginUid
+     * @param {string} npmPackageName
+     * @return {string} An absolute path
+     */
     NpmPluginDependencyService.getPluginPathToPackageJson = function(pluginUid, npmPackageName) {
         return path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', npmPackageName, 'package.json');
     };
 
+    /**
+     * Generates the path to an NPM module for the platform
+     * @static
+     * @method getPluginPathToPackageJson
+     * @param {string} npmPackageName
+     * @return {string} An absolute path
+     */
     NpmPluginDependencyService.getRootPathToPackageJson = function(npmPackageName) {
         return path.join(pb.config.docRoot, 'node_modules', npmPackageName, 'package.json');
     };
 
+    /**
+     * Configures NPM to emit log statements as well as set the installation directory for the plugin.
+     * @static
+     * @method configure
+     * @param {string} pluginUid
+     * @param {object} options
+     * @param {object} [options.configuration]
+     * @param {function} cb (Error, Object)
+     */
     NpmPluginDependencyService.configure = function(pluginUid, options, cb) {
         if (options.configuration) {
             return cb(null, options.configuration);
@@ -206,12 +259,43 @@ module.exports = function (pb) {
         });
     };
 
+    /**
+     * Creates a function that will build an NPM install command and execute it.
+     * @static
+     * @method getInstallTask
+     * @param {string} moduleName
+     * @param {string} versionExpression
+     * @returns {Function}
+     */
     NpmPluginDependencyService.getInstallTask = function(moduleName, versionExpression) {
         return function(callback) {
 
             var command = [ moduleName+'@'+versionExpression ];
             npm.commands.install(command, callback);
         };
+    };
+
+    /**
+     * Loads a module dependency for the specified plugin.  The function will attempt to load it from the plugin
+     * specific node_modules directory.  If not found, or invalid, the function will attempt to load it from the PB
+     * node_modules directory.  When the module cannot be found in either location an error is thrown
+     * @static
+     * @method require
+     * @param {String} pluginUid The plugin identifier
+     * @param {String} moduleName The name of the NPM module to load
+     * @return {*} The entity returned by the "require" call.
+     */
+    NpmPluginDependencyService.require = function(pluginUid, moduleName) {
+        var modulePath = null;
+        try {
+            modulePath = path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', moduleName);
+            return require(modulePath);
+        }
+        catch(e) {
+            pb.log.debug('NpmPluginDependencyService:%s Failed to find module %s at path %s.  Attempting to retrieve from PB context: %s',
+                pluginUid, moduleName, modulePath, e.stack);
+        }
+        return require(moduleName);
     };
 
     return NpmPluginDependencyService;

@@ -43,6 +43,7 @@ module.exports = function (pb) {
      * Verifies that a plugin has all of the required dependencies installed from NPM
      * @method hasDependencies
      * @param {Object} plugin
+     * @param {string} plugin.uid
      * @param {object} options
      * @param {Function} cb
      */
@@ -50,10 +51,30 @@ module.exports = function (pb) {
         throw new Error('This function must overriden by the inheriting prototype');
     };
 
+    /**
+     * <b>NOTE: This function must be overriden by the inheriting prototype</b>
+     * Checks to see if the plugin dependency is already installed
+     * @method isSatisfied
+     * @param {object} context
+     * @param {string} context.moduleName
+     * @param {string} context.versionExpression
+     * @param {string} context.pluginUid
+     * @param {function} cb (Error, {{success: boolean, validationFailures: Array}})
+     */
     PluginDependencyService.prototype.isSatisfied = function(context, cb) {
         throw new Error('This function must overriden by the inheriting prototype');
     };
 
+    /**
+     * Ensures that all plugin dependencies of the type supported by the inheriting prototype are installed for the
+     * given plugin.  The function will acquire a lock (semaphore) to prevent other processes from causing concurrency
+     * issues then proceed with the installation
+     * @method installAll
+     * @param {object} plugin
+     * @param {string} plugin.uid The plugin identifier
+     * @param {object} options
+     * @param {function} cb (Error, Boolean)
+     */
     PluginDependencyService.prototype.installAll = function(plugin, options, cb) {
         async.series([
             util.wrapTask(this, this.acquireLock, [plugin.uid]),
@@ -62,10 +83,32 @@ module.exports = function (pb) {
         PluginDependencyService.getLockRelease(cb));
     };
 
+    /**
+     * <b>This method must be implemented by an inheriting prototype</b>
+     * Responsible for ensuring that all dependencies for a plugin are installed.  Implementations are intended to
+     * iterate over each of dependency specified for the plugin and call the "install" function for each one.
+     * @private
+     * @method _installAll
+     * @param {object} plugin
+     * @param {string} plugin.uid The plugin identifier
+     * @param {object} options
+     * @param {function} cb (Error, Boolean)
+     */
     PluginDependencyService.prototype._installAll = function(plugin, options, cb) {
         throw new Error('This function must overriden by the inheriting prototype');
     };
 
+    /**
+     * Responsible for installing the individual dependency.  The function, by default, checks to see if the dependency
+     * has already been installed.  If yes, the function calls back after the existence check.  When the dependency is
+     * not available it proceeds with the installation
+     * @method install
+     * @param {object} context
+     * @param {string} context.pluginUid The plugin identifier
+     * @param {string} context.moduleName The name of the dependent module to install
+     * @param {string} context.versionExpression The version or version expression to use for installation
+     * @param {function} cb (Error, Boolean)
+     */
     PluginDependencyService.prototype.install = function(context, cb) {
         var self = this;
         var isSatisfiedFunc = function(cb) {
@@ -90,10 +133,28 @@ module.exports = function (pb) {
         });
     };
 
+    /**
+     * <b>This method must be implemented by an inheriting prototype</b>
+     * Responsible for installing the individual dependency.  Implementations are safe to assume that the dependency
+     * does not exist or that it is safe to replace it.
+     * @private
+     * @method _install
+     * @param {object} context
+     * @param {string} context.pluginUid The plugin identifier
+     * @param {string} context.moduleName The name of the dependent module to install
+     * @param {string} context.versionExpression The version or version expression to use for installation
+     * @param {function} cb (Error, Boolean)
+     */
     PluginDependencyService.prototype._install = function(context, cb) {
         throw new Error('This function must overriden by the inheriting prototype');
     };
 
+    /**
+     * Acquires the semaphore needed in order to use the singleton NPM instance on the server.  This protects multiple
+     * PB child processes from causing write locks in the same directories.
+     * @param {string} pluginUid
+     * @param {function} cb (Error, Object)
+     */
     PluginDependencyService.prototype.acquireLock = function(pluginUid, cb) {
         var type = typeof this;
         var context = {
@@ -110,6 +171,14 @@ module.exports = function (pb) {
         });
     };
 
+    /**
+     * Creates a function that knows how to extract the context from the provided result set and inspect it to see if
+     * the lock was successfully acquired.  If the lock was acquired it is released before calling back
+     * @static
+     * @method getLockRelease
+     * @param {function} cb
+     * @returns {Function}
+     */
     PluginDependencyService.getLockRelease = function(cb) {
         return function(err, result) {
             var context = result[0];
@@ -122,12 +191,37 @@ module.exports = function (pb) {
         };
     };
 
+    /**
+     * Creates a function that is used to determine if the async loop for lock acquisition should continue
+     * @static
+     * @method getLockCondition
+     * @param {object} context
+     * @param {boolean} context.didLock Indicates if the lock was successfully acquired in the last attempt
+     * @param {integer} context.retryCount The current number of times we've attempted to acquire the lock
+     * @param {integer} context.maxCount The maximum number of retries
+     * @returns {Function}
+     */
     PluginDependencyService.getLockCondition = function(context) {
         return function() {
             return context.didLock || context.retryCount >= context.maxCount;
         };
     };
 
+    /**
+     * Creates a task function who's responsibility is to acquire a semaphore for dependency installation.  The task
+     * will attempt to create the lock.  On acquisition, the function will callback immediately after setting the
+     * didLock property on the context.  On failure, the function calls back immediately with the error.  When the lock
+     * already exists the function will wait the specified interval provided in the context before calling back.
+     * @static
+     * @method getLockIteration
+     * @param {object} context
+     * @param {string} context.lockKey
+     * @param {boolean} context.didLock
+     * @param {integer} context.retryCount
+     * @param {integer} context.interval Time in milliseconds to sleep before calling back when the semaphore has
+     * already been created.
+     * @returns {Function}
+     */
     PluginDependencyService.getLockIteration = function(context) {
         return function(callback) {
 
@@ -169,10 +263,25 @@ module.exports = function (pb) {
         };
     };
 
+    /**
+     * Generates a semaphore key for the operation to install dependencies.
+     * @method getLockKey
+     * @param {string} type
+     * @param {string} pluginUid
+     * @returns {string}
+     */
     PluginDependencyService.getLockKey = function(type, pluginUid) {
         return pb.ServerRegistration.generateServerKey() + ':' + pluginUid + ':' + type + ':dependency:install';
     };
 
+    /**
+     * Creates a function capable of reducing the dependency installation errors down to a single boolean result.
+     * In addition, it logs each validation message that is incurred
+     * @method getResultReducer
+     * @param {string} pluginUid
+     * @param {function} cb
+     * @returns {function}
+     */
     PluginDependencyService.getResultReducer = function(pluginUid, cb) {
         return function(err, results) {
             var result = true;

@@ -895,6 +895,7 @@ module.exports = function PluginServiceModule(pb) {
                                 plugins.push({
                                     uid: dirName,
                                     dirName: dirName,
+                                    version: details.version,
                                     description: "The plugin details file failed validation ",
                                     validationErrors: err.validationErrors
                                 });
@@ -1407,6 +1408,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Loads a module dependencies for the specified plugin.
+     * @deprecated
      * @static
      * @method require
      * @param {String} pluginDirName
@@ -1414,16 +1416,8 @@ module.exports = function PluginServiceModule(pb) {
      * @return {*} The entity returned by the "require" call.
      */
     PluginService.require = function(pluginDirName, moduleName) {
-        var modulePath = null;
-        try {
-            modulePath = path.join(PluginService.getPluginsDir(), pluginDirName, 'node_modules', moduleName);
-            return require(modulePath);
-        }
-        catch(e) {
-            pb.log.warn('PluginService:%s Failed to find module %s at path %s.  Attempting to retrieve from PB context', pluginDirName, moduleName, modulePath);
-            pb.log.debug(e.stack);
-        }
-        return require(moduleName);
+        pb.log.warn('PluginService: require is deprecated. Use NpmPluginDependencyService.require');
+        return pb.NpmPluginDependencyService.require(pluginDirName, moduleName);
     };
 
     /**
@@ -1604,7 +1598,7 @@ module.exports = function PluginServiceModule(pb) {
                 return;
             }
 
-            //atempt to parse the json
+            //attempt to parse the json
             try {
                 cb(null, JSON.parse(data));
             }
