@@ -41,6 +41,8 @@ module.exports = function CommentServiceModule(pb) {
      * @extends BaseObjectService
      * @constructor
      * @param {Object} context
+     * @param {string} context.site
+     * @param {boolean} context.onlyThisSite
      */
     function CommentService(context){
         if (!util.isObject(context)) {
