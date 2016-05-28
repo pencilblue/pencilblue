@@ -156,7 +156,7 @@ module.exports = function (pb) {
      * @param {function} cb (Error, Object)
      */
     PluginDependencyService.prototype.acquireLock = function(pluginUid, cb) {
-        var type = typeof this;
+        var type = this.getType();
         var context = {
             type: type,
             didLock: false,
@@ -169,6 +169,17 @@ module.exports = function (pb) {
         async.until(PluginDependencyService.getLockCondition(context), PluginDependencyService.getLockIteration(context), function(err) {
             cb(err, context);
         });
+    };
+
+    /**
+     * <b>This method must be implemented by an inheriting prototype</b>
+     * Responsible for describing the type of dependency represented.  This helps with identifying lock keys and
+     * instance types.
+     * @method getType
+     * @return {string}
+     */
+    PluginDependencyService.prototype.getType = function() {
+        throw new Error('This function must overriden by the inheriting prototype');
     };
 
     /**

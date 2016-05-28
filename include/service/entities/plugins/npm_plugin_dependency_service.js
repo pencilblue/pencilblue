@@ -38,6 +38,17 @@ module.exports = function (pb) {
     util.inherits(NpmPluginDependencyService, PluginDependencyService);
 
     /**
+     * <b>This method must be implemented by an inheriting prototype</b>
+     * Responsible for describing the type of dependency represented.  This helps with identifying lock keys and
+     * instance types.
+     * @method getType
+     * @return {string} 'npm'
+     */
+    NpmPluginDependencyService.prototype.getType = function() {
+        return 'npm';
+    };
+
+    /**
      * Verifies that a plugin has all of the required dependencies installed from NPM
      * @method hasDependencies
      * @param {Object} plugin
