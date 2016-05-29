@@ -1,12 +1,12 @@
 {
     "ignore": [
-        "public/lib/**",
-        "public/bower_components/**",
-        "public/localization/**",
-        "sample.config.js"
+        "**/public/lib/**",
+        "**/public/bower_components/**",
+        "**/public/localization/**",
+        "**/sample.config.js"
     ],
     "test": [
-        "test/**"
+        "**/test/**"
     ],
     "critics": {
         "lint": {
