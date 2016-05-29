@@ -23,9 +23,10 @@ module.exports = function BlogModule(pb) {
     //pb dependencies
     var util           = pb.util;
     var PluginService  = pb.PluginService;
+    var ContentService = pb.ContentService;
     var TopMenu        = pb.TopMenuService;
-    var Comments       = pb.CommentService;
     var ArticleService = pb.ArticleService;
+    var CommentService = pb.CommentService;
 
     /**
      * Blog page of the pencilblue theme
@@ -36,13 +37,12 @@ module.exports = function BlogModule(pb) {
     function Blog(){}
     util.inherits(Blog, pb.BaseController);
 
-    Blog.prototype.init = function(props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.navService = new pb.SectionService({site: self.site});
-            self.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
-            cb();
-        });
+    Blog.prototype.initSync = function(/*context*/) {
+        this.navService = new pb.SectionService(this.getServiceContext());
+        this.siteQueryService = new pb.SiteQueryService(this.getServiceContext());
+        this.contentService = new ContentService(this.site, true);
+        this.pluginService = new PluginService(this.getServiceContext());
+        this.commentService = new CommentService(this.getServiceContext());
     };
 
     Blog.prototype.render = function(cb) {
@@ -54,8 +54,8 @@ module.exports = function BlogModule(pb) {
         var article = self.req.pencilblue_article || null;
         var page    = self.req.pencilblue_page    || null;
 
-        var contentService = new pb.ContentService(self.site, true);
-        contentService.getSettings(function(err, contentSettings) {
+        //start gathering data
+        this.contentService.getSettings(function(err, contentSettings) {
             self.gatherData(function(err, data) {
                 var articleService = new pb.ArticleService(self.site, true);
                 articleService.getMetaInfo(data.content[0], function(err, meta) {
@@ -118,7 +118,7 @@ module.exports = function BlogModule(pb) {
                                 self.ts.registerLocal('angular', function(flag, cb) {
 
                                     var loggedIn       = pb.security.isAuthenticated(self.session);
-                                    var commentingUser = loggedIn ? Comments.getCommentingUser(self.session.authentication.user) : null;
+                                    var commentingUser = loggedIn ? self.commentService.getCommentingUser(self.session.authentication.user) : null;
                                     var heroImage      = null;
                                     if(data.content[0]) {
                                         heroImage = data.content[0].hero_image ? data.content[0].hero_image: null;
@@ -143,7 +143,7 @@ module.exports = function BlogModule(pb) {
                                     }
 
                                     var loggedIn = pb.security.isAuthenticated(self.session);
-                                    var commentingUser = loggedIn ? Comments.getCommentingUser(self.session.authentication.user) : null;
+                                    var commentingUser = loggedIn ? self.commentService.getCommentingUser(self.session.authentication.user) : null;
                                     var heroImage = null;
                                     if(data.content[0]) {
                                         heroImage = data.content[0].hero_image ? data.content[0].hero_image: null;
@@ -208,7 +208,7 @@ module.exports = function BlogModule(pb) {
         //the theme is specified, we ensure that the theme is installed and
         //initialized otherwise we let the template service figure out how to
         //delegate.
-        if (!pb.PluginService.isActivePlugin(pieces[0], this.site)) {
+        if (!PluginService.isActivePlugin(pieces[0], this.site)) {
             pb.log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
             cb(null, pieces[1]);
             return;
@@ -333,7 +333,7 @@ module.exports = function BlogModule(pb) {
         var self           = this;
         var commentingUser = null;
         if(pb.security.isAuthenticated(this.session)) {
-            commentingUser = Comments.getCommentingUser(this.session.authentication.user);
+            commentingUser = this.commentService.getCommentingUser(this.session.authentication.user);
         }
 
         ts.registerLocal('user_photo', function(flag, cb) {
@@ -428,8 +428,7 @@ module.exports = function BlogModule(pb) {
     Blog.prototype.getSideNavigation = function(articles, cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService({site: this.site});
-        pluginService.getSetting('show_side_navigation', 'portfolio', function(err, showSideNavigation) {
+        this.pluginService.getSetting('show_side_navigation', 'portfolio', function(err, showSideNavigation) {
             if(!showSideNavigation) {
                 cb('', null);
                 return;
