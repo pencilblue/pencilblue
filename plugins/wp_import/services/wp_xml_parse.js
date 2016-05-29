@@ -23,7 +23,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
 
     //pb dependencies
     var util           = pb.util;
-    var xml2js         = pb.PluginService.require('wp_import', 'xml2js');
+    var xml2js         = pb.NpmPluginDependencyService.require('wp_import', 'xml2js');
     var BaseController = pb.BaseController;
 
     /**

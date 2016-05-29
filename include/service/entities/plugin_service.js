@@ -1154,9 +1154,9 @@ module.exports = function PluginServiceModule(pb) {
                 PluginService.validateDetails(details, plugin.dirName, callback);
             },
 
-            //check for discrepencies
+            //check for discrepancies
             function(callback) {
-                if (plugin.uid != details.uid) {
+                if (plugin.uid !== details.uid) {
                     pb.log.warn('PluginService:[INIT] The UID [%s] for plugin %s does not match what was found in the details.json file [%s].  The details file takes precendence.', plugin.uid, plugin.name, details.uid);
                 }
                 process.nextTick(function () {
@@ -1241,7 +1241,7 @@ module.exports = function PluginServiceModule(pb) {
                 }
                 var mainModule = PluginService.loadMainModule(plugin.dirName, details.main_module.path);
                 if (!mainModule) {
-                    return cb(new Error('Failed to load main module for plugin '+plugin.uid));
+                    return callback(new Error('Failed to load main module for plugin '+plugin.uid));
                 }
                 if(!ACTIVE_PLUGINS[site]) {
                     ACTIVE_PLUGINS[site] = {};
@@ -1347,7 +1347,6 @@ module.exports = function PluginServiceModule(pb) {
 
             //process localization
             function(callback) {
-
                 self.getLocalizations(plugin.dirName, function(err, localizations) {
                     for (var locale in localizations) {
                         if (pb.log.isDebug()) {
@@ -1423,53 +1422,15 @@ module.exports = function PluginServiceModule(pb) {
     /**
      * Loads the localization files from the specified plugin directory and places
      * them into a hash where the key is the name of the localization file.
+     * @deprecated since 0.6.0
      * @method getLocalizations
      * @param {String} pluginDirName The name of the plugin directory
      * @param {Function} cb A callback that provides two parameters: cb(Error, Object).
      * When the directory does not exist NULL is returned as the result parameter.
      */
     PluginService.prototype.getLocalizations = function(pluginDirName, cb) {
-        var localizationDir = path.join(PluginService.getPublicPath(pluginDirName), 'localization');
-
-        fs.exists(localizationDir, function(exists) {
-            if (!exists) {
-                return cb(null, null);
-            }
-            fs.readdir(localizationDir, function(err, files) {
-                if (util.isError(err)) {
-                    return cb(err, null);
-                }
-
-                var localizations = {};
-                var tasks = util.getTasks(files, function(files, index) {
-                    return function(callback) {
-
-                        var pathToLocalization = path.join(localizationDir, files[index]);
-                        fs.readFile(pathToLocalization, function(err, json) {
-                            if (!util.isError(err)) {
-
-                                //attempt to parse JSON and set service
-                                try {
-                                    var localization    = JSON.parse(json);
-                                    var name            = PluginService.getServiceName(pathToLocalization);
-                                    localizations[name] = localization;
-                                }
-                                catch(e) {
-                                    pb.log.warn('PluginService:[%s] Failed to parse localization JSON file at [%s]. %s', pluginDirName, pathToLocalization, e.stack);
-                                }
-                            }
-                            else {
-                                pb.log.warn('PluginService:[%s] Failed to load localization JSON file at [%s]', pluginDirName, pathToLocalization);
-                            }
-                            callback(null, true);
-                        });
-                    };
-                });
-                async.parallel(tasks, function(err/*, results*/) {
-                    cb(err, localizations);
-                });
-            });
-        });
+        var service = new pb.PluginLocalizationLoader({pluginUid: pluginDirName});
+        service.getAll(cb);
     };
 
     /**
@@ -1613,6 +1574,7 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Validates a plugin's details.json file.
+     * @deprecated
      * @static
      * @method validateDetails
      * @param {object} details The details object to validate
@@ -1657,6 +1619,7 @@ module.exports = function PluginServiceModule(pb) {
      * Validates the path to the plugin's icon file.  The path is considered valid
      * if the path to a valid file.  The path may be absolute or relative to the
      * plugin's public directory.
+     * @deprecated
      * @static
      * @method validateIconPath
      * @param iconPath The path to the icon (image) file
@@ -1664,32 +1627,27 @@ module.exports = function PluginServiceModule(pb) {
      * @return {Boolean} TRUE if the path is valid, FALSE if not
      */
     PluginService.validateIconPath = function(iconPath, pluginDirName) {
-        var pluginPublicIcon = path.join(PluginService.getPublicPath(pluginDirName), iconPath);
-        var paths            = [pluginPublicIcon, iconPath];
-
-        for (var i = 0; i < paths.length; i++) {
-            if (fs.existsSync(paths[i])) {
-                return true;
-            }
-        }
-        return false;
+        return pb.PluginValidationService.validateIconPath(iconPath, pluginDirName);
     };
 
     /**
      * Validates the path of a main module file.  The path is considered valid if
      * the path points to JS file.  The path may be absolute or relative to the
      * specific plugin directory.
+     * @deprecated
+     * @static
      * @method validateMainModulePath
      * @param mmPath The relative or absolute path to the main module file
      * @param pluginDirName The name of the directory housing the plugin
      * @return {Boolean} TRUE if the path is valid, FALSE if not
      */
     PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
-        return !util.isNullOrUndefined(PluginService.loadMainModule(pluginDirName, mmPath));
+        return pb.PluginValidationService.validateMainModulePath(mmPath, pluginDirName);
     };
 
     /**
      * Validates a setting from a details.json file.
+     * @deprecated
      * @method validateSetting
      * @param setting The setting to validate
      * @param position The position in the settings array where the setting resides
@@ -1707,12 +1665,12 @@ module.exports = function PluginServiceModule(pb) {
         if (util.isObject(setting)) {
 
             //validate name
-            if (!v.validateNonEmptyStr(setting.name, true)) {
+            if (!v.isNonEmptyStr(setting.name, true)) {
                 errors.push(new Error("The setting name at position "+position+" must be provided"));
             }
 
             //validate value
-            if (!PluginService.validateSettingValue(setting.value)) {
+            if (!pb.PluginDependencyService.validateSettingValue(setting.value)) {
                 errors.push(new Error("The setting value at position "+position+" must be provided"));
             }
         }
@@ -1727,84 +1685,54 @@ module.exports = function PluginServiceModule(pb) {
      * Validates a details.json file's setting value.  The value is required to be a
      * string or a number.  Null, undefined, Arrays, Objects, and prototypes are NOT
      * allowed.
+     * @deprecated
      * @static
      * @method validateSettingValue
      * @param {Boolean|Integer|Number|String} value The value to validate
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     PluginService.validateSettingValue = function(value) {
-        return util.isString(value) || !isNaN(value) || value === true || value === false;
+        return pb.PluginDependencyService.validateSettingValue(value);
     };
 
     /**
      * Retrieves all services (initialized).  The services are provided in the
      * callback.
+     * @deperecated
      * @static
      * @method getServices
      * @param {String} pathToPlugin The absolute file path to the specific plugin directory.
      * @param {Function} cb A callback that provides two parameters: cb(error, servicesHash);
      */
     PluginService.getServices = function(pathToPlugin, cb) {
-        var servicesDir = path.join(pathToPlugin, 'services');
+        pb.log.warn('PluginService: getServices is deprecated. Use PluginServiceLoader.getAll');
 
-        var options = {
-            recursive: true,
-            filter: function(fullPath/*, stat*/) {
-                return fullPath.lastIndexOf('.js') === (fullPath.length - '.js'.length);
-            }
-        };
-        util.getFiles(servicesDir, options, function(err, files) {
-            if (util.isError(err)) {
-                return cb(err, null);
-            }
+        var pathParts = pathToPlugin.split(path.sep);
 
-            var services = {};
-            var tasks = util.getTasks(files, function(files, index) {
-                return function(callback) {
-
-                    var pathToService = files[index];
-                    PluginService.loadService(pathToService, function(err, service) {
-                        if (!util.isError(err)) {
-
-                            var name = PluginService.getServiceName(pathToService, service);
-                            services[name] = service;
-                        }
-                        else {
-                            pb.log.warn('PluginService: Failed to load service at [%s]', pathToService);
-                        }
-                        callback(null, true);
-                    });
-                };
-            });
-            async.parallel(tasks, function(err/*, results*/) {
-                cb(err, services);
-            });
-        });
+        var service = new pb.PluginServiceLoader({pluginUid: pathParts[pathParts.length - 1]});
+        service.getAll(cb);
     };
 
     /**
      * Loads a plugin service and initializes it.  The service is required to
      * implement an "init" function. The service is then provided as a parameter in
      * the callback.
+     * @deprecated
      * @static
      * @method loadService
      * @param {String} pathToService The absolute file path to the service javascript file.
      * @param {Function} cb A callback that provides two parameters: cb(error, initializedService)
      */
     PluginService.loadService = function(pathToService, cb) {
-        try {
-            pb.log.debug("PluginService: Attempting to load service ["+pathToService+"]");
-            var service = require(pathToService)(pb);
+        pb.log.warn('PluginService: loadService is deprecated. Use PluginServiceLoader.get');
 
-            pb.log.debug("PluginService: Initializing service ["+pathToService+"]");
-            service.init(function(err/*, result*/) {
-                cb(err, service);
-            });
-        }
-        catch(e){
-            pb.log.error("PluginService: Failed to load service: ["+pathToService+"]: "+e.stack);
-            cb(e, null);
-        }
+        var service = new pb.PluginServiceLoader({});
+        service.get(pathToService, function(err, serviceWrapper) {
+            if (serviceWrapper) {
+                serviceWrapper = serviceWrapper.service;
+            }
+            cb(err, serviceWrapper);
+        });
     };
 
     /**
@@ -1823,7 +1751,7 @@ module.exports = function PluginServiceModule(pb) {
             var tasks =  util.getTasks(knownControllerPaths, function(knownControllerPaths, index) {
                 return function(callback) {
                     PluginService.loadController(knownControllerPaths[index], pluginUid, site, callback);
-                }
+                };
             });
 
             return async.parallel(tasks, cb);
@@ -1918,6 +1846,7 @@ module.exports = function PluginServiceModule(pb) {
      * the name of the service by looking to see if the service has implemented the
      * getName function.  If it has not then the service name is set to be the file
      * name minus any extension.
+     * @deprecated since 0.6.0
      * @static
      * @method getServiceName
      * @param pathToService The file path to the service
@@ -1925,19 +1854,8 @@ module.exports = function PluginServiceModule(pb) {
      * @return {String} The derived service name
      */
     PluginService.getServiceName = function(pathToService, service) {
-        var name = 'UNKNOWN';
-        if (service && util.isFunction(service.getName)) {
-            name = service.getName();
-        }
-        else {
-            var pieces = pathToService.split(path.sep);
-            name       = pieces[pieces.length - 1];
-            var index  = name.lastIndexOf('.');
-            if (index > 0) {
-                name = name.substring(0, index);
-            }
-        }
-        return name;
+        pb.log.warn('PluginService: getServiceName is deprecated. Use PluginServiceLoader.getServiceName');
+        pb.PluginServiceLoader.getServiceName(pathToService, service);
     };
 
     /**

@@ -1081,6 +1081,23 @@ describe('Util', function() {
             }
         });
     });
+
+    describe('Util.getFileExtensionFilter', function() {
+
+        [3, 2.1, false, undefined, null, {}].forEach(function(val) {
+            it('should throw when handled a non-string value '+util.inspect(val)+' as the filename', function() {
+                util.getFileExtensionFilter('js').bind(null, val).should.throwError();
+            });
+        });
+
+        it('should return true when passed a filename with a js extension', function() {
+            util.getFileExtensionFilter('js')('hello_world.js').should.eql(true);
+        });
+
+        it('should return false when passed a filename with a non-js extension', function() {
+            util.getFileExtensionFilter('js')('hello_world.json').should.eql(false);
+        });
+    });
 });
 
 var cnt = 0;

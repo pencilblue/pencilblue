@@ -14,10 +14,13 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
 var async = require('async');
 var semver = require('semver');
+var path = require('path');
+var fs = require('fs');
 
 module.exports = function (pb) {
 
@@ -162,7 +165,7 @@ module.exports = function (pb) {
     PluginValidationService.prototype.validateIcon = function(plugin, opts, cb) {
         var err = null;
         if (plugin.icon) {
-            if (!util.isString(plugin.icon) || !PluginService.validateIconPath(plugin.icon, plugin.uid)) {
+            if (!util.isString(plugin.icon) || !PluginValidationService.validateIconPath(plugin.icon, plugin.uid)) {
                 err = BaseObjectService.validationFailure('icon', 'The optional plugin icon must be a valid path to an image');
             }
         }
@@ -182,7 +185,7 @@ module.exports = function (pb) {
      */
     PluginValidationService.prototype.validateAuthor = function(plugin, opts, cb) {
         if (!plugin.author) {
-            return cb(null, BaseObjectService.validationFailure('author', 'The author block is required and must be an object'))
+            return cb(null, BaseObjectService.validationFailure('author', 'The author block is required and must be an object'));
         }
 
         var errors = [];
@@ -430,6 +433,7 @@ module.exports = function (pb) {
     /**
      * @method validate
      * @param {object} plugin
+     * @param {object} [plugin.dependencies]
      * @param {object} opts
      * @param {function} cb
      */
@@ -454,6 +458,7 @@ module.exports = function (pb) {
      * Validates the path of a main module file.  The path is considered valid if
      * the path points to JS file.  The path may be absolute or relative to the
      * specific plugin directory.
+     * @static
      * @method validateMainModulePath
      * @param mmPath The relative or absolute path to the main module file
      * @param pluginDirName The name of the directory housing the plugin
@@ -474,6 +479,28 @@ module.exports = function (pb) {
      */
     PluginValidationService.validateSettingValue = function(value) {
         return util.isString(value) || !isNaN(value) || value === true || value === false;
+    };
+
+    /**
+     * Validates the path to the plugin's icon file.  The path is considered valid
+     * if the path to a valid file.  The path may be absolute or relative to the
+     * plugin's public directory.
+     * @static
+     * @method validateIconPath
+     * @param iconPath The path to the icon (image) file
+     * @param pluginDirName The name of the directory housing the plugin
+     * @return {Boolean} TRUE if the path is valid, FALSE if not
+     */
+    PluginValidationService.validateIconPath = function(iconPath, pluginDirName) {
+        var pluginPublicIcon = path.join(PluginService.getPublicPath(pluginDirName), iconPath);
+        var paths            = [pluginPublicIcon, iconPath];
+
+        for (var i = 0; i < paths.length; i++) {
+            if (fs.existsSync(paths[i])) {
+                return true;
+            }
+        }
+        return false;
     };
 
     /**
