@@ -143,7 +143,7 @@ module.exports = function(pb) {
     };
 
     //register admin sub-nav
-    pb.AdminSubnavService.registerFor(SUB_NAV_KEY, UserForm.getSubNavItems);
+    //pb.AdminSubnavService.registerFor(SUB_NAV_KEY, UserForm.getSubNavItems);
 
     //exports
     return UserForm;

@@ -13,7 +13,7 @@
     'pencilblue.admin.factories.users',
     'pencilblue.admin.factories.content.articles'
   ])
-  .controller('AdminUsersListController', function($scope, $rootScope, $location, searchService, paginationService, uidService, usersFactory, articlesFactory) {
+  .controller('AdminUsersListController', function($scope, $rootScope, $location, $window, searchService, paginationService, uidService, usersFactory, articlesFactory) {
     $rootScope.activeLeftNavItems = ['users', 'manage'];
     $rootScope.subNavKey = 'manage_users';
 
@@ -68,6 +68,10 @@
         page: $scope.paginationPage,
         limit: $scope.paginationLimit
       });
+    };
+
+    $scope.gotoUser = function(user) {
+      $window.location = '/admin-new/users/' + $scope.getUid(user);
     };
 
     $scope.confirmDeletion = function(user) {
