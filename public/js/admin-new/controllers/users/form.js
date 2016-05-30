@@ -12,11 +12,12 @@
     'pencilblue.admin.factories.users',
     'pencilblue.admin.factories.roles'
   ])
-  .controller('AdminUsersFormController', function($scope, $rootScope, $window, uidService, usersFactory, rolesFactory) {
+  .controller('AdminUsersFormController', function($scope, $rootScope, $window, $http, uidService, usersFactory, rolesFactory) {
     $rootScope.activeLeftNavItems = ['content', 'users'];
     $rootScope.subNavKey = 'user_form';
 
     $scope.userId = userId.length ? userId : null;
+    $scope.usernameAvailable = null;
 
     $scope.getUser = function() {
       if(!$scope.userId) {
@@ -32,6 +33,32 @@
           $scope.roles = roles;
         });
       });
+    };
+
+    $scope.canCheckUsername = function() {
+      if(!$scope.user.username || !$scope.user.username.length) {
+        return false;
+      }
+
+      if($scope.username && $scope.username.toLowerCase() === $scope.user.username.toLowerCase()) {
+        return false;
+      }
+
+      return true;
+    };
+
+    $scope.getUsernameAvailability = function() {
+      $http.get('/api/user/get_username_available?username=' + $scope.user.username)
+      .success(function(result) {
+        $scope.usernameAvailable = result.data;
+      })
+      .error(function(error, status) {
+
+      });
+    };
+
+    $scope.resetUsernameAvailability = function() {
+      $scope.usernameAvailable = null;
     };
 
     $scope.getUserUid = function(user) {
