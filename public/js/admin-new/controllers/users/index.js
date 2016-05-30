@@ -40,6 +40,7 @@
     };
 
     $scope.search = function() {
+      $scope.searchText = angular.element('[ng-model="searchText"]').val();
       $scope.paginationPage = 0;
       $scope.setLocationSearch();
       $scope.getUsers();
@@ -69,16 +70,9 @@
       });
     };
 
-    $scope.getUserInfo = function(user) {
-      for(var i = 0; i < $scope.users.length; i++) {
-        $scope.users[i].infoActive = false;
-      }
-      user.infoActive = true;
-    };
-
     $scope.confirmDeletion = function(user) {
       $scope.objectToDelete = user;
-      $scope.deletionNameKey = 'name';
+      $scope.deletionNameKey = 'username';
       angular.element('.deletion-modal').modal('show');
     };
 
@@ -89,16 +83,10 @@
       user.infoActive = true;
       $scope.contextUser = user;
 
-      /*$scope.contextUser.rendered_topics = [];
-      angular.forEach($scope.contextUser.user_topics, function(topic) {
-        topicsFactory.getTopic(topic, function(error, topic) {
-          if(error) {
-            return;
-          }
-
-          $scope.contextUser.rendered_topics.push(topic);
-        });
-      });*/
+      $scope.contextArticles = [];
+      articlesFactory.getArticles({$offset: 0, $limit: 6, author: $scope.getUid(user)}, function(error, articles) {
+        $scope.contextArticles = articles;
+      });
     };
 
     $scope.deleteObject = function() {

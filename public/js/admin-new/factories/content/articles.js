@@ -13,6 +13,7 @@
             q: '@q',
             $offset: '@$offset',
             $limit: '@$limit',
+            author: '@author',
             render: '@render'
           }
         }

@@ -35,7 +35,7 @@
                   <td ng-bind="user.created | date: 'yyyy-MM-dd HH:mm'"></td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <button type="button" class="btn hidden-xs" ng-class="{'btn-default': !user.infoActive, 'btn-info': user.infoActive}" ng-click="getUserInfo(user); $event.stopPropagation();">
+                      <button type="button" class="btn hidden-xs" ng-class="{'btn-default': !user.infoActive, 'btn-info': user.infoActive}" ng-click="getUserInfo(user); $event.stopPropagation();" ng-disabled="user.admin === 0">
                         <i class="fa fa-info-circle"></i>
                       </button>
                       <button type="button" class="btn btn-default" ng-click="confirmDeletion(user); $event.stopPropagation();">
@@ -52,7 +52,17 @@
           </div>
           <div class="col-md-4" ng-if="contextUser">
             <h2 class="clickable" ng-bind="contextUser.username" ng-click="gotoUser(contextUser)"></h2>
-            <div class="well well-sm context-article">
+            <div class="well well-sm context-article" ng-if="contextArticles">
+              <h4>^loc_ARTICLES^</h4>
+              <div ng-repeat="article in contextArticles">
+                <a ng-href="/admin-new/content/articles/{{getUid(article)}}">
+                  <h5 class="no-margin" ng-bind="article.headline"></h4>
+                </a>
+                <h6>
+                  <i class="fa fa-fw fa-calendar"></i>
+                  <span ng-bind="article.publish_date | date: 'MM/dd/yy'"></span>
+                </h6>
+              </div>
             </div>
           </div>
         </div>

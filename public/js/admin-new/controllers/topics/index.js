@@ -39,6 +39,7 @@
     };
 
     $scope.search = function() {
+      $scope.searchText = angular.element('[ng-model="searchText"]').val();
       $scope.paginationPage = 0;
       $scope.setLocationSearch();
       $scope.getTopics();
