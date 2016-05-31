@@ -253,7 +253,7 @@ module.exports = function SettingsModule(pb) {
 
         //validate key is not taken
         var where = { key: new RegExp('^' + util.escapeRegExp(obj.key) + '$', 'i') };
-        context.service.dao.exists(TYPE, where, function(err, exists) {console.log(context);
+        context.service.dao.exists(TYPE, where, function(err, exists) {
             if (exists && context.isCreate) {
                 errors.push(pb.BaseObjectService.validationFailure('key', 'key already exists'));
             }

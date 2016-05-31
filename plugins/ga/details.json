@@ -3,7 +3,7 @@
     "name": "Google Analytics Plugin",
     "description": "Adds a Google Analytics tracking script to the site.",
     "version": "0.2.1",
-    "pb_version": "0.6.x",
+    "pb_version": ">=0.5.x <1.x",
     "author": {
         "name": "PencilBlue",
         "email": "info@pencilblue.org",

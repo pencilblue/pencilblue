@@ -80,11 +80,10 @@ module.exports = function(pb) {
             buffers.push(data);
             totalLength += data.length;
 
-            // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
-            if (totalLength > 1e6) {
+            if (totalLength > pb.config.media.max_upload_size) {
                 // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
 
-                var error = new Error("POST limit reached! Maximum of 1MB.");
+                var error = new Error('POST limit reached! Maximum of '+(pb.config.media.max_upload_size / 1000000)+'MB');
                 error.code = 400;
                 cb(error);
             }
@@ -177,8 +176,8 @@ module.exports = function(pb) {
     /**
      * Attempts to parse the request body as JSON content
      * @method parse
-     * @param {Request} The incoming request whose payload should be parsed
-     * @param {Function} A callback that taks two parameters: An Error, if occurred
+     * @param {Request} req The incoming request whose payload should be parsed
+     * @param {Function} cb A callback that taks two parameters: An Error, if occurred
      * and the parsed body content as an object
      */
     JsonBodyParser.prototype.parse = function(req, cb) {

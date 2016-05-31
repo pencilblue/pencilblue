@@ -2,8 +2,8 @@
     "uid": "portfolio",
     "name": "Portfolio Theme",
     "description": "A portfolio site theme for PencilBlue",
-    "version": "0.2.0",
-    "pb_version": "0.6.x",
+    "version": "0.2.1",
+    "pb_version": ">=0.5.x <1.x",
     "author": {
         "name": "PencilBlue",
         "email": "info@pencilblue.org",

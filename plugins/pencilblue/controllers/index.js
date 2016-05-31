@@ -26,6 +26,7 @@ module.exports = function IndexModule(pb) {
     var TopMenu        = pb.TopMenuService;
     var Comments       = pb.CommentService;
     var ArticleService = pb.ArticleService;
+    var CommentService = pb.CommentService;
 
     /**
      * Index page of the pencilblue theme
@@ -37,13 +38,9 @@ module.exports = function IndexModule(pb) {
     function Index(){}
     util.inherits(Index, pb.BaseController);
 
-    Index.prototype.init = function (props, cb) {
-        var self = this;
-
-        pb.BaseController.prototype.init.call(self, props, function () {
-            self.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
-            cb();
-        });
+    Index.prototype.initSync = function (/*context*/) {
+        this.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
+        this.commentService = new CommentService(this.getServiceContext());
     };
 
     Index.prototype.render = function(cb) {
@@ -315,7 +312,7 @@ module.exports = function IndexModule(pb) {
         var self           = this;
         var commentingUser = null;
         if(pb.security.isAuthenticated(this.session)) {
-            commentingUser = Comments.getCommentingUser(this.session.authentication.user);
+            commentingUser = self.commentService.getCommentingUser(this.session.authentication.user);
         }
 
         ts.registerLocal('user_photo', function(flag, cb) {

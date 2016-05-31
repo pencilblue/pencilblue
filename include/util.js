@@ -39,7 +39,7 @@ function Util(){}
  * @static
  * @method clone
  * @param {Object} object The object to clone
- * @return {Object} Cloned object
+ * @return {Object|Array} Cloned object
  */
 Util.clone = function(object){
     return JSON.parse(JSON.stringify(object));
@@ -118,7 +118,7 @@ Util.escapeRegExp = function(str) {
  * @return {Object} The 'to' variable
  */
 Util.merge = function(from, to) {
-    Util.forEach(from, function(val, propName/*, */) {
+    Util.forEach(from, function(val, propName) {
         to[propName] = val;
     });
     return to;
@@ -213,7 +213,7 @@ Util.forEach = function(iterable, handler) {
     }
     else {
         return false;
-    };
+    }
 
     //execute native foreach on interable
     internalIterable.forEach(internalHandler);
@@ -660,7 +660,7 @@ Util.mkdirs = function(absoluteDirPath, isFileName, cb) {
             });
         };
     });
-    async.series(tasks, function(err, results){
+    async.series(tasks, function(err/*, results*/){
         cb(err);
     });
 };

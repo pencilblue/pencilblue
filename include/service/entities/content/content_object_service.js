@@ -456,12 +456,16 @@ module.exports = function(pb) {
                 //media should exists so go get it
                 var mOpts = {
                     select: {
-                        location: 1
+                        location: 1,
+                        isFile: 1
                     },
                     where: pb.DAO.getIdWhere(content.thumbnail)
                 };
                 var mediaService = new pb.MediaServiceV2({ site: self.site, onlyThisSite: self.onlyThisSite });
-                mediaService.getAll(mOpts, function(err, media) {
+                mediaService.getSingle(mOpts, function(err, media) {
+                    if (media.isFile) {
+                        media.location = pb.UrlService.createSystemUrl(media.location)
+                    }
                     callback(err, util.isNullOrUndefined(media) ? '' : media.location);
                 });
             }

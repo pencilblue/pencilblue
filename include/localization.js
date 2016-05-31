@@ -33,7 +33,7 @@ module.exports = function LocalizationModule(pb) {
      * @module Services
      * @class Localization
      * @constructor
-     * @param {Object} request The request object
+     * @param {Request|string} request The request object
      * @param {Object} [options]
      * @param {String} [options.activeTheme]
      * @param {Array} [options.supported] The languages that the localization
@@ -176,9 +176,9 @@ module.exports = function LocalizationModule(pb) {
     /**
      * Localizes a string by searching for keys within the template and replacing
      * them with the specified values.
-     *
+     * @deprecated
      * @method localize
-     * @param {array} sets The localizations sets to search in
+     * @param {Array} sets The localizations sets to search in
      * @param {string} text The text to localize
      * @param {string} hostname The current hostname
      * @return {string} The text where keys have been replaced with translated values
@@ -187,6 +187,7 @@ module.exports = function LocalizationModule(pb) {
         if (pb.log.isSilly()) {
             pb.log.silly('Localization: Localizing text - Locale [%s] Sets %s', this.language, JSON.stringify(sets));
         }
+        pb.log.warn('Localization: localize is deprecated.');
 
         //get i18n from storage
         var loc = Localization.storage;
@@ -201,7 +202,7 @@ module.exports = function LocalizationModule(pb) {
         for (var i = 0; i < sets.length; i++) {
             for(var key in loc[sets[i]])  {
                 var setVal = this.g(sets[i] + Localization.KEY_SEP + key/*, {empty options}*/);
-                text = text.split('^loc_' + key + '^').join(loc[sets[i]][key]);
+                text = text.split('^loc_' + key + '^').join(setVal);
             }
         }
 
@@ -220,13 +221,13 @@ module.exports = function LocalizationModule(pb) {
      * situations where the key is found and the nuber of arguments passed to the
      * function is greater than 1.  See
      * http://nodejs.org/api/util.html#util_util_format_format for details on
-     * suppored formatting.
+     * supported formatting.
      * @deprecated Since 0.5.0
      * @method get
      * @param {String} key
-     * @param {String|Integer|Float|Object} [args] The variable number of
+     * @param {String|Integer|Number|Object} [args] The variable number of
      * parameters to be injected into the localization value
-     * @return {string} The formatted and localized string
+     * @return {string|null} The formatted and localized string
      */
     Localization.prototype.get = function() {
         var key = arguments[0];
@@ -274,20 +275,17 @@ module.exports = function LocalizationModule(pb) {
      *
      * @method g
      * @param {String} key
-     * @param {Object} params
      * @param {Object} [options]
      * @param {String} [options.site=global]
      * @param {Object} [options.params={}]
      * @param {Object} [options.plugin]
      * @return {String}
      */
-    Localization.prototype.g = function() {
-        var self = this;
-        var key = arguments[0];
-        var options = arguments[1] || {
-                site: pb.SiteService.GLOBAL_SITE,
-                params: {}
-            };
+    Localization.prototype.g = function(key, options) {
+        options = options || {
+            site: pb.SiteService.GLOBAL_SITE,
+            params: {}
+        };
 
         //log operation
         if (pb.log.isSilly()) {
@@ -330,7 +328,7 @@ module.exports = function LocalizationModule(pb) {
 
             //check for plugin specific
             if (!util.isNullOrUndefined(keyBlock.__plugins)) {
-                var pluginsBlock = keyBlock.__plugins
+                var pluginsBlock = keyBlock.__plugins;
 
                 //check for active plugin first
                 if (!util.isNullOrUndefined(pluginsBlock[plugin])) {
@@ -362,7 +360,7 @@ module.exports = function LocalizationModule(pb) {
                 return processValue(keyBlock.__default);
             }
 
-            //counldn't find it in this block
+            //couldn't find it in this block
             return null;
         };
 
@@ -391,7 +389,7 @@ module.exports = function LocalizationModule(pb) {
                 return langResult;
             }
 
-            //we counldn't find it in this locale
+            //we couldn't find it in this locale
             return null;
         };
 
@@ -453,7 +451,7 @@ module.exports = function LocalizationModule(pb) {
      * header in the request
      *
      * @method best
-     * @param {Object|String} request The request object
+     * @param {Request|String} request The request object
      * @param {Array} [supported] The array of supported locales
      * @return {string} Locale for the request
      */
@@ -491,11 +489,19 @@ module.exports = function LocalizationModule(pb) {
                 filter: function (filePath) {
                     return filePath.indexOf(JS_EXT) === filePath.length - JS_EXT.length;
                 }
+<<<<<<< HEAD
             };
             var localizationDir = path.join(pb.config.docRoot, 'public', 'localization');
             util.getFiles(localizationDir, options, function (err, files) {
                 if (util.isError(err)) {
                     return cb(err);
+=======
+                catch(e) {
+                    pb.log.warn('Localization: Failed to load core localization file [%s]. %s', file, e.stack);
+
+                    //we failed so skip this file
+                    return;
+>>>>>>> 4504fb3cc07ce51216ed0c450844a81a2fe7c6aa
                 }
 
                 var compoundedResult = true;
@@ -578,7 +584,7 @@ module.exports = function LocalizationModule(pb) {
         var localeObj = Localization.parseLocaleStr(locale);
         locale = Localization.formatLocale(localeObj.language, localeObj.countryCode);
 
-        return Localization.supportedLookup[locale] ? true : false;
+        return !!Localization.supportedLookup[locale];
     };
 
     /**
@@ -595,18 +601,18 @@ module.exports = function LocalizationModule(pb) {
         }
 
         var ls = new Localization(locale);
-        var package = {};
+        var packageObj = {};
         var keys = Object.keys(Localization.keys);
         keys.forEach(function(key) {
             var result = ls.g(key, options);
 
             var parts = key.split(Localization.KEY_SEP);
             if (parts.length === 1) {
-                package[key] = result;
+                packageObj[key] = result;
                 return;
             }
 
-            var block = package;
+            var block = packageObj;
             for (var i = 0; i < parts.length; i++) {
                 if (i == parts.length - 1) {
                     block[parts[i]] = result;
@@ -618,7 +624,7 @@ module.exports = function LocalizationModule(pb) {
                 block = block[parts[i]];
             }
         });
-        return package;
+        return packageObj;
     };
 
     /**
@@ -627,6 +633,8 @@ module.exports = function LocalizationModule(pb) {
      * @method registerLocalizations
      * @param {String} locale
      * @param {Object} localizations
+     * @param {object} options
+     * @param {string} [options.plugin]
      * @return {Boolean}
      */
     Localization.registerLocalizations = function(locale, localizations, options) {
@@ -642,7 +650,7 @@ module.exports = function LocalizationModule(pb) {
      * @param {String|Object} locale
      * @param {Object} localizations
      * @param {Object} [options]
-     * @param {String} [options.string]
+     * @param {String} [options.plugin]
      * @return {Boolean}
      */
     Localization.registerLocale = function(locale, localizations, options) {
@@ -658,9 +666,11 @@ module.exports = function LocalizationModule(pb) {
      * @static
      * @method _registerLocale
      * @param {String|Object} locale
+     * @param {string} [locale.language] Only required when passing locale as an object
+     * @param {string} [locale.countryCode]
      * @param {Object} localizations
      * @param {Object} [options]
-     * @param {String} [options.string]
+     * @param {string} [options.plugin=SYSTEM]
      * @return {Boolean}
      */
     Localization._registerLocale = function(locale, localizations, options) {
@@ -675,7 +685,7 @@ module.exports = function LocalizationModule(pb) {
 
         //log it
         if (pb.log.isSilly()) {
-            pb.log.silly('Localization: Registering locale [%s] for plugin [%s]', Localization.formatLocale(locale.language, locale.countryCode), options.plugin ? options.plugin : 'SYSTEM');
+            pb.log.silly('Localization: Registering locale [%s] for plugin [%s]', Localization.formatLocale(locale.language, locale.countryCode), options.plugin || 'SYSTEM');
         }
 
         //load up top level keys into the queue
@@ -736,7 +746,9 @@ module.exports = function LocalizationModule(pb) {
      * @private
      * @static
      * @method _registerLocalization
-     * @param {String} locale
+     * @param {String|object} locale
+     * @param {string} [locale.language] Only required when passing locale as an object
+     * @param {string} [locale.countryCode]
      * @param {String} key
      * @param {String} value
      * @param {Object} [options]
@@ -756,9 +768,6 @@ module.exports = function LocalizationModule(pb) {
         if (!util.isObject(options)) {
             options = {};
         }
-
-        //parse the key
-        var keyParts = key.split(Localization.KEY_SEP);
 
         //ensure that the key path exists and set a reference to the block that
         //represents the key.  We are essentially walking the tree to get to
@@ -813,6 +822,8 @@ module.exports = function LocalizationModule(pb) {
      * @static
      * @method unregisterLocale
      * @param {String|Object} locale
+     * @param {string} [locale.language] Only required when locale is passed as an object
+     * @param {string} [locale.countryCode]
      * @param {Object} [options]
      * @param {String} [options.plugin]
      * @return {Boolean}
@@ -821,11 +832,13 @@ module.exports = function LocalizationModule(pb) {
         locale = parseLocale(locale);
 
         //iterate over all of the keys
-        var result = true;
-        Object.keys(Localization.keys).forEach(function(key) {
-            result &= Localization.unregisterLocalization(locale, key, options);
-        });
-        return result;
+        var keysRemoved = Object.keys(Localization.keys).reduce(function(prev, key) {
+            return prev + Localization.unregisterLocalization(locale, key, options);
+        }, 0);
+
+        //remove from quick lookup
+        delete Localization.supportedLookup[Localization.formatLocale(locale.language, locale.countryCode)];
+        return keysRemoved > 0;
     };
 
     /**
@@ -835,6 +848,8 @@ module.exports = function LocalizationModule(pb) {
      * @static
      * @method unregisterLocalization
      * @param {String|Object} locale
+     * @param {string} [locale.language] Only required when passing locale as an object
+     * @param {string} [locale.countryCode]
      * @param {String} key
      * @param {Object} [options]
      * @param {String} [options.plugin]
@@ -851,7 +866,7 @@ module.exports = function LocalizationModule(pb) {
         }
 
         //ensure that the key even exists
-        if (!util.isString(Localization.keys[key])) {
+        if (!Localization.keys[key]) {
             return false;
         }
 
@@ -872,12 +887,15 @@ module.exports = function LocalizationModule(pb) {
         //check for country
         if (util.isString(locale.countryCode)) {
 
+            //the lang block contains a key for the country code
             var countryKey = k(locale.countryCode);
             if (!util.isNullOrUndefined(langBlock[countryKey])) {
 
+                // look to see if a plugin was specified
                 var countryBlock = langBlock[countryKey];//translate to plugin key
                 if (util.isString(options.plugin)) {
 
+                    //the plugin was specified so we should check the country code block for a sub-section for the plugin
                     if (util.isString(countryBlock[options.plugin])) {
                         delete countryBlock[options.plugin];
                         return true;
@@ -888,8 +906,9 @@ module.exports = function LocalizationModule(pb) {
                 }
             }
 
-            if (util.isString(keyBlock[countryKey].__default)) {
-                delete keyBlock[countryKey].__default;
+            //no plugin so we should fall through to the default block
+            if (util.isObject(langBlock[countryKey].__default)) {
+                delete langBlock[countryKey].__default;
                 return true;
             }
             return false;
@@ -1025,7 +1044,9 @@ module.exports = function LocalizationModule(pb) {
      * and country code into an object.
      * @static
      * @method parseLocaleStr
-     * @param {String} filePath
+     * @param {String|object} filePath
+     * @param {string} [filePath.language] Only required when passing filePath as an object
+     * @param {string} [filePath.countryCode] Only required when passing filePath as an object
      * @return {Object}
      */
     Localization.parseLocaleStr = function(filePath) {
@@ -1060,7 +1081,7 @@ module.exports = function LocalizationModule(pb) {
         var countryCode = parts[1] ? parts[1].toUpperCase() : null;
         return {
             language: lang,
-            countryCode: countryCode,
+            countryCode: countryCode
         };
     };
 
@@ -1114,6 +1135,7 @@ module.exports = function LocalizationModule(pb) {
      * @static
      * @method parseLocale
      * @param {String|Object} locale
+     * @param {string} [locale.language] Only required when passing an object
      * @return {Object}
      */
     function parseLocale(locale) {
@@ -1167,7 +1189,7 @@ module.exports = function LocalizationModule(pb) {
                     __isKey: true
                 };
             }
-            else if (!keyBlock[part].__isKey) {;
+            else if (!keyBlock[part].__isKey) {
 
                 //bad news bears. They tried to provide a key in a protected
                 //namespace.  Basically all the things with "__" prefixes
