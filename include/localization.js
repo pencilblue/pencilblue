@@ -282,6 +282,7 @@ module.exports = function LocalizationModule(pb) {
      * @return {String}
      */
     Localization.prototype.g = function(key, options) {
+        var self = this;
         options = options || {
             site: pb.SiteService.GLOBAL_SITE,
             params: {}
@@ -489,19 +490,11 @@ module.exports = function LocalizationModule(pb) {
                 filter: function (filePath) {
                     return filePath.indexOf(JS_EXT) === filePath.length - JS_EXT.length;
                 }
-<<<<<<< HEAD
             };
             var localizationDir = path.join(pb.config.docRoot, 'public', 'localization');
             util.getFiles(localizationDir, options, function (err, files) {
                 if (util.isError(err)) {
                     return cb(err);
-=======
-                catch(e) {
-                    pb.log.warn('Localization: Failed to load core localization file [%s]. %s', file, e.stack);
-
-                    //we failed so skip this file
-                    return;
->>>>>>> 4504fb3cc07ce51216ed0c450844a81a2fe7c6aa
                 }
 
                 var compoundedResult = true;
