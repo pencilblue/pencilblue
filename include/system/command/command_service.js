@@ -100,7 +100,7 @@ module.exports = function CommandServiceModule(pb) {
 
         //instantiate the command broker
         var self = this;
-        this.broker.init(function (err, result) {
+        this.broker.init(function (err) {
             if (util.isError(err)) {
                 return cb(err);
             }

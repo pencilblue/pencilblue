@@ -290,7 +290,7 @@ module.exports = function SiteServiceModule(pb) {
      */
     SiteService.prototype.editSite = function(options, cb) {
         cb = cb || util.cb;
-        var name = util.format("EDIT_SITE%s", options.site);
+        var name = util.format("EDIT_SITE%s", options.uid);
         var job = new pb.SiteCreateEditJob();
         job.setRunAsInitiator(true);
         job.init(name);
@@ -303,10 +303,8 @@ module.exports = function SiteServiceModule(pb) {
      * Creates a site and saves it to the database.
      * @method createSite
      * @param {Object} options - object containing site fields
-     * @param {String} options.uid - site unique id
      * @param {String} options.hostname - result of site hostname edit/create
      * @param {String} options.displayName - result of site display name edit/create
-     * @param {String} id - the site unique identifier for the database
      * @param {Function} cb - callback function
      */
     SiteService.prototype.createSite = function(options, cb) {
