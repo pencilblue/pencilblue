@@ -120,7 +120,7 @@ module.exports = function DAOModule(pb) {
      * @method loadByValues
      * @param {Object}   where      Key value pair object
      * @param {String}   collection The collection to search in
-     * @param {Object}   opts Key value pair object to exclude the retrival of data
+     * @param {Object}   [opts] Key value pair object to exclude the retrieval of data
      * @param {Function} cb         Callback function
      */
     DAO.prototype.loadByValues = function(where, collection, opts, cb) {

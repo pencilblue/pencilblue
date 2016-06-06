@@ -198,7 +198,7 @@ module.exports = function CustomObjectServiceModule(pb) {
     /**
      * Retrieves custom objects of the specified type based on the specified options.
      * @method findByTypeWithOrdering
-     * @param {Object|String} The custom object type descriptor object or the ID
+     * @param {Object|String} custObjType The custom object type descriptor object or the ID
      * string of the type descriptor.
      * @param {Object} [options={}] The filters and other flags.  The options object
      * supports the same fields as the DAO.query function.
@@ -408,7 +408,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                     }
                 };
             });
-            async.series(tasks, function(err, results) {
+            async.series(tasks, function(err) {
                 cb(err, custObj);
             });
         });
@@ -515,7 +515,7 @@ module.exports = function CustomObjectServiceModule(pb) {
      * @param {Object} [where] The criteria for which objects to count
      * @param {Function} cb A callback that takes two parameters. The first is an
      * error, if occurred. The second is the number of objects that match the
-     * specified critieria.
+     * specified criteria.
      */
     CustomObjectService.prototype.countByType = function(type, where, cb) {
         if (util.isFunction(where)) {
@@ -564,7 +564,7 @@ module.exports = function CustomObjectServiceModule(pb) {
     /**
      * Loads a custom object by the specified where criteria
      * @method loadBy
-     * @param {String} type
+     * @param {String|Null} type
      * @param {Object} where
      * @param {Object} [options]
      * @param {Function} cb
@@ -705,7 +705,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 });
             }
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err) {
             cb(err, errors);
         });
     };
@@ -725,7 +725,7 @@ module.exports = function CustomObjectServiceModule(pb) {
         var tasks = util.getTasks(Object.keys(custObjType.fields), function(keys, i) {
             return function(callback) {
 
-                //check for excption
+                //check for exception
                 var fieldName = keys[i];
                 if (fieldName === NAME_FIELD) {
                     //validated independently in main validation function
@@ -745,7 +745,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 callback(null);
             };
         });
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err) {
             cb(err, errors);
         });
     };
@@ -821,7 +821,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 });
             }
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err) {
             cb(err, errors);
         });
     };
@@ -829,7 +829,7 @@ module.exports = function CustomObjectServiceModule(pb) {
     /**
      * Validates that the field descriptor for a custom object type.
      * @method validateFieldDescriptor
-     * @param {String} field
+     * @param {object} field
      * @param {Array} customTypes
      * @return {Array} An array of objects that contain two properties: field and
      * error
@@ -938,7 +938,7 @@ module.exports = function CustomObjectServiceModule(pb) {
      * Deletes a custom object by ID
      * @method deleteById
      * @param {String} id
-     * @param {Function} cb
+     * @param {Function} cb (Error, *)
      */
     CustomObjectService.prototype.deleteById = function(id, cb) {
         var dao = new pb.DAO();
@@ -949,8 +949,8 @@ module.exports = function CustomObjectServiceModule(pb) {
      * Deletes a custom object type by id
      * @method deleteTypeById
      * @param {String|ObjectID} id
-     * @param {Object} [options={}]
-     * @param {Function} cb
+     * @param {object} [options={}]
+     * @param {function} cb (Error, *)
      */
     CustomObjectService.prototype.deleteTypeById = function(id, options, cb) {
         if (util.isFunction(options)) {
@@ -982,21 +982,26 @@ module.exports = function CustomObjectServiceModule(pb) {
     /**
      * Deletes all custom objects of a specified type
      * @method deleteForType
-     * @param {String|Object} custObjType A string ID of the custom object type or
+     * @param {string|object} custObjType A string ID of the custom object type or
      * the custom object type itself.
-     * @param {Object} [options={}]
-     * @param {Function} cb
+     * @param {Function} cb (Error, *)
      */
     CustomObjectService.prototype.deleteForType = function(custObjType, cb) {
 
         var typeId = custObjType;
         if (!util.isString(custObjType)) {
-            typeId = custObjType.toString();
+            typeId = custObjType[pb.DAO.getIdField()] + '';
         }
         var dao = new pb.DAO();
         dao.delete({type: typeId}, CustomObjectService.CUST_OBJ_COLL, cb);
     };
 
+    /**
+     * Determines if a custom object type with the specified name (case insensitive) exists
+     * @method typeExists
+     * @param {string} typeName
+     * @param {function} cb (Error, Boolean)
+     */
     CustomObjectService.prototype.typeExists = function(typeName, cb) {
 
         var where = {
@@ -1004,6 +1009,16 @@ module.exports = function CustomObjectServiceModule(pb) {
         };
 
         this.siteQueryService.exists(CustomObjectService.CUST_OBJ_TYPE_COLL, where, cb);
+    };
+
+    /**
+     * Provides the various types of fields that are allowed for a custom object (number, boolean, string, etc).
+     * @static
+     * @method getFieldTypes
+     * @returns {Array}
+     */
+    CustomObjectService.getFieldTypes = function() {
+        return Object.keys(AVAILABLE_FIELD_TYPES);
     };
 
     /**
