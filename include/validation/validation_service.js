@@ -324,7 +324,7 @@ module.exports = function ValidationModule(pb) {
      *
      * @method isObject
      * @param {Object} value
-     * @param {Boolean} required
+     * @param {Boolean} [required=false]
      */
     ValidationService.isObj = function(value, required) {
         if (!value && !required) {
@@ -340,7 +340,7 @@ module.exports = function ValidationModule(pb) {
      * @param {Integer} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
-     * @param {Boolean} Indicates if the value must be a number rather than a string representing a number.
+     * @param {Boolean} strict Indicates if the value must be a number rather than a string representing a number.
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     ValidationService.isInt = function(val, required, strict) {
@@ -359,10 +359,10 @@ module.exports = function ValidationModule(pb) {
      * Validates that the value is a float.
      * @static
      * @method isFloat
-     * @param {Float} val The value under test
+     * @param {Number} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
-     * @param {Boolean} Indicates if the value must be a number rather than a string representing a number.
+     * @param {Boolean} strict Indicates if the value must be a number rather than a string representing a number.
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     ValidationService.isFloat = function(val, required, strict) {
@@ -370,7 +370,7 @@ module.exports = function ValidationModule(pb) {
             return true;
         }
 
-        var parsed = parseFloat(val, 10);
+        var parsed = parseFloat(val);
         if (strict && val !== parsed) {
             return false;
         }
@@ -421,7 +421,8 @@ module.exports = function ValidationModule(pb) {
      * Validates that the value is a date object
      * @static
      * @method isDate
-     * @param {*} val The value under test
+     * @param {Date} val The value under test
+     * @param {boolean} [required=false]
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     ValidationService.isDate = function(val, required) {
