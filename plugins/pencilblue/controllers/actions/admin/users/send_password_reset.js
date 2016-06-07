@@ -16,15 +16,44 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+    var DAO = pb.DAO;
+    var UserService = pb.UserService;
+
     /**
      * Sends a password reset email
      */
     function SendPasswordReset(){}
     util.inherits(SendPasswordReset, pb.FormController);
+
+    /**
+     * Initializes the controller
+     * @method init
+     * @param {Object} context
+     * @param {Function} cb
+     */
+    SendPasswordReset.prototype.init = function(context, cb) {
+        var self = this;
+        var init = function(err) {
+
+            /**
+             * @property service
+             * @type {UserService}
+             */
+            self.service = new UserService(self.getServiceContext());
+
+            /**
+             * @property dao
+             * @type {DAO}
+             */
+            self.dao = new DAO();
+
+            cb(err, true);
+        };
+        SendPasswordReset.super_.prototype.init.apply(this, [context, init]);
+    };
 
     SendPasswordReset.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
@@ -36,17 +65,16 @@ module.exports = function(pb) {
             return;
         }
 
-        var dao = new pb.DAO();
-        dao.loadById(vars.id, 'user', function(err, user) {
+        //find the user
+        this.service.get(vars.id, function(err, user) {
             if(util.isError(err) || user === null) {
-                self.formError(self.ls.get('ERROR_SAVING'), '/admin/users', cb);
-                return;
+                return self.formError(self.ls.g('generic.ERROR_SAVING'), '/admin/users', cb);
             }
 
-            dao.loadByValue('user_id', vars.id, 'password_reset', function(err, passwordReset) {
+            //check to see if a reset value already exists
+            self.dao.loadByValue('user_id', vars.id, 'password_reset', function(err, passwordReset) {
                 if(util.isError(err)) {
-                    self.formError(self.ls.get('NOT_REGISTERED'), '/admin/users/' + vars.id, cb);
-                    return;
+                    return self.formError(self.ls.g('users.NOT_REGISTERED'), '/admin/users/' + vars.id, cb);
                 }
 
                 if(!passwordReset) {
@@ -55,18 +83,18 @@ module.exports = function(pb) {
 
                 passwordReset.verification_code = util.uniqueId();
 
-                dao.save(passwordReset, function(err, result) {
+                self.dao.save(passwordReset, function(err, result) {
                     if(util.isError(err)) {
-                        return self.formError(self.ls.get('ERROR_SAVING'), '/admin/users/' + vars.id, cb);
+                        return self.formError(self.ls.g('generic.ERROR_SAVING'), '/admin/users/' + vars.id, cb);
                     }
 
                     //send the user an email
-                    pb.users.sendPasswordResetEmail(user, passwordReset, function(err, response) {
+                    self.service.sendPasswordResetEmail(user, passwordReset, function(err, response) {
                         if (util.isError(err)) {
-                            return self.formError(self.ls.get(err.message), '/admin/users/' + vars.id, cb);
+                            return self.formError(self.ls.g(err.message), '/admin/users/' + vars.id, cb);
                         }
 
-                        self.session.success = self.ls.get('VERIFICATION_SENT') + ' ' + user.email;
+                        self.session.success = self.ls.g('users.VERIFICATION_SENT') + ' ' + user.email;
                         self.redirect('/admin/users/' + vars.id, cb);
                     });
                 });

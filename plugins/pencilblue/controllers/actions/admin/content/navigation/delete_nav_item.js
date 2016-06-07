@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Deletes a navigation item
      */
@@ -44,7 +44,7 @@ module.exports = function(pb) {
             if(section === null) {
                 cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
                 });
                 return;
             }
@@ -52,7 +52,7 @@ module.exports = function(pb) {
             //delete the section
             var where = {
                 $or: [
-                    pb.DAO.getIdWhere(vars.id), 
+                    pb.DAO.getIdWhere(vars.id),
                     {
                         parent: vars.id
                     }
@@ -62,7 +62,7 @@ module.exports = function(pb) {
                 if(util.isError(err) || result < 1) {
                     return cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_DELETING'))
                     });
                 }
 
@@ -71,11 +71,11 @@ module.exports = function(pb) {
                     if(util.isError(err)) {
                         return cb({
                             code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_DELETING'))
                         });
                     }
-                    
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, section.name + ' ' + self.ls.get('DELETED'))});
+
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, section.name + ' ' + self.ls.g('admin.DELETED'))});
                 });
             });
         });

@@ -1,4 +1,4 @@
-[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue) [![Coverage Status](https://coveralls.io/repos/pencilblue/pencilblue/badge.svg?branch=master)](https://coveralls.io/r/pencilblue/pencilblue?branch=master) [![Build Status](https://travis-ci.org/pencilblue/pencilblue.svg?branch=master)](https://travis-ci.org/pencilblue/pencilblue) [![Code Climate](https://codeclimate.com/github/pencilblue/pencilblue/badges/gpa.svg)](https://codeclimate.com/github/pencilblue/pencilblue)[![Join the chat at https://gitter.im/pencilblue/pencilblue](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pencilblue/pencilblue?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue) [![Coverage Status](https://coveralls.io/repos/pencilblue/pencilblue/badge.svg?branch=master)](https://coveralls.io/r/pencilblue/pencilblue?branch=master) [![Build Status](https://travis-ci.org/pencilblue/pencilblue.svg?branch=master)](https://travis-ci.org/pencilblue/pencilblue) [![Code Climate](https://codeclimate.com/github/pencilblue/pencilblue/badges/gpa.svg)](https://codeclimate.com/github/pencilblue/pencilblue) [![bitHound Overall Score](https://www.bithound.io/github/pencilblue/pencilblue/badges/score.svg)](https://www.bithound.io/github/pencilblue/pencilblue) [![Join the chat at https://gitter.im/pencilblue/pencilblue](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pencilblue/pencilblue?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [PencilBlue](http://pencilblue.org)
 =====
@@ -7,7 +7,7 @@
 
 First and foremost:  If at any point you have questions, comments or concerns you can find us hanging out on twitter [@getpencilblue](https://twitter.com/GetPencilBlue) and on our [subreddit](http://www.reddit.com/domain/pencilblue.org/).  We're always happy to help and pull requests (plugin or core) are always welcome.  
 
-###### To learn how to build websites with PencilBlue, read our [tutorials](https://pencilblue.org/section/tutorials).
+###### To learn how to build websites with PencilBlue, read our [tutorials](https://github.com/pencilblue/pencilblue/wiki/Quickstart-Guide).
 
 The first open source content management system to meet all the needs of a modern website:
 

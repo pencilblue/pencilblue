@@ -23,7 +23,7 @@ module.exports = function ApiActionControllerModule(pb) {
 
     //pb dependencies
     var BaseController = pb.BaseController;
-    
+
     /**
      * Controller interface used to map simple actions to handlers and provide
      * a flow for validation and error handling.
@@ -90,52 +90,47 @@ module.exports = function ApiActionControllerModule(pb) {
 
         var actions = this.getActions();
         if (!pb.validation.validateNonEmptyStr(action, true) || actions[action] === undefined) {
-            cb(null, [this.ls.get('VALID_ACTION_REQUIRED')]);
-            return;
+            return cb(null, [this.ls.g('generic.VALID_ACTION_REQUIRED')]);
         }
-        else {
-            var self = this;
-            var tasks = [
-                function(callback) {
-                    self.validatePathParameters(action, callback);
-                },
-                function(callback) {
-                    self.validateQueryParameters(action, callback);
-                },
-                function(callback) {
-                    if (self.req.method.toUpperCase() === 'POST') {
-                        self.getPostParams(function(err, post) {
-                            if (util.isError(err)) {
-                                callback(err, []);
-                                return;
-                            }
 
-                            if (self.getAutoSanitize()) {
-                                self.sanitizeObject(post);
-                            }
-
-                            self.post = post;
-                            self.validatePostParameters(action, post, callback);
-                        });
+        var self = this;
+        var tasks = [
+            function(callback) {
+                self.validatePathParameters(action, callback);
+            },
+            function(callback) {
+                self.validateQueryParameters(action, callback);
+            },
+            function(callback) {
+                if (self.req.method.toUpperCase() !== 'POST') {
+                    return callback(null, []);
+                }
+                self.getPostParams(function(err, post) {
+                    if (util.isError(err)) {
+                        return callback(err, []);
                     }
-                    else {
-                        callback(null, []);
-                    }
-                },
-            ];
-            async.parallel(tasks, function(err, results) {
 
-                var errors = [];
-                if (util.isArray(results)) {
-                    for (var i = 0; i < results.length; i++) {
-                        if (util.isArray(results[i])) {
-                            util.arrayPushAll(results[i], errors);
-                        }
+                    if (self.getAutoSanitize()) {
+                        self.sanitizeObject(post);
+                    }
+
+                    self.post = post;
+                    self.validatePostParameters(action, post, callback);
+                });
+            },
+        ];
+        async.parallel(tasks, function(err, results) {
+
+            var errors = [];
+            if (util.isArray(results)) {
+                for (var i = 0; i < results.length; i++) {
+                    if (util.isArray(results[i])) {
+                        util.arrayPushAll(results[i], errors);
                     }
                 }
-                cb(err, errors);
-            });
-        }
+            }
+            cb(err, errors);
+        });
     };
 
     /**
@@ -170,7 +165,7 @@ module.exports = function ApiActionControllerModule(pb) {
         var errors  = [];
         var actions = this.getActions();
         if (actions[action] && !pb.validation.validateNonEmptyStr(this.pathVars.id, true)) {
-            errors.push(this.ls.get('VALID_IDENTIFIER_REQUIRED'));
+            errors.push(this.ls.g('generic.VALID_IDENTIFIER_REQUIRED'));
         }
         cb(null, errors);
     };
