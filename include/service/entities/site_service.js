@@ -122,7 +122,7 @@ module.exports = function SiteServiceModule(pb) {
      */
     SiteService.prototype.getAllSites = function(cb) {
         var dao = new pb.DAO();
-        dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {} }, cb);
+        dao.q(SITE_COLL, { select: pb.DAO.PROJECT_ALL, where: {} }, cb);
     };
 
     /**
@@ -132,7 +132,7 @@ module.exports = function SiteServiceModule(pb) {
      */
     SiteService.prototype.getActiveSites = function(cb) {
         var dao = new pb.DAO();
-        dao.q(SITE_COLL, { select: pb.DAO.SELECT_ALL, where: {active: true} }, cb);
+        dao.q(SITE_COLL, { select: pb.DAO.PROJECT_ALL, where: {active: true} }, cb);
     };
 
     /**
@@ -172,7 +172,7 @@ module.exports = function SiteServiceModule(pb) {
      */
     SiteService.prototype.getSiteNameByUid = function(uid, cb) {
         var dao = new pb.DAO();
-        dao.q(SITE_COLL, {select: pb.DAO.SELECT_ALL, where: {uid: uid} }, function(err, result) {
+        dao.q(SITE_COLL, {select: pb.DAO.PROJECT_ALL, where: {uid: uid} }, function(err, result) {
             var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
 
             if (pb.util.isError(err)) {
@@ -491,13 +491,13 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
-     * Returns true if siteid given is global or non-existant (to remain backwards compatible)
+     * Returns true if siteId given is global or non-existent (to remain backwards compatible)
      * @method isGlobal
-     * @param {String} siteid - the site id to check
+     * @param {String} siteId - the site id to check
      * @return {Boolean} true if global or does not exist
      */
-    SiteService.isGlobal = function (siteid) {
-        return (!siteid || siteid === SiteService.GLOBAL_SITE);
+    SiteService.isGlobal = function (siteId) {
+        return (!siteId || siteId === SiteService.GLOBAL_SITE);
     };
 
     /**
@@ -566,14 +566,14 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String} siteId
      * @param {Function} cb
      */
-    SiteService.prototype.deleteSiteSpecificContent = function (siteid, cb) {
+    SiteService.prototype.deleteSiteSpecificContent = function (siteId, cb) {
         var siteQueryService = new pb.SiteQueryService();
         siteQueryService.getCollections(function(err, allCollections) {
             var dao = new pb.DAO();
 
             var tasks = util.getTasks(allCollections, function (collections, i) {
                 return function (taskCallback) {
-                    dao.delete({site: siteid}, collections[i].name, function (err, commandResult) {
+                    dao.delete({site: siteId}, collections[i].name, function (err, commandResult) {
                         if (util.isError(err) || !commandResult) {
                             return taskCallback(err);
                         }
@@ -587,7 +587,7 @@ module.exports = function SiteServiceModule(pb) {
                     pb.log.error(err);
                     return cb(err);
                 }
-                pb.log.silly("Successfully deleted site %s from database", siteid);
+                pb.log.silly("Successfully deleted site %s from database", siteId);
                 cb(null, results);
             });
         });
@@ -604,7 +604,7 @@ module.exports = function SiteServiceModule(pb) {
             displayName: pb.config.siteName,
             uid: pb.SiteService.GLOBAL_SITE,
             hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
-            active: pb.config.multisite.enabled ? false : true,
+            active: !pb.config.multisite.enabled,
             defaultLocale: pb.Localization.getDefaultLocale(),
             supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function() { return true; }),
             prevHostnames: []
