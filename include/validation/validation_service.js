@@ -357,7 +357,7 @@ module.exports = function ValidationModule(pb) {
      * Validates that the value is a float.
      * @static
      * @method isFloat
-     * @param {number} val The value under test
+     * @param {*} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
      * @param {Boolean} strict Indicates if the value must be a number rather than a string representing a number.
@@ -379,7 +379,7 @@ module.exports = function ValidationModule(pb) {
      * Validates that the value is a number.
      * @static
      * @method isNum
-     * @param {Number} val The value under test
+     * @param {*} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
      * @return {Boolean} TRUE if the value is valid, FALSE if not
@@ -396,7 +396,7 @@ module.exports = function ValidationModule(pb) {
      * Validates that the value is a boolean.
      * @static
      * @method isBool
-     * @param {Boolean} val The value under test
+     * @param {*} val The value under test
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     ValidationService.isBool = function(val) {
