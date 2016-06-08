@@ -139,7 +139,6 @@ module.exports = function CustomObjectServiceModule(pb) {
             throw new Error('The custom object type must be a valid object.');
         }
 
-        var self = this;
         sortOrder.object_type = CustomObjectService.CUST_OBJ_SORT_COLL;
         this.validateSortOrdering(sortOrder, function(err, errors) {
             if (util.isError(err) || errors.length > 0) {
@@ -154,7 +153,7 @@ module.exports = function CustomObjectServiceModule(pb) {
     /**
      * Validates a sort ordering for custom objects of a specific type
      * @method validateSortOrdering
-     * @param {Object} sortOrdering
+     * @param {Object} sortOrder
      * @param {Function} cb A callback that takes two parameters. The first is an
      * error, if occurred and the second is an array of validation error objects.
      * If the array is empty them it is safe to assume that the object is valid.
@@ -164,7 +163,7 @@ module.exports = function CustomObjectServiceModule(pb) {
             throw new Error('The sortOrder parameter must be a valid object');
         }
 
-        //validat sorted IDs
+        //validate sorted IDs
         var errors = [];
         if (!util.isArray(sortOrder.sorted_objects)) {
             errors.push(CustomObjectService.err('sorted_objects', 'The sorted_objects property must be an array of IDs'));
@@ -206,7 +205,7 @@ module.exports = function CustomObjectServiceModule(pb) {
      * of referenced child and peer objects to load.  At the bottom level the
      * references will be left as ID strings.
      * @param {Function} cb A callback that takes two parameters. The first is any
-     * error, if ocurred. The second is an array of objects sorted by the ordering
+     * error, if occurred. The second is an array of objects sorted by the ordering
      * assigned for the custom object or by name if no ordering exists.
      */
     CustomObjectService.prototype.findByTypeWithOrdering = function(custObjType, options, cb) {
@@ -239,7 +238,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 });
             }
         ];
-        async.parallel(tasks, function(err, results) {
+        async.parallel(tasks, function(err) {
             custObjects = CustomObjectService.applyOrder(custObjects, sortOrder);
             cb(err, custObjects);
         });
@@ -830,7 +829,7 @@ module.exports = function CustomObjectServiceModule(pb) {
      * Validates that the field descriptor for a custom object type.
      * @method validateFieldDescriptor
      * @param {object} field
-     * @param {Array} customTypes
+     * @param {object} customTypes
      * @return {Array} An array of objects that contain two properties: field and
      * error
      */

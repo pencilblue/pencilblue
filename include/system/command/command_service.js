@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -36,7 +37,7 @@ module.exports = function CommandServiceModule(pb) {
         this.broker = broker;
         this.registrants = {};
         this.awaitingResponse = {};
-    };
+    }
 
     /**
      * The singleton instance
@@ -46,6 +47,15 @@ module.exports = function CommandServiceModule(pb) {
      * @type {CommandService}
      */
     var INSTANCE = null;
+
+    /**
+     * The singleton instance
+     * @private
+     * @static
+     * @property INITIALIZED
+     * @type {boolean}
+     */
+    var INITIALIZED = false;
 
     /**
      * The default timeout in milliseconds (2 seconds)
@@ -64,7 +74,7 @@ module.exports = function CommandServiceModule(pb) {
      * @property AWAITING_RESPONSE
      * @type {Object}
      */
-    var DEFALULT_BROKERS = {
+    var DEFAULT_BROKERS = {
         redis: pb.RedisCommandBroker,
         mongo: pb.MongoCommandBroker
     };
@@ -96,6 +106,9 @@ module.exports = function CommandServiceModule(pb) {
      * @param {Function} cb A callback that takes two parameters: cb(Error, TRUE/FALSE)
      */
     CommandService.prototype.init = function (cb) {
+        if (INITIALIZED) {
+            return cb(null, true);
+        }
         pb.log.debug('CommandService: Initializing...');
 
         //instantiate the command broker
@@ -105,13 +118,14 @@ module.exports = function CommandServiceModule(pb) {
                 return cb(err);
             }
 
-            self.broker.subscribe(pb.ServerRegistration.generateKey(), CommandService.onCommandReceived(self), cb);
+            self.broker.subscribe(pb.ServerRegistration.generateKey(), CommandService.onCommandReceived(self), function(error, result) {
+                INITIALIZED = !util.isError(error);
+                cb(err, result);
+            });
         });
 
         //register for events
-        pb.system.registerShutdownHook('CommandService', function (cb) {
-            self.shutdown(cb);
-        });
+        pb.system.registerShutdownHook('CommandService', util.wrapTask(this, this.shutdown));
     };
 
     /**
@@ -338,7 +352,7 @@ module.exports = function CommandServiceModule(pb) {
      * @param{Function} onResponse
      */
     CommandService.prototype.sendCommandGetResponse = function (type, options, onResponse) {
-        if (!util.isObject(options) || !pb.validation.validateNonEmptyStr(options.to, true)) {
+        if (!util.isObject(options) || !pb.validation.isNonEmptyStr(options.to, true)) {
             return onResponse(new Error('A to field must be provided when expecting a response to a message.'));
         }
 
@@ -354,7 +368,7 @@ module.exports = function CommandServiceModule(pb) {
                         onResponse(err);
                         return;
                     }
-                    else if (!pb.validation.validateNonEmptyStr(commandId, true)) {
+                    else if (!pb.validation.isNonEmptyStr(commandId, true)) {
                         onResponse(new Error('Failed to publish the command to the cluster'));
                         return;
                     }
@@ -377,7 +391,7 @@ module.exports = function CommandServiceModule(pb) {
                     };
                 });
             });
-        }
+        };
         doSend(type, options, onResponse);
     };
 
@@ -450,8 +464,12 @@ module.exports = function CommandServiceModule(pb) {
         }
 
         //instruct the broker to broadcast the command
-        this.broker.publish(options.to, options, function (err, result) {
-            cb(err, result ? options.id : null);
+        var tasks = [
+            util.wrapTask(this, this.init),
+            util.wrapTask(this.broker, this.broker.publish, [options.to, options])
+        ];
+        async.series(tasks, function (err, results) {
+            cb(err, results[tasks.length - 1] ? options.id : null);
         });
     };
 
@@ -462,9 +480,8 @@ module.exports = function CommandServiceModule(pb) {
      * handoff to the function that will delegate out to the handlers.
      * @static
      * @method onCommandReceived
-     * @param {String} channel The channel to listen for incoming commands
-     * @param {Object} command The command to verify and delegate
-     * @return {Function}
+     * @param {CommandService} commandService
+     * @return {Function} (string, object)
      */
     CommandService.onCommandReceived = function (commandService) {
         return function (channel, command) {
@@ -493,8 +510,8 @@ module.exports = function CommandServiceModule(pb) {
 
         //figure out which broker to use
         var CommandBroker = null;
-        if (DEFALULT_BROKERS[pb.config.command.broker]) {
-            CommandBroker = DEFALULT_BROKERS[pb.config.command.broker]
+        if (DEFAULT_BROKERS[pb.config.command.broker]) {
+            CommandBroker = DEFAULT_BROKERS[pb.config.command.broker]
         }
         else {
             CommandBroker = require(pb.config.command.broker)(pb);
