@@ -2,14 +2,15 @@ var url      = require('url');
 var async    = require('async');
 var util     = require('../util.js');
 
-module.exports = function DBMigrateModule(pb) {
+module.exports = function (pb) {
+
     /**
      * Array of collections used to append a "site" value to all documents
      * @private
      * @static
      * @readonly
      * @property MIGRATE_ALL
-     * @type {string[]}
+     * @type {Array}
      */
     var MIGRATE_ALL = [
         'article',
@@ -31,7 +32,7 @@ module.exports = function DBMigrateModule(pb) {
      * @static
      * @readonly
      * @property SITE_SPECIFIC_USERS
-     * @type {string[]}
+     * @type {Array}
      */
     var SITE_SPECIFIC_USERS = [
         pb.security.ACCESS_EDITOR,
@@ -45,7 +46,7 @@ module.exports = function DBMigrateModule(pb) {
      * @static
      * @readonly
      * @property SITE_SPECIFIC_SETTINGS
-     * @type {string[]}
+     * @type {Array}
      */
     var SITE_SPECIFIC_SETTINGS = [
         'active_theme',
@@ -70,12 +71,18 @@ module.exports = function DBMigrateModule(pb) {
             var self = this;
             var siteService = new pb.SiteService();
             siteService.getSiteMap(function (err, result) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
                 if (!pb.config.multisite.enabled || result.active.length > 0 || result.inactive.length > 0) {
                     return cb(null, true);
                 }
 
-                self.createSite(function (err, isTaken, field, result) {
-                    self.siteUid = result.uid;
+                self.createSite(function (err, result) {
+                    if (util.isError(err)) {
+                        return cb(err);
+                    }
+                    self.siteUid = result.site.uid;
                     var tasks = [
                         util.wrapTask(self, self.migrateContentAndPluginData),
                         util.wrapTask(self, self.migrateSettings),
@@ -91,12 +98,12 @@ module.exports = function DBMigrateModule(pb) {
          * @param {Function} cb
          */
         this.createSite = function (cb) {
-            var siteService = new pb.SiteService();
-            var site = pb.DocumentCreator.create('site', {
+            var site = {
                 displayName: pb.config.siteName,
                 hostname: url.parse(pb.config.siteRoot).host
-            });
-            siteService.createSite(site, '', cb);
+            };
+            var siteService = new pb.SiteService();
+            siteService.createSite(site, cb);
         };
 
         /**
