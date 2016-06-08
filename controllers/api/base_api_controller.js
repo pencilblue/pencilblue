@@ -19,6 +19,7 @@ module.exports = function(pb) {
 
     //PB dependencies
     var util = pb.util;
+    var BaseObjectService = pb.BaseObjectService;
 
     /**
      *
@@ -62,8 +63,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     BaseApiController.prototype.get = function(cb) {
-        var id = this.pathVars.id;
-        this.service.get(id, this.handleGet(cb));
+        this.service.get(this.pathVars.id, this.processQuery(), this.handleGet(cb));
     };
 
     /**
@@ -172,9 +172,7 @@ module.exports = function(pb) {
                     pb.ValidationService.isNonEmptyStr(statement[0], true) &&
                     pb.ValidationService.isInt(statement[1], true)) {
 
-                    var ordering = {};
-                    ordering[statement[0]] = parseInt(statement[1]) > 0 ? pb.DAO.ASC : pb.DAO.DESC;
-                    order.push(ordering);
+                    order.push( [ statement[0], parseInt(statement[1]) > 0 ? pb.DAO.ASC : pb.DAO.DESC ] );
                 }
                 else {
 
@@ -347,9 +345,7 @@ module.exports = function(pb) {
      * @method notFound
      */
     BaseApiController.prototype.notFound = function(cb) {
-        var error = new Error('NOT FOUND');
-        error.code = 404;
-        cb(error);
+        cb(BaseObjectService.notFound('NOT FOUND'));
     };
 
     //exports

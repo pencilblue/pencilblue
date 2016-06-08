@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,14 +16,14 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util               = pb.util;
     var BaseController     = pb.BaseController;
     var BaseApiController  = pb.BaseApiController;
     var UrlService         = pb.UrlService;
     var ServerRegistration = pb.ServerRegistration;
-    
+
     /**
      * Controller to properly route and handle remote calls to interact with
      * the cluster
@@ -32,7 +32,7 @@ module.exports = function(pb) {
      */
     function ClusterApiController() {};
     util.inherits(ClusterApiController, BaseApiController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -42,14 +42,14 @@ module.exports = function(pb) {
     ClusterApiController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
+
             /**
-             * 
+             *
              * @property service
              * @type {ServerRegistration}
              */
             self.service = ServerRegistration.getInstance();
-                
+
             cb(err, true);
         };
         ClusterApiController.super_.prototype.init.apply(this, [context, init]);
@@ -67,7 +67,7 @@ module.exports = function(pb) {
             var data = {
                 update_interval: pb.config.registry.update_interval,
                 result: result,
-                
+
                 //for backward compatibility
                 wait: pb.config.registry.update_interval
             };
@@ -75,7 +75,7 @@ module.exports = function(pb) {
             cb({content: content});
         });
     };
-    
+
     /**
      * Retrieves the status for the entire cluster
      * @method getAll

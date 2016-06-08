@@ -16,15 +16,14 @@
 */
 
 //dependencies
-var process = require('process');
 var async   = require('async');
 var domain  = require('domain');
 
 module.exports = function WPXMLParseServiceModule(pb) {
-    
+
     //pb dependencies
     var util           = pb.util;
-    var xml2js         = pb.PluginService.require('wp_import', 'xml2js');
+    var xml2js         = pb.NpmPluginDependencyService.require('wp_import', 'xml2js');
     var BaseController = pb.BaseController;
 
     /**
@@ -36,9 +35,9 @@ module.exports = function WPXMLParseServiceModule(pb) {
         this.site = pb.SiteService.getCurrentSite(site);
         this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
     }
-    
+
     /**
-     * Counter used to help create a random values for required fields when no 
+     * Counter used to help create a random values for required fields when no
      * value is present
      * @private
      * @static
@@ -206,7 +205,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
             {
                 element: "wp:tag",
                 name: "wp:tag_name"
-            }                      
+            }
         ];
 
         iterations.forEach(function(descriptor) {
@@ -251,7 +250,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 var val = new RegExp('^'+util.escapeRegExp(topic.name)+'$', 'ig');
                 self.siteQueryService.loadByValue(key, val, 'topic', function(err, existingTopic) {
                     if (util.isError(err)) {
-                        return callback(err);   
+                        return callback(err);
                     }
                     else if(existingTopic) {
                         pb.log.debug("WPXMLParseService: Topic %s already exists. Skipping", topic.name);
@@ -518,7 +517,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     //download it & store it with the media service
                     self.downloadMediaContent(details.source, function(err, location) {
                         if (util.isError(err)) {
-                            return cb(err);   
+                            return cb(err);
                         }
 
                         //create the media object
@@ -572,7 +571,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         var mediaObjects = [];
         var whileFunc = function() {
 
-            //reset the handler and search for the next piece of content by asking 
+            //reset the handler and search for the next piece of content by asking
             //which handler can find conent.
             handler = null;
             for (var i = 0; i < handlers.length; i++) {
@@ -593,11 +592,11 @@ module.exports = function WPXMLParseServiceModule(pb) {
             //retrieve media object
             handler.getMediaObject(details, function(err, mediaObj) {
                 if (util.isError(err)) {
-                    pb.log.error('WPXMLParseService: Failed to create media object. Source: [%s] Replacement: [%s]. %s', details.source, details.replacement, err.stack); 
+                    pb.log.error('WPXMLParseService: Failed to create media object. Source: [%s] Replacement: [%s]. %s', details.source, details.replacement, err.stack);
                 }
                 if (!mediaObj) {
 
-                    //we couldn't get the media for whatever reason but we'll leave 
+                    //we couldn't get the media for whatever reason but we'll leave
                     //you a nice note to manually fix it.
                     content = content.replace(details.replacement, util.format("[Content: %s Goes Here]", details.source));
                     return callback();
@@ -633,7 +632,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
         var mediaService = new pb.MediaService(null, this.site, true);
         mediaService.get(options, function(err, mediaArray) {
             if (util.isError(err)) {
-                return cb(err);   
+                return cb(err);
             }
             else if(mediaArray.length > 0) {
                 return cb(null, mediaArray[0]);
@@ -650,7 +649,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                 media_topics: []
             };
 
-            //persist the 
+            //persist the
             var newMedia = pb.DocumentCreator.create('media', mediadoc);
             cb(null, newMedia);
         });
@@ -661,8 +660,8 @@ module.exports = function WPXMLParseServiceModule(pb) {
         if (util.isNullOrUndefined(srcString) || srcString.indexOf('http') !== 0) {
             return cb(new Error('Invalid protocol on URI: '+srcString));
         }
-        
-        //only load the modules into memory if we really have to.  Footprint isn't 
+
+        //only load the modules into memory if we really have to.  Footprint isn't
         //much but it all adds up
         var ht = srcString.indexOf('https://') >= 0 ? require('https') : require('http');
 
@@ -673,7 +672,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
             });
         };
 
-        //wrapper the whole thing in a domain to protect it from timeouts and other 
+        //wrapper the whole thing in a domain to protect it from timeouts and other
         //crazy network errors.
         var d = domain.create();
         d.once('error', function(err) {
@@ -691,7 +690,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
             cb(err, result ? result.mediaPath : null);
         });
     };
-    
+
     WPXMLParseService.prototype.uniqueStrVal = function(prefix) {
         return prefix + '-' + (DEFAULT_COUNTER++) + '-' + (new Date()).getTime();
     };

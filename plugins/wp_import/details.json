@@ -2,8 +2,8 @@
     "uid": "wp_import",
     "name": "WordPress Import",
 	"description": "Import a WordPress blog's content into PencilBlue.",
-    "version": "0.2.0",
-    "pb_version": "0.5.x",
+    "version": "0.2.1",
+    "pb_version": ">=0.5.x <1.x",
 	"author": {
         "name": "PencilBlue",
         "email": "info@pencilblue.org",
@@ -39,6 +39,6 @@
 		"path": "wp_import.js"
 	},
     "dependencies": {
-        "xml2js": "~0.4.4"
+        "xml2js": "0.4.16"
     }
 }

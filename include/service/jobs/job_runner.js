@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 var util = require('../../util.js');
 
 module.exports = function JobRunnerModule(pb) {
-    
+
     /**
      * A base interface that system jobs can implement.  The premise is that every
      * job will have an ID and a name.  The job is initialized by calling the
@@ -134,7 +134,7 @@ module.exports = function JobRunnerModule(pb) {
     };
 
     /**
-     * Sets the portion of the over arching job that this job instance will 
+     * Sets the portion of the over arching job that this job instance will
      * contribute once complete.
      * @method setChunkOfWorkPercentage
      * @param {Float} chunkOfWorkPercentage

@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,20 +36,17 @@ module.exports = function(pb) {
         var roleDNs     = Object.keys(util.invertHash(roleDNMap));
         var map         = {};
         var rolePermMap = {};
-        for (var i = 0; i < roles.length; i++) {
-
-            var roleName = roles[i];
+        roles.forEach(function(roleName) {
             var permMap  = pb.PluginService.getPermissionsForRole(roleName);
 
             rolePermMap[roleName] = {};
-            for (var perm in permMap) {
-                map[perm] = true;
-                rolePermMap[roleName][perm] = true;
-            }
-        }
-        var permArray = Object.keys(map);
+            Object.keys(permMap).forEach(function(perm) {
+                map[perm] = rolePermMap[roleName][perm] = true;
+            });
+        });
 
         var permissions = [];
+        var permArray = Object.keys(map);
         for (var i = 0; i < permArray.length; i++) {
 
             var values = [];
@@ -63,12 +60,12 @@ module.exports = function(pb) {
 
         var pills = [{
             name: 'permissions',
-            title: self.ls.get('PERMISSIONS'),
+            title: self.ls.g('generic.PERMISSIONS'),
             icon: 'refresh',
             href: '/admin/users/permissions'
         }, {
             name: 'manage_plugins',
-            title: self.ls.get('MANAGE_PLUGINS'),
+            title: self.ls.g('plugins.MANAGE_PLUGINS'),
             icon: 'puzzle-piece',
             href: '/admin/plugins'
         }];
@@ -79,11 +76,11 @@ module.exports = function(pb) {
             navigation: pb.AdminNavigation.get(this.session, ['users', 'permissions'], this.ls, this.site),
             pills: pills,
             roles: roleDNs,
-            permissions: permissions,
+            permissions: permissions
         });
 
         //render page
-        this.setPageName(this.ls.get('PERMISSIONS'));
+        this.setPageName(this.ls.g('generic.PERMISSIONS'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         this.ts.load('/admin/users/permissions', function(err, result) {
             cb({content: result});

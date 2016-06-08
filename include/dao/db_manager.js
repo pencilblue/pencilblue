@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -156,7 +156,7 @@ module.exports = function DBManagerModule(pb) {
          * @return {Boolean} Whether the pool has been connected
          */
         this.hasConnected = function(name){
-            return dbs.hasOwnProperty(name);
+            return typeof dbs[name] !== 'undefined';
         };
 
         /**

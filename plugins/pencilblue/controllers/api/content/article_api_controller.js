@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2016  PencilBlue, LLC
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 module.exports = function(pb) {
 
     //PB dependencies
-    var util             = pb.util;
-    var ArticleServiceV2 = pb.ArticleServiceV2;
-    var SecurityService  = pb.SecurityService;
-    var CommentService   = pb.CommentService;
+    var util              = pb.util;
+    var ArticleServiceV2  = pb.ArticleServiceV2;
+    var BaseObjectService = pb.BaseObjectService;
+    var CommentService    = pb.CommentService;
 
     /**
      *
@@ -34,31 +34,24 @@ module.exports = function(pb) {
 
     /**
      * Initializes the controller
-     * @method init
+     * @method initSync
      * @param {Object} context
-     * @param {Function} cb
      */
-    ArticleApiController.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err) {
+    ArticleApiController.prototype.initSync = function(/*context*/) {
 
-            /**
-             *
-             * @property service
-             * @type {ArticleServiceV2}
-             */
-            self.service = new ArticleServiceV2(self.getServiceContext());
+        /**
+         *
+         * @property service
+         * @type {ArticleServiceV2}
+         */
+        this.service = new ArticleServiceV2(this.getServiceContext());
 
-            /**
-             *
-             * @property commentService
-             * @type {CommentService}
-             */
-            self.commentService = new CommentService(self.getServiceContext());
-
-            cb(err, true);
-        };
-        ArticleApiController.super_.prototype.init.apply(this, [context, init]);
+        /**
+         *
+         * @property commentService
+         * @type {CommentService}
+         */
+        this.commentService = new CommentService(this.getServiceContext());
     };
 
     /**
@@ -68,7 +61,7 @@ module.exports = function(pb) {
      */
     ArticleApiController.prototype.processQuery = function() {
         var options = ArticleApiController.super_.prototype.processQuery.apply(this);
-        options.render = !!this.query.render; //pass 1 for true, 0 or nothing for false
+        options.render = BaseObjectService.parseBoolean(this.query.render);
         return options;
     };
 
@@ -91,9 +84,23 @@ module.exports = function(pb) {
             where = {
                 $or: [
                     {headline: pattern},
-                    {subheading: pattern},
+                    {subheading: pattern}
                 ]
             };
+        }
+
+        //search by topic
+        var topicId = q.topic;
+        if (pb.ValidationService.isIdStr(topicId, true)) {
+            where = where || {};
+            where.article_topics = topicId;
+        }
+
+        //search by author
+        var authorId = q.author;
+        if (pb.ValidationService.isIdStr(authorId, true)) {
+            where = where || {};
+            where.author = authorId;
         }
 
         return {

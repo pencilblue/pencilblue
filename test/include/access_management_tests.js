@@ -1,4 +1,5 @@
-//depedencies
+
+//dependencies
 var should        = require('should');
 var Configuration = require('../../include/config.js');
 var Lib           = require('../../lib');
