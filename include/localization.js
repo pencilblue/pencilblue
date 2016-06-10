@@ -543,7 +543,7 @@ module.exports = function LocalizationModule(pb) {
                 pb.log.error(err);
             }
             for(var i = 0; i < result.length; i++) {
-                var keyBlock = result[0].storage[result[i]._id];
+                var keyBlock = result[i].storage[result[i]._id];
 
                 Localization.storage[result[i]._id] = keyBlock;
                 for(var key in keyBlock){
