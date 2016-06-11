@@ -107,15 +107,16 @@ module.exports = function (pb) {
         pb.log.silly('PluginResourceLoader:[%s] Attempting to load resource [%s]', this.pluginUid, pathToResource);
 
         try {
+            //parse it and bring it into memory
             var rawResource = require(pathToResource);
-            var name = this.getResourceName(pathToResource, rawResource);
+
+            var self = this;
             this.initResource(rawResource, function(err, initializedResource) {
                 cb(err, {
-                    name: name,
+                    name: self.getResourceName(pathToResource, initializedResource),
                     data: initializedResource
                 });
             });
-
         }
         catch(e){
             pb.log.error('PluginResourceLoader:[%s] Failed to load resource: [%s]: %s', this.pluginUid, pathToResource, e.stack);

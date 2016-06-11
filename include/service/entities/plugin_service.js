@@ -1465,7 +1465,7 @@ module.exports = function PluginServiceModule(pb) {
      * @method getService
      * @param {String} serviceName
      * @param {String} pluginUid The unique plugin identifier
-     * @param {string} site
+     * @param {string} site - The site UID
      * @return {Object} Service prototype
      */
     PluginService.getService = function(serviceName, pluginUid, site) {
@@ -1481,7 +1481,7 @@ module.exports = function PluginServiceModule(pb) {
                 return ACTIVE_PLUGINS[GLOBAL_SITE][pluginUid].services[serviceName];
             }
         }
-        throw new Error('Either plugin ['+pluginUid+'] or the service ['+serviceName+'] does not exist');
+        throw new Error('Either plugin ['+pluginUid+'] or the service ['+serviceName+'] does not exist for site ['+site+']');
     };
 
     /**
