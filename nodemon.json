@@ -1,6 +1,15 @@
 {
   "verbose": false,
-  "ignore": ["public/media", "public/js", ".git", "log", "/**/node_modules","plugins/*/node_modules/**"],
+  "ignore": [
+      "public/media",
+      "public/js/lib",
+      "public/bower_components",
+      "public/css/lib",
+      ".git",
+      "log",
+      "**/node_modules",
+      "plugins/*/node_modules/**"
+  ],
   "execMap": {
     "rb": "ruby",
     "pde": "processing --sketch={{pwd}} --run"

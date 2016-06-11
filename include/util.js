@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+"use strict";
 
 //dependencies
 var os     = require('os');
@@ -172,7 +173,7 @@ Util.getTasks = function (iterable, getTaskFunction) {
  * prototype function needs to be called with a specific context.
  * @static
  * @method wrapTask
- * @param {Function} context The value of "this" for the function to be called
+ * @param {*} context The value of "this" for the function to be called
  * @param {Function} func The function to be executed
  * @param {Array} [argArray] The arguments to be supplied to the func parameter
  * when executed.
@@ -199,10 +200,11 @@ Util.wrapTask = function(context, func, argArray) {
  */
 Util.forEach = function(iterable, handler) {
 
-    var internalHandler = handler;
-    var internalIterable = iterable;
+    var internalHandler;
+    var internalIterable;
     if (util.isArray(iterable)) {
-        //no-op but we have to type check here first because an array is an object
+        internalHandler = handler;
+        internalIterable = iterable;
     }
     else if (Util.isObject(iterable)) {
 
@@ -224,7 +226,7 @@ Util.forEach = function(iterable, handler) {
  * @static
  * @method arrayToHash
  * @param {Array} array      The array to hash
- * @param {*} defaultVal Default value if the hashing fails
+ * @param {*} [defaultVal=true] Default value if the hashing fails
  * @return {Object} Hash
  */
 Util.arrayToHash = function(array, defaultVal) {
@@ -343,15 +345,14 @@ Util.hashToArray = function(obj, hashKeyProp) {
 		return null;
 	}
 
-	var a                  = [];
     var doHashKeyTransform = Util.isString(hashKeyProp);
-	for (var prop in obj) {
-		a.push(obj[prop]);
+    return Object.keys(obj).reduce(function(prev, prop) {
+        prev.push(obj[prop]);
         if (doHashKeyTransform) {
             obj[prop][hashKeyProp] = prop;
         }
-	}
-	return a;
+        return prev;
+    }, []);
 };
 
 /**
@@ -563,7 +564,7 @@ Util.getFiles = function(dirPath, options, cb) {
 			return cb(err);
 		}
 
-        //seed the queue
+        //seed the queue with the absolute paths not just the file names
         for (var i = 0; i < q.length; i++) {
             q[i] = path.join(dirPath, q[i]);
         }
@@ -592,21 +593,21 @@ Util.getFiles = function(dirPath, options, cb) {
                     }
 
                     //when recursive queue up directory's for processing
-                    if (options.recursive && stat.isDirectory()) {
-                        fs.readdir(fullPath, function(err, childFiles) {
-                            if (util.isError(err)) {
-                                return callback(err);
-                            }
+                    if (!options.recursive || !stat.isDirectory()) {
+                        return callback(null);
+                    }
 
-                            childFiles.forEach(function(item) {
-                                q.push(path.join(fullPath, item));
-                            });
-                            callback(null);
+                    //read the directory contents and append it to the queue
+                    fs.readdir(fullPath, function(err, childFiles) {
+                        if (util.isError(err)) {
+                            return callback(err);
+                        }
+
+                        childFiles.forEach(function(item) {
+                            q.push(path.join(fullPath, item));
                         });
-                    }
-                    else {
                         callback(null);
-                    }
+                    });
 				});
             },
             function(err) {
@@ -735,6 +736,20 @@ Util.getExtension = function(filePath, options) {
         }
     }
     return ext;
+};
+
+/**
+ * Creates a filter function to be used with the getFiles function to skip files that are not of the specified type
+ * @static
+ * @method getFileExtensionFilter
+ * @param extension
+ * @returns {Function}
+ */
+Util.getFileExtensionFilter = function(extension) {
+    var ext = '.' + extension;
+    return function(fullPath) {
+        return fullPath.lastIndexOf(ext) === (fullPath.length - ext.length);
+    };
 };
 
 //inherit from node's version of 'util'.  We can't use node's "util.inherits"
