@@ -743,7 +743,7 @@ Util.getExtension = function(filePath, options) {
  * @static
  * @method getFileExtensionFilter
  * @param extension
- * @returns {Function}
+ * @return {Function}
  */
 Util.getFileExtensionFilter = function(extension) {
     var ext = '.' + extension;

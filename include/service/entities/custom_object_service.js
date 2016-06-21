@@ -1014,7 +1014,7 @@ module.exports = function CustomObjectServiceModule(pb) {
      * Provides the various types of fields that are allowed for a custom object (number, boolean, string, etc).
      * @static
      * @method getFieldTypes
-     * @returns {Array}
+     * @return {Array}
      */
     CustomObjectService.getFieldTypes = function() {
         return Object.keys(AVAILABLE_FIELD_TYPES);

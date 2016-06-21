@@ -1465,7 +1465,7 @@ module.exports = function PluginServiceModule(pb) {
      * @method getService
      * @param {String} serviceName
      * @param {String} pluginUid The unique plugin identifier
-     * @param {string} site - The site UID
+     * @param {string} [site=global] - The site UID
      * @return {Object} Service prototype
      */
     PluginService.getService = function(serviceName, pluginUid, site) {
@@ -1698,7 +1698,7 @@ module.exports = function PluginServiceModule(pb) {
     /**
      * Retrieves all services (initialized).  The services are provided in the
      * callback.
-     * @deperecated
+     * @deprecated
      * @static
      * @method getServices
      * @param {String} pathToPlugin The absolute file path to the specific plugin directory.

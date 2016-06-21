@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 module.exports = function (pb) {
 
@@ -38,11 +39,13 @@ module.exports = function (pb) {
 
     /**
      * Called when the application is being installed for the first time.
-     *
-     * @param cb A callback that must be called upon completion.  cb(err, result).
+     * @static
+     * @method onInstallWithContext
+     * @param {object} context
+     * @param {function} cb (Error, boolean) A callback that must be called upon completion.
      * The result is ignored
      */
-    GoogleAnalytics.onInstall = function(cb) {
+    GoogleAnalytics.onInstallWithContext = function(context, cb) {
         cb(null, true);
     };
 
@@ -50,12 +53,15 @@ module.exports = function (pb) {
      * Called when the application is uninstalling this plugin.  The plugin should
      * make every effort to clean up any plugin-specific DB items or any in function
      * overrides it makes.
-     *
-     * @param cb A callback that must be called upon completion.  cb(err, result).
+     * @static
+     * @method onUninstallWithContext
+     * @param {object} context
+     * @param {string} context.site
+     * @param {function} cb (Error, boolean) A callback that must be called upon completion.
      * The result is ignored
      */
-    GoogleAnalytics.onUninstall = function(cb) {
-        var result = pb.AnalyticsManager.unregisterProvider(PROVIDER_NAME);
+    GoogleAnalytics.onUninstallWithContext = function(context, cb) {
+        var result = pb.AnalyticsManager.unregisterProvider(PROVIDER_NAME, context.site);
         cb(null, result);
     };
 
@@ -63,8 +69,11 @@ module.exports = function (pb) {
      * Called when the application is starting up. The function is also called at
      * the end of a successful install. It is guaranteed that all core PB services
      * will be available including access to the core DB.
-     *
-     * @param cb A callback that must be called upon completion.  cb(err, result).
+     * @static
+     * @method onStartupWithContext
+     * @param {object} context
+     * @param {string} context.site
+     * @param {function} cb (Error, boolean) A callback that must be called upon completion.
      * The result is ignored
      */
     GoogleAnalytics.onStartupWithContext = function(context, cb) {
@@ -73,8 +82,13 @@ module.exports = function (pb) {
     };
 
     /**
-     * Called on each request
-     *
+     * Called on each request.  Creates the HTML snippet that will be used for the request
+     * @static
+     * @method onRequest
+     * @param {Request} req
+     * @param {object} session
+     * @param {Localization} ls
+     * @param {function} cb (Error, string)
      */
     GoogleAnalytics.onRequest = function(req, session, ls, cb) {
         var siteId = pb.SiteService.getCurrentSite(pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null);
@@ -92,8 +106,9 @@ module.exports = function (pb) {
     /**
      * Called when the application is gracefully shutting down.  No guarantees are
      * provided for how much time will be provided the plugin to shut down.
-     *
-     * @param cb A callback that must be called upon completion.  cb(err, result).
+     * @static
+     * @method onShutdown
+     * @param {function} cb (Error, boolean) A callback that must be called upon completion.  cb(err, result).
      * The result is ignored
      */
     GoogleAnalytics.onShutdown = function(cb) {

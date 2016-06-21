@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var util              = require('../util.js');
@@ -206,11 +207,10 @@ module.exports = function(pb) {
      * @return {Object}
      */
     BaseObjectService.prototype.getContext = function(data) {
-        var context = util.merge(this.context, {
+        return util.merge(this.context, {
             service: this,
             data: data
         });
-        return context;
     };
 
     /**
@@ -420,6 +420,7 @@ module.exports = function(pb) {
      * 7) The afterSave event is triggered
      *
      * @method add
+     * @param {object} dto
      * @param {Object} [options]
      * @param {Function} cb A callback that takes two parameters.  The first is
      * an error, if occurred. The second is the object that matches the specified query
@@ -444,11 +445,12 @@ module.exports = function(pb) {
      * 7) The afterSave event is triggered
      *
      * @method update
+     * @param {object} dto
      * @param {Object} [options]
      * @param {Function} cb A callback that takes two parameters.  The first is
      * an error, if occurred. The second is the object that matches the specified query
      */
-    BaseObjectService.prototype.update = function(dto, options, cb) {
+    BaseObjectService.prototype.update = function(dto, options, cb) {console.log('updating......');
         if (util.isFunction(options)) {
             cb      = options;
             options = {};
@@ -468,6 +470,7 @@ module.exports = function(pb) {
      * 7) The afterSave event is triggered
      *
      * @method save
+     * @param {object} dto
      * @param {Object} [options]
      * @param {Boolean} [options.isCreate]
      * @param {Function} cb A callback that takes two parameters.  The first is
@@ -496,7 +499,7 @@ module.exports = function(pb) {
 
             //detect if we are doing an update or insert.  On update retrieve
             //the obj and call the merge event handlers
-            self._retrieveOnUpdateAndMerge(dto, options, function(err, obj) {
+            self._retrieveOnUpdateAndMerge(dto, options, function(err, obj) {console.log('retrieval=%s', obj);
                 if (util.isError(err) || util.isNullOrUndefined(obj)) {
                     return cb(err, obj);
                 }
@@ -525,7 +528,7 @@ module.exports = function(pb) {
 
                         //persist the object
                         options.object_type = self.type;
-                        self.dao.save(obj, options, function(err, result) {
+                        self.dao.save(obj, options, function(err/*, result*/) {
                             if (util.isError(err)) {
                                 return cb(err);
                             }
@@ -561,6 +564,15 @@ module.exports = function(pb) {
         var isCreate = util.isBoolean(options.isCreate) ? options.isCreate : !where;
         var isUpdate = !isCreate;
 
+        //ensure we have a valid where clause for update
+        if (isUpdate && (util.isNullOrUndefined(where) || where === {})) {
+
+            var error = BaseObjectService.validationError(
+                [BaseObjectService.validationFailure('id', 'A valid ID could not be extracted from the request body to lookup the existing resource')]
+            );
+            return cb(error);
+        }
+
         var onObjectRetrieved = function(err, obj) {
             if (util.isError(err) || util.isNullOrUndefined(obj)) {
                 return cb(err, obj);
@@ -594,7 +606,7 @@ module.exports = function(pb) {
      * @param {Object} dto
      * @return {Object}
      */
-    BaseObjectService.prototype.getIdWhere = function(dto) {
+    BaseObjectService.prototype.getIdWhere = function(dto) {console.log(dto);
         var idField = pb.DAO.getIdField();
         if (dto.id) {
             return pb.DAO.getIdWhere(dto.id);
@@ -646,7 +658,7 @@ module.exports = function(pb) {
                     return cb(err, null);
                 }
 
-                self.dao.delete(options.where, self.type, options, function(err, result) {
+                self.dao.delete(options.where, self.type, options, function(err/*, result*/) {
                     if (util.isError(err)) {
                         return cb(err, obj);
                     }
@@ -816,7 +828,7 @@ module.exports = function(pb) {
                 table: ['style', 'class', 'align'],
                 tr: ['style', 'class', 'align'],
                 th: ['style', 'class', 'align'],
-                td: ['style', 'class', 'align'],
+                td: ['style', 'class', 'align']
             },
 
             // Lots of these won't come up by default because we don't allow them
@@ -888,8 +900,10 @@ module.exports = function(pb) {
     /**
      * Extracts a boolean value from the provided value.  Null or undefined values will return false.  Strings of '1' or
      * 'true' (case sensitive) will return TRUE.  All other values will return false.
+     * @static
+     * @method parseBoolean
      * @param {string|boolean} val
-     * @returns {boolean}
+     * @return {boolean}
      */
     BaseObjectService.parseBoolean = function(val) {
         if (util.isNullOrUndefined(val)) {
@@ -916,7 +930,7 @@ module.exports = function(pb) {
      * @method on
      * @param {String} event
      * @param {Function} listener
-     * @return {?}
+     * @return {*}
      */
     BaseObjectService.on = function(event, listener) {
         return events.on(event, listener);
@@ -928,7 +942,7 @@ module.exports = function(pb) {
      * @method once
      * @param {String} event
      * @param {Function} listener
-     * @return {?}
+     * @return {*}
      */
     BaseObjectService.once = function(event, listener) {
         return events.once(event, listener);
@@ -940,7 +954,7 @@ module.exports = function(pb) {
      * @method removeListener
      * @param {String} event
      * @param {Function} listener
-     * @return {?}
+     * @return {*}
      */
     BaseObjectService.removeListener = function(event, listener) {
         return events.removeListener(event, listener);
@@ -951,7 +965,7 @@ module.exports = function(pb) {
      * @static
      * @method removeAllListeners
      * @param {String} event
-     * @return {?}
+     * @return {*}
      */
     BaseObjectService.removeAllListeners = function(event) {
         return events.removeAllListeners(event);
@@ -962,7 +976,7 @@ module.exports = function(pb) {
      * @static
      * @method setMaxListeners
      * @param {Integer} n
-     * @return {?}
+     * @return {EventEmitter}
      */
     BaseObjectService.setMaxListeners = function(n) {
         return events.setMaxListeners(n);

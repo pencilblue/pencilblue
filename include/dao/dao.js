@@ -982,7 +982,7 @@ module.exports = function DAOModule(pb) {
      * @static
      * @method mapSimpleIdField
      * @param doc
-     * @returns {object}
+     * @return {object}
      */
     DAO.mapSimpleIdField = function(doc) {
         if (typeof doc.id === 'undefined') {
