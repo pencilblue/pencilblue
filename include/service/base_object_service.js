@@ -339,8 +339,8 @@ module.exports = function(pb) {
      * trigger the "get" event.
      * @method get
      * @param {string} id
-     * @param {Object} [options]
-     * @param {Function} cb A callback that takes two parameters.  The first is
+     * @param {object} [options]
+     * @param {Function} cb (Error, object|null) A callback that takes two parameters.  The first is
      * an error, if occurred. The second is the object with the specified ID
      */
     BaseObjectService.prototype.get = function(id, options, cb) {
@@ -450,7 +450,7 @@ module.exports = function(pb) {
      * @param {Function} cb A callback that takes two parameters.  The first is
      * an error, if occurred. The second is the object that matches the specified query
      */
-    BaseObjectService.prototype.update = function(dto, options, cb) {console.log('updating......');
+    BaseObjectService.prototype.update = function(dto, options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
             options = {};
@@ -499,7 +499,7 @@ module.exports = function(pb) {
 
             //detect if we are doing an update or insert.  On update retrieve
             //the obj and call the merge event handlers
-            self._retrieveOnUpdateAndMerge(dto, options, function(err, obj) {console.log('retrieval=%s', obj);
+            self._retrieveOnUpdateAndMerge(dto, options, function(err, obj) {
                 if (util.isError(err) || util.isNullOrUndefined(obj)) {
                     return cb(err, obj);
                 }
@@ -606,7 +606,7 @@ module.exports = function(pb) {
      * @param {Object} dto
      * @return {Object}
      */
-    BaseObjectService.prototype.getIdWhere = function(dto) {console.log(dto);
+    BaseObjectService.prototype.getIdWhere = function(dto) {
         var idField = pb.DAO.getIdField();
         if (dto.id) {
             return pb.DAO.getIdWhere(dto.id);
@@ -673,7 +673,7 @@ module.exports = function(pb) {
 
     /**
      *
-     * @private
+     * @protected
      * @method _emit
      * @param {String} event
      * @param {Object} data

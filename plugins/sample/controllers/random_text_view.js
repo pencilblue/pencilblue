@@ -93,7 +93,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
             //of that an instance of the Localization service is created.  The
             //localization service determines the most appropriate language based
             //on the "language" header sent from the client.  Defaults to english.
-            var pageName = self.ls.get('SAMPLE_HELLO_WORLD');
+            var pageName = self.ls.g('SAMPLE_HELLO_WORLD');
 
             //Inheriting from the base controller provides some utility functions
             //for common items.  The setPageName function instructs the templating

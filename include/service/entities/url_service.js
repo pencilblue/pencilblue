@@ -79,8 +79,7 @@ module.exports = function UrlServiceModule(pb) {
 
         //validate required params
         if (!url || !type) {
-            cb(new Error("The url and type parameters are required. URL=["+url+"] TYPE=["+type+"]"), false);
-            return;
+            return cb(new Error("The url and type parameters are required. URL=["+url+"] TYPE=["+type+"]"), false);
         }
 
         //build pattern

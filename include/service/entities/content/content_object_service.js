@@ -14,6 +14,7 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var util  = require('../../../util.js');
@@ -34,8 +35,12 @@ module.exports = function(pb) {
      * prototype must be extended.
      *
      * @class ContentObjectService
-     * @constructor
      * @extends BaseObjectService
+     * @constructor
+     * @param {object} context
+     * @param {object} [context.contentSettings]
+     * @param {string} context.site
+     * @param {boolean} context.onlyThisSite
      */
     function ContentObjectService(context){
         if (!util.isObject(context)) {
@@ -148,7 +153,7 @@ module.exports = function(pb) {
     /**
      *
      * @method get
-     * @param {String} id
+     * @param {string} id
      * @param {object} options
      * @param {Boolean} [options.render=false]
      * @param {Boolean} [options.readMore=false]
@@ -254,7 +259,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ContentObjectService.prototype.render = function(contentArray, options, cb) {
-        if (arguments.length == 2 && util.isFunction(options)) { // if only two arguments were supplied
+        if (arguments.length === 2 && util.isFunction(options)) { // if only two arguments were supplied
             cb = options;
             options = null;
         }
@@ -302,7 +307,7 @@ module.exports = function(pb) {
                     async.series(subTasks, callback);
                 };
             });
-            async.parallel(tasks, function(err, results) {
+            async.parallel(tasks, function(err/*, results*/) {
                 cb(err, contentArray);
             });
         });
@@ -464,7 +469,7 @@ module.exports = function(pb) {
                 var mediaService = new pb.MediaServiceV2({ site: self.site, onlyThisSite: self.onlyThisSite });
                 mediaService.getSingle(mOpts, function(err, media) {
                     if (media.isFile) {
-                        media.location = pb.UrlService.createSystemUrl(media.location)
+                        media.location = pb.UrlService.createSystemUrl(media.location);
                     }
                     callback(err, util.isNullOrUndefined(media) ? '' : media.location);
                 });

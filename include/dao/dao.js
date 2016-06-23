@@ -204,7 +204,6 @@ module.exports = function DAOModule(pb) {
         if (exclusionId) {
             where[DAO.getIdField()] = DAO.getNotIdField(exclusionId);
         }
-
         //checks to see how many docs were available
         this.count(collection, where, function(err, count) {
             cb(err, count === 0);
@@ -336,7 +335,9 @@ module.exports = function DAOModule(pb) {
             }
 
             //ensure that an "id" value is provided
-            cursor.map(DAO.mapSimpleIdField);
+            if (!options.count) {
+                cursor.map(DAO.mapSimpleIdField);
+            }
 
             //log the result
             if(pb.config.db.query_logging){
