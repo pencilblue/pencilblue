@@ -14,6 +14,7 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var util  = require('../../../util.js');
@@ -33,6 +34,9 @@ module.exports = function(pb) {
      * @extends BaseObjectService
      * @constructor
      * @param {object} context
+     * @param {object} [context.contentSettings]
+     * @param {string} context.site
+     * @param {boolean} context.onlyThisSite
      */
     function PageService(context){
         if (!util.isObject(context)) {
@@ -96,10 +100,11 @@ module.exports = function(pb) {
     /**
      *
      * @static
-     * @method
+     * @method format
      * @param {Object} context
      * @param {PageService} context.service An instance of the service that triggered
      * the event that called this handler
+     * @param {object} context.data
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     PageService.format = function(context, cb) {
@@ -125,10 +130,11 @@ module.exports = function(pb) {
     /**
      *
      * @static
-     * @method
+     * @method merge
      * @param {Object} context
-     * @param {PageService} service An instance of the service that triggered
+     * @param {PageService} context.service An instance of the service that triggered
      * the event that called this handler
+     * @param {object} context.data
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     PageService.merge = function(context, cb) {
@@ -161,6 +167,7 @@ module.exports = function(pb) {
      * @method validate
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
+     * @param {Array} context.data.page_topics
      * @param {PageService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
@@ -267,6 +274,7 @@ module.exports = function(pb) {
      * @static
      * @method setSectionClause
      * @param {Object} where
+     * @param {string} sectionId
      */
     PageService.setSectionClause = function(where, sectionId) {
         where.article_sections = sectionId + '';
@@ -277,6 +285,7 @@ module.exports = function(pb) {
      * @static
      * @method setTopicClause
      * @param {Object} where
+     * @param {string} topicId
      */
     PageService.setTopicClause = function(where, topicId) {
         where.page_topics = topicId + '';

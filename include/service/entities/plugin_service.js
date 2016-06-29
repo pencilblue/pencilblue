@@ -1078,7 +1078,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.initPlugin = function(plugin, cb) {
         if (typeof plugin !== 'object') {
-            return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initilize the plugin'), null);
+            return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
         }
 
         pb.log.debug("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
