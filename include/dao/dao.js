@@ -480,7 +480,7 @@ module.exports = function DAOModule(pb) {
      * @param {String} collection The collection to update object(s) in
      * @param {Object} query The where clause to execute to find the existing object
      * @param {Object} updates The updates to perform
-     * @param {Object} options Any options to go along with the update
+     * @param {Object} [options] Any options to go along with the update
      * @param {Boolean} [options.upsert=false] Inserts the object is not found
      * @param {Boolean} [options.multi=false] Updates multiple records if the query
      * finds more than 1
