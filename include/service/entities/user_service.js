@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -65,10 +66,9 @@ module.exports = function(pb) {
 
     /**
      * Gets the full name of a user
-     *
      * @method getFullName
-     * @param {String}   userId The object Id of the user
-     * @param {Function} cb     Callback function
+     * @param {String} userId The object Id of the user
+     * @param {Function} cb (Error, string)
      */
     UserService.prototype.getFullName = function(userId, cb) {
         if (!pb.validation.isId(userId, true)) {
@@ -79,7 +79,7 @@ module.exports = function(pb) {
         var dao  = new pb.DAO();
         dao.loadById(userId, TYPE, function(err, author){
             if (util.isError(err)) {
-                return callback(err, null);
+                return cb(err, null);
             }
 
             cb(null, self.getFormattedName(author));
@@ -105,8 +105,8 @@ module.exports = function(pb) {
      * Gets the full names for the supplied authors
      *
      * @method getAuthors
-     * @param {Array}   objArry An array of user object
-     * @param {Function} cb     Callback function
+     * @param {Array} objArry An array of user object
+     * @param {Function} cb (Error, Array)
      */
     UserService.prototype.getAuthors = function(objArry, cb){
         var self  = this;
@@ -185,7 +185,7 @@ module.exports = function(pb) {
      * @deprecated since 0.4.0
      * @method getEditorSelectList
      * @param {String} currId The Id to be excluded from the list.
-     * @param {Function} cb A callback that takes two parameters.  The first is an
+     * @param {Function} cb (Error, Array) A callback that takes two parameters.  The first is an
      * error, if exists, the second is an array of objects that represent the
      * editor select list.
      */
@@ -241,13 +241,38 @@ module.exports = function(pb) {
                 };
                 editor[pb.DAO.getIdField()] = data[i][pb.DAO.getIdField()];
 
-                if(currId == data[i][pb.DAO.getIdField()].toString()) {
+                if(currId === data[i][pb.DAO.getIdField()].toString()) {
                     editor.selected = 'selected';
                 }
                 editors.push(editor);
             }
             cb(null, editors);
         });
+    };
+
+    /**
+     * @method getByUsernameOrEmail
+     * @param {string} usernameOrEmail
+     * @param {object} [options] See UserService#getSingle
+     * @param {function} cb (Error, object) The user object
+     */
+    UserService.prototype.getByUsernameOrEmail = function(usernameOrEmail, options, cb) {
+        if (util.isFunction(options)) {
+            cb = options;
+            options = {};
+        }
+
+        options.where = {
+            $or : [
+                {
+                    username : usernameOrEmail
+                },
+                {
+                    email : usernameOrEmail
+                }
+            ]
+        };
+        this.getSingle(options, cb);
     };
 
     /**
@@ -298,39 +323,24 @@ module.exports = function(pb) {
 
     /**
      * Sends a password reset email to a user
-     *
+     * @deprecated
      * @method sendPasswordResetEmail
-     * @param {Object}   user          A user object
-     * @param {Object}   passwordReset A password reset object containing the verification code
-     * @param {Function} cb            Callback function
+     * @param {object} user A user object
+     * @param {object} passwordReset A password reset object containing the verification code
+     * @param {function} cb (Error)
      */
     UserService.prototype.sendPasswordResetEmail = function(user, passwordReset, cb) {
         var self = this;
         cb = cb || util.cb;
 
-        var siteService = new pb.SiteService();
-        siteService.getByUid(self.context.site, function(err, siteInfo) {
-            // Handle errors
-            if (pb.util.isError(err)) {
-                pb.log.error("UserService: Failed to load site with getByUid. ERROR[%s]", err.stack);
-                return cb(err, null);
-            }
-            var root = pb.SiteService.getHostWithProtocol(siteInfo.hostname);
-            var verficationUrl = pb.UrlService.urlJoin(root, '/actions/user/reset_password') +
-                util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verification_code));
-            var options = {
-                to: user.email,
-                subject: siteInfo.displayName + ' Password Reset',
-                template: 'admin/elements/password_reset_email',
-                replacements: {
-                    'verification_url': verficationUrl,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name
-                }
-            };
-            var emailService = new pb.EmailService({site: self.context.site});
-            emailService.sendFromTemplate(options, cb);
-        });
+        pb.log.warn('UserService: sendPasswordResetEmail is deprecated. Use PasswordResetService.sendPasswordResetEmail');
+
+        var ctx = {
+            emailService: new pb.EmailService({site: self.context.site}),
+            siteService: new pb.SiteService()
+        };
+        var passwordResetService = new pb.PasswordResetService(ctx);
+        passwordResetService.sendPasswordResetEmail(user, passwordReset, cb);
     };
 
     /**
@@ -348,9 +358,9 @@ module.exports = function(pb) {
             var result = results === null;
             if (!result) {
 
-                for(var key in results) {
-                    result |= results[key] > 0;
-                }
+                Object.keys(results).reduce(function(actual, key) {
+                    return result || (results[key] > 0);
+                }, result);
             }
             cb(err, result);
         });
@@ -359,10 +369,10 @@ module.exports = function(pb) {
     /**
      * Gets the total counts of a username and email in both the user and unverified_user collections
      * @method getExistingUsernameEmailCounts
-     * @param {String}   username
-     * @param {String}   email
-     * @param {String}   id       User object Id to exclude from the search
-     * @param {Function} cb       Callback function
+     * @param {String} username
+     * @param {String} email
+     * @param {String} [id] User object Id to exclude from the search
+     * @param {Function} cb (Error, object)
      */
     UserService.prototype.getExistingUsernameEmailCounts = function(username, email, id, cb) {
         var self = this;
@@ -392,7 +402,7 @@ module.exports = function(pb) {
             },
             unverified_email: function(callback) {
                 dao.count(UNVERIFIED_TYPE, getWhere({email: email.toLowerCase()}), callback);
-            },
+            }
         };
         async.series(tasks, cb);
     };
@@ -482,7 +492,7 @@ module.exports = function(pb) {
      * @param {Integer} [options.limit] The maximum number of results to return
      * @param {offset} [options.offset=0] The number of results to skip before
      * returning results.
-     * @param {Function} cb A callback that takes two parameters: an error, if
+     * @param {Function} cb (Error, Array) A callback that takes two parameters: an error, if
      * occurred, and the second is an array of User objects.
      */
     UserService.prototype.findByAccessLevel = function(level, options, cb) {
@@ -524,15 +534,21 @@ module.exports = function(pb) {
         });
     };
 
-    UserService.prototype.determineUserSiteScope = function(accessLevel, siteid) {
+    /**
+     * @method determineUserSiteScope
+     * @param {Integer} accessLevel
+     * @param {string} siteId
+     * @returns {*}
+     */
+    UserService.prototype.determineUserSiteScope = function(accessLevel, siteId) {
         if (accessLevel === pb.SecurityService.ACCESS_MANAGING_EDITOR ||
             accessLevel === pb.SecurityService.ACCESS_ADMINISTRATOR) {
             return pb.SiteService.GLOBAL_SITE;
         }
-        else if (siteid === pb.SiteService.GLOBAL_SITE) {
+        else if (siteId === pb.SiteService.GLOBAL_SITE) {
             return null;
         }
-        return siteid;
+        return siteId;
     };
 
     /**
@@ -542,7 +558,7 @@ module.exports = function(pb) {
      * @param {Object} context.data The DTO that was provided for persistence
      * @param {UserService} context.service An instance of the service that triggered
      * the event that called this handler
-     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     * @param {Function} cb (Error) A callback that takes a single parameter: an error if occurred
      */
     UserService.prototype.validate = function(context, cb) {
         var self = this;
@@ -657,9 +673,10 @@ module.exports = function(pb) {
      * @static
      * @method
      * @param {Object} context
-     * @param {UserService} service An instance of the service that triggered
+     * @param {UserService} context.service An instance of the service that triggered
      * the event that called this handler
-     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     * @param {object} context.data
+     * @param {Function} cb (Error) A callback that takes a single parameter: an error if occurred
      */
     UserService.format = function(context, cb) {
         var dto = context.data;
@@ -682,9 +699,11 @@ module.exports = function(pb) {
      * @static
      * @method
      * @param {Object} context
-     * @param {UserService} service An instance of the service that triggered
+     * @param {UserService} context.service An instance of the service that triggered
      * the event that called this handler
-     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     * @param {object} context.data The DTO
+     * @param {object} context.object The entity object to be persisted
+     * @param {Function} cb (Error) A callback that takes a single parameter: an error if occurred
      */
     UserService.merge = function(context, cb) {
         var dto = context.data;

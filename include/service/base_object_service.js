@@ -637,7 +637,8 @@ module.exports = function(pb) {
     /**
      * Deletes a single item based on the specified query in the options
      * @method deleteSingle
-     * @param {Object} options
+     * @param {Object} [options] See BaseObjectService#getSingle
+     * @param {object} [options.where]
      * @param {Function} cb
      */
     BaseObjectService.prototype.deleteSingle = function(options, cb) {
