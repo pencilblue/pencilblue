@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var path = require('path');
@@ -100,7 +101,8 @@ module.exports = function Routes(pb){
             auth_required: false,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'forgot_password.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            request_body: ['application/x-www-form-urlencoded', 'application/json']
         },
         {
             method: 'get',

@@ -52,24 +52,24 @@ module.exports = function(pb) {
     /**
      *
      * @static
-     * @method
+     * @method format
      * @param {Object} context
-     * @param {TopicService} service An instance of the service that triggered
+     * @param {TopicService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
     TopicService.format = function(context, cb) {
         var dto = context.data;
-        dto.name = pb.BaseController.sanitize(dto.name);
+        dto.name = BaseObjectService.sanitize(dto.name);
         cb(null);
     };
 
     /**
      *
      * @static
-     * @method
+     * @method merge
      * @param {Object} context
-     * @param {TopicService} service An instance of the service that triggered
+     * @param {TopicService} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
