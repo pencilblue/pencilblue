@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function BookApiControllerModule(pb) {
 
@@ -23,55 +24,46 @@ module.exports = function BookApiControllerModule(pb) {
     var PluginService     = pb.PluginService;
 
     /**
-     * BookApiController - A sample controller to demonstrate how to build an API
-     * 
-     * @author Brian Hyder <brian@pencilblue.org>
-     * @copyright 2014 PencilBlue, LLC.  All Rights Reserved
-     * @return
+     * BookApiController - A sample controller to demonstrate how to build an API on top of the BaseObjectService
+     * @class BookApiController
+     * @extends BaseApiController
+     * @constructor
      */
     function BookApiController(){}
     util.inherits(BookApiController, BaseApiController);
 
-
     /**
-     * Calls init of BaseController and sets BookService based on the current site
-     *
-     * @param props
-     * @param cb
+     * Called from BaseController#init, the function creates an instance of BookService
+     * based on the current site and context.  The initSync is used to initialize the
+     * controller synchronously
+     * @method initSync
+     * @param {object} context See BaseController#init
      */
-    BookApiController.prototype.init = function(props, cb) {
-        var self = this;
-        pb.BaseController.prototype.init.call(self, props, function () {
-            var BookService = PluginService.getService('BookService', 'sample', self.site);
-            /**
-             * An instance of BookService that the underlying BaseApiController can
-             * leverage
-             * @property service
-             * @type {BookService}
-             */
-            self.service = new BookService(self.getServiceContext());
-            cb();
-        });
+    BookApiController.prototype.initSync = function(/*context*/) {
+        var BookService = PluginService.getService('BookService', 'sample', this.site);
 
+        /**
+         * @property service
+         * @type {BookService}
+         */
+        this.service = new BookService(this.getServiceContext());
     };
 
-
-
-
     /**
-     * Provides the routes that are to be handled by an instance of this prototype.  
-     * The route provides a definition of path, permissions, authentication, and 
-     * expected content type. In this particular case we are building a simple 
-     * API with no special CRUD operations.  Therefore, we can leverage the 
-     * power of the BaseApiController and let it do the heavy lifting for us.  
+     * Provides the routes that are to be handled by an instance of this prototype.
+     * The route provides a definition of path, permissions, authentication, and
+     * expected content type. In this particular case we are building a simple
+     * API with no special CRUD operations.  Therefore, we can leverage the
+     * power of the BaseApiController and let it do the heavy lifting for us.
      * All we have to do is define the routes.
      * Method is optional
      * Path is required
      * Permissions are optional
      * Access levels are optional
      * Content type is optional
-     * 
-     * @param cb A callback of the form: cb(error, array of objects)
+     * @static
+     * @method getRoutes
+     * @param {function} cb (Error, Array)
      */
     BookApiController.getRoutes = function(cb) {
         var routes = [

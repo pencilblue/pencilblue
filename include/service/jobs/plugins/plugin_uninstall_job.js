@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,7 +16,6 @@
 */
 
 //dependencies
-var process = require('process');
 var domain  = require('domain');
 var util    = require('../../../util.js');
 
@@ -63,7 +62,7 @@ module.exports = function PluginUninstallJobModule(pb) {
      * @type {String}
      */
     var GLOBAL_PREFIX = pb.SiteService.GLOBAL_SITE;
-    
+
     /**
      * @private
      * @static
@@ -158,22 +157,22 @@ module.exports = function PluginUninstallJobModule(pb) {
 
             //remove localization
             function(callback) {
-                
+
                 //retrieve localizations
                 self.pluginService.getLocalizations(pluginUid, function(err, localizations) {
                     if (util.isError(err)) {
                         return callback(err);
                     }
                     else if (util.isNullOrUndefined(localizations)) {
-                        
+
                         //no localization directory was found
                         return callback(null, true);
                     }
-                    
+
                     //remove all localizations
                     var result = true;
                     Object.keys(localizations).forEach(function(locale) {
-                        result &= pb.Localization.unregisterLocale(locale, { plugin: pluginUid });
+                        result = result && pb.Localization.unregisterLocale(locale, { plugin: pluginUid });
                     });
                     callback(null, result);
                 });
@@ -181,7 +180,7 @@ module.exports = function PluginUninstallJobModule(pb) {
 
             //remove settings
             function(callback) {
-                self.log('Attemping to remove plugin settings');
+                self.log('Attempting to remove plugin settings');
                 self.pluginService.purgePluginSettings(pluginUid, function (err, result) {
                     callback(err, !util.isError(err) && result);
                 });
@@ -189,7 +188,7 @@ module.exports = function PluginUninstallJobModule(pb) {
 
             //remove theme settings
             function(callback) {
-                self.log('Attemping to remove theme settings');
+                self.log('Attempting to remove theme settings');
                 self.pluginService.purgeThemeSettings(pluginUid, function (err, result) {
                     callback(err, !util.isError(err) && result);
                 });
@@ -197,7 +196,7 @@ module.exports = function PluginUninstallJobModule(pb) {
 
             //remove plugin record from "plugin" collection
             function(callback) {
-                self.log('Attemping to remove plugin from persistent storage');
+                self.log('Attempting to remove plugin from persistent storage');
 
                 var where = {
                     uid: pluginUid
@@ -219,7 +218,7 @@ module.exports = function PluginUninstallJobModule(pb) {
                 }
 
                 var dao = new pb.DAO();
-                dao.delete(where, 'plugin', function(err, result) {
+                dao.delete(where, 'plugin', function(err/*, result*/) {
                     callback(err, !util.isError(err));
                 });
             },

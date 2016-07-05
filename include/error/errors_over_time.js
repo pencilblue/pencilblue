@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,26 +18,26 @@
 module.exports = function ErrorsOverTimeModule(/*pb*/) {
 
     /**
-     * Wraps up code that allows developers the ability to time box errors.  In 
-     * some instances errors will occur.  It is only when a certain number of those 
-     * errors occur within a given time span that it is recognized that recovery is 
-     * improbable.  When the threshold is broken the code allows you to throw an 
+     * Wraps up code that allows developers the ability to time box errors.  In
+     * some instances errors will occur.  It is only when a certain number of those
+     * errors occur within a given time span that it is recognized that recovery is
+     * improbable.  When the threshold is broken the code allows you to throw an
      * error that represents all others that contributed to the threshold breach.
      * @class ErrorsOverTime
      * @constructor
-     * @param {Integer} errorSpan The upper bound on the number of errors that can 
-     * occur within the provided time frame before it is determined that recovery 
+     * @param {Integer} errorSpan The upper bound on the number of errors that can
+     * occur within the provided time frame before it is determined that recovery
      * is not possible.
-     * @param {Integer} errorThreshold The upper bound on the amount of time, in 
-     * milliseconds, that errors can occur in before it is determined that recovery 
+     * @param {Integer} errorThreshold The upper bound on the amount of time, in
+     * milliseconds, that errors can occur in before it is determined that recovery
      * is not possible.
-     * @param {String} [prefix] The prefix to any error message that is generated 
+     * @param {String} [prefix] The prefix to any error message that is generated
      * by the instance
      */
     function ErrorsOverTime(errorSpan, errorThreshold, prefix) {
 
         /**
-         * The upper bound on the number of errors that can occur within the provided 
+         * The upper bound on the number of errors that can occur within the provided
          * time frame before it is determined that recovery is not possible.
          * @property errorSpan
          * @type {Integer}
@@ -45,7 +45,7 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
         this.errorSpan = errorSpan;
 
         /**
-         * The upper bound on the amount of time, in milliseconds, that errors can 
+         * The upper bound on the amount of time, in milliseconds, that errors can
          * occur in before it is determined that recovery is not possible.
          * @property errorThreshold
          * @type {Integer}
@@ -53,7 +53,7 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
         this.errorThreshold = errorThreshold;
 
         /**
-         * The list of errors that will be used to determin if too many errors have 
+         * The list of errors that will be used to determin if too many errors have
          * occurred within a given time frame.
          * @property errors
          * @type {Array}
@@ -76,8 +76,8 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
     };
 
     /**
-     * Adds an error into the calculation to determine if too many errors have 
-     * occurred within a particular time span. If the threshold has been broken an 
+     * Adds an error into the calculation to determine if too many errors have
+     * occurred within a particular time span. If the threshold has been broken an
      * error is thrown.
      * @method throwIfOutOfBounds
      * @param {Error} The error that occurred
@@ -92,7 +92,7 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
     };
 
     /**
-     * Adds an error into the calculation to determine if too many errors have 
+     * Adds an error into the calculation to determine if too many errors have
      * occurred within a particular time span.
      * @method errorOccurred
      * @param {Error} The error that occurred
@@ -128,8 +128,8 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
     /**
      * Gets the time span over which the current set of errors has occurred
      * @method getRange
-     * @return {Integer} The number of milliseconds over which the last "n" number 
-     * of errors have occurred where "n" is the value is between 0 and the value of 
+     * @return {Integer} The number of milliseconds over which the last "n" number
+     * of errors have occurred where "n" is the value is between 0 and the value of
      * the errorSpan property inclusive.
      */
     ErrorsOverTime.prototype.getRange = function() {
@@ -137,11 +137,11 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
     };
 
     /**
-     * Generates and throws an Error that represents all of the errors that 
+     * Generates and throws an Error that represents all of the errors that
      * triggered the threshold breach.
      * @static
      * @method generateError
-     * @param {Array} errors The array of errors that will be represented by one 
+     * @param {Array} errors The array of errors that will be represented by one
      * wrapper error
      * @param {String} prefix The error message text that will come first
      */
@@ -150,11 +150,11 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
     };
 
     /**
-     * Creates an Error that represents all of the errors that triggered the 
+     * Creates an Error that represents all of the errors that triggered the
      * threshold breach.
      * @static
      * @method createError
-     * @param {Array} errors The array of errors that will be represented by one 
+     * @param {Array} errors The array of errors that will be represented by one
      * wrapper error
      * @param {String} prefix The error message text that will come first
      * @return {Error}

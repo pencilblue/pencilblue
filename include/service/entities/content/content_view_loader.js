@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,6 +38,8 @@ module.exports = function(pb) {
      * @param {Object} context.session
      * @param {ContentObjectService} context.service
      * @param {String} context.activeTheme
+     * @param {CommentService} [context.commentService]
+     * @param {object} context.siteObj
      */
     function ContentViewLoader(context) {
         this.ts = context.ts;
@@ -51,7 +53,13 @@ module.exports = function(pb) {
         this.hostname = context.hostname;
         this.onlyThisSite = context.onlyThisSite;
         this.activeTheme = context.activeTheme;
-    };
+
+        /**
+         * @property commentService
+         * @type {CommentService}
+         */
+        this.commentService = context.commentService || new pb.CommentService(context);
+    }
 
     /**
      *
@@ -64,7 +72,7 @@ module.exports = function(pb) {
 
     /**
      *
-     * @method getMetaInfo
+     * @method renderSingle
      * @param {Object} content
      * @param {Object} options
      * @param {Function} cb
@@ -436,7 +444,7 @@ module.exports = function(pb) {
         var self           = this;
         var commentingUser = null;
         if(pb.security.isAuthenticated(this.session)) {
-            commentingUser = pb.CommentService.getCommentingUser(this.session.authentication.user);
+            commentingUser = this.commentService.getCommentingUser(this.session.authentication.user);
         }
 
         ts.registerLocal('user_photo', function(flag, cb) {

@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,12 +19,11 @@
 var cluster = require('cluster');
 var os      = require('os');
 var domain  = require('domain');
-var process = require('process');
 var async   = require('async');
 var util    = require('../util.js');
 
 module.exports = function ServerRegistrationModule(pb) {
-    
+
     /**
      * Singleton instance
      * @private
@@ -114,7 +113,7 @@ module.exports = function ServerRegistrationModule(pb) {
         pb_version: function(cb) {
             cb(null, pb.config.version);
         },
-        
+
         update_interval: function(cb) {
             cb(null, pb.config.registry.update_interval);
         }
@@ -220,7 +219,7 @@ module.exports = function ServerRegistrationModule(pb) {
     ServerRegistration.prototype.doRegistration = function(cb) {
         cb = cb || util.cb;
 
-        //ensure a provider was instantiated.  
+        //ensure a provider was instantiated.
         //Server registration could be turned off.
         if (!this.provider) {
             return cb(null, false);
@@ -235,7 +234,7 @@ module.exports = function ServerRegistrationModule(pb) {
             else if (!util.isObject(update)) {
                 return cb(err, false);
             }
-            
+
             //perform the registration update
             update.id          = ServerRegistration.generateKey();
             update.last_update = new Date();
@@ -255,7 +254,7 @@ module.exports = function ServerRegistrationModule(pb) {
     };
 
     /**
-     * 
+     *
      * @static
      * @method logUpdateResult
      * @param {String} key
@@ -314,7 +313,7 @@ module.exports = function ServerRegistrationModule(pb) {
          }
          return address;
     };
-    
+
     /**
      * Retrieves the singleton instance of the service registry
      * @static
@@ -326,11 +325,11 @@ module.exports = function ServerRegistrationModule(pb) {
         if (INSTANCE) {
             return INSTANCE;
         }
-        
+
         //create a provider if not provided
         var provider = null;
         if (!provider) {
-            
+
             var RegistrationProvider = null;
             if (pb.config.registry.type === 'redis') {
                 RegistrationProvider = pb.RedisRegistrationProvider;
@@ -343,7 +342,7 @@ module.exports = function ServerRegistrationModule(pb) {
             }
             provider = new RegistrationProvider();
         }
-        
+
         return INSTANCE = new ServerRegistration(provider);
     };
 

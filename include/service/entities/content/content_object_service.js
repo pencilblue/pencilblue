@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -14,13 +14,14 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var util  = require('../../../util.js');
 var async = require('async');
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var DAO               = pb.DAO;
     var ContentService    = pb.ContentService;
@@ -29,26 +30,30 @@ module.exports = function(pb) {
     var TopicService      = pb.TopicService;
 
     /**
-     * Provides functions to interact with content such as articles and pages.  
-     * It abstracts the heavy lifting away from specific implementations.  This 
+     * Provides functions to interact with content such as articles and pages.
+     * It abstracts the heavy lifting away from specific implementations.  This
      * prototype must be extended.
      *
      * @class ContentObjectService
-     * @constructor
      * @extends BaseObjectService
+     * @constructor
+     * @param {object} context
+     * @param {object} [context.contentSettings]
+     * @param {string} context.site
+     * @param {boolean} context.onlyThisSite
      */
     function ContentObjectService(context){
         if (!util.isObject(context)) {
             context = {};
         }
-        
+
         /**
          *
          * @property contentSettings
          * @type {Object}
          */
         this.contentSettings = context.contentSettings;
-        
+
         /**
          *
          * @property topicService
@@ -66,25 +71,25 @@ module.exports = function(pb) {
         ContentObjectService.super_.call(this, context);
     }
     util.inherits(ContentObjectService, BaseObjectService);
-    
+
     /**
-     * 
+     *
      * @static
      * @readonly
      * @property BEFORE_RENDER
      * @type {String}
      */
     ContentObjectService.BEFORE_RENDER = 'beforeRender';
-    
+
     /**
-     * 
+     *
      * @static
      * @readonly
      * @property AFTER_RENDER
      * @type {String}
      */
     ContentObjectService.AFTER_RENDER = 'afterRender';
-    
+
     /**
      *
      * @method getPublished
@@ -102,18 +107,18 @@ module.exports = function(pb) {
             cb = options;
             options = {};
         }
-        
+
         //ensure a where clause exists
         if (!util.isObject(options.where)) {
             options.where = {};
         }
-        
+
         //add where clause to weed out drafts
         ContentObjectService.setPublishedClause(options.where);
-        
+
         this.getAll(options, cb);
     };
-    
+
     /**
      *
      * @method getDrafts
@@ -131,24 +136,24 @@ module.exports = function(pb) {
             cb = options;
             options = {};
         }
-        
+
         //ensure a where clause exists
         if (!util.isObject(options.where)) {
             options.where = {};
         }
-        
+
         //add where clause to weed out published content
         options.where.draft = {
             $in: [1, true]
         };
-        
+
         this.getAll(options, cb);
     };
-    
+
     /**
-     * 
+     *
      * @method get
-     * @param {String} id
+     * @param {string} id
      * @param {object} options
      * @param {Boolean} [options.render=false]
      * @param {Boolean} [options.readMore=false]
@@ -171,7 +176,7 @@ module.exports = function(pb) {
         };
         ContentObjectService.super_.prototype.get.apply(this, [id, options, afterGet]);
     };
-    
+
     /**
      * Provides the options for rendering
      * @method getRenderOptions
@@ -182,7 +187,7 @@ module.exports = function(pb) {
     ContentObjectService.prototype.getRenderOptions = function(/*options, isMultiple*/) {
         throw new Error('getRenderOptions must be implemented by the extending prototype');
     };
-    
+
     /**
      * Retrieves an instance of a content renderer
      * @method getRenderer
@@ -214,7 +219,7 @@ module.exports = function(pb) {
 
         ContentObjectService.super_.prototype.getSingle.apply(this, [options, cb]);
     };
-    
+
     /**
      *
      * @method getAll
@@ -243,18 +248,18 @@ module.exports = function(pb) {
         };
         ContentObjectService.super_.prototype.getAll.apply(this, [options, afterGetAll]);
     };
-    
+
     /**
      *
      * @method render
      * @param {Array} contentArray
      * @param {Object} [options] An optional argument to provide rendering settings.
-     * @param {Boolean} [options.readMore] Specifies if content body layout 
+     * @param {Boolean} [options.readMore] Specifies if content body layout
      * should be truncated, and read more links rendered.
      * @param {Function} cb
      */
     ContentObjectService.prototype.render = function(contentArray, options, cb) {
-        if (arguments.length == 2 && util.isFunction(options)) { // if only two arguments were supplied
+        if (arguments.length === 2 && util.isFunction(options)) { // if only two arguments were supplied
             cb = options;
             options = null;
         }
@@ -262,13 +267,13 @@ module.exports = function(pb) {
         if (!util.isArray(contentArray)) {
             return cb(new Error('contentArray parameter must be an array'));
         }
-        
+
         var self  = this;
         this.gatherDataForRender(contentArray, function(err, context) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            
+
             //create tasks for each content object
             var tasks = util.getTasks(contentArray, function(contentArray, i) {
                 return function(callback) {
@@ -282,7 +287,7 @@ module.exports = function(pb) {
                         util.merge(options, contentContext);
                     }
                     util.merge(context, contentContext);
-                    
+
                     //create tasks for each content object
                     var subTasks = [
 
@@ -302,12 +307,12 @@ module.exports = function(pb) {
                     async.series(subTasks, callback);
                 };
             });
-            async.parallel(tasks, function(err, results) {
+            async.parallel(tasks, function(err/*, results*/) {
                 cb(err, contentArray);
             });
         });
     };
-    
+
     /**
      *
      * @method gatherDataForRender
@@ -318,25 +323,25 @@ module.exports = function(pb) {
         if (!util.isArray(contentArray)) {
             return cb(new Error('contentArray parameter must be an array'));
         }
-        
+
         var self = this;
         var tasks = {
-            
+
             contentCount: function(callback) {
                 callback(null, contentArray.length);
             },
-            
+
             authors: function(callback) {
-                
+
                 var opts = {
                     where: DAO.getIdInWhere(contentArray, 'author')
                 };
                 var dao = new pb.DAO();
                 dao.q('user', opts, function(err, authors) {
-                    
+
                     var authorHash = {};
                     if (util.isArray(authors)) {
-                        
+
                         authorHash = util.arrayToHash(authors, function(authors, i) {
                             return authors[i][DAO.getIdField()] + '';
                         });
@@ -344,37 +349,37 @@ module.exports = function(pb) {
                     callback(err, authorHash);
                 });
             },
-            
+
             //retrieve the content settings.
             contentSettings: function(callback) {
                 if (util.isObject(self.contentSettings)) {
                     return callback(null, self.contentSettings);
                 }
-                
-                var contentService = new pb.ContentService({self: self.site});
+
+                var contentService = new ContentService({self: self.site});
                 contentService.getSettings(callback);
             }
         };
         async.parallel(tasks, cb);
     };
-    
+
     /**
-     * Retrieves the SEO metadata for the specified content.  
+     * Retrieves the SEO metadata for the specified content.
      * @method getMetaInfo
      * @param {Object} content The content to retrieve information for
-     * @param {Function} cb A callback that takes two parameters.  The first is 
-     * an Error, if occurred.  The second is an object that contains 4 
-     * properties: 
-     * title - the SEO title, 
-     * description - the SEO description, 
-     * keywords - an array of SEO keywords that describe the content, 
-     * thumbnail - a URI path to the thumbnail image 
+     * @param {Function} cb A callback that takes two parameters.  The first is
+     * an Error, if occurred.  The second is an object that contains 4
+     * properties:
+     * title - the SEO title,
+     * description - the SEO description,
+     * keywords - an array of SEO keywords that describe the content,
+     * thumbnail - a URI path to the thumbnail image
      */
     ContentObjectService.prototype.getMetaInfo = function(content, cb) {
         if (util.isNullOrUndefined(content)) {
             return cb(
                 new Error('The content parameter cannot be null'),
-                
+
                 //provided for backward compatibility
                 {
                     title: '',
@@ -384,15 +389,15 @@ module.exports = function(pb) {
                 }
             );
         }
-        
+
         //compile the tasks necessary to gather the meta info
         var self = this;
         var tasks = {
-            
+
             //figure out SEO title
             title: function(callback) {
                 var title;
-                if (pb.ValidationService.isNonEmptyStr(content.seo_title, true)) {
+                if (ValidationService.isNonEmptyStr(content.seo_title, true)) {
                     title = content.seo_title;
                 }
                 else {
@@ -400,30 +405,30 @@ module.exports = function(pb) {
                 }
                 callback(null, title);
             },
-            
-            //figure out the description by taking the explicit meta 
-            //description or stripping all HTML formatting from the body and 
+
+            //figure out the description by taking the explicit meta
+            //description or stripping all HTML formatting from the body and
             //using it.
             description: function(callback) {
                 var description = '';
                 if(util.isString(content.meta_desc)) {
                     description = content.meta_desc;
                 }
-                else if(pb.ValidationService.isNonEmptyStr(content.layout, true)) {
+                else if(ValidationService.isNonEmptyStr(content.layout, true)) {
                     description = content.layout.replace(/<\/?[^>]+(>|$)/g, '').substr(0, 155);
                 }
                 callback(null, description);
             },
-            
+
             keywords: function(callback) {
-                
+
                 var keywords  = util.arrayToHash(content.meta_keywords || []);
                 var topics    = self.getTopicsForContent(content);
                 if (!util.isArray(topics) || topics.length <= 0) {
                     return callback(null, Object.keys(keywords));
                 }
-                
-                //we know there are topics we need to retrieve them to set the 
+
+                //we know there are topics we need to retrieve them to set the
                 //meta keywords
                 var opts = {
                     select: {
@@ -436,39 +441,43 @@ module.exports = function(pb) {
                         return callback(err);
                     }
 
-                    //add to the key word hash.  It is ok if we overwrite an existing 
+                    //add to the key word hash.  It is ok if we overwrite an existing
                     //value since it is a hash. We just want a unique set.
                     topics.forEach(function(topic) {
                         keywords[topic.name] = true;
                     });
-                    
+
                     callback(null, Object.keys(keywords));
                 });
             },
-            
+
             thumbnail: function(callback) {
-                
+
                 //no media so skip
-                if (!pb.ValidationService.isNonEmptyStr(content.thumbnail, true)) {
+                if (!ValidationService.isNonEmptyStr(content.thumbnail, true)) {
                     return callback(null, '');
                 }
-                
+
                 //media should exists so go get it
                 var mOpts = {
                     select: {
-                        location: 1
+                        location: 1,
+                        isFile: 1
                     },
                     where: pb.DAO.getIdWhere(content.thumbnail)
                 };
-                var mediaService = new pb.MediaService(null, self.site, false);
-                mediaService.get(mOpts, function(err, media) {
+                var mediaService = new pb.MediaServiceV2({ site: self.site, onlyThisSite: self.onlyThisSite });
+                mediaService.getSingle(mOpts, function(err, media) {
+                    if (media.isFile) {
+                        media.location = pb.UrlService.createSystemUrl(media.location);
+                    }
                     callback(err, util.isNullOrUndefined(media) ? '' : media.location);
                 });
             }
         };
         async.parallel(tasks, cb);
     };
-    
+
     /**
      * Extracts an array of Topic IDs from the content that the content is associated with.
      * @method getTopicsForContent
@@ -478,7 +487,7 @@ module.exports = function(pb) {
     ContentObjectService.prototype.getTopicsForContent = function(/*content*/) {
         throw new Error('getTopicsForContent must be overriden by the extending prototype');
     };
-    
+
     /**
      *
      * @static
@@ -493,6 +502,6 @@ module.exports = function(pb) {
             $lte: new Date()
         };
     };
-    
+
     return ContentObjectService;
 };

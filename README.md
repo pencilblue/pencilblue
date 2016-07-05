@@ -1,4 +1,4 @@
-[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue) [![Coverage Status](https://coveralls.io/repos/pencilblue/pencilblue/badge.svg?branch=master)](https://coveralls.io/r/pencilblue/pencilblue?branch=master) [![Build Status](https://travis-ci.org/pencilblue/pencilblue.svg?branch=master)](https://travis-ci.org/pencilblue/pencilblue) [![Code Climate](https://codeclimate.com/github/pencilblue/pencilblue/badges/gpa.svg)](https://codeclimate.com/github/pencilblue/pencilblue) [![bitHound Overall Score](https://www.bithound.io/github/pencilblue/pencilblue/badges/score.svg)](https://www.bithound.io/github/pencilblue/pencilblue) [![Join the chat at https://gitter.im/pencilblue/pencilblue](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pencilblue/pencilblue?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![dependencies](https://david-dm.org/pencilblue/pencilblue.png)](https://david-dm.org/pencilblue/pencilblue) [![Coverage Status](https://coveralls.io/repos/pencilblue/pencilblue/badge.svg?branch=master)](https://coveralls.io/r/pencilblue/pencilblue?branch=master) [![Build Status](https://travis-ci.org/pencilblue/pencilblue.svg?branch=master)](https://travis-ci.org/pencilblue/pencilblue) [![bitHound Overall Score](https://www.bithound.io/github/pencilblue/pencilblue/badges/score.svg)](https://www.bithound.io/github/pencilblue/pencilblue) [![Join the chat at https://gitter.im/pencilblue/pencilblue](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pencilblue/pencilblue?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [PencilBlue](http://pencilblue.org)
 =====
@@ -26,7 +26,7 @@ Installation
 
 [![LAUNCH ON OpenShift](http://launch-shifter.rhcloud.com/launch/LAUNCH ON.svg)](https://hub.openshift.com/quickstarts/deploy/159-pencilblue)
 
-The instructions below assume that Node.js [0.11, 5) and MongoDB [2, 3) are installed on your machine. If they are not then please visit http://nodejs.org and http://www.mongodb.org to install them.
+The instructions below assume that Node.js [0.11, 6] and MongoDB [2, 3) are installed on your machine. If they are not then please visit http://nodejs.org and http://www.mongodb.org to install them.
 
 ##### PencilBlue Command-line interface
  1. Install the pencilblue-cli module: ```sudo npm install -g pencilblue-cli```

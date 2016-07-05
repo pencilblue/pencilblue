@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,13 +16,13 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util                = pb.util;
     var BaseController      = pb.BaseController;
     var ApiActionController = pb.ApiActionController;
     var UrlService          = pb.UrlService;
-    
+
     /**
      * Controller to properly route and handle remote calls to interact with
      * the UrlService

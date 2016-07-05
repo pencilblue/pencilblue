@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -79,8 +79,7 @@ module.exports = function UrlServiceModule(pb) {
 
         //validate required params
         if (!url || !type) {
-            cb(new Error("The url and type parameters are required. URL=["+url+"] TYPE=["+type+"]"), false);
-            return;
+            return cb(new Error("The url and type parameters are required. URL=["+url+"] TYPE=["+type+"]"), false);
         }
 
         //build pattern

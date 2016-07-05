@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,11 +14,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
-module.exports = function ChangePasswordFormControllerModule(pb) {
+module.exports = function (pb) {
 
     //pb dependencies
     var util = pb.util;
+    var UserService = pb.UserService;
+    var ClientJs = pb.ClientJs;
 
     /**
      * Interface for logged in user to change password
@@ -30,24 +33,38 @@ module.exports = function ChangePasswordFormControllerModule(pb) {
     util.inherits(ChangePasswordFormController, pb.FormController);
 
     /**
+     * @method initSync
+     */
+    ChangePasswordFormController.prototype.initSync = function(/*context*/) {
+
+        /**
+         * @property userService
+         * @type {UserService}
+         */
+        this.userService = new UserService(this.getServiceContext());
+    };
+
+    /**
      *
      * @method render
-     *
+     * @param {function} cb (Error|object)
      */
     ChangePasswordFormController.prototype.render = function(cb) {
         var self = this;
 
         //retrieve user
-        var dao = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
-        dao.loadById(self.session.authentication.user_id, 'user', function(err, user) {
-            if(util.isError(err) || user === null) {
-                self.redirect('/', cb);
-                return;
+        this.userService.get(self.session.authentication.user_id, {}, function(err, user) {
+            if(util.isError(err)) {
+                return cb(err);
+            }
+            if (user === null) {
+                return self.redirect('/', cb);
             }
 
 
-            self.setPageName(self.ls.get('CHANGE_PASSWORD'));
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(pb.ClientJs.getAngularObjects(self.gatherData()), false));
+            var uiEntities = ClientJs.getAngularObjects(ChangePasswordFormController.gatherNavData(self.ls));
+            self.setPageName(self.ls.g('users.CHANGE_PASSWORD'));
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(uiEntities, false));
             self.ts.load('user/change_password', function(err, result) {
 
                 cb({content: result});
@@ -56,43 +73,52 @@ module.exports = function ChangePasswordFormControllerModule(pb) {
     };
 
     /**
-     *
+     * @deprecated
      * @method gatherData
-     *
+     * @return {object}
      */
     ChangePasswordFormController.prototype.gatherData = function() {
+        return ChangePasswordFormController.gatherNavData(this.ls);
+    };
+
+    /**
+     * Gathers up all of the necessary navigation data
+     * @param {Localization} ls
+     * @return {{navigation: *[], pills: *[], tabs: *[]}}
+     */
+    ChangePasswordFormController.gatherNavData = function(ls) {
         return {
             navigation: [
                 {
                     id: 'account',
                     active: 'active',
-                    title: this.ls.get('ACCOUNT'),
+                    title: ls.g('generic.ACCOUNT'),
                     icon: 'user',
                     href: '#',
                     dropdown: true,
                     children:
-                    [
-                        {
-                            id: 'manage',
-                            title: this.ls.get('MANAGE_ACCOUNT'),
-                            icon: 'cog',
-                            href: '/user/manage_account',
-                        },
-                        {
-                            id: 'change_password',
-                            active: 'active',
-                            title: this.ls.get('CHANGE_PASSWORD'),
-                            icon: 'key',
-                            href: '/user/change_password',
-                        }
-                    ]
+                        [
+                            {
+                                id: 'manage',
+                                title: ls.g('users.MANAGE_ACCOUNT'),
+                                icon: 'cog',
+                                href: '/user/manage_account'
+                            },
+                            {
+                                id: 'change_password',
+                                active: 'active',
+                                title: ls.g('users.CHANGE_PASSWORD'),
+                                icon: 'key',
+                                href: '/user/change_password'
+                            }
+                        ]
                 }
             ],
 
             pills: [
                 {
                     name: 'change_password',
-                    title: this.ls.get('CHANGE_PASSWORD'),
+                    title: ls.g('users.CHANGE_PASSWORD'),
                     icon: 'refresh',
                     href: '/user/change_password'
                 }
@@ -103,7 +129,7 @@ module.exports = function ChangePasswordFormControllerModule(pb) {
                     active: 'active',
                     href: '#password',
                     icon: 'key',
-                    title: this.ls.get('PASSWORD')
+                    title: ls.g('users.PASSWORD')
                 }
             ]
         };

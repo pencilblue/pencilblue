@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -245,9 +245,9 @@ module.exports = function TopMenuServiceModule(pb) {
      * @method getNavItems
      * @param {Object} options
      * @param {Localization} options.ls
-     * @param {String} options.activeTheme
      * @param {Object} options.session
      * @param {String} options.currUrl
+     * @param {string} options.site
      * @param {Function} cb
      */
     TopMenuService.prototype.getNavItems = function(options, cb) {

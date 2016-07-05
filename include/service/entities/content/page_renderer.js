@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ module.exports = function(pb) {
      * loader can complete the render of content
      * @class PageRenderer
      * @constructor
+     * @param {object} context
      */
     function PageRenderer(context) {
 

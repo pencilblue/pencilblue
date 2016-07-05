@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ module.exports = function(pb) {
                     });
                 }
 
-                result.icon = pb.MediaService.getMediaIcon(media.media_type);
+                result.icon = pb.MediaServiceV2.getMediaIcon(media.media_type);
                 cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, media.name + ' ' + self.ls.g('admin.EDITED'), result)});
             });
         });

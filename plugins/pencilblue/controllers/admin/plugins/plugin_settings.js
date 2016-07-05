@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2015  PencilBlue, LLC
+	Copyright (C) 2016  PencilBlue, LLC
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util           = pb.util;
 
@@ -27,7 +27,7 @@ module.exports = function(pb) {
      * @extends BaseAdminController
      */
     function PluginSettingsFormController(){
-    
+
         /**
          *
          * @property pluginService
@@ -54,7 +54,7 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'plugin_settings';
 
-    
+
     PluginSettingsFormController.prototype.get = function(cb) {
         var self = this;
 
@@ -128,12 +128,12 @@ module.exports = function(pb) {
             });
         });
     };
-    
-    
+
+
     PluginSettingsFormController.prototype.post = function(cb) {
         var self = this;
         var post = this.body;
-        
+
         //retrieve settings
         var uid = this.pathVars.id;
         self.getSettings(uid, function(err, settings) {
@@ -196,7 +196,7 @@ module.exports = function(pb) {
             });
         });
     };
-    
+
     /**
      *
      * @method getPageName

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2016  PencilBlue, LLC
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 */
 
 module.exports = function UserProfileApiControllerModule(pb) {
-    
+
     //pb dependencies
     var util              = pb.util;
     var BaseApiController = pb.BaseApiController;
@@ -30,7 +30,7 @@ module.exports = function UserProfileApiControllerModule(pb) {
      */
     function UserProfileApiController(){}
     util.inherits(UserProfileApiController, BaseApiController);
-    
+
     /**
      * Initializes the controller
      * @method init
@@ -40,22 +40,22 @@ module.exports = function UserProfileApiControllerModule(pb) {
     UserProfileApiController.prototype.init = function(context, cb) {
         var self = this;
         var init = function(err) {
-            
+
             /**
-             * 
+             *
              * @property service
              * @type {UserService}
              */
             self.service = new UserService(self.getServiceContext());
-                
+
             cb(err, true);
         };
         UserProfileApiController.super_.prototype.init.apply(this, [context, init]);
     };
-    
+
     /**
-     * Updates the authenticated user.  This overrides the typical 
-     * BaseApiController.put so we can force the user changes to only affect 
+     * Updates the authenticated user.  This overrides the typical
+     * BaseApiController.put so we can force the user changes to only affect
      * the authenticated user.
      * @method put
      * @param {Function} cb

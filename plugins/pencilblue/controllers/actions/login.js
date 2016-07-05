@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 */
 
 module.exports = function LoginActionControllerModule(pb) {
-    
+
     //dependencies
     var util               = pb.util;
     var FormController     = pb.FormController;
@@ -32,7 +32,7 @@ module.exports = function LoginActionControllerModule(pb) {
     util.inherits(LoginActionController, FormController);
 
     /**
-     * 
+     *
      * @method onPostParamsRetrieved
      * @param {Object} post
      * @param {Function} cb

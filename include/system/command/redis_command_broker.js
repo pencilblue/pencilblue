@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var util = require('../../util.js');
@@ -42,7 +43,7 @@ module.exports = function RedisCommandBrokerModule(pb) {
          * @type {Client}
          */
         this.subscribeClient = null;
-    };
+    }
 
     //statics
     /**
@@ -84,7 +85,7 @@ module.exports = function RedisCommandBrokerModule(pb) {
         var clients = [this.subscribeClient, this.publishClient, ];
         for (var i = 0; i < clients.length; i++) {
             try {
-                clients[i].end();
+                clients[i].quit();
             }
             catch(e) {
                 pb.log.silly('RedisCommandBroker: Error shutting down client: %s', e.stack);
@@ -102,7 +103,7 @@ module.exports = function RedisCommandBrokerModule(pb) {
      * @param {String} commandStr The message that was published
      */
     RedisCommandBroker.prototype.onCommandReceived = function(channel, commandStr) {
-        pb.log.silly('RedisCommandBroker: Command recieved [%s]%s', channel, commandStr);
+        pb.log.silly('RedisCommandBroker: Command received [%s]%s', channel, commandStr);
 
         if (SUBSCRIBERS[channel]) {
             try{
@@ -146,9 +147,8 @@ module.exports = function RedisCommandBrokerModule(pb) {
      * @param {Function} cb A callback that takes two parameters: cb(Error, [RESULT])
      */
     RedisCommandBroker.prototype.subscribe = function(channel, onCommandReceived, cb) {
-        if (!pb.validation.validateNonEmptyStr(channel, true) || !util.isFunction(onCommandReceived)) {
-            cb(new Error('A valid channel string and handler function is required'));
-            return;
+        if (!pb.ValidationService.isNonEmptyStr(channel, true) || !util.isFunction(onCommandReceived)) {
+            return cb(new Error('A valid channel string and handler function is required'));
         }
 
         //setup the one time subscribe callback

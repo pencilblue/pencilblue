@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,10 +16,10 @@
 */
 
 module.exports = function(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      * Interface for managing object types
      * @class ManageObjectTypes
@@ -32,34 +32,49 @@ module.exports = function(pb) {
     //statics
     var SUB_NAV_KEY = 'manage_object_types';
 
+    function handleError(err, obj){
+        if(err || !obj){
+            return [];
+        }
+        return obj;
+    }
+
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
 
-        var service = new pb.CustomObjectService(self.site, true);
-        service.findTypes(function(err, custObjTypes) {
+        var service = new pb.CustomObjectService(self.site, false);
+        var globalService = new pb.CustomObjectService();
+        globalService.findTypes(function (err, globalObjTypes) {
+            globalObjTypes = handleError(err, globalObjTypes);
 
-            //none to manage
-            if(custObjTypes.length === 0) {
-                self.redirect('/admin/content/objects/types/new', cb);
-                return;
-            }
+            service.findTypes(function (err, custObjTypes) {
+                custObjTypes = handleError(err, custObjTypes);
+                if(self.site !== 'global'){
+                    custObjTypes = globalObjTypes.concat(custObjTypes);
+                }
+                //none to manage
+                if (custObjTypes.length === 0) {
+                    self.redirect('/admin/content/objects/types/new', cb);
+                    return;
+                }
 
-            //set listing of field types used by each of the custom object types
-            pb.CustomObjectService.setFieldTypesUsed(custObjTypes, self.ls);
+                //set listing of field types used by each of the custom object types
+                pb.CustomObjectService.setFieldTypesUsed(custObjTypes, self.ls);
 
-            //build out the angular controller
-            var angularObjects = pb.ClientJs.getAngularObjects(
-            {
-                navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls, self.site),
-                pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-                objectTypes: custObjTypes
-            });
+                //build out the angular controller
+                var angularObjects = pb.ClientJs.getAngularObjects(
+                    {
+                        navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls, self.site),
+                        pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+                        objectTypes: custObjTypes
+                    });
 
-            self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-            self.ts.load('admin/content/objects/types/manage_types', function(err, data) {
-                var result = '' + data;
-                cb({content: result});
+                self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
+                self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.load('admin/content/objects/types/manage_types', function (err, data) {
+                    var result = '' + data;
+                    cb({content: result});
+                });
             });
         });
     };

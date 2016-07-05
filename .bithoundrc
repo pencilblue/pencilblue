@@ -1,0 +1,17 @@
+{
+    "ignore": [
+        "**/public/js/lib/**",
+        "**/public/css/lib/**",
+        "**/public/bower_components/**",
+        "**/public/localization/**",
+        "**/sample.config.js"
+    ],
+    "test": [
+        "**/test/**"
+    ],
+    "critics": {
+        "lint": {
+            "engine": "jshint"
+        }
+    }
+}

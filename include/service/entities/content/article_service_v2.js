@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2015  PencilBlue, LLC
+ Copyright (C) 2016  PencilBlue, LLC
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -16,16 +16,16 @@
  */
 
 //dependencies
-var util  = require('../../../util.js');
+var util = require('../../../util.js');
 var async = require('async');
 
-module.exports = function(pb) {
+module.exports = function (pb) {
 
     //pb dependencies
-    var DAO                  = pb.DAO;
-    var BaseObjectService    = pb.BaseObjectService;
+    var DAO = pb.DAO;
+    var BaseObjectService = pb.BaseObjectService;
     var ContentObjectService = pb.ContentObjectService;
-    var ValidationService    = pb.ValidationService;
+    var ValidationService = pb.ValidationService;
 
     /**
      * Provides functions to interact with articles
@@ -35,7 +35,7 @@ module.exports = function(pb) {
      * @extends BaseObjectService
      * @param {Object} context
      */
-    function ArticleServiceV2(context){
+    function ArticleServiceV2(context) {
         if (!util.isObject(context)) {
             context = {};
         }
@@ -62,7 +62,7 @@ module.exports = function(pb) {
      * @param {Object} options
      * @return {Object}
      */
-    ArticleServiceV2.prototype.getRenderOptions = function(options, isMultiple) {
+    ArticleServiceV2.prototype.getRenderOptions = function (options, isMultiple) {
         if (isMultiple) {
             return {
                 readMore: options && options.readMore !== undefined ? options.readMore : true
@@ -80,7 +80,7 @@ module.exports = function(pb) {
      * @method getRenderer
      * @return {ArticleRenderer}
      */
-    ArticleServiceV2.prototype.getRenderer = function() {
+    ArticleServiceV2.prototype.getRenderer = function () {
         return new pb.ArticleRenderer(this.context);
     };
 
@@ -91,7 +91,7 @@ module.exports = function(pb) {
      * @param {Object} [options]
      * @param {Function} cb
      */
-    ArticleServiceV2.prototype.getBySection = function(sectionId, options, cb) {
+    ArticleServiceV2.prototype.getBySection = function (sectionId, options, cb) {
         if (util.isFunction(options)) {
             cb = options;
             options = {};
@@ -118,7 +118,7 @@ module.exports = function(pb) {
      * @param {Object} content
      * @return {Array} An array of strings representing the Topic IDs
      */
-    ArticleServiceV2.prototype.getTopicsForContent = function(content) {
+    ArticleServiceV2.prototype.getTopicsForContent = function (content) {
         return content.article_topics;
     };
 
@@ -131,7 +131,7 @@ module.exports = function(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    ArticleServiceV2.format = function(context, cb) {
+    ArticleServiceV2.format = function (context, cb) {
         var dto = context.data;
         dto.headline = BaseObjectService.sanitize(dto.headline);
         dto.subheading = BaseObjectService.sanitize(dto.subheading);
@@ -160,7 +160,7 @@ module.exports = function(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    ArticleServiceV2.merge = function(context, cb) {
+    ArticleServiceV2.merge = function (context, cb) {
         var dto = context.data;
         var obj = context.object;
 
@@ -195,7 +195,7 @@ module.exports = function(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    ArticleServiceV2.validate = function(context, cb) {
+    ArticleServiceV2.validate = function (context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
 
@@ -213,10 +213,10 @@ module.exports = function(pb) {
             }
         }
         else {
-            obj.meta_keywords.forEach(function(keyword, i) {
+            obj.meta_keywords.forEach(function (keyword, i) {
 
                 if (!ValidationService.isNonEmptyStr(keyword, true)) {
-                    errors.push(BaseObjectService.validationFailure('meta_keywords['+i+']', 'An invalid meta keyword was provided'));
+                    errors.push(BaseObjectService.validationFailure('meta_keywords[' + i + ']', 'An invalid meta keyword was provided'));
                 }
             });
         }
@@ -227,10 +227,10 @@ module.exports = function(pb) {
             }
         }
         else {
-            obj.article_media.forEach(function(mediaId, i) {
+            obj.article_media.forEach(function (mediaId, i) {
 
                 if (!ValidationService.isIdStr(mediaId, true)) {
-                    errors.push(BaseObjectService.validationFailure('article_media['+i+']', 'An invalid media ID was provided'));
+                    errors.push(BaseObjectService.validationFailure('article_media[' + i + ']', 'An invalid media ID was provided'));
                 }
             });
         }
@@ -241,10 +241,10 @@ module.exports = function(pb) {
             }
         }
         else {
-            obj.article_sections.forEach(function(sectionId, i) {
+            obj.article_sections.forEach(function (sectionId, i) {
 
                 if (!ValidationService.isIdStr(sectionId, true)) {
-                    errors.push(BaseObjectService.validationFailure('article_sections['+i+']', 'An invalid section ID was provided'));
+                    errors.push(BaseObjectService.validationFailure('article_sections[' + i + ']', 'An invalid section ID was provided'));
                 }
             });
         }
@@ -255,10 +255,10 @@ module.exports = function(pb) {
             }
         }
         else {
-            obj.article_topics.forEach(function(topicId, i) {
+            obj.article_topics.forEach(function (topicId, i) {
 
                 if (!ValidationService.isIdStr(topicId, true)) {
-                    errors.push(BaseObjectService.validationFailure('article_topics['+i+']', 'An invalid topic ID was provided'));
+                    errors.push(BaseObjectService.validationFailure('article_topics[' + i + ']', 'An invalid topic ID was provided'));
                 }
             });
         }
@@ -272,7 +272,7 @@ module.exports = function(pb) {
             if (!ValidationService.isStr(obj.template, false)) {
                 errors.push(BaseObjectService.validationFailure('template', 'The template must take the form of [PLUGIN]|[TEMPLATE_NAME]'));
             }
-            else if (obj.template.length > 0){
+            else if (obj.template.length > 0) {
                 var parts = obj.template.split('|');
                 if (parts.length !== 2) {
                     errors.push(BaseObjectService.validationFailure('template', 'The template must take the form of [PLUGIN]|[TEMPLATE_NAME]'));
@@ -325,7 +325,7 @@ module.exports = function(pb) {
      * @method setSectionClause
      * @param {Object} where
      */
-    ArticleServiceV2.setSectionClause = function(where, sectionId) {
+    ArticleServiceV2.setSectionClause = function (where, sectionId) {
         where.article_sections = sectionId + '';
     };
 
@@ -335,7 +335,7 @@ module.exports = function(pb) {
      * @method setTopicClause
      * @param {Object} where
      */
-    ArticleServiceV2.setTopicClause = function(where, topicId) {
+    ArticleServiceV2.setTopicClause = function (where, topicId) {
         where.article_topics = topicId + '';
     };
 

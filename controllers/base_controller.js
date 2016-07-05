@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var url  = require('url');
@@ -110,21 +111,88 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.init = function(props, cb) {
         var self = this;
-        this.reqHandler          = props.request_handler;
-        this.req                 = props.request;
-        this.res                 = props.response;
-        this.session             = props.session;
-        this.body                = props.body;
+
+        /**
+         * The instance of the request handler that processed the request
+         * @property reqHandler
+         * @type {RequestHandler}
+         */
+        this.reqHandler = props.request_handler;
+
+        /**
+         * The current request object
+         * @property req
+         * @type {Request}
+         */
+        this.req = props.request;
+
+        /**
+         * The current response object
+         * @property res
+         * @type {Response}
+         */
+        this.res = props.response;
+
+        /**
+         * The session object that represents the calling entity
+         * @property session
+         * @type {object}
+         */
+        this.session = props.session;
+
+        /**
+         * The deserialized body of the request.  This field is only ever populted if the executing route specifies the
+         * "request_body" attribute and provides valid MIME types that map to a registered body parser
+         * @property body
+         * @type {object|null}
+         */
+        this.body = props.body;
+
+        /**
+         * @deprecated Use this.ls
+         * @property localizationService
+         * @type {Localization}
+         */
         this.localizationService = props.localization_service;
-        this.ls                  = this.localizationService;
-        this.pathVars            = props.pathVars;
-        this.query               = props.query;
+
+        /**
+         * @property ls
+         * @type {Localization}
+         */
+        this.ls = props.localization_service;
+
+        /**
+         * The hash of key/value pairs that represent the variables passed in the route path
+         * @property pathVars
+         * @type {object}
+         */
+        this.pathVars = props.pathVars;
+
+        /**
+         * The hash of key/value pairs that represent the variables passed as query string parameters
+         * @property query
+         * @type {object}
+         */
+        this.query = props.query;
+
+        /**
+         * The title of the view to be rendered, if there is a view
+         * @property pageName
+         * @type {string}
+         */
         this.pageName            = '';
         this.siteObj             = props.siteObj;
         this.site                = props.site;
         this.siteName            = props.siteName;
         this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || pb.config.siteRoot;
-        this.referer             = this.req.headers.referer;
+
+        /**
+         * The referring URL
+         * @deprecated
+         * @property referer
+         * @type {string}
+         */
+        this.referer = this.req.headers.referer;
 
         /**
          * @property ts
@@ -140,6 +208,10 @@ module.exports = function BaseControllerModule(pb) {
 
         //build out a base service context that can be cloned and passed to any
         //service objects
+        /**
+         * @property context
+         * @type {{req: Request, session: object, ls: Localization, ts: TemplateService, site: string, hostname: string, activeTheme: string, onlyThisSite: boolean, siteObj: object}}
+         */
         this.context = {
             req: this.req,
             session: this.session,
@@ -177,7 +249,7 @@ module.exports = function BaseControllerModule(pb) {
 
         //create options
         var tsOpts = {
-            ls: this.localizationService,
+            ls: this.ls,
             activeTheme: props.activeTheme,
             site: this.site
         };
@@ -323,12 +395,12 @@ module.exports = function BaseControllerModule(pb) {
         if(this.session.error) {
             var error = this.session.error;
             delete this.session.error;
-            cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-danger', this.localizationService.get(error)), false));
+            cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-danger', this.ls.get(error)), false));
         }
         else if(this.session.success) {
             var success = this.session.success;
             delete this.session.success;
-            cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-success', this.localizationService.get(success)), false));
+            cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-success', this.ls.get(success)), false));
         }
         else {
             cb(null, '');
@@ -375,6 +447,12 @@ module.exports = function BaseControllerModule(pb) {
 
             //convert to string
             var postParams = url.parse('?' + raw.toString(encoding), true).query;
+
+            //In Node v6 a breaking change was introduced into the "querystring" module to prevent reserved words from
+            // being passed in as query string parameters and overriding prototype functions.
+            // This fix allows for users to continue on with V6 until another viable option comes along
+            postParams.hawOwnProperty = Object.prototype.hasOwnProperty;
+
             cb(null, postParams);
         });
     };
@@ -450,16 +528,16 @@ module.exports = function BaseControllerModule(pb) {
         for (var i = 0; i < requiredParameters.length; i++) {
 
             if (typeof queryObject[requiredParameters[i]] === 'undefined') {
-                return this.localizationService.get('FORM_INCOMPLETE');
+                return this.ls.get('FORM_INCOMPLETE');
             }
             else if (queryObject[requiredParameters[i]].length === 0) {
-                return this.localizationService.get('FORM_INCOMPLETE');
+                return this.ls.get('FORM_INCOMPLETE');
             }
         }
 
         if(queryObject.password && queryObject.confirm_password) {
             if(queryObject.password !== queryObject.confirm_password) {
-                return this.localizationService.get('PASSWORD_MISMATCH');
+                return this.ls.get('PASSWORD_MISMATCH');
             }
         }
 
@@ -510,13 +588,13 @@ module.exports = function BaseControllerModule(pb) {
         }
 
         var rules = this.getSanitizationRules();
-        for(var prop in obj) {
+        Object.keys(obj).forEach(function(prop) {
             if (util.isString(obj[prop])) {
 
                 var config = rules[prop];
-                obj[prop] = BaseController.sanitize(obj[prop], config);
+                obj[prop] = pb.BaseObjectService.sanitize(obj[prop], config);
             }
-        }
+        });
     };
 
     /**
@@ -578,10 +656,10 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.apiResponse = function(cd, msg, dta) {
         if(typeof msg === 'undefined') {
             switch(cd) {
-                case BaseController.FAILURE:
+                case BaseController.API_FAILURE:
                     msg = 'FAILURE';
                     break;
-                case BaseController.SUCCESS:
+                case BaseController.API_SUCCESS:
                     msg = 'SUCCESS';
                     break;
                 default:
