@@ -59,7 +59,7 @@ module.exports = function(pb) {
             data.pills = self.getAdminPills(self.getSubnavKey(), self.ls, self.getSubnavKey(), navData);
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
-            self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.get('NEW_NAV_ITEM'));
+            self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.g('generic.NEW_NAV_ITEM'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.registerLocal('content_type', '{{section.type}}');
             self.ts.registerLocal('selection_id_field', 'item');
@@ -101,7 +101,7 @@ module.exports = function(pb) {
                         active: 'active',
                         href: '#section_settings',
                         icon: 'cog',
-                        title: self.ls.get('SETTINGS')
+                        title: self.ls.g('admin.SETTINGS')
                     }
                 ];
                 callback(null, tabs);
@@ -154,7 +154,7 @@ module.exports = function(pb) {
         pills.unshift(
         {
             name: 'manage_nav_items',
-            title: item[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + item.name : ls.get('NEW_NAV_ITEM'),
+            title: item[pb.DAO.getIdField()] ? ls.g('generic.EDIT') + ' ' + item.name : ls.g('generic.NEW_NAV_ITEM'),
             icon: 'chevron-left',
             href: '/admin/content/navigation'
         });

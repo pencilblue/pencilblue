@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var path        = require('path');
@@ -491,7 +492,7 @@ module.exports = function(pb) {
             else if ((tmp = GLOBAL_CALLBACKS[flag]) !== undefined) {//global callbacks
                 return self.handleReplacement(flag, tmp, cb);
             }
-            else if (flag.indexOf(LOCALIZATION_PREFIX) == 0 && self.localizationService) {//localization
+            else if (flag.indexOf(LOCALIZATION_PREFIX) === 0 && self.localizationService) {//localization
 
                 //TODO how do we express params?  Other template vars?
                 var key = flag.substring(LOCALIZATION_PREFIX_LEN);
@@ -504,12 +505,12 @@ module.exports = function(pb) {
                 var val = self.localizationService.g(key, opts);
                 if (!util.isString(val)) {
 
-                    //TODO this is here to be backwards compatible. Remove in 0.6.0
+                    //TODO this is here to be backwards compatible. Remove in 1.0
                     val = self.localizationService.get(key);
                 }
                 return cb(null, val);
             }
-            else if (flag.indexOf(TEMPLATE_PREFIX) == 0) {//sub-templates
+            else if (flag.indexOf(TEMPLATE_PREFIX) === 0) {//sub-templates
                 self.handleTemplateReplacement(flag, function(err, template) {
                     cb(null, template);
                 });
@@ -673,7 +674,7 @@ module.exports = function(pb) {
         var completedResult = true;
         while (queue.length > 0 && completedResult) {
             var item = queue.shift();
-            completedResult &= register(item.prefix, item.key, item.value);
+            completedResult = completedResult && register(item.prefix, item.key, item.value);
         }
         return completedResult;
     };
@@ -687,7 +688,7 @@ module.exports = function(pb) {
         var self = this;
         this._getActiveTheme(function(err, activeTheme) {
 
-            if(util.isError(err) || activeTheme == null) {
+            if(util.isError(err) || activeTheme === null) {
                 cb(err, []);
                 return;
             }
@@ -732,7 +733,8 @@ module.exports = function(pb) {
 
         var opts = {
             ls: this.localizationService,
-            activeTheme: this.activeTheme
+            activeTheme: this.activeTheme,
+            site: this.siteUid
         };
         var childTs                     = new TemplateService(opts);
         childTs.theme                   = this.theme;
@@ -930,11 +932,11 @@ module.exports = function(pb) {
      * @param {Boolean} [htmlEncode=true] Indicates if the value should be
      * encoded during serialization.
      */
-    function TemplateValue(val, htmlEncode){
+    function TemplateValue(val, htmlEncode) {
 
         this.raw        = val;
         this.htmlEncode = util.isBoolean(htmlEncode) ? htmlEncode : true;
-    };
+    }
 
     /**
      * Encodes the value for an HTML document when a value is provided.
@@ -943,7 +945,7 @@ module.exports = function(pb) {
      * @return {Boolean} The current value of the htmlEncode property
      */
     TemplateValue.prototype.encode = function(doHtmlEncoding) {
-        if (doHtmlEncoding == true || doHtmlEncoding == false) {
+        if (doHtmlEncoding === true || doHtmlEncoding === false) {
             this.htmlEncode = doHtmlEncoding;
         }
         return this.htmlEncode;

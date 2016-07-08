@@ -67,12 +67,12 @@ module.exports = function(pb) {
                         active: 'active',
                         href: '#object_settings',
                         icon: 'cog',
-                        title: self.ls.get('SETTINGS')
+                        title: self.ls.g('admin.SETTINGS')
                     },
                     {
                         href: '#object_fields',
                         icon: 'list-ul',
-                        title: self.ls.get('FIELDS')
+                        title: self.ls.g('custom_objects.FIELDS')
                     }
                 ];
 

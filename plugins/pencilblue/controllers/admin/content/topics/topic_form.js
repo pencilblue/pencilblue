@@ -68,7 +68,7 @@ module.exports = function(pb) {
                         active: 'active',
                         href: '#topic_settings',
                         icon: 'cog',
-                        title: self.ls.get('SETTINGS')
+                        title: self.ls.g('admin.SETTINGS')
                     }
                 ];
                 callback(null, tabs);

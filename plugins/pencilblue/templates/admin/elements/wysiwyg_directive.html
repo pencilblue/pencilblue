@@ -73,14 +73,14 @@
             <input type="text" class="form-control" ng-model="layoutLink.text"></input>
           </div>
           <div class="form-group">
-            <label>^loc_LINK_IN_TAB^</label><br/>
+            <label>^loc_wysiwyg.LINK_IN_TAB^</label><br/>
             <div class="btn-group">
-              <button type="button" class="btn btn-default" ng-class="{'active': layoutLink.newTab}" ng-click="layoutLink.newTab = true">^loc_YES^</button>
-              <button type="button" class="btn btn-default" ng-class="{'active': !layoutLink.newTab}" ng-click="layoutLink.newTab = false">^loc_NO^</button>
+              <button type="button" class="btn btn-default" ng-class="{'active': layoutLink.newTab}" ng-click="layoutLink.newTab = true">^loc_generic.YES^</button>
+              <button type="button" class="btn btn-default" ng-class="{'active': !layoutLink.newTab}" ng-click="layoutLink.newTab = false">^loc_generic.NO^</button>
             </div>
           </div>
           <button type="button" class="btn btn-default" data-dismiss="modal">
-            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+            <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
           </button>
           <button id="add_link_button" type="button" class="btn btn-success" ng-click="testLayoutLink()" ng-disabled="!layoutLink.url.length">
             <i class="fa fa-eye"></i>&nbsp;^loc_TEST_LINK^
@@ -151,7 +151,7 @@
               </div>
             </div>
             <button type="button" class="btn btn-default" data-dismiss="modal">
-              <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+              <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
             </button>
             <button type="button" class="btn btn-primary" ng-click="insertMedia()" ng-disabled="!wysiwyg.selectedMediaItem">
               <i class="fa fa-plus"></i>&nbsp;^loc_INSERT_MEDIA^

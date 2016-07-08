@@ -9,7 +9,7 @@
             <a ng-href="{{newsLink}}">
                 <h4 ng-bind="newsTitle"></h4>
             </a>
-            <p><span ng-bind-html="getNewsCopyHtml()"></span>&nbsp;<a ng-href="{{newsLink}}" target="_blank">^loc_READ_FULL^...</a></p>
+            <p><span ng-bind-html="getNewsCopyHtml()"></span>&nbsp;<a ng-href="{{newsLink}}" target="_blank">^loc_generic.READ_FULL^...</a></p>
         </span>
     </div>
     <div class="row">
@@ -25,11 +25,11 @@
             <div class="table_container">
                 <i class="fa fa-circle-o-notch fa-spin fa-lg" ng-if="refreshingServers"></i>
                 <table id="cluster_info_table" class="table table-striped" ng-if="!refreshingServers">
-                    <th>^loc_SERVER^</th><th>^loc_PROCESS_TYPE^</th><th>^loc_UPTIME^</th><th>^loc_MEMORY_USED^</th><th>^loc_REQUESTS_TOTAL^</th><th>^loc_REQUESTS_CURRENT^</th><th><a ng-if="access === 4" class="btn" ng-click="refreshServers();"><i class="fa fa-refresh"></i></a></th>
+                    <th>^loc_generic.SERVER^</th><th>^loc_generic.PROCESS_TYPE^</th><th>^loc_generic.UPTIME^</th><th>^loc_generic.MEMORY_USED^</th><th>^loc_admin.REQUESTS_TOTAL^</th><th>^loc_admin.REQUESTS_CURRENT^</th><th><a ng-if="access === 4" class="btn" ng-click="refreshServers();"><i class="fa fa-refresh"></i></a></th>
                     <tr ng-repeat="val in cluster">
                         <td ng-bind="val.ip + '::' + val.port"></td>
                         <td title="{{val.worker_id}}" ng-bind="val.process_type"></td>
-                        <td><span ng-bind="val.uptime | number:0"></span> ^loc_SECONDS_ABBR^</td>
+                        <td><span ng-bind="val.uptime | number:0"></span> ^loc_generic.SECONDS_ABBR^</td>
                         <td><span ng-bind="(val.mem_usage.heapUsed / 1024 / 1024) | number:2"></span> MB</td>
                         <td><span ng-bind="val.requests | number:0"></span></td>
                         <td><span ng-bind="val.currentRequests | number:0"></span></td>

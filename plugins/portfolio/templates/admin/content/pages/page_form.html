@@ -10,7 +10,7 @@
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.headline)}">
                         <label>^loc_HEADLINE^</label>
                         <input type="text" name="headline" class="form-control" ng-model="page.headline" required></input>
-                        <div class="form_error" ng-if="!isFieldValid(pageForm.headline)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.headline)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
                         <label>^loc_SUBHEADING^</label>
@@ -20,7 +20,7 @@
                         <label>^loc_PAGE_URL^</label>
                         <div class="input-group">
                             <span class="input-group-addon">/page/</span>
-                            <input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" url-safe required></input>
+                            <input type="text" name="url" class="form-control" placeholder="^loc_pages.CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" url-safe required></input>
                             <span class="input-group-btn">
                                 <button type="button" class="btn" ng-class="{'btn-default': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="pageForm.headline.$invalid">
 									<span ng-if="urlGenerated === null">^loc_GENERATE^</span>
@@ -34,7 +34,7 @@
                                 </button>
                             </span>
                         </div>
-                        <div class="form_error" ng-if="!isFieldValid(pageForm.url)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.url)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
                         <label>^loc_STANDALONE_TEMPLATE^</label>
@@ -56,11 +56,11 @@
                                 <button class="btn btn-default" type="button" ng-click="setPublishDateToNow()">^loc_NOW^</button>
                             </span>
                         </div>
-                        <div class="form_error" ng-if="!isFieldValid(pageForm.publish_date)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="!isFieldValid(pageForm.publish_date)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group" ng-class="{'has-error': !isWysiwygValid(layout)}">
                       <wysiwyg layout="layout" media="page.page_media"></wysiwyg>
-                      <div class="form_error" ng-if="!isWysiwygValid(layout)" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
+                      <div class="form_error" ng-if="!isWysiwygValid(layout)" style="margin-top: -1em">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <div class="tab-pane" id="media">
@@ -83,8 +83,8 @@
                         <textarea class="form-control" ng-model="page.meta_desc" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
                     </div>
                     <div class="form-group">
-                        <label>^loc_META_KEYWORDS^</label>
-                        <input type="text" class="form-control" ng-model="page.meta_keywords" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"></input>
+                        <label>^loc_admin.META_KEYWORDS^</label>
+                        <input type="text" class="form-control" ng-model="page.meta_keywords" placeholder="^loc_admin.META_KEYWORDS_PLACEHOLDER^"></input>
                     </div>
                     <div class="form-group" ng-if="page.page_media.length">
                         <label>^loc_THUMBNAIL^</label>
@@ -94,7 +94,7 @@
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/content/pages">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>&nbsp;
                 <button type="button" class="btn btn-info" ng-click="previewPage(true)" ng-if="page.draft" ng-disabled="savingPage">
                     <i class="fa" ng-class="{'fa-eye': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_PREVIEW^
@@ -102,7 +102,7 @@
                 <span ng-if="page.draft">&nbsp;</span>
                 <div class="btn-group dropup">
                     <button type="button" class="btn btn-primary" ng-click="savePage()" ng-if="!page.draft && page._id" ng-disabled="savingPage">
-                        <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_SAVE^
+                        <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_generic.SAVE^
                     </button>
                     <button id="save_draft_button" type="button" class="btn btn-primary" ng-click="savePage(true)" ng-if="page.draft || !page._id" ng-disabled="savingPage">
                         <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_SAVE_DRAFT^
@@ -112,7 +112,7 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li ng-if="!page.draft && page._id"><a ng-click="savePage(true)">^loc_SAVE_DRAFT^</a></li>
-                        <li ng-if="page.draft || !page._id"><a ng-click="savePage()">^loc_SAVE^</a></li>
+                        <li ng-if="page.draft || !page._id"><a ng-click="savePage()">^loc_generic.SAVE^</a></li>
                     </ul>
                 </div>
                 <div class="spacer"></div>

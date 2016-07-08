@@ -102,7 +102,7 @@ module.exports = function(pb) {
                         active: 'active',
                         href: '#plugin_settings',
                         icon: 'cog',
-                        title: self.ls.get('SETTINGS')
+                        title: self.ls.g('admin.SETTINGS')
                     }
                 ];
 
@@ -203,7 +203,7 @@ module.exports = function(pb) {
      *
      */
     PluginSettingsFormController.prototype.getPageName = function() {
-        return this.plugin.name + ' - ' + this.ls.get('SETTINGS');
+        return this.plugin.name + ' - ' + this.ls.g('admin.SETTINGS');
     };
 
     /**
@@ -243,7 +243,7 @@ module.exports = function(pb) {
         return [
             {
                 name: 'manage_plugins',
-                title: data.plugin.name + ' ' + ls.get('SETTINGS'),
+                title: data.plugin.name + ' ' + ls.g('admin.SETTINGS'),
                 icon: 'chevron-left',
                 href: '/admin/' + data.settingType
             }

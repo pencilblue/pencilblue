@@ -8,7 +8,7 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="object_settings">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(typeForm.name)}">
-                        <label>^loc_NAME^</label>
+                        <label>^loc_generic.NAME^</label>
                         <div class="input-group">
                             <input type="text" name="name" class="form-control" ng-model="objectType.name" ng-change="resetAvailability()" required></input>
                             <span class="input-group-btn">
@@ -19,7 +19,7 @@
                                 </button>
                             </span>
                         </div>
-                        <div class="form_error" ng-if="!isFieldValid(typeForm.name)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="!isFieldValid(typeForm.name)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <div class="tab-pane" id="object_fields" ng-model="objectType.fields" data-as-sortable="board.dragControlListeners" is-enabled="true">
@@ -34,7 +34,7 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-addon" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
-                            <input type="text" name="field_{{$index}}" class="form-control" ng-model="field.name" placeholder="^loc_NAME^"></input>
+                            <input type="text" name="field_{{$index}}" class="form-control" ng-model="field.name" placeholder="^loc_generic.NAME^"></input>
                             <div class="input-group-btn" ng-if="field.field_type !== 'date' && field.field_type !== 'boolean' && field.field_type !== 'wysiwyg'">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                     <span ng-bind="field.object_type || field.field_type"></span>&nbsp;<span class="caret"></span>
@@ -75,7 +75,7 @@
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/content/objects/types">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 ^tmp_admin=elements=save_button^
             </div>

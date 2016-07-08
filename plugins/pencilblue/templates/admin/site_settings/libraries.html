@@ -44,7 +44,7 @@
 					<div class="form-group" ng-class="{'has-error': !isFieldValid(librariesForm.jquery)}">
 						<label>jQuery</label>
 						<input type="text" name="jquery" class="form-control" ng-model="librarySettings.jquery" required></input>
-						<div class="form_error" ng-if="!isFieldValid(librariesForm.jquery)">^loc_REQUIRED_FIELD^</div>
+						<div class="form_error" ng-if="!isFieldValid(librariesForm.jquery)">^loc_generic.REQUIRED_FIELD^</div>
 					</div>
 					<div class="form-group">
 						<label>jQuery UI</label>
@@ -77,7 +77,7 @@
 					<div class="form-group" ng-class="{'has-error': !isFieldValid(librariesForm.angular)}">
 						<label>Angular</label>
 						<input type="text" name="angular" class="form-control" ng-model="librarySettings.angular" required></input>
-						<div class="form_error" ng-if="!isFieldValid(librariesForm.angular)">^loc_REQUIRED_FIELD^</div>
+						<div class="form_error" ng-if="!isFieldValid(librariesForm.angular)">^loc_generic.REQUIRED_FIELD^</div>
 					</div>
 					<div class="form-group">
 						<label>Angular Route</label>
@@ -129,7 +129,7 @@
 					</div>
 				</div>
 				<a class="btn btn-default" href="/admin/site_settings">
-					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+					<i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
 				</a>
 				^tmp_admin=elements=save_button^
 			</div>

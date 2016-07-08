@@ -67,7 +67,7 @@ module.exports = function(pb) {
                     }
                 );
 
-                self.setPageName(self.ls.get('NAV_MAP'));
+                self.setPageName(self.ls.g('generic.NAV_MAP'));
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('admin/content/navigation/nav_map', function(err, data) {
                     var result = '' + data;
@@ -121,7 +121,7 @@ module.exports = function(pb) {
         pills.unshift(
         {
             name: SUB_NAV_KEY,
-            title: ls.get('NAV_MAP'),
+            title: ls.g('generic.NAV_MAP'),
             icon: 'refresh',
             href: '/admin/content/navigation'
         });

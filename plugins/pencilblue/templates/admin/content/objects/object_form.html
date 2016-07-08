@@ -12,7 +12,7 @@
                             <label ng-bind="field.name"></label>
                             <input type="text" class="form-control" ng-model="customObject[field.name]" ng-if="field.name !== 'name'"></input>
                             <input type="text" name="name" class="form-control" ng-model="customObject.name" ng-if="field.name === 'name'" required></input>
-                            <div class="form_error" ng-if="field.name === 'name' && !isFieldValid(objectForm.name)">^loc_REQUIRED_FIELD^</div>
+                            <div class="form_error" ng-if="field.name === 'name' && !isFieldValid(objectForm.name)">^loc_generic.REQUIRED_FIELD^</div>
                         </div>
                         <div class="form-group" ng-if="field.field_type == 'number'">
                             <label ng-bind="field.name"></label>
@@ -25,8 +25,8 @@
                         <div class="form-group" ng-if="field.field_type == 'boolean'">
                             <label ng-bind="field.name"></label><br/>
                             <div class="btn-group">
-                                <button type="button" class="btn btn-default" ng-class="{'active': customObject[field.name]}" ng-click="setBoolean(field.name, true)">^loc_YES^</button>
-                                <button type="button" class="btn btn-default" ng-class="{'active': !customObject[field.name]}" ng-click="setBoolean(field.name, false)">^loc_NO^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': customObject[field.name]}" ng-click="setBoolean(field.name, true)">^loc_generic.YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !customObject[field.name]}" ng-click="setBoolean(field.name, false)">^loc_generic.NO^</button>
                             </div>
                         </div>
                         <div class="form-group date_input" ng-if="field.field_type == 'date'">
@@ -86,7 +86,7 @@
                     </span>
                 </div>
                 <a class="btn btn-default" ng-href="/admin/content/objects/{{objectType._id}}">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 ^tmp_admin=elements=save_button^
             </div>

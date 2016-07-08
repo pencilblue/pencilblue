@@ -10,7 +10,7 @@
               <div class="form-group" ng-class="{'has-error': !isFieldValid(resendForm.email)}">
                 <label>^loc_EMAIL^</label>
                 <input type="email" name="email" ng-model="email" class="form-control" required></input>
-                <div class="form_error" ng-if="!isFieldValid(resendForm.email)">^loc_REQUIRED_FIELD^</div>
+                <div class="form_error" ng-if="!isFieldValid(resendForm.email)">^loc_generic.REQUIRED_FIELD^</div>
               </div>
               <button type="submit" class="btn btn-lg btn-primary btn-block" ng-disabled="!isFieldValid(resendForm.email)">
                 <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SUBMIT^

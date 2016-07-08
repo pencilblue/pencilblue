@@ -144,6 +144,17 @@ describe('Localization', function() {
         });
     });
 
+    describe('Localization.localize', function() {
+
+        it('should localize all valid keys in a given text provided the sets to inspect plus generic', function() {
+            var val = 'Hello world, ^loc_PENCILBLUE^ is a CMS. It has a built in wysiwyg that supports ^loc_NORMAL_TEXT^.  This test should not lookup the localization ^loc_MANAGE_COMMENTS^ correctly.';
+            var expected = 'Hello world, PencilBlue is a CMS. It has a built in wysiwyg that supports Normal text.  This test should not lookup the localization ^loc_MANAGE_COMMENTS^ correctly.';
+
+            var ls = new Localization('en-US');
+            ls.localize(['wysiwyg'], val, 'localhost:8080').should.eql(expected);
+        });
+    });
+
     describe('Localization.replaceParameters', function() {
 
         var badValues = [1, 2.1, true, {}, [], null, undefined];

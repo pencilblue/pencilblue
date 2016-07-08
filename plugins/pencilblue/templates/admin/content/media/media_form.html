@@ -29,10 +29,10 @@
 					^tmp_admin=elements=topic_select^
 				</div>
 				<a class="btn btn-default" href="/admin/content/media">
-					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+					<i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
 				</a>
 				<button type="submit" class="btn btn-primary" ng-disabled="!mediaPreview.length || !media.name.length">
-					<i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SAVE^
+					<i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_generic.SAVE^
 				</button>
 			</div>
 		</fieldset>
@@ -58,7 +58,7 @@
 						</span>
 						<div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="dropSupported=true" ng-file-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">Drop image and video files here</div>
 						<button type="button" class="btn btn-default" style="margin-top: 1em" data-dismiss="modal">
-							<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+							<i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
 						</button>
 					</span>
 					<span ng-if="!media.isFile">
@@ -67,7 +67,7 @@
 							<input type="text" class="form-control" ng-model="media.link" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
 						</div>
 						<button type="button" class="btn btn-default" data-dismiss="modal">
-							<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+							<i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
 						</button>
 						<button type="button" class="btn btn-primary" ng-click="loadMediaLink()" ng-disabled="!media.link.length || loadingLink">
 							<i class="fa" ng-class="{'fa-link': !loadingLink, 'fa-circle-o-notch fa-spin': loadingLink}"></i>&nbsp;^loc_LOAD_LINK^

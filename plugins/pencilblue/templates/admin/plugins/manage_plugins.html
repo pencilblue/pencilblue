@@ -12,7 +12,7 @@
         </div>
         <table id="installed_plugins_table" class="table table-responsive table-condensed" ng-if="installedPlugins.length > 0">
             <tr id="installed_plugins_table_header">
-                <th id="installed_name_header">^loc_NAME^</th>
+                <th id="installed_name_header">^loc_generic.NAME^</th>
                 <th id="installed_description_header">^loc_VERSION^</th>
                 <th id="installed_date_header">^loc_INSTALLED_ON^</th>
                 <th></th>
@@ -23,7 +23,7 @@
                 <td ng-bind="installed.created | date: 'yyyy-MM-dd HH:mm'"></td>
                 <td style="text-align: right">
                     <div class="btn-group" style="text-align: left">
-                        <a class="btn btn-sm btn-default" ng-href="/admin/plugins/{{installed.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
+                        <a class="btn btn-sm btn-default" ng-href="/admin/plugins/{{installed.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_admin.SETTINGS^</a>
                         <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-sm fa-chevron-down"></i>
                         </button>
@@ -47,7 +47,7 @@
         </div>
         <table id="inactive_plugins_table" class="table table-responsive table-condensed" ng-if="inactivePlugins.length > 0">
             <tr id="inactive_plugins_table_header">
-                <th>^loc_NAME^</th>
+                <th>^loc_generic.NAME^</th>
                 <th>^loc_VERSION^</th>
                 <th>^loc_INSTALLED_ON^</th>
                 <th></th>
@@ -58,7 +58,7 @@
                 <td ng-bind="inactive.created | date: 'yyyy-MM-dd HH:mm'"></td>
                 <td style="text-align: right">
                     <div class="btn-group" style="text-align: left">
-                        <a class="btn btn-sm btn-default" href="/admin/plugins/{{inactive.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
+                        <a class="btn btn-sm btn-default" href="/admin/plugins/{{inactive.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_admin.SETTINGS^</a>
                         <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-sm fa-chevron-down"></i>
                         </button>
@@ -84,9 +84,9 @@
         <div class="table_container">
             <table id="available_plugins_table" class="table table-responsive table-condensed" ng-if="availablePlugins.length > 0">
                 <tr id="available_plugins_table_header">
-                    <th>^loc_NAME^</th>
+                    <th>^loc_generic.NAME^</th>
                     <th>^loc_VERSION^</th>
-                    <th>^loc_DESCRIPTION^</th>
+                    <th>^loc_generic.DESCRIPTION^</th>
                     <th></th>
                 </tr>
                 <tr class="available_plugin_row" ng-repeat="available in availablePlugins track by available.uid">
@@ -119,9 +119,9 @@
         <div class="table_container">
             <table id="global_active_plugins_table" class="table table-responsive table-condensed" ng-if="globalActivePlugins.length > 0">
                 <tr id="global_active_plugins_table_header">
-                    <th>^loc_NAME^</th>
+                    <th>^loc_generic.NAME^</th>
                     <th>^loc_VERSION^</th>
-                    <th>^loc_DESCRIPTION^</th>
+                    <th>^loc_generic.DESCRIPTION^</th>
                     <th></th>
                 </tr>
                 <tr class="global_active_plugin_row" ng-repeat="installed in globalActivePlugins track by installed.uid">
