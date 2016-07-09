@@ -27,7 +27,7 @@
 	<div class="spacer"></div>
 	<div class="panel panel-default">
 		<div class="panel-body">
-			<label>^loc_ABOUT^ <span ng-bind="d.name"></label>
+			<label>^loc_ABOUT^ <span ng-bind="d.name"></span></label>
 			<p ng-bind="d.description"></p>
 		</div>
 	</div>
@@ -40,7 +40,7 @@
 				<table class="table table-responsive table-condensed">
 					<tr>
 						<th><i class="fa fa-user"></i>&nbsp;^loc_generic.NAME^</th>
-						<th><i class="fa fa-envelope"></i>&nbsp;^loc_EMAIL^</th>
+						<th><i class="fa fa-envelope"></i>&nbsp;^loc_generic.EMAIL^</th>
 						<th><i class="fa fa-link"></i>&nbsp;^loc_WEBSITE^</th>
 					</tr>
 					<tr>
@@ -69,7 +69,7 @@
 			</div>
 			<div class="panel-body" ng-if="!d.theme.content_templates">
 				<p>
-					^loc_NONE^
+					^loc_generic.NONE^
 				</p>
 			</div>
 			<div class="table_container">

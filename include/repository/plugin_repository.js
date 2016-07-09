@@ -175,7 +175,7 @@ module.exports = function PluginRepositoryModule(pb) {
             $and: [idIsInTheList, belongsToThisSite]
         };
         var opts = {
-            select: pb.DAO.SELECT_ALL,
+            select: pb.DAO.PROJECT_ALL,
             where: where,
             order: {created: pb.DAO.ASC}
         };

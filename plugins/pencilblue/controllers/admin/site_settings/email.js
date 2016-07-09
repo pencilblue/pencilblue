@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -73,12 +74,12 @@ module.exports = function(pb) {
 
         var pills = [{
             name: 'configuration',
-            title: ls.get('EMAIL'),
+            title: ls.g('generic.EMAIL'),
             icon: 'chevron-left',
             href: '/admin/site_settings'
         }, {
             name: 'content',
-            title: ls.get('CONTENT'),
+            title: ls.g('generic.CONTENT'),
             icon: 'quote-right',
             href: '/admin/site_settings/content'
         }];
@@ -86,7 +87,7 @@ module.exports = function(pb) {
         if(data && data.site === SiteService.GLOBAL_SITE) {
             pills.push({
                 name: 'libraries',
-                title: ls.get('LIBRARIES'),
+                title: ls.g('site_settings.LIBRARIES'),
                 icon: 'book',
                 href: '/admin/site_settings/libraries'
             });

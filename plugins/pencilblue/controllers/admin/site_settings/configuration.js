@@ -82,7 +82,7 @@ module.exports = function(pb) {
             href: '/admin/site_settings'
         }, {
             name: 'content',
-            title: ls.get('CONTENT'),
+            title: ls.g('generic.CONTENT'),
             icon: 'quote-right',
             href: '/admin/site_settings/content'
         }, {

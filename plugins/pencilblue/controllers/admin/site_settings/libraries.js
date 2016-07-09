@@ -14,6 +14,7 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -70,17 +71,17 @@ module.exports = function(pb) {
     Libraries.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'configuration',
-            title: ls.get('LIBRARIES'),
+            title: ls.g('site_settings.LIBRARIES'),
             icon: 'chevron-left',
             href: '/admin/site_settings'
         }, {
             name: 'content',
-            title: ls.get('CONTENT'),
+            title: ls.g('generic.CONTENT'),
             icon: 'quote-right',
             href: '/admin/site_settings/content'
         }, {
             name: 'email',
-            title: ls.get('EMAIL'),
+            title: ls.g('generic.EMAIL'),
             icon: 'envelope',
             href: '/admin/site_settings/email'
         }];

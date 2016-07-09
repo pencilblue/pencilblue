@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -155,7 +156,7 @@ module.exports = function(pb) {
     ArticleForm.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_articles',
-            title: data.article[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.article.headline : ls.get('NEW_ARTICLE'),
+            title: data.article[pb.DAO.getIdField()] ? ls.g('generic.EDIT') + ' ' + data.article.headline : ls.g('articles.NEW_ARTICLE'),
             icon: 'chevron-left',
             href: '/admin/content/articles'
         }, {
@@ -220,27 +221,27 @@ module.exports = function(pb) {
                 active: 'active',
                 href: '#content',
                 icon: 'quote-left',
-                title: this.ls.get('CONTENT')
+                title: this.ls.g('generic.CONTENT')
             },
             {
                 href: '#media',
                 icon: 'camera',
-                title: this.ls.get('MEDIA')
+                title: this.ls.g('admin.MEDIA')
             },
             {
                 href: '#sections_dnd',
                 icon: 'th-large',
-                title: this.ls.get('SECTIONS')
+                title: this.ls.g('generic.SECTIONS')
             },
             {
                 href: '#topics_dnd',
                 icon: 'tags',
-                title: this.ls.get('TOPICS')
+                title: this.ls.g('admin.TOPICS')
             },
             {
                 href: '#seo',
                 icon: 'tasks',
-                title: this.ls.get('SEO')
+                title: this.ls.g('generic.SEO')
             }
         ];
     };

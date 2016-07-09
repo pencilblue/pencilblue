@@ -2,9 +2,9 @@
   <div class="wysiwyg_buttons well well-sm" style="margin-bottom: 0">
     <div class="btn-toolbar" role="toolbar">
       <div class="btn-group btn-group-sm btn-group-format">
-        <button type="button" class="btn btn-default" ng-class="{'active': wysiwyg.currentView === 'editable'}" ng-click="setLayoutView('editable')" title="^loc_WYSIWYG_VIEW^"><i class="fa fa-pencil-square-o"></i></button>
-        <button type="button" class="btn btn-default" ng-class="{'active': wysiwyg.currentView === 'html'}" ng-click="setLayoutView('html')" title="^loc_HTML_VIEW^"><i class="fa fa-code"></i></button>
-        <button type="button" class="btn btn-default" ng-class="{'active': wysiwyg.currentView === 'markdown'}" ng-click="setLayoutView('markdown')" title="^loc_MARKDOWN_VIEW^"><i class="fa fa-dot-circle-o"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': wysiwyg.currentView === 'editable'}" ng-click="setLayoutView('editable')" title="^loc_wysiwyg.WYSIWYG_VIEW^"><i class="fa fa-pencil-square-o"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': wysiwyg.currentView === 'html'}" ng-click="setLayoutView('html')" title="^loc_wysiwyg.HTML_VIEW^"><i class="fa fa-code"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': wysiwyg.currentView === 'markdown'}" ng-click="setLayoutView('markdown')" title="^loc_wysiwyg.MARKDOWN_VIEW^"><i class="fa fa-dot-circle-o"></i></button>
       </div>
 
       <div class="btn-group btn-group-sm" ng-show="wysiwyg.currentView === 'editable'">
@@ -19,33 +19,33 @@
       </div>
 
       <div class="btn-group btn-group-sm btn-group-format" ng-show="wysiwyg.currentView === 'editable'">
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('bold')}" ng-click="formatAction('bold')" title="^loc_BOLD^"><i class="fa fa-bold"></i></button>
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('italic')}" ng-click="formatAction('italic')" title="^loc_ITALIC^"><i class="fa fa-italic"></i></button>
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('underline')}" ng-click="formatAction('underline')" title="^loc_UNDERLINE^"><i class="fa fa-underline"></i></button>
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('strikeThrough')}" ng-click="formatAction('strikeThrough')" title="^loc_STRIKETHROUGH^"><i class="fa fa-strikethrough"></i></button>
-        <button type="button" class="btn btn-default" ng-click="clearStyles()" title="^loc_CLEAR_STYLES^"><i class="fa fa-ban"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('bold')}" ng-click="formatAction('bold')" title="^loc_wysiwyg.BOLD^"><i class="fa fa-bold"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('italic')}" ng-click="formatAction('italic')" title="^loc_wysiwyg.ITALIC^"><i class="fa fa-italic"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('underline')}" ng-click="formatAction('underline')" title="^loc_wysiwyg.UNDERLINE^"><i class="fa fa-underline"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('strikeThrough')}" ng-click="formatAction('strikeThrough')" title="^loc_wysiwyg.STRIKETHROUGH^"><i class="fa fa-strikethrough"></i></button>
+        <button type="button" class="btn btn-default" ng-click="clearStyles()" title="^loc_wysiwyg.CLEAR_STYLES^"><i class="fa fa-ban"></i></button>
       </div>
 
       <div class="btn-group btn-group-sm btn-group-format" ng-show="wysiwyg.currentView === 'editable'">
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('justifyleft')}" ng-click="formatAction('justifyleft')" title="^loc_ALIGN_LEFT^"><i class="fa fa-align-left"></i></button>
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('justifycenter')}" ng-click="formatAction('justifycenter')" title="^loc_ALIGN_CENTER^"><i class="fa fa-align-center"></i></button>
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('justifyright')}" ng-click="formatAction('justifyright')" title="^loc_ALIGN_RIGHT^"><i class="fa fa-align-right"></i></button>
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('justifyfull')}" ng-click="formatAction('justifyfull')" title="^loc_JUSTIFY^"><i class="fa fa-align-justify"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('justifyleft')}" ng-click="formatAction('justifyleft')" title="^loc_wysiwyg.ALIGN_LEFT^"><i class="fa fa-align-left"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('justifycenter')}" ng-click="formatAction('justifycenter')" title="^loc_wysiwyg.ALIGN_CENTER^"><i class="fa fa-align-center"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('justifyright')}" ng-click="formatAction('justifyright')" title="^loc_wysiwyg.ALIGN_RIGHT^"><i class="fa fa-align-right"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('justifyfull')}" ng-click="formatAction('justifyfull')" title="^loc_wysiwyg.JUSTIFY^"><i class="fa fa-align-justify"></i></button>
       </div>
 
       <div class="btn-group btn-group-sm btn-group-format" ng-show="wysiwyg.currentView === 'editable'">
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('insertorderedlist')}" ng-click="formatAction('insertorderedlist')" title="^loc_ORDERED_LIST^"><i class="fa fa-list-ol"></i></button>
-        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('insertunorderedlist')}" ng-click="formatAction('insertunorderedlist')" title="^loc_UNORDERED_LIST^"><i class="fa fa-list-ul"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('insertorderedlist')}" ng-click="formatAction('insertorderedlist')" title="^loc_wysiwyg.ORDERED_LIST^"><i class="fa fa-list-ol"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': isFormatActive('insertunorderedlist')}" ng-click="formatAction('insertunorderedlist')" title="^loc_wysiwyg.UNORDERED_LIST^"><i class="fa fa-list-ul"></i></button>
       </div>
 
       <div class="btn-group btn-group-sm btn-group-format" ng-show="wysiwyg.currentView === 'editable'">
-        <button type="button" class="btn btn-default" ng-click="showInsertLinkModal()" title="^loc_INSERT_LINK^"><i class="fa fa-link"></i></button>
-        <button type="button" class="btn btn-default" ng-click="showInsertMediaModal()" title="^loc_INSERT_MEDIA^" ng-if="mediaAvailable()"><i class="fa fa-picture-o"></i></button>
-        <button type="button" class="btn btn-default" ng-click="insertReadMore()" title="^loc_INSERT_READ_MORE^"><i class="fa fa-compress"></i></button>
+        <button type="button" class="btn btn-default" ng-click="showInsertLinkModal()" title="^loc_wysiwyg.INSERT_LINK^"><i class="fa fa-link"></i></button>
+        <button type="button" class="btn btn-default" ng-click="showInsertMediaModal()" title="^loc_wysiwyg.INSERT_MEDIA^" ng-if="mediaAvailable()"><i class="fa fa-picture-o"></i></button>
+        <button type="button" class="btn btn-default" ng-click="insertReadMore()" title="^loc_articles.INSERT_READ_MORE^"><i class="fa fa-compress"></i></button>
       </div>
 
       <div class="btn-group btn-group-sm btn-group-format">
-        <button type="button" class="btn btn-default" ng-class="{'active': wysiwyg.fullscreen}" ng-click="toggleFullscreen()" title="^loc_TOGGLE_FULLSCREEN^"><i class="fa fa-arrows-alt"></i></button>
+        <button type="button" class="btn btn-default" ng-class="{'active': wysiwyg.fullscreen}" ng-click="toggleFullscreen()" title="^loc_wysiwyg.TOGGLE_FULLSCREEN^"><i class="fa fa-arrows-alt"></i></button>
       </div>
     </div>
   </div>
@@ -61,15 +61,15 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <span>^loc_ADD_LINK^</span>
+          <span>^loc_wysiwyg.ADD_LINK^</span>
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label>^loc_LINK_URL^</label>
+            <label>^loc_wysiwyg.LINK_URL^</label>
             <input type="text" class="form-control" ng-model="layoutLink.url"></input>
           </div>
           <div class="form-group">
-            <label>^loc_LINK_TEXT^</label>
+            <label>^loc_wysiwyg.LINK_TEXT^</label>
             <input type="text" class="form-control" ng-model="layoutLink.text"></input>
           </div>
           <div class="form-group">
@@ -83,10 +83,10 @@
             <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
           </button>
           <button id="add_link_button" type="button" class="btn btn-success" ng-click="testLayoutLink()" ng-disabled="!layoutLink.url.length">
-            <i class="fa fa-eye"></i>&nbsp;^loc_TEST_LINK^
+            <i class="fa fa-eye"></i>&nbsp;^loc_wysiwyg.TEST_LINK^
           </button>
           <button id="add_link_button" type="button" class="btn btn-primary" ng-click="insertLayoutLink()" ng-disabled="!layoutLink.url.length || !layoutLink.text.length">
-            <i class="fa fa-plus"></i>&nbsp;^loc_INSERT_LINK^
+            <i class="fa fa-plus"></i>&nbsp;^loc_wysiwyg.INSERT_LINK^
           </button>
         </div>
       </div>
@@ -97,15 +97,15 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <span>^loc_ADD_MEDIA^</span>
+          <span>^loc_wysiwyg.ADD_MEDIA^</span>
         </div>
         <div class="modal-body">
           <div ng-if="!media.length">
-            <button type="button" class="btn btn-primary" ng-click="associateMedia()">^loc_ASSOCIATE_MEDIA^</button>
+            <button type="button" class="btn btn-primary" ng-click="associateMedia()">^loc_wysiwyg.ASSOCIATE_MEDIA^</button>
           </div>
           <div ng-if="media.length">
             <div class="form-group">
-              <label>^loc_SELECT_MEDIA^</label>
+              <label>^loc_wysiwyg.SELECT_MEDIA^</label>
               <div ng-repeat="mediaItem in media">
                 <label style="font-weight: normal">
                   <input type="radio" ng-model="wysiwyg.selectedMediaItem" ng-value="mediaItem">
@@ -115,27 +115,27 @@
               </div>
             </div>
             <div class="form-group">
-              <label>^loc_MEDIA_FORMATTING^</label><br/>
+              <label>^loc_media.MEDIA_FORMATTING^</label><br/>
               <button type="button" class="btn btn-primary" ng-class="{'active': wysiwyg.mediaPosition === 'none'}" ng-click="wysiwyg.mediaPosition = 'none'">
                 <i class="fa fa-ban"></i>&nbsp;
-                ^loc_NONE^
+                ^loc_generic.NONE^
               </button>
               <button type="button" class="btn btn-primary" ng-class="{'active': wysiwyg.mediaPosition === 'left'}" ng-click="wysiwyg.mediaPosition = 'left'">
                 <i class="fa fa-ban"></i>&nbsp;
-                ^loc_LEFT^
+                ^loc_generic.LEFT^
               </button>
               <button type="button" class="btn btn-primary" ng-class="{'active': wysiwyg.mediaPosition === 'center'}" ng-click="wysiwyg.mediaPosition = 'center'">
                 <i class="fa fa-ban"></i>&nbsp;
-                ^loc_CENTER^
+                ^loc_generic.CENTER^
               </button>
               <button type="button" class="btn btn-primary" ng-class="{'active': wysiwyg.mediaPosition === 'right'}" ng-click="wysiwyg.mediaPosition = 'right'">
                 <i class="fa fa-ban"></i>&nbsp;
-                ^loc_RIGHT^
+                ^loc_generic.RIGHT^
               </button>
               <div class="spacer"></div>
             </div>
             <div class="form-group">
-              <label>^loc_MAXIMUM_HEIGHT^</label><br/>
+              <label>^loc_media.MAXIMUM_HEIGHT^</label><br/>
               <div class="input-group">
                 <input type="number" class="form-control" ng-model="wysiwyg.mediaMaxHeight"></input>
                 <div class="input-group-btn">
@@ -154,7 +154,7 @@
               <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
             </button>
             <button type="button" class="btn btn-primary" ng-click="insertMedia()" ng-disabled="!wysiwyg.selectedMediaItem">
-              <i class="fa fa-plus"></i>&nbsp;^loc_INSERT_MEDIA^
+              <i class="fa fa-plus"></i>&nbsp;^loc_wysiwyg.INSERT_MEDIA^
             </button>
           </div>
         </div>
