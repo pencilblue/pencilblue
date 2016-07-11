@@ -282,7 +282,8 @@ module.exports = {
         UPLOAD_IMAGE: 'Upload image',
         IMAGE_URL: 'Image URL',
         IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
-        FILE_TOO_BIG: 'The file is larger than the allowed limit'
+        FILE_TOO_BIG: 'The file is larger than the allowed limit',
+        DRAG_DROP_IMG_VID: 'Drop image and video files here'
     },
     pages: {
         MANAGE_PAGES: 'Manage pages',

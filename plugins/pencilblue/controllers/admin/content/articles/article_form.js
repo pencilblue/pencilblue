@@ -70,7 +70,7 @@ module.exports = function(pb) {
 
       var tabs = self.getTabs();
 
-      self.setPageName(self.article[pb.DAO.getIdField()] ? self.article.headline : self.ls.get('NEW_ARTICLE'));
+      self.setPageName(self.article[pb.DAO.getIdField()] ? self.article.headline : self.ls.g('articles.NEW_ARTICLE'));
       self.ts.registerLocal('angular_script', '');
       self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
       self.ts.load('admin/content/articles/article_form', function(err, data) {

@@ -35,7 +35,7 @@ module.exports = function LoginViewControllerModule(pb) {
             return this.redirect('/', cb);
         }
 
-        this.setPageName(this.ls.get('LOGIN'));
+        this.setPageName(this.ls.g('generic.LOGIN'));
         this.render('user/login', cb);
     };
 

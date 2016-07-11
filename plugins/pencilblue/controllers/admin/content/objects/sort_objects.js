@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -64,10 +65,10 @@ module.exports = function(pb) {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls, self.site),
                     pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: objectType}),
                     customObjects: customObjects,
-                    objectType: objectType,
+                    objectType: objectType
                 });
 
-                self.setPageName(self.ls.get('SORT') + ' ' + objectType.name);
+                self.setPageName(self.ls.g('generic.SORT') + ' ' + objectType.name);
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('admin/content/objects/sort_objects', function(err, result) {
                     cb({content: result});
@@ -79,7 +80,7 @@ module.exports = function(pb) {
     SortObjects.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_objects',
-            title: ls.get('SORT') + ' ' + data.objectType.name + ' ' + ls.get('OBJECTS'),
+            title: ls.g('generic.SORT') + ' ' + data.objectType.name + ' ' + ls.g('custom_objects.OBJECTS'),
             icon: 'chevron-left',
             href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()]
         }, {

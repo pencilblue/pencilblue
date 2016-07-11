@@ -13,9 +13,9 @@
                 <input name="username" class="form-control" ng-model="user.username" ng-change="resetUsernameAvailability()" required></input>
                 <span class="input-group-btn">
                   <button type="button" class="btn" ng-class="{'btn-default': usernameAvailable === null, 'btn-success': usernameAvailable === true, 'btn-danger': usernameAvailable === false}" ng-click="getUsernameAvailability()" ng-disabled="!canCheckUsername()">
-                    <span ng-if="usernameAvailable === null">^loc_CHECK^</span>
-                    <span ng-if="usernameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
-                    <span ng-if="usernameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+                    <span ng-if="usernameAvailable === null">^loc_generic.CHECK^</span>
+                    <span ng-if="usernameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_generic.AVAILABLE^</span>
+                    <span ng-if="usernameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_generic.UNAVAILABLE^</span>
                   </button>
                 </span>
               </div>

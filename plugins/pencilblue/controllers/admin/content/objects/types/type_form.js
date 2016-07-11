@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -48,7 +49,7 @@ module.exports = function(pb) {
             self.objectType = data.objectType;
             data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, data);
             var angularObjects = pb.ClientJs.getAngularObjects(data);
-            self.setPageName(self.objectType[pb.DAO.getIdField()] ? self.objectType.name : self.ls.get('NEW_OBJECT'));
+            self.setPageName(self.objectType[pb.DAO.getIdField()] ? self.objectType.name : self.ls.g('custom_objects.NEW_OBJECT'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/content/objects/types/type_form', function(err, result) {
                 cb({content: result});
@@ -110,7 +111,7 @@ module.exports = function(pb) {
     TypeForm.getSubNavItems = function(key, ls, data) {
         return [{
             name: SUB_NAV_KEY,
-            title: data.objectType[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.objectType.name : ls.get('NEW_OBJECT_TYPE'),
+            title: data.objectType[pb.DAO.getIdField()] ? ls.g('generic.EDIT') + ' ' + data.objectType.name : ls.g('custom_objects.NEW_OBJECT_TYPE'),
             icon: 'chevron-left',
             href: '/admin/content/objects/types'
         }, {

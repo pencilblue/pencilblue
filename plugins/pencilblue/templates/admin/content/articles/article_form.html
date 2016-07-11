@@ -20,7 +20,7 @@
 						<label>^loc_articles.ARTICLE_URL^</label>
 						<div class="input-group">
 							<span class="input-group-addon">/article/</span>
-							<input type="text" name="url" class="form-control" placeholder="^loc_CUSTOM_URL^" ng-model="article.url" ng-change="resetUrlAvailability()" url-safe required></input>
+							<input type="text" name="url" class="form-control" placeholder="^loc_articles.CUSTOM_URL^" ng-model="article.url" ng-change="resetUrlAvailability()" url-safe required></input>
 							<span class="input-group-btn">
 								<button type="button" class="btn" ng-class="{'btn-default': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="articleForm.headline.$invalid">
 									<span ng-if="urlGenerated === null">^loc_users.GENERATE^</span>
@@ -120,7 +120,7 @@
 						<i class="fa fa-sm fa-chevron-up"></i>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li ng-if="!article.draft && article._id"><a ng-click="saveArticle(true)">^loc_SAVE_DRAFT^</a></li>
+						<li ng-if="!article.draft && article._id"><a ng-click="saveArticle(true)">^loc_generic.SAVE_DRAFT^</a></li>
 						<li ng-if="article.draft || !article._id"><a ng-click="saveArticle()">^loc_generic.SAVE^</a></li>
 					</ul>
 				</div>

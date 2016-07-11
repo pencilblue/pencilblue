@@ -8,52 +8,52 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="content">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.headline)}">
-                        <label>^loc_HEADLINE^</label>
+                        <label>^loc_pages.HEADLINE^</label>
                         <input type="text" name="headline" class="form-control" ng-model="page.headline" required></input>
                         <div class="form_error" ng-if="!isFieldValid(pageForm.headline)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_SUBHEADING^</label>
+                        <label>^loc_pages.SUBHEADING^</label>
                         <input type="text" class="form-control" ng-model="page.subheading"></input>
                     </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.url)}">
-                        <label>^loc_PAGE_URL^</label>
+                        <label>^loc_pages.PAGE_URL^</label>
                         <div class="input-group">
                             <span class="input-group-addon">/page/</span>
                             <input type="text" name="url" class="form-control" placeholder="^loc_pages.CUSTOM_URL^" ng-model="page.url" ng-change="resetUrlAvailability()" url-safe required></input>
                             <span class="input-group-btn">
                                 <button type="button" class="btn" ng-class="{'btn-default': urlGenerated === null, 'btn-success': urlGenerated === true, 'btn-danger': urlGenerated === false}" ng-click="getUrl()" ng-disabled="pageForm.headline.$invalid">
-									<span ng-if="urlGenerated === null">^loc_GENERATE^</span>
-									<span ng-if="urlGenerated === true"><i class="fa fa-check"></i>&nbsp;^loc_GENERATED^</span>
-									<span ng-if="urlGenerated === false"><i class="fa fa-ban"></i>&nbsp;^loc_NOT_GENERATED^</span>
+									<span ng-if="urlGenerated === null">^loc_users.GENERATE^</span>
+									<span ng-if="urlGenerated === true"><i class="fa fa-check"></i>&nbsp;^loc_admin.GENERATED^</span>
+									<span ng-if="urlGenerated === false"><i class="fa fa-ban"></i>&nbsp;^loc_admin.NOT_GENERATED^</span>
 								</button>
                                 <button type="button" class="btn" ng-class="{'btn-default': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!page.url.length">
-                                    <span ng-if="urlAvailable === null">^loc_CHECK^</span>
-                                    <span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
-                                    <span ng-if="urlAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+                                    <span ng-if="urlAvailable === null">^loc_generic.CHECK^</span>
+                                    <span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_generic.AVAILABLE^</span>
+                                    <span ng-if="urlAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_generic.UNAVAILABLE^</span>
                                 </button>
                             </span>
                         </div>
                         <div class="form_error" ng-if="!isFieldValid(pageForm.url)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_STANDALONE_TEMPLATE^</label>
+                        <label>^loc_articles.STANDALONE_TEMPLATE^</label>
                         <select class="form-control" ng-model="page.template">
-                            <option value="">^loc_THEME_DEFAULT^</option>
+                            <option value="">^loc_generic.THEME_DEFAULT^</option>
                             <option ng-value="template.theme_uid + '|' + template.file" ng-repeat="template in templates" ng-bind="template.theme_name + ': ' + template.name" ng-selected="page.template === (template.theme_uid + '|' + template.file)"></option>
                         </select>
                     </div>
                     <div class="form-group" ng-if="availableAuthors.length">
-                        <label>^loc_AUTHOR^</label>
+                        <label>^loc_admin.AUTHOR^</label>
                         <select class="form-control" ng-model="page.author" ng-options="availableAuthor._id as availableAuthor.name for availableAuthor in availableAuthors"></select>
                     </div>
                     ^tmp_admin=elements=hero_upload^
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(pageForm.publish_date)}">
-                        <label>^loc_PUBLISH_DATE^</label>
+                        <label>^loc_pages.PUBLISH_DATE^</label>
                         <div class="input-group">
-                            <input type="text" name="publish_date" id="publish_date" class="form-control" ng-model="page.publish_date" required></input>
+                            <input type="text" name="publish_date" id="publish_date" class="form-control" ng-model="page.publish_date" required/>
                             <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" ng-click="setPublishDateToNow()">^loc_NOW^</button>
+                                <button class="btn btn-default" type="button" ng-click="setPublishDateToNow()">^loc_generic.NOW^</button>
                             </span>
                         </div>
                         <div class="form_error" ng-if="!isFieldValid(pageForm.publish_date)">^loc_generic.REQUIRED_FIELD^</div>
@@ -71,23 +71,23 @@
                 </div>
                 <div class="tab-pane" id="seo">
                     <div class="form-group">
-                        <label>^loc_FOCUS_KEYWORD^</label>
-                        <input type="text" class="form-control" ng-model="page.focus_keyword" placeholder="^loc_FOCUS_KEYWORD_PLACEHOLDER^"></input>
+                        <label>^loc_admin.FOCUS_KEYWORD^</label>
+                        <input type="text" class="form-control" ng-model="page.focus_keyword" placeholder="^loc_admin.FOCUS_KEYWORD_PLACEHOLDER^"></input>
                     </div>
                     <div class="form-group">
-                        <label>^loc_SEO_TITLE^</label>
-                        <input type="text" class="form-control" ng-model="page.seo_title" placeholder="^loc_SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
+                        <label>^loc_admin.SEO_TITLE^</label>
+                        <input type="text" class="form-control" ng-model="page.seo_title" placeholder="^loc_admin.SEO_TITLE_PLACEHOLDER^" maxlength="70"></input>
                     </div>
                     <div class="form-group">
-                        <label>^loc_META_DESC^</label>
-                        <textarea class="form-control" ng-model="page.meta_desc" placeholder="^loc_META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
+                        <label>^loc_admin.META_DESC^</label>
+                        <textarea class="form-control" ng-model="page.meta_desc" placeholder="^loc_admin.META_DESC_PLACEHOLDER^" maxlength="156"></textarea>
                     </div>
                     <div class="form-group">
                         <label>^loc_admin.META_KEYWORDS^</label>
                         <input type="text" class="form-control" ng-model="page.meta_keywords" placeholder="^loc_admin.META_KEYWORDS_PLACEHOLDER^"></input>
                     </div>
                     <div class="form-group" ng-if="page.page_media.length">
-                        <label>^loc_THUMBNAIL^</label>
+                        <label>^loc_generic.THUMBNAIL^</label>
                         <select class="form-control" ng-model="page.thumbnail">
                             <option ng-value="media._id" ng-repeat="media in page.page_media" ng-selected="page.thumbnail === media._id" ng-bind="media.name" ng-if="media.media_type === 'image'"></option>
                         </select>
@@ -97,7 +97,7 @@
                     <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>&nbsp;
                 <button type="button" class="btn btn-info" ng-click="previewPage(true)" ng-if="page.draft" ng-disabled="savingPage">
-                    <i class="fa" ng-class="{'fa-eye': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_PREVIEW^
+                    <i class="fa" ng-class="{'fa-eye': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_generic.PREVIEW^
                 </button>
                 <span ng-if="page.draft">&nbsp;</span>
                 <div class="btn-group dropup">
@@ -105,20 +105,20 @@
                         <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_generic.SAVE^
                     </button>
                     <button id="save_draft_button" type="button" class="btn btn-primary" ng-click="savePage(true)" ng-if="page.draft || !page._id" ng-disabled="savingPage">
-                        <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_SAVE_DRAFT^
+                        <i class="fa" ng-class="{'fa-save': !savingPage, 'fa-circle-o-notch fa-spin': savingPage}"></i>&nbsp;^loc_generic.SAVE_DRAFT^
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-sm fa-chevron-up"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li ng-if="!page.draft && page._id"><a ng-click="savePage(true)">^loc_SAVE_DRAFT^</a></li>
+                        <li ng-if="!page.draft && page._id"><a ng-click="savePage(true)">^loc_generic.SAVE_DRAFT^</a></li>
                         <li ng-if="page.draft || !page._id"><a ng-click="savePage()">^loc_generic.SAVE^</a></li>
                     </ul>
                 </div>
                 <div class="spacer"></div>
                 <label id="draft_info" ng-if="page._id">
-                  <span ng-if="page.draft">^loc_DRAFT_SAVED^</span>
-                  <span ng-if="!page.draft">^loc_LAST_SAVED^</span>&nbsp;
+                  <span ng-if="page.draft">^loc_generic.DRAFT_SAVED^</span>
+                  <span ng-if="!page.draft">^loc_generic.LAST_SAVED^</span>&nbsp;
                   <span id="draft_time">{{page.last_modified | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
                 </label>
             </div>

@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -48,7 +49,7 @@ module.exports = function(pb) {
                 users: users
             });
 
-            self.setPageName(self.ls.get('UNVERIFIED_USERS'));
+            self.setPageName(self.ls.g('users.UNVERIFIED_USERS'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/users/unverified_users', function(err, result){
                 cb({content: result});
@@ -59,7 +60,7 @@ module.exports = function(pb) {
     UnverifiedUsers.getSubNavItems = function(key, ls, data) {
         return [{
             name: SUB_NAV_KEY,
-            title: ls.get('UNVERIFIED_USERS'),
+            title: ls.g('users.UNVERIFIED_USERS'),
             icon: 'chevron-left',
             href: '/admin/users'
         }, {

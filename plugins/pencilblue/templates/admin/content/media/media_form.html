@@ -10,19 +10,19 @@
 					<div style="margin: 1em 0" ng-bind-html="getMediaPreviewHTML()" ng-if="mediaPreview.length" style="width: 100%;"></div>
 					<div class="form-group">
 						<button type="button" class="btn btn-info" ng-click="showMediaModal(false)">
-							<i class="fa fa-link"></i>&nbsp;^loc_LINK_TO_MEDIA^...
+							<i class="fa fa-link"></i>&nbsp;^loc_media.LINK_TO_MEDIA^...
 						</button>
 						<button type="button" class="btn btn-info" ng-click="showMediaModal(true)">
-							<i class="fa fa-upload"></i>&nbsp;^loc_UPLOAD_MEDIA^...
+							<i class="fa fa-upload"></i>&nbsp;^loc_media.UPLOAD_MEDIA^...
 						</button>
 					</div>
 					<div class="form-group">
-						<label>^loc_MEDIA_NAME^</label>
-						<input type="text" name="name" class="form-control" ng-model="media.name" required></input>
+						<label>^loc_media.MEDIA_NAME^</label>
+						<input type="text" name="name" class="form-control" ng-model="media.name" required/>
 					</div>
 					<div class="form-group">
-						<label>^loc_CAPTION^</label>
-						<input type="text" class="form-control" ng-model="media.caption"></input>
+						<label>^loc_media.CAPTION^</label>
+						<input type="text" class="form-control" ng-model="media.caption"/>
 					</div>
 				</div>
 				<div class="tab-pane" id="topics_dnd">
@@ -41,10 +41,10 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header" ng-if="media.isFile">
-					^loc_UPLOAD_MEDIA^
+					^loc_media.UPLOAD_MEDIA^
 				</div>
 				<div class="modal-header" ng-if="!media.isFile">
-					^loc_LINK_TO_MEDIA^
+					^loc_media.LINK_TO_MEDIA^
 				</div>
 				<div class="modal-body">
 					<span ng-if="media.isFile">
@@ -54,23 +54,23 @@
 						<span class="btn btn-success fileinput-button" ng-disabled="uploading">
 							<i class="fa" ng-class="{'fa-plus': !uploading, 'fa-circle-o-notch fa-spin': uploading}"></i>
 							<span>^loc_generic.SELECT_FILE^...</span>
-							<input type="file" ng-file-select="onFileSelect($files)" accept="^acceptable_extensions^"></input>
+							<input type="file" ng-file-select="onFileSelect($files)" accept="^acceptable_extensions^"/>
 						</span>
-						<div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="dropSupported=true" ng-file-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">Drop image and video files here</div>
+						<div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="dropSupported=true" ng-file-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">^loc_media.DRAG_DROP_IMG_VID^</div>
 						<button type="button" class="btn btn-default" style="margin-top: 1em" data-dismiss="modal">
 							<i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
 						</button>
 					</span>
 					<span ng-if="!media.isFile">
 						<div class="form-group">
-							<label>^loc_MEDIA_URL^</label>
-							<input type="text" class="form-control" ng-model="media.link" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
+							<label>^loc_media.MEDIA_URL^</label>
+							<input type="text" class="form-control" ng-model="media.link" placeholder="^loc_media.MEDIA_URL_PLACEHOLDER^"/>
 						</div>
 						<button type="button" class="btn btn-default" data-dismiss="modal">
 							<i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
 						</button>
 						<button type="button" class="btn btn-primary" ng-click="loadMediaLink()" ng-disabled="!media.link.length || loadingLink">
-							<i class="fa" ng-class="{'fa-link': !loadingLink, 'fa-circle-o-notch fa-spin': loadingLink}"></i>&nbsp;^loc_LOAD_LINK^
+							<i class="fa" ng-class="{'fa-link': !loadingLink, 'fa-circle-o-notch fa-spin': loadingLink}"></i>&nbsp;^loc_media.LOAD_LINK^
 						</button>
 					</span>
 				</div>

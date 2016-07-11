@@ -10,12 +10,12 @@
               <div class="form-group" ng-class="{'has-error': !isFieldValid(signUpForm.username)}">
                 <label>^loc_USERNAME^</label>
                 <div class="input-group">
-                  <input type="text" name="username" class="form-control" ng-model="user.username" ng-change="resetUsernameAvailability()" required></input>
+                  <input type="text" name="username" class="form-control" ng-model="user.username" ng-change="resetUsernameAvailability()" required/>
                   <span class="input-group-btn">
                     <button type="button" class="btn" ng-class="{'btn-default': usernameAvailable === null, 'btn-success': usernameAvailable === true, 'btn-danger': usernameAvailable === false}" ng-click="getUsernameAvailability()" ng-disabled="!user.username.length">
-                      <span ng-if="usernameAvailable === null">^loc_CHECK^</span>
-                      <span ng-if="usernameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
-                      <span ng-if="usernameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+                      <span ng-if="usernameAvailable === null">^loc_generic.CHECK^</span>
+                      <span ng-if="usernameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_generic.AVAILABLE^</span>
+                      <span ng-if="usernameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_generic.UNAVAILABLE^</span>
                     </button>
                   </span>
                 </div>
@@ -23,21 +23,21 @@
               </div>
               <div class="form-group" ng-class="{'has-error': !isFieldValid(signUpForm.email)}">
                 <label>^loc_EMAIL^</label>
-                <input type="email" name="email" ng-model="user.email" class="form-control" required></input>
+                <input type="email" name="email" ng-model="user.email" class="form-control" required/>
                 <div class="form_error" ng-if="!isFieldValid(signUpForm.email)">^loc_generic.REQUIRED_FIELD^</div>
               </div>
               <div class="form-group">
                 <label>^loc_FIRST_NAME^</label>
-                <input type="text" ng-model="user.first_name" class="form-control"></input>
+                <input type="text" ng-model="user.first_name" class="form-control"/>
               </div>
               <div class="form-group">
                 <label>^loc_LAST_NAME^</label>
-                <input type="text" ng-model="user.last_name" class="form-control"></input>
+                <input type="text" ng-model="user.last_name" class="form-control"/>
               </div>
               <div class="form-group" ng-class="{'has-error': !isFieldValid(signUpForm.password)}">
                 <label>^loc_PASSWORD^</label>
                 <div class="input-group">
-                  <input type="{{getPasswordInputType()}}" name="password" class="form-control" autocomplete="off" ng-model="user.password" ng-change="checkPasswordMatch()" ng-keyup="resetPasswordGenerated()" required></input>
+                  <input type="{{getPasswordInputType()}}" name="password" class="form-control" autocomplete="off" ng-model="user.password" ng-change="checkPasswordMatch()" ng-keyup="resetPasswordGenerated()" required/>
                   <span class="input-group-btn">
                     <button class="btn btn-default" type="button" ng-click="generatePassword()">^loc_GENERATE^...</button>
                   </span>
@@ -47,7 +47,7 @@
               <div class="form-group" ng-class="{'has-error': !isFieldValid(signUpForm.confirm_password)}">
                 <label>^loc_CONFIRM_PASSWORD^</label>
                 <div class="input-group">
-                  <input type="password" name="confirm_password" ng-model="user.confirm_password" class="form-control" ng-change="checkPasswordMatch()" required></input>
+                  <input type="password" name="confirm_password" ng-model="user.confirm_password" class="form-control" ng-change="checkPasswordMatch()" required/>
                   <span class="input-group-addon">
                     <i class="fa fa-thumbs-down" ng-class="{'fa-thumbs-down': !passwordMatch, 'fa-thumbs-up': passwordMatch}" ng-style="{'color': passwordMatch ? '#00AA00' : '#AA0000'}"></i>
                   </span>
