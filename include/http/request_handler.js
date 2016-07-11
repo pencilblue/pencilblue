@@ -172,6 +172,7 @@ module.exports = function RequestHandlerModule(pb) {
           active: site.active,
           uid: site.uid,
           displayName: site.displayName,
+          forceLocale: site.forceLocale,
           hostname: site.hostname,
           defaultLocale: site.defaultLocale,
           supportedLocales: site.supportedLocales,
@@ -534,15 +535,26 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.prototype.handleRequest = function(){
 
-        //fist things first check for public resource
+        //first things first check for public resource
         if (RequestHandler.isPublicRoute(this.url.pathname)) {
             return this.servePublicContent();
         }
 
         //check for session cookie
         var cookies = RequestHandler.parseCookies(this.req);
+        var siteObj = RequestHandler.sites[this.hostname];
+        var url = this.url.pathname;
         this.req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
 
+        if(typeof(siteObj) !== 'undefined' && siteObj.hasOwnProperty('forceLocale') && siteObj.forceLocale) {
+            cookies.locale = cookies.locale || cookies[" locale"];
+            cookies.locale = cookies.locale || siteObj.defaultLocale;
+            if (checkRouteContainsLocale(url, siteObj)) {
+                var redirectLocation = pb.SiteService.getHostWithProtocol(this.hostname);
+                redirectLocation += '/' + cookies.locale + this.url.path;
+                return this.doRedirect(redirectLocation, pb.HttpStatus.MOVED_TEMPORARILY);
+            }
+        }
         //open session
         var self = this;
         pb.session.open(this.req, function(err, session){
@@ -563,6 +575,25 @@ module.exports = function RequestHandlerModule(pb) {
             self.onSessionRetrieved(err, session);
         });
     };
+
+    function checkRouteContainsLocale(url, siteObj){
+        //Do not redirect for public resources
+        if(url.indexOf('/public/') !== -1 || url.indexOf('/admin') !== -1 || url.indexOf('/actions/') !== -1 || url.indexOf('/api') !== -1 || url.indexOf('/media') !== -1) {
+            return false;
+        }
+
+        //Do not redirect if the url contains a supported locale.
+        if(siteObj.supportedLocales) {
+            var loca‌‌les =  Object.keys(siteObj.supportedLocales);
+            for (var i = 0; i < loca‌‌les.length; i++) {
+                if(url.indexOf(loca‌‌les[i]) != -1){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
     /**
      * Derives the locale and localization instance.
