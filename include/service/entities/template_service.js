@@ -234,6 +234,20 @@ module.exports = function(pb) {
     };
 
     /**
+     * returns the value associated with a registered local key(flag)
+     *
+     * @method getRegisteredLocal
+     * @param {string} flag The flag name to map to the value when encountered in a
+     * template.
+     * @return {*} the callback or the value that was assigned
+     * to that local if the flag exists.  If not, it will return null
+     */
+    TemplateService.prototype.getRegisteredLocal = function(flag) {
+        return this.localCallbacks[flag] || null;
+    };
+
+
+    /**
      * When a flag is encountered that is not registered with the engine the
      * handler is called as a fail safe.  It is expected to return a string that
      * will be put in the place of the flag.
