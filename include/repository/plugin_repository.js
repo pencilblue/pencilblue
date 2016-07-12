@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -177,7 +178,7 @@ module.exports = function PluginRepositoryModule(pb) {
         var opts = {
             select: pb.DAO.PROJECT_ALL,
             where: where,
-            order: {created: pb.DAO.ASC}
+            order: [['created', pb.DAO.ASC]]
         };
         var dao = new pb.DAO();
         dao.q(PLUGIN_COLL, opts, cb);
@@ -201,9 +202,9 @@ module.exports = function PluginRepositoryModule(pb) {
             $and: [idIsNotInTheList, belongsToThisSite]
         };
         var opts = {
-            select: pb.DAO.SELECT_ALL,
+            select: pb.DAO.PROJECT_ALL,
             where: where,
-            order: {created: pb.DAO.ASC}
+            order: [['created', pb.DAO.ASC]]
         };
         var dao = new pb.DAO();
         dao.q(PLUGIN_COLL, opts, cb);
@@ -221,18 +222,15 @@ module.exports = function PluginRepositoryModule(pb) {
     };
 
     function getIdsNotInListQuery(pluginIDs) {
-        var idIsInTheList = {uid: {'$nin': pluginIDs}};
-        return idIsInTheList;
+        return {uid: {'$nin': pluginIDs}};
     }
 
     function getIdsInListQuery(pluginIDs) {
-        var idIsInTheList = {uid: {'$in': pluginIDs}};
-        return idIsInTheList;
+        return {uid: {'$in': pluginIDs}};
     }
 
     function getHasThemeQuery() {
-        var hasATheme = {theme: {$exists: true}};
-        return hasATheme;
+        return {theme: {$exists: true}};
     }
 
     function getCorrectIdQuery(pluginID) {
