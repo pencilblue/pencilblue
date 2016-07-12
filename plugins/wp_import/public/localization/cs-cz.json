@@ -1,0 +1,10 @@
+{
+    "IMPORT_WORDPRESS": "Importovat WordPress XML",
+    "DROP_WP_FILE": "Sem přetáhněte exportní soubor WordPressu",
+    "UPLOAD_XML": "Nahrát XML",
+    "NO_FILE": "Nedodán žádný soubor",
+    "INVALID_XML": "Dodán vadný XML soubor",
+    "WP_IMPORT_SUCCESS": "Import obsahu z WordPressu proběhl úspěšně",
+    "MANAGE_NEW_USERS": "Spravovat nové uživatele",
+    "USERS_NOT_AVAILABLE": "Při pokusu zpracovat uživatele nastala chyba"
+}
