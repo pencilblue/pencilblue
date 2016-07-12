@@ -33,7 +33,7 @@ module.exports = function SessionModule(pb) {
      * @module Session
      * @class SessionHandler
      * @constructor
-     * @param {SessionStore} sesisonStore
+     * @param {SessionStore} sessionStore
      */
     function SessionHandler(sessionStore){
 
