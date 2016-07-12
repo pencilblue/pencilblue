@@ -99,7 +99,7 @@ module.exports = function SiteCreateEditJobModule(pb) {
                     site.displayName = mySite.displayName || site.displayName;
                     site.supportedLocales = mySite.supportedLocales || site.supportedLocales;
                     site.defaultLocale = mySite.defaultLocale || site.defaultLocale;
-                    site.forceLocale = (mySite.forceLocale!==null) ? mySite.forceLocale : site.forceLocale;
+                    site.forceLocale = util.isNullOrUndefined(mySite.forceLocale) ? site.forceLocale: mySite.forceLocale;
 
                     siteService.save(site, function(err, result) {
                         if(util.isError(err)) {
