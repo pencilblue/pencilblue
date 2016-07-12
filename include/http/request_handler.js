@@ -575,7 +575,14 @@ module.exports = function RequestHandlerModule(pb) {
             self.onSessionRetrieved(err, session);
         });
     };
-
+    /**
+    * @static
+    * @method checkRouteContainsLocale
+    * @param {string} url, the url of the incoming request
+    * @param {Object} siteObj
+    * @param {Array} siteObj.supportedLocales 
+    * @return false if the route should not redirect, true if it should.
+    */
     function checkRouteContainsLocale(url, siteObj){
         //Do not redirect for public resources
         if(url.indexOf('/public/') !== -1 || url.indexOf('/admin') !== -1 || url.indexOf('/actions/') !== -1 || url.indexOf('/api') !== -1 || url.indexOf('/media') !== -1) {
@@ -584,9 +591,9 @@ module.exports = function RequestHandlerModule(pb) {
 
         //Do not redirect if the url contains a supported locale.
         if(siteObj.supportedLocales) {
-            var loca‌‌les =  Object.keys(siteObj.supportedLocales);
-            for (var i = 0; i < loca‌‌les.length; i++) {
-                if(url.indexOf(loca‌‌les[i]) != -1){
+            var locales =  Object.keys(siteObj.supportedLocales);
+            for (var i = 0; i < locales.length; i++) {
+                if(url.indexOf(locales[i]) != -1){
                     return false;
                 }
             }
