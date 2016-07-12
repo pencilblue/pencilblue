@@ -66,7 +66,7 @@ module.exports = function(pb) {
                 isGlobalSite: pb.SiteService.isGlobal(self.site)
             });
 
-            self.setPageName(self.ls.get('CONFIGURATION'));
+            self.setPageName(self.ls.g('site_settings.CONFIGURATION'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/site_settings/configuration', function(err, result) {
                 cb({content: result});
@@ -77,7 +77,7 @@ module.exports = function(pb) {
     Configuration.getSubNavItems = function(key, ls, data) {
         var pills = [{
             name: 'configuration',
-            title: ls.get('CONFIGURATION'),
+            title: ls.g('site_settings.CONFIGURATION'),
             icon: 'refresh',
             href: '/admin/site_settings'
         }, {
@@ -87,7 +87,7 @@ module.exports = function(pb) {
             href: '/admin/site_settings/content'
         }, {
             name: 'email',
-            title: ls.get('EMAIL'),
+            title: ls.g('generic.EMAIL'),
             icon: 'envelope',
             href: '/admin/site_settings/email'
         }];
@@ -95,7 +95,7 @@ module.exports = function(pb) {
         if(data && data.site === pb.SiteService.GLOBAL_SITE) {
             pills.push({
                 name: 'libraries',
-                title: ls.get('LIBRARIES'),
+                title: ls.g('site_settings.LIBRARIES'),
                 icon: 'book',
                 href: '/admin/site_settings/libraries'
             });

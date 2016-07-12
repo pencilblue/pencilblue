@@ -75,7 +75,7 @@ module.exports = function(pb) {
         form.on('progress', function(bytesReceived, bytesExpected) {
             if (bytesReceived > pb.config.media.max_upload_size || bytesExpected > pb.config.max_upload_size) {
                 if (!self.errored++) {
-                    this.emit('error', new Error(self.ls.get('FILE_TOO_BIG')));
+                    this.emit('error', new Error(self.ls.g('media.FILE_TOO_BIG')));
                 }
             }
         });
@@ -158,7 +158,7 @@ module.exports = function(pb) {
 
             //we only care about the passed in error
             if (util.isError(err)) {
-                var code = err.message === self.ls.get('FILE_TOO_BIG') ? 413 : 500;
+                var code = err.message === self.ls.g('media.FILE_TOO_BIG') ? 413 : 500;
                 return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, err.message), code: code});
             }
             cb(content);

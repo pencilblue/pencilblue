@@ -77,12 +77,12 @@ module.exports = function(pb) {
         //validate action
         var errors = [];
         if (!pb.validation.isNonEmptyStr(action, true) || VALID_ACTIONS[action] === undefined) {
-            errors.push(this.ls.get('VALID_ACTION_REQUIRED'));
+            errors.push(this.ls.g('generic.VALID_ACTION_REQUIRED'));
         }
 
         //validate identifier
         if (VALID_ACTIONS[action] && !pb.validation.isNonEmptyStr(identifier, true)) {
-            errors.push(this.ls.get('VALID_IDENTIFIER_REQUIRED'));
+            errors.push(this.ls.g('generic.VALID_IDENTIFIER_REQUIRED'));
         }
 
         //check for errors
@@ -136,7 +136,7 @@ module.exports = function(pb) {
             function(callback) {
                 self.pluginService.getPluginBySite(uid, function(err, plugin) {
                     if (!plugin) {
-                        callback(new Error(util.format(self.ls.get('PLUGIN_NOT_FOUND'), uid)), false);
+                        callback(new Error(util.format(self.ls.g('generic.PLUGIN_NOT_FOUND'), uid)), false);
                         return;
                     }
 

@@ -39,17 +39,17 @@ module.exports = function(pb) {
                 active: 'active',
                 href: '#preferences',
                 icon: 'wrench',
-                title: self.ls.get('PREFERENCES')
+                title: self.ls.g('generic.PREFERENCES')
             },
             {
                 href: '#smtp',
                 icon: 'upload',
-                title: self.ls.get('SMTP')
+                title: self.ls.g('site_settings.SMTP')
             },
             {
                 href: '#test',
                 icon: 'flask',
-                title: self.ls.get('TEST')
+                title: self.ls.g('site_settings.TEST')
             }
         ];
 
@@ -62,7 +62,7 @@ module.exports = function(pb) {
                 emailSettings: emailSettings
             });
 
-            self.setPageName(self.ls.get('EMAIL'));
+            self.setPageName(self.ls.g('generic.EMAIL'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/site_settings/email', function(err, result) {
                 cb({content: result});

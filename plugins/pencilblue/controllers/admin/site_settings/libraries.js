@@ -59,7 +59,7 @@ module.exports = function(pb) {
                 bowerDefaults: pb.LibrariesService.getBowerDefaults()
             });
 
-            self.setPageName(self.ls.get('LIBRARIES'));
+            self.setPageName(self.ls.g('site_settings.LIBRARIES'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/site_settings/libraries', function(err, result) {
                 cb({content: result});

@@ -143,7 +143,7 @@ module.exports = function(pb) {
             else if (util.isNullOrUndefined(settings)) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_UID'))
                 });
             }
 
@@ -177,7 +177,7 @@ module.exports = function(pb) {
             if(errors.length > 0) {
                 cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, errors.join("\n"))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, errors.join("\n"))
                 });
                 return;
             }
@@ -187,12 +187,12 @@ module.exports = function(pb) {
                 if(util.isError(err) || !result) {
                     cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SAVE_PUGIN_SETTINGS_FAILURE'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.SAVE_PUGIN_SETTINGS_FAILURE'))
                     });
                     return;
                 }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVE_PLUGIN_SETTINGS_SUCCESS'))});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('generic.SAVE_PLUGIN_SETTINGS_SUCCESS'))});
             });
         });
     };
