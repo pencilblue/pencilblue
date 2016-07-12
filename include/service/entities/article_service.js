@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -164,11 +165,11 @@ module.exports = function(pb) {
             select = options.select;
         }
         else {
-            select = pb.DAO.SELECT_ALL;
+            select = pb.DAO.PROJECT_ALL;
         }
 
         //build out the limit (must be a valid integer)
-        var limit = undefined;
+        var limit;
         if (pb.validation.isInt(options.limit, true, true)) {
             limit = options.limit;
         }
@@ -321,7 +322,7 @@ module.exports = function(pb) {
 
                     // Cutoff the article at the right number of paragraphs
                     for(i = 0; i < tempLayoutArray.length && i < contentSettings.auto_break_articles; i++) {
-                        if(i === contentSettings.auto_break_articles -1 && i != tempLayoutArray.length - 1) {
+                        if(i === contentSettings.auto_break_articles -1 && i !== tempLayoutArray.length - 1) {
                             newLayout += tempLayoutArray[i] + '&nbsp;<a href="' + pb.config.siteRoot + '/article/' + article.url + '">' + contentSettings.read_more_text + '...</a>' + breakString;
                             continue;
                         }
@@ -352,13 +353,11 @@ module.exports = function(pb) {
                     where: {
                         article: article[pb.DAO.getIdField()].toString()
                     },
-                    order: {
-                        created: pb.DAO.ASC
-                    }
+                    order: [['created', pb.DAO.ASC]]
                 };
                 var dao   = new pb.DAO();
                 dao.q('comment', opts, function(err, comments) {
-                    if(util.isError(err) || comments.length == 0) {
+                    if(util.isError(err) || comments.length === 0) {
                         return cb(null, null);
                     }
 
@@ -432,7 +431,7 @@ module.exports = function(pb) {
                 //user has not already commented so load
                 var dao = new pb.DAO();
                 dao.loadById(comment.commenter, 'user', function(err, commenter) {
-                    if(util.isError(err) || commenter == null) {
+                    if(util.isError(err) || commenter === null) {
                         callback(null, false);
                         return;
                     }
@@ -676,6 +675,7 @@ module.exports = function(pb) {
      * @method replaceMediaTag
      * @param {String}   layout        The HTML layout of the article or page
      * @param {String}   mediaTemplate The template of the media embed
+     * @param {object} mediaCache
      * @param {Function} cb            Callback function
      */
     MediaLoader.prototype.replaceMediaTag = function(layout, mediaTemplate, mediaCache, cb) {

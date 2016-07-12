@@ -109,7 +109,7 @@ module.exports = function FeedModule(pb) {
             function(callback) {
                 var opts = {
                     render: true,
-                    order: {publish_date: pb.DAO.DESC},
+                    order: [['publish_date', pb.DAO.DESC]],
                     limit: 100
                 };
                 self.service.getPublished(opts, callback);
@@ -124,7 +124,7 @@ module.exports = function FeedModule(pb) {
             function(articles, callback) {
                 self.serializeArticles(articles, callback);
             }
-        ]
+        ];
         async.waterfall(tasks, cb);
     };
 
@@ -178,7 +178,7 @@ module.exports = function FeedModule(pb) {
         var opts = {
             select: {name: 1},
             where: pb.DAO.getIdInWhere(ArticleFeed.getDistinctSections(articles)),
-            order: {parent: 1}
+            order: [['parent', 1]]
         };
         var dao = new pb.DAO();
         dao.q('section', opts, function(err, sections) {
@@ -230,7 +230,7 @@ module.exports = function FeedModule(pb) {
             }
         });
         return Object.keys(sectionsHash);
-    }
+    };
 
     /**
      * Ex: Thu, 03 Jul 2014 18:21:05 +0000

@@ -489,7 +489,7 @@ module.exports = function CustomObjectServiceModule(pb) {
         var opts = {
             where: pb.DAO.ANYWHERE,
             select: pb.DAO.PROJECT_ALL,
-            order: {NAME_FIELD: pb.DAO.ASC}
+            order: [[NAME_FIELD, pb.DAO.ASC]]
         };
 
         this.siteQueryService.q(CustomObjectService.CUST_OBJ_TYPE_COLL, opts, function(err, custObjTypes) {
@@ -807,7 +807,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                     }
 
                     var typesHash = util.arrayToHash(types);
-                    for (var fieldName in custObjType.fields) {
+                    Object.keys(custObjType.fields).forEach(function(fieldName) {
                         if (!pb.validation.isNonEmptyStr(fieldName)) {
                             errors.push(CustomObjectService.err('fields.', 'The field name cannot be empty'));
                         }
@@ -815,7 +815,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                             var fieldErrors = self.validateFieldDescriptor(custObjType.fields[fieldName], typesHash);
                             util.arrayPushAll(fieldErrors, errors);
                         }
-                    }
+                    });
                     callback(null);
                 });
             }
@@ -1083,14 +1083,14 @@ module.exports = function CustomObjectServiceModule(pb) {
         delete post.last_modified;
 
         //apply types to fields
-        for(var key in custObjType.fields) {
+        Object.keys(custObjType.fields).forEach(function(key) {
 
-            if(custObjType.fields[key].field_type == 'number') {
+            if(custObjType.fields[key].field_type === 'number') {
                 if(util.isString(post[key])) {
                     post[key] = parseFloat(post[key]);
                 }
             }
-            else if(custObjType.fields[key].field_type == 'date') {
+            else if(custObjType.fields[key].field_type === 'date') {
                 if(util.isString(post[key])) {
                     post[key] = Date.parse(post[key]);
                 }
@@ -1098,7 +1098,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                     post[key] = new Date(post[key]);
                 }
             }
-            else if (custObjType.fields[key].field_type == 'boolean') {
+            else if (custObjType.fields[key].field_type === 'boolean') {
                 if (!util.isBoolean(post[key])) {
 
                     if (util.isString(post[key])) {
@@ -1109,12 +1109,12 @@ module.exports = function CustomObjectServiceModule(pb) {
                     }
                 }
             }
-            else if (custObjType.fields[key].field_type == 'wysiwyg') {
+            else if (custObjType.fields[key].field_type === 'wysiwyg') {
 
                 //ensure not funky script tags or iframes
                 post[key] = pb.BaseController.sanitize(post[key], pb.BaseController.getContentSanitizationRules());
             }
-            else if(custObjType.fields[key].field_type == CHILD_OBJECTS_TYPE) {
+            else if(custObjType.fields[key].field_type === CHILD_OBJECTS_TYPE) {
                 if(util.isString(post[key])) {
 
                     //strips out any non ID strings.
@@ -1127,7 +1127,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                     }
                 }
             }
-            else if (custObjType.fields[key].field_type == PEER_OBJECT_TYPE) {
+            else if (custObjType.fields[key].field_type === PEER_OBJECT_TYPE) {
                 //do nothing because it can only been a string ID.  Validation
                 //should verify this before persistence.
             }
@@ -1136,7 +1136,7 @@ module.exports = function CustomObjectServiceModule(pb) {
                 //when nothing else matches and we just have a string. We should sanitize it
                 post[key] = pb.BaseController.sanitize(post[key]);
             }
-        }
+        });
         post.type = custObjType[pb.DAO.getIdField()].toString();
     };
 
