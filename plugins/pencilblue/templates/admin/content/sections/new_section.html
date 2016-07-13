@@ -22,7 +22,7 @@
                         <textarea id="description" name="description" class="form-control"></textarea>
                     </div>
                     <div class="form-group"  ng-hide="section.type === 'container'">
-                        <label>^loc_PARENT_NAV_ITEM^</label>
+                        <label>^loc_generic.PARENT_NAV_ITEM^</label>
                         <select id="parent" name="parent" class="form-control">
                             <option value="">^loc_generic.NONE^</option>
                             <option value="{{parent._id}}" ng-repeat="parent in parents" ng-cloak>{{parent.name}}</option>
@@ -30,7 +30,7 @@
                     </div>
                     <div id="section_fields" ng-if="section.type === 'section'">
 	                    <div class="form-group">
-	                        <label>^loc_URL_KEY^</label>
+	                        <label>^loc_admin.URL_KEY^</label>
 	                        <div class="input-group">
 	                            <span class="input-group-addon">section/</span>
 	                            <input type="text" id="url" name="url" class="form-control"></input>
@@ -40,7 +40,7 @@
 	                        </div>
 	                    </div>
 	                    <div class="form-group">
-	                        <label>^loc_EDITOR^</label>
+	                        <label>^loc_generic.EDITOR^</label>
 	                        <select id="editor" name="editor" class="form-control">
 	                            <option value="{{editor._id}}" ng-repeat="editor in editors" ng-cloak>{{editor.name}}</option>
 	                        </select>

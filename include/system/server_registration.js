@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var cluster = require('cluster');
@@ -46,7 +47,7 @@ module.exports = function ServerRegistrationModule(pb) {
         }
         this.provider = provider;
         this.timerHandle = null;
-    };
+    }
 
     /**
      * The default set of functions that gather the default set of information.
@@ -162,7 +163,7 @@ module.exports = function ServerRegistrationModule(pb) {
 
             //do first update and schedule the rest
             self.doRegistration();
-            this.timerHandle = setInterval(function() {
+            self.timerHandle = setInterval(function() {
                 self.doRegistration();
             }, pb.config.registry.update_interval);
 
@@ -214,7 +215,7 @@ module.exports = function ServerRegistrationModule(pb) {
      * provider.
      * @static
      * @method doRegistration
-     * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
+     * @param {Function} [cb] A callback that provides two parameters: cb(Error, [RESULT])
      */
     ServerRegistration.prototype.doRegistration = function(cb) {
         cb = cb || util.cb;
@@ -302,10 +303,10 @@ module.exports = function ServerRegistrationModule(pb) {
     ServerRegistration.getIp = function() {
          var interfaces = os.networkInterfaces();
          var address = null;
-         for (k in interfaces) {
-             for (k2 in interfaces[k]) {
+         for (var k in interfaces) {
+             for (var k2 in interfaces[k]) {
                  var addr = interfaces[k][k2];
-                 if (addr.family == 'IPv4' && !addr.internal) {
+                 if (addr.family === 'IPv4' && !addr.internal) {
                      address = addr.address;
                      break;
                  }
@@ -327,7 +328,6 @@ module.exports = function ServerRegistrationModule(pb) {
         }
 
         //create a provider if not provided
-        var provider = null;
         if (!provider) {
 
             var RegistrationProvider = null;
@@ -343,7 +343,7 @@ module.exports = function ServerRegistrationModule(pb) {
             provider = new RegistrationProvider();
         }
 
-        return INSTANCE = new ServerRegistration(provider);
+        return (INSTANCE = new ServerRegistration(provider));
     };
 
     return ServerRegistration;

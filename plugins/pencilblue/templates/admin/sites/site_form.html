@@ -16,7 +16,7 @@
                         <label>Hostname</label>
                         <input type="text" name="hostname" class="form-control" ng-disabled="isActive" ng-model="hostname" required>
                         <div class="form_error" ng-if="!isActive && !isFieldValid(siteForm.hostname)">^loc_generic.REQUIRED_FIELD^</div>
-                        <div class="form_error" ng-if="isActive">^loc_SITE_MUST_DEACTIVATE^</div>
+                        <div class="form_error" ng-if="isActive">^loc_generic.SITE_MUST_DEACTIVATE^</div>
                     </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.supportedLocales)}">
                         <label>Supported Locales</label><br>
@@ -30,7 +30,7 @@
                         </label>
                     </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.defaultLocale)}">
-                        <label>Default Locale</label>
+                        <label>^loc_generic.DEFAULT_LOCALE^</label>
                         <select ng-model="defaultLocale" ng-options="i for i in selectedLocales">
                         </select>
                         <div class="form_error" ng-if="defaultLocale==''">^loc_generic.REQUIRED_FIELD^</div>
