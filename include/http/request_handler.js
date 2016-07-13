@@ -164,8 +164,17 @@ module.exports = function RequestHandlerModule(pb) {
 
     /**
      * @static
+     * @static
      * @method loadSite
      * @param {Object} site
+     * @param {boolean} site.active 
+     * @param {string} site.uid 
+     * @param {string} site.displayName 
+     * @param {boolean} site.forceLocale 
+     * @param {string} site.hostname 
+     * @param {string} site.defaultLocale 
+     * @param {Array} site.supportedLocales 
+     * @param {Array} site.prevHostnames
      */
     RequestHandler.loadSite = function(site) {
         RequestHandler.sites[site.hostname] = {
