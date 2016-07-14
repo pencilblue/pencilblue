@@ -4,11 +4,11 @@
       <div class="col-md-4 col-md-offset-4">
         ^tmp_admin=elements=error_success^
         <div class="panel panel-default">
-          <div class="panel-heading">^loc_CREATE_ACCOUNT^ | <a href="/user/login">^loc_LOGIN_EXISTING^</a></div>
+          <div class="panel-heading">^loc_users.CREATE_ACCOUNT^ | <a href="/user/login">^loc_users.LOGIN_EXISTING^</a></div>
           <div class="panel-body">
             <form name="signUpForm" ng-submit="signUpUser()" novalidate>
               <div class="form-group" ng-class="{'has-error': !isFieldValid(signUpForm.username)}">
-                <label>^loc_USERNAME^</label>
+                <label>^loc_users.USERNAME^</label>
                 <div class="input-group">
                   <input type="text" name="username" class="form-control" ng-model="user.username" ng-change="resetUsernameAvailability()" required/>
                   <span class="input-group-btn">
@@ -22,30 +22,30 @@
                 <div class="form_error" ng-if="!isFieldValid(signUpForm.username)">^loc_generic.REQUIRED_FIELD^</div>
               </div>
               <div class="form-group" ng-class="{'has-error': !isFieldValid(signUpForm.email)}">
-                <label>^loc_EMAIL^</label>
+                <label>^loc_users.EMAIL^</label>
                 <input type="email" name="email" ng-model="user.email" class="form-control" required/>
                 <div class="form_error" ng-if="!isFieldValid(signUpForm.email)">^loc_generic.REQUIRED_FIELD^</div>
               </div>
               <div class="form-group">
-                <label>^loc_FIRST_NAME^</label>
+                <label>^loc_users.FIRST_NAME^</label>
                 <input type="text" ng-model="user.first_name" class="form-control"/>
               </div>
               <div class="form-group">
-                <label>^loc_LAST_NAME^</label>
+                <label>^loc_users.LAST_NAME^</label>
                 <input type="text" ng-model="user.last_name" class="form-control"/>
               </div>
               <div class="form-group" ng-class="{'has-error': !isFieldValid(signUpForm.password)}">
-                <label>^loc_PASSWORD^</label>
+                <label>^loc_generic.PASSWORD^</label>
                 <div class="input-group">
                   <input type="{{getPasswordInputType()}}" name="password" class="form-control" autocomplete="off" ng-model="user.password" ng-change="checkPasswordMatch()" ng-keyup="resetPasswordGenerated()" required/>
                   <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click="generatePassword()">^loc_GENERATE^...</button>
+                    <button class="btn btn-default" type="button" ng-click="generatePassword()">^loc_users.GENERATE^...</button>
                   </span>
                 </div>
                 <div class="form_error" ng-if="!isFieldValid(signUpForm.password)">^loc_generic.REQUIRED_FIELD^</div>
               </div>
               <div class="form-group" ng-class="{'has-error': !isFieldValid(signUpForm.confirm_password)}">
-                <label>^loc_CONFIRM_PASSWORD^</label>
+                <label>^loc_users.CONFIRM_PASSWORD^</label>
                 <div class="input-group">
                   <input type="password" name="confirm_password" ng-model="user.confirm_password" class="form-control" ng-change="checkPasswordMatch()" required/>
                   <span class="input-group-addon">
@@ -55,13 +55,13 @@
                 <div class="form_error" ng-if="!isFieldValid(signUpForm.confirm_password)">^loc_generic.REQUIRED_FIELD^</div>
               </div>
               <button type="submit" class="btn btn-primary btn-block" ng-disabled="saving">
-                <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SUBMIT^
+                <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_generic.SUBMIT^
               </button>
             </form>
           </div>
         </div>
         <div style="text-align: right">
-          <a href="/"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_BACK_HOME^</a>
+          <a href="/"><i class="fa fa-angle-double-left"></i>&nbsp;^loc_generic.BACK_HOME^</a>
         </div>
       </div>
     </div>
