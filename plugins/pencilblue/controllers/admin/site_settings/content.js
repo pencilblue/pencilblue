@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -38,22 +39,22 @@ module.exports = function(pb) {
                 active: 'active',
                 href: '#articles',
                 icon: 'files-o',
-                title: self.ls.get('ARTICLES')
+                title: self.ls.g('admin.ARTICLES')
             },
             {
                 href: '#timestamp',
                 icon: 'clock-o',
-                title: self.ls.get('TIMESTAMP')
+                title: self.ls.g('site_settings.TIMESTAMP')
             },
             {
                 href: '#authors',
                 icon: 'user',
-                title: self.ls.get('AUTHOR')
+                title: self.ls.g('admin.AUTHOR')
             },
             {
                 href: '#comments',
                 icon: 'comment',
-                title: self.ls.get('COMMENTS')
+                title: self.ls.g('generic.COMMENTS')
             }
         ];
 
@@ -66,7 +67,7 @@ module.exports = function(pb) {
                 contentSettings: contentSettings
             });
 
-            self.setPageName(self.ls.get('CONTENT'));
+            self.setPageName(self.ls.g('generic.CONTENT'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/site_settings/content', function(err,result) {
                 cb({content: result});
@@ -78,12 +79,12 @@ module.exports = function(pb) {
 
         var subNavItems = [{
             name: 'configuration',
-            title: ls.get('CONTENT'),
+            title: ls.g('generic.CONTENT'),
             icon: 'chevron-left',
             href: '/admin/site_settings'
         }, {
             name: 'email',
-            title: ls.get('EMAIL'),
+            title: ls.g('generic.EMAIL'),
             icon: 'envelope',
             href: '/admin/site_settings/email'
         }];
@@ -91,7 +92,7 @@ module.exports = function(pb) {
         if (data.site === pb.SiteService.GLOBAL_SITE) {
             subNavItems.push({
                 name: 'libraries',
-                title: ls.get('LIBRARIES'),
+                title: ls.g('site_settings.LIBRARIES'),
                 icon: 'book',
                 href: '/admin/site_settings/libraries'
             });

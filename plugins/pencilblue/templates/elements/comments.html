@@ -3,7 +3,7 @@
     <div class="panel-heading">
         <a data-toggle="collapse" data-parent="#comments_^article_index^" href="#comments_collapse_^article_index^">
             <i class="fa fa-comments"></i>&nbsp;
-            ^loc_COMMENTS^ (^comments_length^)
+            ^loc_generic.COMMENTS^ (^comments_length^)
         </a>
     </div>
     <div id="comments_collapse_^article_index^" class="panel-collapse collapse">
@@ -11,7 +11,7 @@
             <div id="submit_comment_^article_index^" class="panel panel-default comments_container" style="display: ^display_submit^">
                 <div class="panel-heading">
                     <a data-toggle="collapse" data-parent="#submit_comment_^article_index^" href="#submit_comment_collapse_^article_index^">
-                        <i class="fa fa-comment"></i>&nbsp;^loc_SUBMIT_COMMENT^
+                        <i class="fa fa-comment"></i>&nbsp;^loc_generic.SUBMIT_COMMENT^
                     </a>
                 </div>
                 <div id="submit_comment_collapse_^article_index^" class="panel-collapse collapse">
@@ -20,14 +20,14 @@
                             <fieldset>
                                 <div id="comment_error_^article_index^" class="panel panel-danger" style="display: none">
                                     <div class="panel-heading">
-                                        ^loc_COMMENT_ERROR^
+                                        ^loc_generic.COMMENT_ERROR^
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <textarea id="comment_content_^article_index^" name="comment_content" class="form-control"></textarea>
                                 </div>
                                 <button id="comment_submit_button_^article_index^" type="button" class="btn btn-primary" onclick="submitComment($(this))">
-                                    <i class="fa fa-quote-right"></i>&nbsp;^loc_SUBMIT^
+                                    <i class="fa fa-quote-right"></i>&nbsp;^loc_generic.SUBMIT^
                                 </button>
                             </fieldset>
                         </form>
@@ -37,7 +37,7 @@
             <div style="display: ^display_login^">
                 <a href="/user/login">
                     <button type="button" class="btn btn-default">
-                        <i class="fa fa-user"></i>&nbsp;^loc_LOGIN_TO_COMMENT^
+                        <i class="fa fa-user"></i>&nbsp;^loc_generic.LOGIN_TO_COMMENT^
                     </button>
                 </a>
             </div>
@@ -57,7 +57,7 @@
 <div id="user_comment_^article_index^" style="display: none">
     <div class="well comment">
         <span class="pull-left">
-            <img class="media-object" src="^user_photo^" style="width: 3em; margin: 0 .5em .5em 0"></img>
+            <img class="media-object" src="^user_photo^" style="width: 3em; margin: 0 .5em .5em 0"/>
         </span>
         <div class="comment_content">
             <b>^user_name^^user_position^</b>: ^content^

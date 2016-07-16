@@ -14,14 +14,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function HomePageSettingsModule(pb) {
 
     //pb dependencies
-    var util          = pb.util;
-    var PluginService = pb.PluginService;
+    var util = pb.util;
     var SUB_NAV_KEY = 'portfolio_home_page_settings';
-    
+
     /**
      * Settings for the display of home page content in the Portfolio theme
      * @class HomePageSettings
@@ -37,17 +37,17 @@ module.exports = function HomePageSettingsModule(pb) {
                 active: 'active',
                 href: '#home_layout',
                 icon: 'home',
-                title: self.ls.get('HOME_LAYOUT')
+                title: self.ls.g('HOME_LAYOUT')
             },
             {
                 href: '#media',
                 icon: 'picture-o',
-                title: self.ls.get('HOME_MEDIA')
+                title: self.ls.g('HOME_MEDIA')
             },
             {
                 href: '#callouts',
                 icon: 'th',
-                title: self.ls.get('CALLOUTS')
+                title: self.ls.g('CALLOUTS')
             }
         ];
 
@@ -66,8 +66,8 @@ module.exports = function HomePageSettingsModule(pb) {
             mservice.get(function(err, media) {
                 if(homePageSettings.page_media) {
                     var pageMedia = [];
-                    for(i = 0; i < homePageSettings.page_media.length; i++) {
-                        for(j = 0; j < media.length; j++) {
+                    for(var i = 0; i < homePageSettings.page_media.length; i++) {
+                        for(var j = 0; j < media.length; j++) {
                             if(pb.DAO.areIdsEqual(media[j][pb.DAO.getIdField()], homePageSettings.page_media[i])) {
                                 pageMedia.push(media[j]);
                                 media.splice(j, 1);
@@ -95,11 +95,11 @@ module.exports = function HomePageSettingsModule(pb) {
         });
     };
 
-    HomePageSettings.getSubNavItems = function(key, ls, data) {
+    HomePageSettings.getSubNavItems = function(key, ls/*, data*/) {
         return [
             {
                 name: 'content_settings',
-                title: ls.get('HOME_PAGE_SETTINGS'),
+                title: ls.g('HOME_PAGE_SETTINGS'),
                 icon: 'chevron-left',
                 href: '/admin/plugins/portfolio/settings'
             }

@@ -8,33 +8,33 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="object_settings">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(typeForm.name)}">
-                        <label>^loc_NAME^</label>
+                        <label>^loc_generic.NAME^</label>
                         <div class="input-group">
-                            <input type="text" name="name" class="form-control" ng-model="objectType.name" ng-change="resetAvailability()" required></input>
+                            <input type="text" name="name" class="form-control" ng-model="objectType.name" ng-change="resetAvailability()" required/>
                             <span class="input-group-btn">
                                 <button type="button" class="btn" ng-class="{'btn-default': nameAvailable === null, 'btn-success': nameAvailable === true, 'btn-danger': nameAvailable === false}" ng-click="getAvailability()" ng-disabled="!objectType.name.length">
-                                    <span ng-if="nameAvailable === null">^loc_CHECK^</span>
-                                    <span ng-if="nameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
-                                    <span ng-if="nameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+                                    <span ng-if="nameAvailable === null">^loc_generic.CHECK^</span>
+                                    <span ng-if="nameAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_generic.AVAILABLE^</span>
+                                    <span ng-if="nameAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_generic.UNAVAILABLE^</span>
                                 </button>
                             </span>
                         </div>
-                        <div class="form_error" ng-if="!isFieldValid(typeForm.name)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="!isFieldValid(typeForm.name)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <div class="tab-pane" id="object_fields" ng-model="objectType.fields" data-as-sortable="board.dragControlListeners" is-enabled="true">
                     <div class="form-group" ng-repeat="field in objectType.fields" style="border: none" data-as-sortable-item>
                         <label>
-                            <span ng-if="field.field_type === 'text' || field.field_type === 'number'">^loc_VALUE^</span>
-                            <span ng-if="field.field_type === 'wysiwyg'">^loc_WYSIWYG^</span>
-                            <span ng-if="field.field_type === 'boolean'">^loc_BOOLEAN^</span>
-                            <span ng-if="field.field_type === 'date'">^loc_DATE^</span>
-                            <span ng-if="field.field_type === 'peer_object'">^loc_PEER_OBJECT^</span>
-                            <span ng-if="field.field_type === 'child_objects'">^loc_CHILD_OBJECTS^</span>
+                            <span ng-if="field.field_type === 'text' || field.field_type === 'number'">^loc_custom_objects.VALUE^</span>
+                            <span ng-if="field.field_type === 'wysiwyg'">^loc_generic.WYSIWYG^</span>
+                            <span ng-if="field.field_type === 'boolean'">^loc_custom_objects.BOOLEAN^</span>
+                            <span ng-if="field.field_type === 'date'">^loc_custom_objects.DATE^</span>
+                            <span ng-if="field.field_type === 'peer_object'">^loc_custom_objects.PEER_OBJECT^</span>
+                            <span ng-if="field.field_type === 'child_objects'">^loc_custom_objects.CHILD_OBJECTS^</span>
                         </label>
                         <div class="input-group">
                             <span class="input-group-addon" data-as-sortable-item-handle><i class="fa fa-bars"></i></span>
-                            <input type="text" name="field_{{$index}}" class="form-control" ng-model="field.name" placeholder="^loc_NAME^"></input>
+                            <input type="text" name="field_{{$index}}" class="form-control" ng-model="field.name" placeholder="^loc_generic.NAME^"/>
                             <div class="input-group-btn" ng-if="field.field_type !== 'date' && field.field_type !== 'boolean' && field.field_type !== 'wysiwyg'">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                     <span ng-bind="field.object_type || field.field_type"></span>&nbsp;<span class="caret"></span>
@@ -53,29 +53,29 @@
                         </div>
                     </div>
                     <div style="margin-top: .5em">
-                        <label>^loc_ADD_FIELD^...</label><br/>
+                        <label>^loc_custom_objects.ADD_FIELD^...</label><br/>
                         <button type="button" class="btn btn-success add_field_button" ng-click="addField('value')">
-                            <i class="fa fa-keyboard-o"></i>&nbsp;^loc_VALUE^
+                            <i class="fa fa-keyboard-o"></i>&nbsp;^loc_custom_objects.VALUE^
                         </button>
                         <button type="button" class="btn btn-success add_field_button" ng-click="addField('wysiwyg')">
-                            <i class="fa fa-edit"></i>&nbsp;^loc_WYSIWYG^
+                            <i class="fa fa-edit"></i>&nbsp;^loc_generic.WYSIWYG^
                         </button>
                         <button type="button" class="btn btn-success add_field_button" ng-click="addField('boolean')">
-                            <i class="fa fa-check-square-o"></i>&nbsp;^loc_BOOLEAN^
+                            <i class="fa fa-check-square-o"></i>&nbsp;^loc_custom_objects.BOOLEAN^
                         </button>
                         <button type="button" class="btn btn-success add_field_button" ng-click="addField('date')">
-                            <i class="fa fa-calendar"></i>&nbsp;^loc_DATE^
+                            <i class="fa fa-calendar"></i>&nbsp;^loc_custom_objects.DATE^
                         </button>
                         <button type="button" class="btn btn-success add_field_button" ng-click="addField('peer_object')">
-                            <i class="fa fa-link"></i>&nbsp;^loc_PEER_OBJECT^
+                            <i class="fa fa-link"></i>&nbsp;^loc_custom_objects.PEER_OBJECT^
                         </button>
                         <button type="button" class="btn btn-success add_field_button" ng-click="addField('child_objects')">
-                            <i class="fa fa-sitemap"></i>&nbsp;^loc_CHILD_OBJECTS^
+                            <i class="fa fa-sitemap"></i>&nbsp;^loc_custom_objects.CHILD_OBJECTS^
                         </button>
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/content/objects/types">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 ^tmp_admin=elements=save_button^
             </div>

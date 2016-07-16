@@ -1,6 +1,6 @@
 <div ng-controller="SectionSelectController">
     <div class="panel panel-default">
-        <div class="panel-heading">^loc_ACTIVE_SECTIONS^...</div>
+        <div class="panel-heading">^loc_articles.ACTIVE_SECTIONS^...</div>
         <div class="panel-body" style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="editingObject[variablePrefix + '_sections']">
             <div class="panel panel-default draggable_item" ng-repeat="section in editingObject[variablePrefix + '_sections'] track by section._id" data-as-sortable-item>
                 <div class="panel-heading">
@@ -13,9 +13,9 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <div style="padding-bottom: .5em">^loc_INACTIVE_SECTIONS^...</div>
+            <div style="padding-bottom: .5em">^loc_articles.INACTIVE_SECTIONS^...</div>
             <div class="input-group">
-                <input type="text" ng-model="searchText" ng-change="search()" class="form-control" placeholder="^loc_NARROW_RESULTS^..."></input>
+                <input type="text" ng-model="searchText" ng-change="search()" class="form-control" placeholder="^loc_admin.NARROW_RESULTS^..."></input>
                 <span class="input-group-btn">
                     <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}" ng-click="clearSearch()"></i></button>
                 </span>

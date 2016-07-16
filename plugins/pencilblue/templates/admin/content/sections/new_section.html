@@ -8,67 +8,67 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="section_settings">
                     <div class="form-group">
-                        <label for="type">^loc_TYPE^</label>
+                        <label for="type">^loc_generic.TYPE^</label>
                         <select id="type" name="type" class="form-control" ng-model="section.type">
                             <option value="{{type.value}}" ng-repeat="type in types" ng-selected="section.type == type.value" ng-cloak>{{type.label}}</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>^loc_NAME^</label>
+                        <label>^loc_generic.NAME^</label>
                         <input type="text" id="name" name="name" class="form-control"></input>
                     </div>
                     <div class="form-group">
-                        <label>^loc_DESCRIPTION^</label>
+                        <label>^loc_generic.DESCRIPTION^</label>
                         <textarea id="description" name="description" class="form-control"></textarea>
                     </div>
                     <div class="form-group"  ng-hide="section.type === 'container'">
-                        <label>^loc_PARENT_NAV_ITEM^</label>
+                        <label>^loc_generic.PARENT_NAV_ITEM^</label>
                         <select id="parent" name="parent" class="form-control">
-                            <option value="">^loc_NONE^</option>
+                            <option value="">^loc_generic.NONE^</option>
                             <option value="{{parent._id}}" ng-repeat="parent in parents" ng-cloak>{{parent.name}}</option>
                         </select>
                     </div>
                     <div id="section_fields" ng-if="section.type === 'section'">
 	                    <div class="form-group">
-	                        <label>^loc_URL_KEY^</label>
+	                        <label>^loc_admin.URL_KEY^</label>
 	                        <div class="input-group">
 	                            <span class="input-group-addon">section/</span>
 	                            <input type="text" id="url" name="url" class="form-control"></input>
                                 <span class="input-group-btn">
-                                    <button id="availability_button" class="btn btn-default" type="button" onclick="validateURL()">^loc_CHECK^</button>
+                                    <button id="availability_button" class="btn btn-default" type="button" onclick="validateURL()">^loc_generic.CHECK^</button>
                                 </span>
 	                        </div>
 	                    </div>
 	                    <div class="form-group">
-	                        <label>^loc_EDITOR^</label>
+	                        <label>^loc_generic.EDITOR^</label>
 	                        <select id="editor" name="editor" class="form-control">
 	                            <option value="{{editor._id}}" ng-repeat="editor in editors" ng-cloak>{{editor.name}}</option>
 	                        </select>
 	                    </div>
 	                </div>
                     <div id="content_search_wrapper" ng-show="section.type === 'article' || section.type === 'page'" class="form-group">
-                        <label>^loc_CONTENT^</label>&nbsp;<i class="fa fa-info-circle" title="" data-placement="bottom" data-toggle="tooltip" data-original-title="^loc_CONTENT_SEARCH_EXPLANATION^" style="cursor: pointer;"></i>
+                        <label>^loc_generic.CONTENT^</label>&nbsp;<i class="fa fa-info-circle" title="" data-placement="bottom" data-toggle="tooltip" data-original-title="^loc_generic.CONTENT_SEARCH_EXPLANATION^" style="cursor: pointer;"></i>
                         ^tmp_admin=elements=content_search^
                         <input id="item" name="item" type="hidden" value="{{section.item}}"/>
                     </div>
                     <div id="url_fields" ng-if="section.type === 'link'">
                         <div class="form-group">
-                            <label>^loc_LINK^</label>
+                            <label>^loc_generic.LINK^</label>
                             <input type="text" id="link" name="link" class="form-control" value="{{section.link}}"></input>
                         </div>
                     </div>
                 </div>
                 <div class="tab-pane" id="section_seo">
                     <div class="form-group">
-                        <label>^loc_META_KEYWORDS^</label>
-                        <input type="text" id="keywords" name="keywords" class="form-control" placeholder="^loc_META_KEYWORDS_PLACEHOLDER^"/>
+                        <label>^loc_admin.META_KEYWORDS^</label>
+                        <input type="text" id="keywords" name="keywords" class="form-control" placeholder="^loc_admin.META_KEYWORDS_PLACEHOLDER^"/>
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/content/sections">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-save"></i>&nbsp;^loc_SAVE^
+                    <i class="fa fa-save"></i>&nbsp;^loc_generic.SAVE^
                 </button>
             </div>
         </fieldset>

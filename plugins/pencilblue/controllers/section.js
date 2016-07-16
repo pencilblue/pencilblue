@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -31,7 +32,7 @@ module.exports = function(pb) {
 
     /**
      * @method init
-     * @param {Object} content
+     * @param {Object} context
      * @param {Function} cb
      */
     SectionViewController.prototype.init = function(context, cb) {
@@ -108,7 +109,7 @@ module.exports = function(pb) {
 
         //lookup by URL
         self.dao.loadByValue('url', custUrl, 'section', function(err, section) {
-            if (util.isError(err) || section == null) {
+            if (util.isError(err) || section === null) {
                 return cb(null, null);
             }
 
@@ -116,7 +117,7 @@ module.exports = function(pb) {
                 render: true,
                 where: {},
                 limit: self.contentSettings.articles_per_page || 5,
-                order: [{'publish_date': pb.DAO.DESC}, {'created': pb.DAO.DESC}]
+                order: [['publish_date', pb.DAO.DESC], ['created', pb.DAO.DESC]]
             };
             pb.ContentObjectService.setPublishedClause(opts.where);
             self.service.getBySection(section, opts, function(err, content) {

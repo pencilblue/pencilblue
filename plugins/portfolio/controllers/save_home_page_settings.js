@@ -14,12 +14,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function SaveHomePageSettingsModule(pb) {
-    
+
     //pb dependencies
     var util = pb.util;
-    
+
     /**
      *  Saves settings for the display of home page content in the Portfolio theme
      * @class SaveHomePageSettings
@@ -55,12 +56,12 @@ module.exports = function SaveHomePageSettingsModule(pb) {
                     if(util.isError(err))  {
                         cb({
                             code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'), result)
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'), result)
                         });
                         return;
                     }
 
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('HOME_PAGE_SETTINGS') + ' ' + self.ls.get('SAVED'))});
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('HOME_PAGE_SETTINGS') + ' ' + self.ls.g('admin.SAVED'))});
                 });
             });
         });

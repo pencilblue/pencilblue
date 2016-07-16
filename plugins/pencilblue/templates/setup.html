@@ -20,54 +20,54 @@
             <div class="row">
                 <div class="col-md-4 col-md-offset-4">
                     <div id="login_logo">
-                        <img src="^global_root^/img/pb_logo.png" style="max-width: 100%"></img>
+                        <img src="^global_root^/img/pb_logo.png" style="max-width: 100%"/>
                     </div>
                     ^error_success^
                     <div class="panel panel-default">
-                        <div class="panel-heading">^loc_REGISTER_ADMIN^</div>
+                        <div class="panel-heading">^loc_setup.REGISTER_ADMIN^</div>
                         <div class="panel-body">
                             <form id="setup_form" method="post" action="^global_root^/actions/setup">
                                 <fieldset>
                                     <div class="form-group">
-                                        <label>^loc_FIRST_NAME^</label>
-                                        <input type="text" id="first_name" name="first_name" class="form-control"></input>
+                                        <label>^loc_users.FIRST_NAME^</label>
+                                        <input type="text" id="first_name" name="first_name" class="form-control"/>
                                     </div>
                                     <div class="form-group">
-                                        <label>^loc_LAST_NAME^</label>
-                                        <input type="text" id="last_name" name="last_name" class="form-control"></input>
+                                        <label>^loc_users.LAST_NAME^</label>
+                                        <input type="text" id="last_name" name="last_name" class="form-control"/>
                                     </div>
                                     <div class="form-group">
-                                        <label>^loc_USERNAME^</label>
-                                        <input type="text" id="username" name="username" class="form-control"></input>
+                                        <label>^loc_users.USERNAME^</label>
+                                        <input type="text" id="username" name="username" class="form-control"/>
                                     </div>
                                     <div class="form-group">
-                                        <label>^loc_EMAIL^</label>
-                                        <input type="email" id="email" name="email" class="form-control" autocomplete="false"></input>
+                                        <label>^loc_users.EMAIL^</label>
+                                        <input type="email" id="email" name="email" class="form-control" autocomplete="false"/>
                                     </div>
                                     <div class="form-group">
-                                        <label>^loc_PASSWORD^</label>
-                                        <input type="password" id="password" name="password" class="form-control" onkeyup="checkPasswordMatch()" autocomplete="false"></input>
+                                        <label>^loc_users.PASSWORD^</label>
+                                        <input type="password" id="password" name="password" class="form-control" onkeyup="checkPasswordMatch()" autocomplete="false"/>
                                     </div>
                                     <div class="form-group">
-                                        <label>^loc_CONFIRM_PASSWORD^</label>
+                                        <label>^loc_users.CONFIRM_PASSWORD^</label>
                                         <div class="input-group">
-                                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" onkeyup="checkPasswordMatch()"></input>
+                                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" onkeyup="checkPasswordMatch()"/>
                                             <span class="input-group-addon"><i id="password_check" class="fa fa-thumbs-down" style="color: #AA0000"></i></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label>^loc_MAKE_PB_BETTER^.</label><br/>
+                                        <label>^loc_generic.MAKE_PB_BETTER^.</label><br/>
                                         <div class="btn-group" data-toggle="buttons" style="margin-bottom: .5em">
                                             <label class="btn btn-default active">
-                                                <input type="radio" name="call_home" value="1" checked="checked"> ^loc_YES^
+                                                <input type="radio" name="call_home" value="1" checked="checked"> ^loc_generic.YES^
                                             </label>
                                             <label class="btn btn-default">
-                                                <input type="radio" name="call_home" value="0"> ^loc_NO^
+                                                <input type="radio" name="call_home" value="0"> ^loc_generic.NO^
                                             </label>
                                         </div><br/>
-                                        <a href="#privacy_policy_modal" data-toggle="modal" style="font-size:.9em">^loc_PRIVACY_POLICY^</a>
+                                        <a href="#privacy_policy_modal" data-toggle="modal" style="font-size:.9em">^loc_generic.PRIVACY_POLICY^</a>
                                     </div>
-                                    <input type="submit" class="btn btn-lg btn-primary btn-block" value="^loc_SUBMIT^">
+                                    <input type="submit" class="btn btn-lg btn-primary btn-block" value="^loc_generic.SUBMIT^">
                                 </fieldset>
                             </form>
                         </div>

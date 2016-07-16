@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -54,7 +55,7 @@ module.exports = function(pb) {
                 currentUserId: self.session.authentication.user_id
             });
 
-            self.setPageName(self.ls.get('MANAGE_USERS'));
+            self.setPageName(self.ls.g('users.MANAGE_USERS'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/users/manage_users', function(err, result){
                 cb({content: result});
@@ -65,12 +66,12 @@ module.exports = function(pb) {
     ManageUsers.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_users',
-            title: ls.get('MANAGE_USERS'),
+            title: ls.g('users.MANAGE_USERS'),
             icon: 'refresh',
             href: '/admin/users'
         }, {
             name: 'unverified_users',
-            title: ls.get('UNVERIFIED_USERS'),
+            title: ls.g('users.UNVERIFIED_USERS'),
             icon: 'user',
             href: '/admin/users/unverified'
         }, {
