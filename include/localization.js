@@ -259,7 +259,7 @@ module.exports = function LocalizationModule(pb) {
                 if (keys[i].substr(index + 1) === key) {
                     convertedKey = keys[i];
 
-                    pb.log.warn('Localization: Using the localization key %s is non-performant and should be updated to %s', key, convertedKey);
+                    pb.log.debug('Localization: Using the localization key %s is non-performant and should be updated to %s', key, convertedKey);
                     break;
                 }
             }
@@ -1127,26 +1127,6 @@ module.exports = function LocalizationModule(pb) {
      * @return {Object} The object that contains the values for the key
      */
     function findKeyBlock(key, create) {
-
-        ////parse the key
-        //var keyParts = key.split(Localization.KEY_SEP);
-        //
-        ////walk the tree looking for the storage structure
-        //var keyBlock = Localization.storage;
-        //keyParts.forEach(function(part) {
-        //    if (util.isNullOrUndefined(keyBlock[part])) {
-        //        keyBlock[part] = {
-        //            __isKey: true
-        //        };
-        //    }
-        //    else if (!keyBlock[part].__isKey) {
-        //
-        //        //bad news bears. They tried to provide a key in a protected
-        //        //namespace.  Basically all the things with "__" prefixes
-        //        return null;
-        //    }
-        //    keyBlock = keyBlock[part];
-        //});
         if (create && typeof Localization.storage[key] === 'undefined') {
             Localization.storage[key] = {};
         }

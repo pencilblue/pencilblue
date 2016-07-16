@@ -16,9 +16,6 @@ describe('Localization', function() {
     var Localization = null;
     before('Initialize the Environment with the default configuration', function(next) {
 
-        //travis gets slow so we bump the timeout just a little here to get around the BS
-        this.timeout(10000);
-
         pb = new Lib(Configuration.getBaseConfig());
         Localization = pb.Localization;
         Localization.init(next);
@@ -31,8 +28,8 @@ describe('Localization', function() {
 
             it('should return a valid package when provided '+locale, function() {
 
-                var package = Localization.getLocalizationPackage(locale);
-                package.generic.LOCALE_DISPLAY.should.eql(dummyDisplay);
+                var pkg = Localization.getLocalizationPackage(locale);
+                pkg.generic.LOCALE_DISPLAY.should.eql(dummyDisplay);
             });
         });
 
@@ -41,8 +38,8 @@ describe('Localization', function() {
 
             it('should return null when provided '+locale, function() {
 
-                var package = Localization.getLocalizationPackage(locale);
-                should(package === null).be.ok;
+                var pkg = Localization.getLocalizationPackage(locale);
+                should(pkg === null).be.ok;
             });
         });
 
@@ -51,8 +48,8 @@ describe('Localization', function() {
 
             it('should default to English whe provided '+locale, function() {
 
-                var package = Localization.getLocalizationPackage(locale);
-                package.generic.LOCALE_DISPLAY.should.eql('English (United States)');
+                var pkg = Localization.getLocalizationPackage(locale);
+                pkg.generic.LOCALE_DISPLAY.should.eql('English (United States)');
             });
         });
     });
@@ -65,7 +62,7 @@ describe('Localization', function() {
             it('should return true when provided '+locale, function() {
 
                 var supported = Localization.isSupported(locale);
-                supported.should.be.ok;
+                supported.should.eql(true);
             });
         });
 
@@ -332,7 +329,7 @@ describe('Localization', function() {
     describe('Localization.unregisterLocale', function() {
 
         it('should return true and no longer be supported when a valid locale is unregistered', function() {
-            var locale = 'en-US';
+            var locale = 'nl-BE';
             Localization.unregisterLocale(locale).should.eql(true);
             Localization.isSupported(locale).should.eql(false);
         });
@@ -376,6 +373,34 @@ describe('Localization', function() {
         });
 
         //TODO should return true when provided an existing key and country code with a plugin that has registered the key
+    });
+
+    describe('Localization.get', function() {
+
+        [null, undefined, '', 1, false, true, [], {}].forEach(function(key) {
+            it('should return null when an invalid key ' + key + ' is provided', function () {
+                var ls = new Localization('en-US');
+                should(ls.get(key) === null).eql(true);
+            });
+        });
+
+        it('should return the key when a non-existing localization key is passed', function() {
+            var key = 'SOME_NON_EXISTING_KEY';
+            var ls = new Localization('en-US');
+            ls.get(key).should.eql(key);
+        });
+
+        it('should lookup the key prefix and then translate the key', function() {
+            var key = 'LEFT';
+            var ls = new Localization('en-US');
+            ls.get(key).should.eql('Left');
+        });
+
+        it('should replace the key and insert the argument', function() {
+            var key = 'INSTALL_FAILED';
+            var ls = new Localization('en-US');
+            ls.get(key, 'test-value').should.eql('The attempt to install plugin [test-value] failed');
+        });
     });
 
     function getLocalizationFiles(cb) {
