@@ -37,10 +37,35 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Response} resp The outgoing response
      */
     function RequestHandler(server, req, resp){
+
+        /**
+         * @property startTime
+         * @type {number}
+         */
         this.startTime = (new Date()).getTime();
-        this.server    = server;
-        this.req       = req;
-        this.resp      = resp;
+
+        /**
+         * @property server
+         * @type {Server}
+         */
+        this.server = server;
+
+        /**
+         * @property req
+         * @type {Request}
+         */
+        this.req = req;
+
+        /**
+         * @property resp
+         * @type {Response}
+         */
+        this.resp = resp;
+
+        /**
+         * @property url
+         * @type {Url}
+         */
         this.url       = url.parse(req.url, true);
 
         /**
@@ -53,7 +78,23 @@ module.exports = function RequestHandlerModule(pb) {
          * @type {String}
          */
         this.hostname  = req.headers.host || pb.SiteService.getGlobalSiteContext().hostname;
+
+        /**
+         * @property activeTheme
+         * @type {string}
+         */
         this.activeTheme = null;
+
+        /**
+         * @property routeTheme
+         * @type {object}
+         */
+        this.routeTheme = null;
+
+        /**
+         * @property errorCount
+         * @type {number}
+         */
         this.errorCount = 0;
     }
 
@@ -92,7 +133,7 @@ module.exports = function RequestHandlerModule(pb) {
 
     /**
      * The internal storage of routes after they are validated and processed.
-     * @private
+     * @protected
      * @static
      * @property storage
      * @type {Array}
@@ -104,7 +145,7 @@ module.exports = function RequestHandlerModule(pb) {
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
     /**
      * The internal storage of static routes after they are validated and processed.
-     * @private
+     * @protected
      * @static
      * @property staticRoutes
      * @type {Object}
@@ -367,7 +408,7 @@ module.exports = function RequestHandlerModule(pb) {
 
             var localizedDescriptor = util.clone(descriptor);
             localizedDescriptor.path = pb.UrlService.urlJoin('/:locale', descriptor.path);
-            result &= _registerRoute(localizedDescriptor, theme, site, Controller);
+            result = result && _registerRoute(localizedDescriptor, theme, site, Controller);
         }
         return result;
     };
@@ -401,7 +442,7 @@ module.exports = function RequestHandlerModule(pb) {
             //exists so find it
             for (var i = 0; i < RequestHandler.storage.length; i++) {
                 var route = RequestHandler.storage[i];
-                if (route.pattern == pattern) {
+                if (route.pattern === pattern) {
                     routeDescriptor = route;
                     break;
                 }
@@ -448,7 +489,7 @@ module.exports = function RequestHandlerModule(pb) {
 
         //log the result
         if (isStatic) {
-            pb.log.debug('RequestHander: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
+            pb.log.debug('RequestHandler: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
         }
         else {
             pb.log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
@@ -464,7 +505,7 @@ module.exports = function RequestHandlerModule(pb) {
      * The path variables will be passed to the controllers.
      * @static
      * @method getRoutePattern
-     * @param {String} The URL path
+     * @param {String} path The URL path
      * @return {Object|null} An object containing three properties: The specified
      * "path". The generated regular expression "pattern" as a string. Lastly, a
      * hash of the path variables and their position in the path coorelating to its
@@ -476,10 +517,10 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //clean up path
-        if (path.indexOf('/') == 0) {
+        if (path.indexOf('/') === 0) {
             path = path.substring(1);
         }
-        if (path.lastIndexOf('/') == path.length - 1) {
+        if (path.lastIndexOf('/') === path.length - 1) {
             path = path.substring(0, path.length - 1);
         }
 
@@ -491,7 +532,7 @@ module.exports = function RequestHandlerModule(pb) {
         for (var i = 0; i < pathPieces.length; i++) {
             var piece = pathPieces[i];
 
-            if (piece.indexOf(':') == 0) {
+            if (piece.indexOf(':') === 0) {
                 var fieldName = piece.substring(1);
                 pathVars[fieldName] = i + 1;
                 pattern += '\/[^/]+';
@@ -555,8 +596,8 @@ module.exports = function RequestHandlerModule(pb) {
             }
             //set the session id when no session has started or the current one has
             //expired.
-            var sc = Object.keys(cookies).length == 0;
-            var se = !sc && cookies.session_id != session.uid;
+            var sc = Object.keys(cookies).length === 0;
+            var se = !sc && cookies.session_id !== session.uid;
             self.setSessionCookie =  sc || se;
             if (pb.log.isSilly()) {
                 pb.log.silly("RequestHandler: Session ID [%s] Cookie SID [%s] Created [%s] Expired [%s]", session.uid, cookies.session_id, sc, se);
@@ -599,7 +640,7 @@ module.exports = function RequestHandlerModule(pb) {
     /**
      * Serves up public content from an absolute file path
      * @method servePublicContent
-     * @param {String} absolutePath An absolute file path to the resource
+     * @param {String} [absolutePath] An absolute file path to the resource
      */
     RequestHandler.prototype.servePublicContent = function(absolutePath) {
 
@@ -635,8 +676,8 @@ module.exports = function RequestHandlerModule(pb) {
      * of the path.
      * @static
      * @method getMimeFromPath
-     * @param {resourcePath} The file path to a resource
-     * @return {String} The MIME type or NULL if could not be derived.
+     * @param {string} resourcePath The file path to a resource
+     * @return {String|undefined} The MIME type or NULL if could not be derived.
      */
     RequestHandler.getMimeFromPath = function(resourcePath) {
         var map = {
@@ -695,8 +736,6 @@ module.exports = function RequestHandlerModule(pb) {
 
     /**
      * Serves up an error page.  The page is responsible for displaying an error page
-     * TODO Church this up a bit.  Make it a template and controller like 404.
-     * TODO install an encoder entity since node prints out function names in angle brackets
      * @method serveError
      * @param {Error} err The failure that was generated by the executed controller
      * @return {Boolean} TRUE when the error is rendered, FALSE if the request had already been handled
@@ -706,7 +745,7 @@ module.exports = function RequestHandlerModule(pb) {
             return false;
         }
 
-        //bump the error count so handlers will no if we are recursively trying to handle errors.
+        //bump the error count so handlers will know if we are recursively trying to handle errors.
         this.errorCount++;
 
         //retrieve the active theme.  Sometimes we don't have it such as in the case of the 404.
@@ -790,16 +829,16 @@ module.exports = function RequestHandlerModule(pb) {
 
         //make sure we have a site
         if (!siteObj) {
-            var err = new Error("The host (" + hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
-            pb.log.error(err);
-            return this.serveError(err);
+            var error = new Error("The host (" + hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
+            pb.log.error(error);
+            return this.serveError(error);
         }
 
         this.site = this.siteObj.uid;
         this.siteName = this.siteObj.displayName;
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
-        if (route == null) {
+        if (route === null) {
             return this.serve404();
         }
         this.route = route;
@@ -943,7 +982,7 @@ module.exports = function RequestHandlerModule(pb) {
             }
         }
         return obj;
-    }
+    };
 
     /**
      *
@@ -980,9 +1019,9 @@ module.exports = function RequestHandlerModule(pb) {
         this.checkSecurity(rt.theme, rt.method, rt.site, function(err, result) {
             if (pb.log.isSilly()) {
                 pb.log.silly('RequestHandler: Security Result=[%s]', result.success);
-                for (var key in result.results) {
+                Object.keys(result.results).forEach(function(key) {
                     pb.log.silly('RequestHandler:%s: %s', key, JSON.stringify(result.results[key]));
-                }
+                });
             }
             //all good
             if (result.success) {
@@ -1041,9 +1080,9 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.prototype.getPathVariables = function(route) {
         var pathVars = {};
         var pathParts = this.url.pathname.split('/');
-        for (var field in route.path_vars) {
+        Object.keys(route.path_vars).forEach(function(field) {
             pathVars[field] = pathParts[route.path_vars[field]];
-        }
+        });
         return pathVars;
     };
 
@@ -1152,6 +1191,7 @@ module.exports = function RequestHandlerModule(pb) {
      *
      * @method onControllerInitialized
      * @param {BaseController} controller
+     * @param {object} themeRoute
      */
     RequestHandler.prototype.onControllerInitialized = function(controller, themeRoute) {
         var self = this;
@@ -1173,7 +1213,9 @@ module.exports = function RequestHandlerModule(pb) {
     /**
      *
      * @method onRenderComplete
-     * @param {Object} data
+     * @param {Error|object} data
+     * @param {string} [data.redirect]
+     * @param {Integer} [data.code
      */
     RequestHandler.prototype.onRenderComplete = function(data){
         if (util.isError(data)) {
@@ -1192,7 +1234,7 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //do any necessary redirects
-        var doRedirect = typeof data.redirect != "undefined";
+        var doRedirect = typeof data.redirect !== 'undefined';
         if(doRedirect) {
             this.doRedirect(data.redirect, data.statusCode);
         }
@@ -1206,7 +1248,7 @@ module.exports = function RequestHandlerModule(pb) {
             pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+
                     "ms URL=["+this.req.method+']'+
                     this.req.url+(doRedirect ? ' Redirect='+data.redirect : '') +
-                    (data.code == undefined ? '' : ' CODE='+data.code));
+                    (typeof data.code === 'undefined' ? '' : ' CODE='+data.code));
         }
 
         //close session after data sent
@@ -1214,7 +1256,7 @@ module.exports = function RequestHandlerModule(pb) {
         //check if the session exists first.
         if (this.session) {
             var self = this;
-            pb.session.close(this.session, function(err, result) {
+            pb.session.close(this.session, function(err/*, result*/) {
                 if (util.isError(err)) {
                     pb.log.warn('RequestHandler: Failed to close session [%s]', self.session.uid);
                 }
@@ -1228,6 +1270,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} data
      */
     RequestHandler.prototype.writeResponse = function(data){
+        var self = this;
 
         //infer a response code when not provided
         if(typeof data.code === 'undefined'){
@@ -1239,7 +1282,7 @@ module.exports = function RequestHandlerModule(pb) {
         if (typeof data.content_type !== 'undefined') {
             contentType = data.content_type;
         }
-        else if (this.themeRoute && this.themeRoute.content_type != undefined) {
+        else if (this.themeRoute && this.themeRoute.content_type !== undefined) {
             contentType = this.themeRoute.content_type;
         }
 
@@ -1249,9 +1292,9 @@ module.exports = function RequestHandlerModule(pb) {
         try {
             //set any custom headers
             if (util.isObject(data.headers)) {
-                for(var header in data.headers) {
-                    this.resp.setHeader(header, data.headers[header]);
-                }
+                Object.keys(data.headers).forEach(function(header) {
+                    self.resp.setHeader(header, data.headers[header]);
+                });
             }
             if (pb.config.server.x_powered_by) {
                 this.resp.setHeader('x-powered-by', pb.config.server.x_powered_by);
@@ -1284,12 +1327,9 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {String} The cookie represented as a string
      */
     RequestHandler.prototype.writeCookie = function(descriptor, cookieStr){
-        cookieStr = cookieStr ? cookieStr : '';
-
-        for(var key in descriptor) {
-            cookieStr += key + '=' + descriptor[key]+'; ';
-        }
-        return cookieStr;
+        return Object.keys(descriptor).reduce(function(cs, key) {
+            return cookieStr + key + '=' + descriptor[key]+'; ';
+        }, cookieStr || '');
     };
 
     /**
@@ -1307,7 +1347,7 @@ module.exports = function RequestHandlerModule(pb) {
         //verify if setup is needed
         var checkSystemSetup = function(callback) {
             var result = {success: true};
-            if (self.themeRoute.setup_required == undefined || self.themeRoute.setup_required == true) {
+            if (self.themeRoute.setup_required === undefined || self.themeRoute.setup_required === true) {
                 pb.settings.get('system_initialized', function(err, isSetup){
 
                     //verify system init
@@ -1328,9 +1368,9 @@ module.exports = function RequestHandlerModule(pb) {
         var checkRequiresAuth = function(callback) {
 
             var result = {success: true};
-            if (self.themeRoute.auth_required == true) {
+            if (self.themeRoute.auth_required === true) {
 
-                if (self.session.authentication.user_id == null || self.session.authentication.user_id == undefined) {
+                if (self.session.authentication.user_id === null || self.session.authentication.user_id === undefined) {
                     result.success  = false;
                     result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
                     self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href :
@@ -1412,6 +1452,7 @@ module.exports = function RequestHandlerModule(pb) {
      *
      * @method doRedirect
      * @param {String} location
+     * @param {Integer} [statusCode=302]
      */
     RequestHandler.prototype.doRedirect = function(location, statusCode) {
         this.resp.statusCode = statusCode || pb.HttpStatus.MOVED_TEMPORARILY;
@@ -1425,9 +1466,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Error} err
      */
     RequestHandler.prototype.onErrorOccurred = function(err){
-        var error = new PBError("Failed to open a session", 500);
-        error.setSource(err);
-        throw error;
+        throw err;
     };
 
     /**
@@ -1457,7 +1496,9 @@ module.exports = function RequestHandlerModule(pb) {
      * @static
      * @method urlExists
      * @param {String} url
-     * @param {
+     * @param {string} id
+     * @param {string} [site]
+     * @param {function} cb (Error, boolean)
      */
     RequestHandler.urlExists = function(url, id, site, cb) {
         var dao = new pb.DAO();
@@ -1484,8 +1525,8 @@ module.exports = function RequestHandlerModule(pb) {
                 });
             };
         };
-        async.series([getTask('article'), getTask('page')], function(err, results){
-            cb(err, err != null);
+        async.series([getTask('article'), getTask('page')], function(err/*, results*/){
+            cb(err, err !== null);
         });
     };
 
@@ -1496,15 +1537,15 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} url
      */
     RequestHandler.isAdminURL = function(url) {
-        if (url != null) {
+        if (url !== null) {
 
             var index = url.indexOf('/');
-            if (index == 0 && url.length > 0) {
+            if (index === 0 && url.length > 0) {
                 url = url.substring(1);
             }
 
             var pieces = url.split('/');
-            return pieces.length > 0 && pieces[0].indexOf('admin') == 0;
+            return pieces.length > 0 && pieces[0].indexOf('admin') === 0;
         }
         return false;
     };
@@ -1515,6 +1556,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @method isSystemSafeURL
      * @param {String} url
      * @param {String} id
+     * @param {string} [site]
      * @param {Function} cb
      */
     RequestHandler.isSystemSafeURL = function(url, id, site, cb) {
@@ -1522,7 +1564,7 @@ module.exports = function RequestHandlerModule(pb) {
             cb = site;
             site = undefined;
         }
-        if (url == null || RequestHandler.isAdminURL(url)) {
+        if (url === null || RequestHandler.isAdminURL(url)) {
             cb(null, false);
             return;
         }
