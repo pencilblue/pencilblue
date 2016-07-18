@@ -236,10 +236,10 @@ module.exports = function(pb) {
     /**
      * returns the value associated with a registered local key(flag)
      *
-     * @method registerLocal
+     * @method getRegisteredLocal
      * @param {string} flag The flag name to map to the value when encountered in a
      * template.
-     * @return {callbackFunctionOrValue} the callback or the value that was assigned
+     * @return {*} the callback or the value that was assigned
      * to that local if the flag exists.  If not, it will return null
      */
     TemplateService.prototype.getRegisteredLocal = function(flag) {

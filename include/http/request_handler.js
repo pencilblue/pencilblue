@@ -549,7 +549,9 @@ module.exports = function RequestHandlerModule(pb) {
             if (util.isError(err)) {
                 return self.serveError(err);
             }
-
+            if (!session) {
+                return self.serveError(new Error("The session object was not valid.  Unable to generate a session object based on request."));
+            }
             //set the session id when no session has started or the current one has
             //expired.
             var sc = Object.keys(cookies).length == 0;
