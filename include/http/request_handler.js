@@ -1097,10 +1097,10 @@ module.exports = function RequestHandlerModule(pb) {
                     });
                 });
             });
-        });
-        d.on('error', function(err) {
-            pb.log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
-            self.serveError(err);
+            d.on('error', function(err) {
+                pb.log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
+                self.serveError(err);
+            });
         });
     };
 
