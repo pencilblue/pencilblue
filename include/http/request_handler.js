@@ -1127,10 +1127,19 @@ module.exports = function RequestHandlerModule(pb) {
             if (util.isObject(context.initParams)) {
                 util.merge(context.initParams, props);
             }
-
-            //initialize the controller
-            context.cInstance.init(props, function(){
-                self.onControllerInitialized(context.cInstance, context.themeRoute);
+            var d = domain.create();
+            d.add(context.cInstance);
+            d.run(function () {
+                process.nextTick(function () {
+                    //initialize the controller
+                    context.cInstance.init(props, function () {
+                        self.onControllerInitialized(context.cInstance, context.themeRoute);
+                    });
+                });
+            });
+            d.on('error', function (err) {
+                pb.log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
+                self.serveError(err);
             });
         });
     };
@@ -1193,20 +1202,11 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {BaseController} controller
      * @param {object} themeRoute
      */
-    RequestHandler.prototype.onControllerInitialized = function(controller, themeRoute) {
+    RequestHandler.prototype.onControllerInitialized = function (controller, themeRoute) {
         var self = this;
-        var d = domain.create();
-        d.add(controller);
-        d.run(function() {
-            process.nextTick(function() {
-                controller[themeRoute.handler ? themeRoute.handler : 'render'](function(result){
-                    self.onRenderComplete(result);
-                });
-            });
-        });
-        d.on('error', function(err) {
-            pb.log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
-            self.serveError(err);
+
+        controller[themeRoute.handler ? themeRoute.handler : 'render'](function (result) {
+            self.onRenderComplete(result);
         });
     };
 
