@@ -55,8 +55,8 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
             return true;
           }
         }
-        for(var i = 0; i < inactive.length; i++) {
-          if(itemToTest._id === inactive[i]._id) {
+        for(var j = 0; j < inactive.length; j++) {
+          if(itemToTest._id === inactive[j]._id) {
             return true;
           }
         }
@@ -90,10 +90,12 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
 
     var saveObject = {type: $scope.objectType._id.toString()};
     for(var i = 0; i < $scope.objectType.fields.length; i++) {
-      if($scope.objectType.fields[i].field_type === 'date') {
+        var fieldType = $scope.objectType.fields[i].field_type;
+
+      if(fieldType === 'date') {
         saveObject[$scope.objectType.fields[i].name] = (new Date($filter('parsableDate')($scope.customObject[$scope.objectType.fields[i].name]))).getTime();
       }
-      else if($scope.objectType.fields[i].field_type === 'child_objects') {
+      else if(fieldType === 'child_objects') {
         var children = [];
         for(var j = 0; j < $scope.customObject[$scope.objectType.fields[i].name].length; j++) {
           children.push($scope.customObject[$scope.objectType.fields[i].name][j]._id.toString());
@@ -102,10 +104,15 @@ angular.module('pencilblueApp', ['wysiwygElement', 'ui.sortable', 'search', 'pag
       }
       else {
         saveObject[$scope.objectType.fields[i].name] = $scope.customObject[$scope.objectType.fields[i].name];
+
+        //this ensures that our validation will pass server-side.  See #1076
+        if (!saveObject[$scope.objectType.fields[i].name] && fieldType == 'peer_object') {
+          saveObject[$scope.objectType.fields[i].name] = null;
+        }
       }
     }
 
-    var postURL = '/actions/admin/content/objects/' + $scope.objectType._id
+    var postURL = '/actions/admin/content/objects/' + $scope.objectType._id;
     if($scope.customObject._id) {
       postURL += '/' + $scope.customObject._id;
     }

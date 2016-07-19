@@ -40,7 +40,9 @@
                         </div>
                         <div class="form-group" ng-if="field.field_type == 'peer_object'">
                             <label ng-bind="field.name"></label>
-                            <select class="form-control" ng-model="customObject[field.name]" ng-options="availableObject._id as availableObject.name for availableObject in field.available_objects"></select>
+                            <select class="form-control" ng-model="customObject[field.name]" ng-options="availableObject._id as availableObject.name for availableObject in field.available_objects">
+                                <option value=""></option>
+                            </select>
                         </div>
                         <div id="{{field.name}}" class="form-group" ng-if="field.field_type == 'child_objects'">
                             <label ng-bind="field.name"></label>

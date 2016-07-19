@@ -194,7 +194,7 @@ module.exports = function(pb) {
                 }
 
                 //TODO: This is REALLY bad for large systems.  This needs to move
-                //to an API call (searchable and pagable)
+                //to an API call (searchable and pageable)
                 var query = {
                     where: pb.DAO.ANYWHERE,
                     select: {
