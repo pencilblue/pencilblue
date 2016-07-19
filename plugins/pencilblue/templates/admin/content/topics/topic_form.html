@@ -8,13 +8,13 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="topic_settings">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(topicForm.name)}">
-                        <label>^loc_TOPIC_NAME^</label>
+                        <label>^loc_topics.TOPIC_NAME^</label>
                         <input type="text" name="name" class="form-control" ng-model="topic.name" required/>
-                        <div class="form_error" ng-if="!isFieldValid(topicForm.name)">^loc_REQUIRED_FIELD^</div>
+                        <div class="form_error" ng-if="!isFieldValid(topicForm.name)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/content/topics">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 ^tmp_admin=elements=save_button^
             </div>

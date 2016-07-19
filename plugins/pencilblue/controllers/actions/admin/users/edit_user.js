@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -35,22 +36,15 @@ module.exports = function(pb) {
      * Initializes the controller
      * @method init
      * @param {Object} context
-     * @param {Function} cb
      */
-    EditUser.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err) {
+    EditUser.prototype.initSync = function(context) {
 
-            /**
-             *
-             * @property service
-             * @type {UserService}
-             */
-            self.service = new UserService(self.getServiceContext());
-
-            cb(err, true);
-        };
-        EditUser.super_.prototype.init.apply(this, [context, init]);
+        /**
+         *
+         * @property service
+         * @type {UserService}
+         */
+        this.service = new UserService(this.getServiceContext());
     };
 
     /**
@@ -66,7 +60,7 @@ module.exports = function(pb) {
         if(!pb.security.isAuthorized(self.session, {admin_level: post.admin})) {
             return cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INSUFFICIENT_CREDENTIALS'))
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INSUFFICIENT_CREDENTIALS'))
             });
         }
 
@@ -96,4 +90,4 @@ module.exports = function(pb) {
 
     //exports
     return EditUser;
-}
+};

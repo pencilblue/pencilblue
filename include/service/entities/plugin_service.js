@@ -1010,7 +1010,8 @@ module.exports = function PluginServiceModule(pb) {
      * @method installPlugin
      * @param {string} pluginDirName The name of the directory that contains the
      * plugin and its details.json file.
-     * @param {function} cb A callback that provides two parameters: cb(err, TRUE/FALSE)
+     * @param {function} [cb] A callback that provides two parameters: cb(err, TRUE/FALSE)
+     * @return {String} The job ID
      */
     PluginService.prototype.installPlugin = function(pluginDirName, cb) {
 

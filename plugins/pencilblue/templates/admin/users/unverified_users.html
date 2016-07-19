@@ -22,14 +22,14 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
-                    ^loc_CONFIRM_VERIFY^ <span style="font-style: italic" ng-bind="objectToVerify[deleteNameKey]"></span>?
+                    ^loc_users.CONFIRM_VERIFY^ <span style="font-style: italic" ng-bind="objectToVerify[deleteNameKey]"></span>?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="verifying">
-                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                        <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                     </button>
                     <button type="button" class="btn btn-success" ng-click="verifyObject()" ng-disabled="verifying">
-                        <i class="fa fa-check-circle"></i>&nbsp;^loc_VERIFY^&nbsp;<i class="fa fa-spinner fa-spin" ng-if="verifying"></i>
+                        <i class="fa fa-check-circle"></i>&nbsp;^loc_users.VERIFY^&nbsp;<i class="fa fa-spinner fa-spin" ng-if="verifying"></i>
                     </button>
                 </div>
             </div>

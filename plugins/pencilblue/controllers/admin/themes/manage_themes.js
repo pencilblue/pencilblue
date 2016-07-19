@@ -14,6 +14,7 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -37,7 +38,7 @@ module.exports = function(pb) {
         var pluginService = new pb.PluginService({site: self.site});
         pluginService.getPluginsWithThemesBySite(function (err, themes) {
             if (util.isError(err)) {
-                throw result;
+                throw err;
             }
 
             //get active theme
@@ -96,12 +97,12 @@ module.exports = function(pb) {
             active: 'active',
             href: '#themes',
             icon: 'magic',
-            title: this.ls.get('THEMES')
+            title: this.ls.g('admin.THEMES')
         },
         {
             href: '#site_logo',
             icon: 'picture-o',
-            title: this.ls.get('SITE_LOGO')
+            title: this.ls.g('admin.SITE_LOGO')
         }];
     };
 
@@ -109,7 +110,7 @@ module.exports = function(pb) {
         return [
             {
                 name: 'manage_themes',
-                title: ls.get('MANAGE_THEMES'),
+                title: ls.g('themes.MANAGE_THEMES'),
                 icon: 'refresh',
                 href: '/admin/themes'
             }

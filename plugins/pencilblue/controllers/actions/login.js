@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function LoginActionControllerModule(pb) {
 
@@ -64,7 +65,7 @@ module.exports = function LoginActionControllerModule(pb) {
     };
 
     LoginActionController.prototype.loginError = function(adminAttempt, cb) {
-        this.session.error = this.ls.get('INVALID_LOGIN');
+        this.session.error = this.ls.g('login.INVALID_LOGIN');
         if(adminAttempt){
             this.redirect('/admin/login', cb);
             return;

@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -38,7 +39,7 @@ module.exports = function(pb) {
                 active: 'active',
                 href: '#topic_settings',
                 icon: 'file-text-o',
-                title: self.ls.get('LOAD_FILE')
+                title: self.ls.g('generic.LOAD_FILE')
             }
         ];
 
@@ -49,7 +50,7 @@ module.exports = function(pb) {
             tabs: tabs
         });
 
-        this.setPageName(this.ls.get('IMPORT_TOPICS'));
+        this.setPageName(this.ls.g('topics.IMPORT_TOPICS'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
         this.ts.load('admin/content/topics/import_topics', function(err, result) {
             cb({content: result});
@@ -59,7 +60,7 @@ module.exports = function(pb) {
     ImportTopics.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_topics',
-            title: ls.get('IMPORT_TOPICS'),
+            title: ls.g('topics.IMPORT_TOPICS'),
             icon: 'chevron-left',
             href: '/admin/content/topics'
         }, {
