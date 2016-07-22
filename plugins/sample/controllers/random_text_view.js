@@ -209,11 +209,14 @@ module.exports = function RandomTextViewControllerModule(pb) {
             //to generate the rendered view the template service can be called.
             //The path specified to the template service is relative to the
             //templates directory of the plugin or active theme.  The .html
-            //extension is implied and does not have to be specified. For
-            //convience the "path" module has been made global by the PB core.
+            //extension is implied and does not have to be specified.
             //While it appears that paths with forward '/' characters are
             //interpreted correctly on windows systems it is better to be safe an
-            //use the "path" module to path parts correctly.
+            //use the "path" module to join the parts correctly.  In this case we have overriden the "head.html"
+            // template inside of templates/sample/index.html.  We want the template service to prioritize the "sample"
+            // plugin's templates over the others so we explicitly tell the service that if you find a template
+            // reference try the sample plugin first, then fall back to the others
+            self.ts.setTheme('sample');
             self.ts.load(path.join('sample', 'index'), function(err, template) {
                 if (util.isError(err)) {
 
