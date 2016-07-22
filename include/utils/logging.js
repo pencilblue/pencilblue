@@ -62,7 +62,7 @@ module.exports = function LogFactory(config){
      * @return {Boolean}
      */
 	logger.isDebug = function(){
-		return logger.levels[logger.level] <= 1;
+		return logger.levels[logger.level] >= logger.levels.debug;
 	};
 
     /**
@@ -71,7 +71,7 @@ module.exports = function LogFactory(config){
      * @return {Boolean}
      */
 	logger.isSilly = function(){
-		return logger.levels[logger.level] <= 0;
+		return logger.levels[logger.level] >= logger.levels.silly;
 	};
 
     //return the conifgured logger instance

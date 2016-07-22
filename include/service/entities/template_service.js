@@ -505,7 +505,7 @@ module.exports = function(pb) {
             else if ((tmp = GLOBAL_CALLBACKS[flag]) !== undefined) {//global callbacks
                 return self.handleReplacement(flag, tmp, cb);
             }
-            else if (flag.indexOf(LOCALIZATION_PREFIX) == 0 && self.localizationService) {//localization
+            else if (flag.indexOf(LOCALIZATION_PREFIX) === 0 && self.localizationService) {//localization
 
                 //TODO how do we express params?  Other template vars?
                 var key = flag.substring(LOCALIZATION_PREFIX_LEN);
@@ -518,12 +518,12 @@ module.exports = function(pb) {
                 var val = self.localizationService.g(key, opts);
                 if (!util.isString(val)) {
 
-                    //TODO this is here to be backwards compatible. Remove in 0.6.0
+                    //TODO this is here to be backwards compatible. Remove in 1.0
                     val = self.localizationService.get(key);
                 }
                 return cb(null, val);
             }
-            else if (flag.indexOf(TEMPLATE_PREFIX) == 0) {//sub-templates
+            else if (flag.indexOf(TEMPLATE_PREFIX) === 0) {//sub-templates
                 self.handleTemplateReplacement(flag, function(err, template) {
                     cb(null, template);
                 });
