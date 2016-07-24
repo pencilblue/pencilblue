@@ -358,8 +358,8 @@ module.exports = function(pb) {
             var result = results === null;
             if (!result) {
 
-                Object.keys(results).reduce(function(actual, key) {
-                    return result || (results[key] > 0);
+                result = Object.keys(results).reduce(function (actual, key) {
+                    return actual || (results[key] > 0);
                 }, result);
             }
             cb(err, result);

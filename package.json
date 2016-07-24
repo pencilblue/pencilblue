@@ -33,7 +33,7 @@
         "http-status-codes": "^1.0.6",
         "locale": "0.0.21",
         "lodash": "4.7.0",
-        "mongodb": "2.1.14",
+        "mongodb": "2.1.21",
         "node-uuid": "1.4.7",
         "node.extend": "1.1.5",
         "nodemailer": "0.7.1",
