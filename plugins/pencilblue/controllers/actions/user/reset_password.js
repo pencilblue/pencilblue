@@ -79,7 +79,7 @@ module.exports = function (pb) {
                 if (!data.user) {
                     self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
                 }
-                self.passwordResetService.getSingle({where: {userId: data.user.id, verificationCode: self.query.code}}, callback);
+                self.passwordResetService.getSingle({where: {userId: data.user.id + '', verificationCode: self.query.code}}, callback);
             }],
             deletePasswordReset: ['user', 'passwordReset', function(callback, data) {
 
