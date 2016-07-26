@@ -342,8 +342,8 @@ module.exports = function DAOModule(pb) {
 
             //log the result
             if(pb.config.db.query_logging){
-                var query = "DAO: %s %j FROM %s.%s WHERE %j";
-                var args = [options.count ? 'COUNT' : 'SELECT', select, self.dbName, entityType, where];
+                var query = "DAO: %s %j FROM %s.%s WHERE %s";
+                var args = [options.count ? 'COUNT' : 'SELECT', select, self.dbName, entityType, util.inspect(where, {breakLength: Infinity})];
                 if (typeof orderBy !== 'undefined') {
                     query += " ORDER BY %j";
                     args.push(orderBy);
