@@ -14,9 +14,10 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
-var npm = require('npm');
+var bower = require('bower');
 var semver = require('semver');
 var async = require('async');
 var path = require('path');
@@ -30,21 +31,22 @@ module.exports = function (pb) {
     var PluginDependencyService = pb.PluginDependencyService;
 
     /**
-     * @class NpmPluginDependencyService
+     * Provides methods to ensure that bower dependencies are available to plugins
+     * @class BowerPluginDependencyService
      * @constructor
      * @extends PluginDependencyService
      */
-    function NpmPluginDependencyService(){}
-    util.inherits(NpmPluginDependencyService, PluginDependencyService);
+    function BowerPluginDependencyService(){}
+    util.inherits(BowerPluginDependencyService, PluginDependencyService);
 
     /**
      * Responsible for describing the type of dependency represented.  This helps with identifying lock keys and
      * instance types.
      * @method getType
-     * @return {string} 'npm'
+     * @return {string} 'bower'
      */
-    NpmPluginDependencyService.prototype.getType = function() {
-        return 'npm';
+    BowerPluginDependencyService.prototype.getType = function() {
+        return 'bower';
     };
 
     /**
@@ -52,12 +54,12 @@ module.exports = function (pb) {
      * @method hasDependencies
      * @param {Object} plugin
      * @param {string} plugin.uid
-     * @param {object} plugin.dependencies
+     * @param {object} plugin.bowerDependencies
      * @param {object} options
      * @param {Function} cb (Error, Boolean)
      */
-    NpmPluginDependencyService.prototype.hasDependencies = function(plugin, options, cb) {
-        if (!util.isObject(plugin.dependencies) || plugin.dependencies === {}) {
+    BowerPluginDependencyService.prototype.hasDependencies = function(plugin, options, cb) {
+        if (!util.isObject(plugin.bowerDependencies) || plugin.bowerDependencies === {}) {
             //no dependencies were declared so we're good
             return cb(null, true);
         }
@@ -65,17 +67,17 @@ module.exports = function (pb) {
         var context = {
             pluginUid: plugin.uid
         };
-        this.areSatisfied(plugin.dependencies, context, PluginDependencyService.getResultReducer(plugin.uid, cb));
+        this.areSatisfied(plugin.bowerDependencies, context, PluginDependencyService.getResultReducer(plugin.uid, cb));
     };
 
     /**
-     * Inspects each NPM dependency to see if it is already installed for the plugin or the platform.
+     * Inspects each Bower dependency to see if it is already installed for the plugin or the platform.
      * @param {object} dependencies Key value pairs of moduleName => versionExpression
      * @param {object} context
-     * @param {string} pluginUid
+     * @param {string} context.pluginUid
      * @param cb (Error, Array({{success: boolean, validationFailures: Array}}))
      */
-    NpmPluginDependencyService.prototype.areSatisfied = function(dependencies, context, cb) {
+    BowerPluginDependencyService.prototype.areSatisfied = function(dependencies, context, cb) {
         var self = this;
         var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
 
@@ -100,12 +102,12 @@ module.exports = function (pb) {
      * @param {string} context.pluginUid
      * @param {function} cb (Error, {{success: boolean, validationFailures: Array}})
      */
-    NpmPluginDependencyService.prototype.isSatisfied = function(context, cb) {
+    BowerPluginDependencyService.prototype.isSatisfied = function(context, cb) {
 
         //get the paths necessary
         var possiblePaths = [
-            NpmPluginDependencyService.getPluginPathToPackageJson(context.pluginUid, context.moduleName),
-            NpmPluginDependencyService.getRootPathToPackageJson(context.moduleName)
+            BowerPluginDependencyService.getPluginPathToBowerJson(context.pluginUid, context.moduleName),
+            BowerPluginDependencyService.getRootPathToBowerJson(context.moduleName)
         ];
 
         //iterate over possible locations for the module
@@ -114,14 +116,14 @@ module.exports = function (pb) {
 
             //ensure that the version expression specified by the
             //dependency is satisfied by that provided by the package.json
-            var packageJson = null;
+            var jsonObj = null;
             try {
-                packageJson = require(possiblePaths[j]);
+                jsonObj = require(possiblePaths[j]);
             }
             catch (e) {
                 continue;
             }
-            if ( (dependencyFound = semver.satisfies(packageJson.version, context.versionExpression)) ) {
+            if ( (dependencyFound = semver.satisfies(jsonObj.version, context.versionExpression)) ) {
                 break;
             }
         }
@@ -130,7 +132,7 @@ module.exports = function (pb) {
         var validationErrors = [];
         if (!dependencyFound) {
             validationErrors.push(BaseObjectService.validationFailure(context.moduleName,
-                'Failed to find an existing module to satisfy dependency '+context.moduleName+':'+context.versionExpression));
+                'Failed to find an existing bower module to satisfy dependency '+context.moduleName+':'+context.versionExpression));
         }
 
         //build validation errors
@@ -141,39 +143,37 @@ module.exports = function (pb) {
     };
 
     /**
-     * Responsible for ensuring that all dependencies for a plugin are installed by iterating over the "dependencies"
+     * Responsible for ensuring that all dependencies for a plugin are installed by iterating over the "bowerDependencies"
      * property of the plugin.  Each iteration calls the "install" function
      * @private
      * @method _installAll
      * @param {object} plugin
      * @param {string} plugin.uid The plugin identifier
+     * @param {object} plugin.bowerDependencies
      * @param {object} options
      * @param {function} cb (Error, Boolean)
      */
-    NpmPluginDependencyService.prototype._installAll = function(plugin, options, cb) {
+    BowerPluginDependencyService.prototype._installAll = function(plugin, options, cb) {
         var self = this;
 
-        //configure NPM for the plugin
-        NpmPluginDependencyService.configure(plugin.uid, {}, function(err, configuration) {
+        //configure Bower for the plugin
+        BowerPluginDependencyService.configure(plugin.uid, {}, function(err, configuration) {
             if (util.isError(err)) {
                 return cb(err);
             }
 
             //build out the tasks
-            var tasks = util.getTasks(Object.keys(plugin.dependencies), function(keys, i) {
+            var tasks = util.getTasks(Object.keys(plugin.bowerDependencies), function(keys, i) {
 
                 var context = {
                     pluginUid: plugin.uid,
                     moduleName: keys[i],
-                    versionExpression: plugin.dependencies[keys[i]],
+                    versionExpression: plugin.bowerDependencies[keys[i]],
                     configuration: configuration
                 };
                 return util.wrapTask(self, self.install, [context]);
             });
-            async.series(tasks, function(err, results) {
-                npm.removeListener('log', configuration.logListener);
-                cb(err, results);
-            });
+            async.series(tasks, cb);
         });
     };
 
@@ -187,9 +187,9 @@ module.exports = function (pb) {
      * @param {string} context.versionExpression
      * @param {function} cb
      */
-    NpmPluginDependencyService.prototype._install = function(context, cb) {//setting to skip config
-        var isConfigured = !!context.configuration;
-        NpmPluginDependencyService.configure(context.pluginUid, context, function(err, configuration) {
+    BowerPluginDependencyService.prototype._install = function(context, cb) {//setting to skip config
+        var isConfigured = !!context.configuration;//TODO start here by looking at actual install command.
+        BowerPluginDependencyService.configure(context.pluginUid, context, function(err, configuration) {
 
             var command = [ context.moduleName+'@'+context.versionExpression ];
             npm.commands.install(command, function(err, result) {
@@ -205,28 +205,28 @@ module.exports = function (pb) {
     /**
      * Generates the path to an NPM module for the specified plugin
      * @static
-     * @method getPluginPathToPackageJson
+     * @method getPluginPathToBowerJson
      * @param {string} pluginUid
-     * @param {string} npmPackageName
+     * @param {string} bowerPackageName
      * @return {string} An absolute path
      */
-    NpmPluginDependencyService.getPluginPathToPackageJson = function(pluginUid, npmPackageName) {
-        return path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', npmPackageName, 'package.json');
+    BowerPluginDependencyService.getPluginPathToBowerJson = function(pluginUid, bowerPackageName) {
+        return path.join(PluginService.getPluginsDir(), pluginUid, 'public', 'bower_components', bowerPackageName, '.bower.json');
     };
 
     /**
      * Generates the path to an NPM module for the platform
      * @static
-     * @method getPluginPathToPackageJson
-     * @param {string} npmPackageName
+     * @method getRootPathToBowerJson
+     * @param {string} bowerPackageName
      * @return {string} An absolute path
      */
-    NpmPluginDependencyService.getRootPathToPackageJson = function(npmPackageName) {
-        return path.join(pb.config.docRoot, 'node_modules', npmPackageName, 'package.json');
+    BowerPluginDependencyService.getRootPathToBowerJson = function(bowerPackageName) {
+        return path.join(pb.config.docRoot, 'public', 'bower_components', bowerPackageName, '.bower.json');
     };
 
     /**
-     * Configures NPM to emit log statements as well as set the installation directory for the plugin.
+     * Configures Bower to emit log statements as well as set the installation directory for the plugin.
      * @static
      * @method configure
      * @param {string} pluginUid
@@ -234,21 +234,21 @@ module.exports = function (pb) {
      * @param {object} [options.configuration]
      * @param {function} cb (Error, Object)
      */
-    NpmPluginDependencyService.configure = function(pluginUid, options, cb) {
+    BowerPluginDependencyService.configure = function(pluginUid, options, cb) {
         if (options.configuration) {
             return cb(null, options.configuration);
         }
-        //ensure the node_modules directory exists
-        var prefixPath = path.join(PluginService.getPluginsDir(), pluginUid);
 
-        //log and load
-        var config = {
-            prefix: prefixPath
+        var bowerRc = {
+            directory: path.join(PluginService.getPluginsDir(), pluginUid, 'public', 'bower_components'),
+            ignoredDependencies: []
         };
-        npm.load(config, function(err) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
+        bower.commands.list().on('end', function(list) {
+
+            //add pencilblue bower dependencies to ignored dependency list, because we do not want to have them installed in the plugins bower_components folder
+            util.forEach(list.pkgMeta.dependencies, function (packageVersion, packageName) {
+                bowerRc.ignoredDependencies.push(packageName);
+            });
 
             //prepare a context object
             var statements = [];
@@ -256,18 +256,13 @@ module.exports = function (pb) {
                 logOutput: statements,
                 logListener: function(message) {
                     statements.push(message);
-                }
+                },
+                bowerRc: bowerRc
             };
 
-            //we set the prefix manually here.  See:
-            //https://github.com/pencilblue/pencilblue/issues/214
-            //this is a hack to keep it working until the npm team can decouple the
-            //npmconf module from npm and create a scenario where it can be reloaded.
-            npm.on('log', context.logListener);
-            npm.config.prefix = prefixPath;
-
-            cb(err, context);
-        });
+            cb(null, context);
+        })
+        .once('error', cb);
     };
 
     /**
@@ -278,7 +273,7 @@ module.exports = function (pb) {
      * @param {string} versionExpression
      * @returns {Function}
      */
-    NpmPluginDependencyService.getInstallTask = function(moduleName, versionExpression) {
+    BowerPluginDependencyService.getInstallTask = function(moduleName, versionExpression) {
         return function(callback) {
 
             var command = [ moduleName+'@'+versionExpression ];
@@ -296,18 +291,18 @@ module.exports = function (pb) {
      * @param {String} moduleName The name of the NPM module to load
      * @return {*} The entity returned by the "require" call.
      */
-    NpmPluginDependencyService.require = function(pluginUid, moduleName) {
+    BowerPluginDependencyService.require = function(pluginUid, moduleName) {
         var modulePath = null;
         try {
             modulePath = path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', moduleName);
             return require(modulePath);
         }
         catch(e) {
-            pb.log.debug('NpmPluginDependencyService:%s Failed to find module %s at path %s.  Attempting to retrieve from PB context: %s',
+            pb.log.debug('BowerPluginDependencyService:%s Failed to find module %s at path %s.  Attempting to retrieve from PB context: %s',
                 pluginUid, moduleName, modulePath, e.stack);
         }
         return require(moduleName);
     };
 
-    return NpmPluginDependencyService;
+    return BowerPluginDependencyService;
 };
