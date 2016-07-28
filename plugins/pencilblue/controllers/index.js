@@ -39,7 +39,7 @@ module.exports = function IndexModule(pb) {
     util.inherits(Index, pb.BaseController);
 
     Index.prototype.initSync = function (/*context*/) {
-        this.siteQueryService = new pb.SiteQueryService({site: self.site, onlyThisSite: true});
+        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
         this.commentService = new CommentService(this.getServiceContext());
     };
 
@@ -237,7 +237,7 @@ module.exports = function IndexModule(pb) {
 
         var service = new ArticleService(this.site, true);
         if(this.req.pencilblue_preview) {
-            if(this.req.pencilblue_preview == page || article) {
+            if(this.req.pencilblue_preview === page || article) {
                 if(page) {
                     service.setContentType('page');
                 }
@@ -336,7 +336,7 @@ module.exports = function IndexModule(pb) {
         ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
         ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
         ts.registerLocal('individual_comments', function(flag, cb) {
-            if (!util.isArray(content.comments) || content.comments.length == 0) {
+            if (!util.isArray(content.comments) || content.comments.length === 0) {
                 cb(null, '');
                 return;
             }
