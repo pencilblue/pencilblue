@@ -50,6 +50,7 @@ module.exports = function(pb) {
      * @method
      */
     GetMediaEmbedApiController.prototype.render = function(cb) {
+        var self = this;
         var get = this.query;
 
         //validation
@@ -83,7 +84,7 @@ module.exports = function(pb) {
             else if (!html) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, this.ls.get('UNSUPPORTED_MEDIA'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('UNSUPPORTED_MEDIA'))
                 });
             }
 
