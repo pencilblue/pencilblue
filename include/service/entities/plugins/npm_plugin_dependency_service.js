@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
 var npm = require('npm');
@@ -203,7 +204,7 @@ module.exports = function (pb) {
     };
 
     /**
-     * Generates the path to an NPM module for the specified plugin
+     * Generates the path to a NPM module for the specified plugin
      * @static
      * @method getPluginPathToPackageJson
      * @param {string} pluginUid
@@ -215,7 +216,7 @@ module.exports = function (pb) {
     };
 
     /**
-     * Generates the path to an NPM module for the platform
+     * Generates the path to a NPM module for the platform
      * @static
      * @method getPluginPathToPackageJson
      * @param {string} npmPackageName
@@ -268,22 +269,6 @@ module.exports = function (pb) {
 
             cb(err, context);
         });
-    };
-
-    /**
-     * Creates a function that will build an NPM install command and execute it.
-     * @static
-     * @method getInstallTask
-     * @param {string} moduleName
-     * @param {string} versionExpression
-     * @returns {Function}
-     */
-    NpmPluginDependencyService.getInstallTask = function(moduleName, versionExpression) {
-        return function(callback) {
-
-            var command = [ moduleName+'@'+versionExpression ];
-            npm.commands.install(command, callback);
-        };
     };
 
     /**

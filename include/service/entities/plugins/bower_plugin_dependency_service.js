@@ -50,7 +50,7 @@ module.exports = function (pb) {
     };
 
     /**
-     * Verifies that a plugin has all of the required dependencies installed from NPM
+     * Verifies that a plugin has all of the required dependencies installed from Bower
      * @method hasDependencies
      * @param {Object} plugin
      * @param {string} plugin.uid
@@ -178,7 +178,7 @@ module.exports = function (pb) {
     };
 
     /**
-     * Installs the dependency by calling NPM.
+     * Installs the dependency by calling Bower.
      * @private
      * @method _install
      * @param {object} context
@@ -188,22 +188,23 @@ module.exports = function (pb) {
      * @param {function} cb
      */
     BowerPluginDependencyService.prototype._install = function(context, cb) {//setting to skip config
-        var isConfigured = !!context.configuration;//TODO start here by looking at actual install command.
+        var isConfigured = !!context.configuration;
         BowerPluginDependencyService.configure(context.pluginUid, context, function(err, configuration) {
 
-            var command = [ context.moduleName+'@'+context.versionExpression ];
-            npm.commands.install(command, function(err, result) {
+            var command = [ context.moduleName+'#'+context.versionExpression ];
+            bower.commands.install(command, {save: false}, configuration.bowerRc)
+            .once('end', function(result) {
                 if (!isConfigured) {
-                    npm.removeListener('log', configuration.logListener);
+                    bower.removeListener('log', configuration.logListener);
                 }
-
-                cb(err, {result: result, logOutput: configuration.logOutput});
-            });
+                cb(null, {result: result, logOutput: configuration.logOutput});
+            })
+            .once('error', cb);
         });
     };
 
     /**
-     * Generates the path to an NPM module for the specified plugin
+     * Generates the path to a Bower module for the specified plugin
      * @static
      * @method getPluginPathToBowerJson
      * @param {string} pluginUid
@@ -215,7 +216,7 @@ module.exports = function (pb) {
     };
 
     /**
-     * Generates the path to an NPM module for the platform
+     * Generates the path to a Bower module for the platform
      * @static
      * @method getRootPathToBowerJson
      * @param {string} bowerPackageName
@@ -232,7 +233,7 @@ module.exports = function (pb) {
      * @param {string} pluginUid
      * @param {object} options
      * @param {object} [options.configuration]
-     * @param {function} cb (Error, Object)
+     * @param {function} cb (Error, {logOutput: Array, logListener: function, bowerRc: object})
      */
     BowerPluginDependencyService.configure = function(pluginUid, options, cb) {
         if (options.configuration) {
@@ -260,25 +261,10 @@ module.exports = function (pb) {
                 bowerRc: bowerRc
             };
 
+            bower.on('log', context.logListener);
             cb(null, context);
         })
         .once('error', cb);
-    };
-
-    /**
-     * Creates a function that will build an NPM install command and execute it.
-     * @static
-     * @method getInstallTask
-     * @param {string} moduleName
-     * @param {string} versionExpression
-     * @returns {Function}
-     */
-    BowerPluginDependencyService.getInstallTask = function(moduleName, versionExpression) {
-        return function(callback) {
-
-            var command = [ moduleName+'@'+versionExpression ];
-            npm.commands.install(command, callback);
-        };
     };
 
     /**
@@ -288,7 +274,7 @@ module.exports = function (pb) {
      * @static
      * @method require
      * @param {String} pluginUid The plugin identifier
-     * @param {String} moduleName The name of the NPM module to load
+     * @param {String} moduleName The name of the Bower module to load
      * @return {*} The entity returned by the "require" call.
      */
     BowerPluginDependencyService.require = function(pluginUid, moduleName) {
