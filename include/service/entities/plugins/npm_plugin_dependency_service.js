@@ -70,27 +70,6 @@ module.exports = function (pb) {
     };
 
     /**
-     * Inspects each NPM dependency to see if it is already installed for the plugin or the platform.
-     * @param {object} dependencies Key value pairs of moduleName => versionExpression
-     * @param {object} context
-     * @param {string} pluginUid
-     * @param cb (Error, Array({{success: boolean, validationFailures: Array}}))
-     */
-    NpmPluginDependencyService.prototype.areSatisfied = function(dependencies, context, cb) {
-        var self = this;
-        var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
-
-            var ctx = {
-                pluginUid: context.pluginUid,
-                moduleName: keys[i],
-                versionExpression: dependencies[keys[i]]
-            };
-            return util.wrapTask(self, self.isSatisfied, [ctx]);
-        });
-        async.series(tasks, cb);
-    };
-
-    /**
      * Checks to see if the module exists and its package definition is available.  It will first check the root level
      * (installation directory's node_modules folder) then inspect the node_modules directory for the plugin.  In
      * addition to existence one of the paths must satisfy the version expression provided for the dependency

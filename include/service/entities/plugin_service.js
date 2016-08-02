@@ -1165,7 +1165,7 @@ module.exports = function PluginServiceModule(pb) {
                 });
             },
 
-            //verify that dependencies are available
+            //verify that NPM dependencies are available
             function(callback) {
                 if (!util.isObject(details.dependencies) || details.dependencies === {}) {
                     //no dependencies were declared so we're good
@@ -1173,17 +1173,41 @@ module.exports = function PluginServiceModule(pb) {
                 }
 
                 //iterate over dependencies to ensure that they exist
-                self.hasDependencies(plugin, function (err, hasDependencies) {
+                var npmService = new pb.NpmPluginDependencyService();
+                npmService.hasDependencies(plugin, {}, function (err, hasDependencies) {
                     if (util.isError(err) || hasDependencies) {
                         if (hasDependencies) {
-                            pb.log.silly('PluginService: Dependency check passed for plugin %s', plugin.name);
+                            pb.log.silly('PluginService: NPM Dependency check passed for plugin %s', plugin.name);
                         }
                         return callback(err, true);
                     }
 
                     //dependencies are missing, go install them
-                    pb.log.silly('PluginService: Dependency check failed for plugin %s', plugin.name);
-                    self.installPluginDependencies(plugin.dirName, details.dependencies, plugin, function (err/*, results*/) {
+                    pb.log.silly('PluginService: NPM Dependency check failed for plugin %s', plugin.name);
+                    npmService.installAll(plugin, {}, function(err/*, results*/) {
+                        callback(err, !util.isError(err));
+                    });
+                });
+            },
+
+            //verify that the Bower dependencies are available
+            function(callback) {console.log('here');
+                if(!util.isObject(details.bowerDependencies) || details.bowerDependencies === {}) {
+                    //no bower dependencies declared so we're good
+                    return callback(null, true);
+                }
+
+                var bowerService = new pb.BowerPluginDependencyService();
+                bowerService.hasDependencies(plugin, {}, function(err, hasDependencies) {
+                    if(util.isError(err) || hasDependencies) {
+                        if(hasDependencies) {
+                            pb.log.silly('PluginService: Bower dependency check passed for plugin %s', plugin.name);
+                        }
+                        return callback(err, true);
+                    }
+
+                    pb.log.silly('PluginService: Bower dependency check failed for plugin %s', plugin.name);
+                    bowerService.installAll(plugin, {}, function(err/*, results*/) {
                         callback(err, !util.isError(err));
                     });
                 });

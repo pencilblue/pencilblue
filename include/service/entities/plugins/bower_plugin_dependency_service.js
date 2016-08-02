@@ -71,27 +71,6 @@ module.exports = function (pb) {
     };
 
     /**
-     * Inspects each Bower dependency to see if it is already installed for the plugin or the platform.
-     * @param {object} dependencies Key value pairs of moduleName => versionExpression
-     * @param {object} context
-     * @param {string} context.pluginUid
-     * @param cb (Error, Array({{success: boolean, validationFailures: Array}}))
-     */
-    BowerPluginDependencyService.prototype.areSatisfied = function(dependencies, context, cb) {
-        var self = this;
-        var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
-
-            var ctx = {
-                pluginUid: context.pluginUid,
-                moduleName: keys[i],
-                versionExpression: dependencies[keys[i]]
-            };
-            return util.wrapTask(self, self.isSatisfied, [ctx]);
-        });
-        async.series(tasks, cb);
-    };
-
-    /**
      * Checks to see if the module exists and its package definition is available.  It will first check the root level
      * (installation directory's node_modules folder) then inspect the node_modules directory for the plugin.  In
      * addition to existence one of the paths must satisfy the version expression provided for the dependency
@@ -188,15 +167,12 @@ module.exports = function (pb) {
      * @param {function} cb
      */
     BowerPluginDependencyService.prototype._install = function(context, cb) {//setting to skip config
-        var isConfigured = !!context.configuration;
         BowerPluginDependencyService.configure(context.pluginUid, context, function(err, configuration) {
 
             var command = [ context.moduleName+'#'+context.versionExpression ];
             bower.commands.install(command, {save: false}, configuration.bowerRc)
+            .on('log', configuration.logListener)
             .once('end', function(result) {
-                if (!isConfigured) {
-                    bower.removeListener('log', configuration.logListener);
-                }
                 cb(null, {result: result, logOutput: configuration.logOutput});
             })
             .once('error', cb);
@@ -260,34 +236,9 @@ module.exports = function (pb) {
                 },
                 bowerRc: bowerRc
             };
-
-            bower.on('log', context.logListener);
             cb(null, context);
         })
         .once('error', cb);
-    };
-
-    /**
-     * Loads a module dependency for the specified plugin.  The function will attempt to load it from the plugin
-     * specific node_modules directory.  If not found, or invalid, the function will attempt to load it from the PB
-     * node_modules directory.  When the module cannot be found in either location an error is thrown
-     * @static
-     * @method require
-     * @param {String} pluginUid The plugin identifier
-     * @param {String} moduleName The name of the Bower module to load
-     * @return {*} The entity returned by the "require" call.
-     */
-    BowerPluginDependencyService.require = function(pluginUid, moduleName) {
-        var modulePath = null;
-        try {
-            modulePath = path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', moduleName);
-            return require(modulePath);
-        }
-        catch(e) {
-            pb.log.debug('BowerPluginDependencyService:%s Failed to find module %s at path %s.  Attempting to retrieve from PB context: %s',
-                pluginUid, moduleName, modulePath, e.stack);
-        }
-        return require(moduleName);
     };
 
     return BowerPluginDependencyService;

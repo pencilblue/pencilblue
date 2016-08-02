@@ -52,6 +52,27 @@ module.exports = function (pb) {
     };
 
     /**
+     * Inspects each dependency to see if it is already installed for the plugin or the platform.
+     * @param {object} dependencies Key value pairs of moduleName => versionExpression
+     * @param {object} context
+     * @param {string} context.pluginUid
+     * @param cb (Error, Array({{success: boolean, validationFailures: Array}}))
+     */
+    PluginDependencyService.prototype.areSatisfied = function(dependencies, context, cb) {
+        var self = this;
+        var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
+
+            var ctx = {
+                pluginUid: context.pluginUid,
+                moduleName: keys[i],
+                versionExpression: dependencies[keys[i]]
+            };
+            return util.wrapTask(self, self.isSatisfied, [ctx]);
+        });
+        async.series(tasks, cb);
+    };
+
+    /**
      * <b>NOTE: This function must be overriden by the inheriting prototype</b>
      * Checks to see if the plugin dependency is already installed
      * @method isSatisfied
