@@ -148,7 +148,11 @@ module.exports = function(pb) {
     }
     function sortOn(property){
         return function(a, b){
-            if(a[property] < b[property]){
+            // Forces default heading to appear at the top of the sets of grouped settings
+            if(property === 'heading' && a[property] === 'default'){
+                return -1;
+            }
+            else if(a[property] < b[property]){
                 return -1;
             }else if(a[property] > b[property]){
                 return 1;
