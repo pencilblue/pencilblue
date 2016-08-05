@@ -1174,42 +1174,21 @@ module.exports = function PluginServiceModule(pb) {
 
                 //iterate over dependencies to ensure that they exist
                 var npmService = new pb.NpmPluginDependencyService();
-                npmService.hasDependencies(plugin, {}, function (err, hasDependencies) {
-                    if (util.isError(err) || hasDependencies) {
-                        if (hasDependencies) {
-                            pb.log.silly('PluginService: NPM Dependency check passed for plugin %s', plugin.name);
-                        }
-                        return callback(err, true);
-                    }
-
-                    //dependencies are missing, go install them
-                    pb.log.silly('PluginService: NPM Dependency check failed for plugin %s', plugin.name);
-                    npmService.installAll(plugin, {}, function(err/*, results*/) {
-                        callback(err, !util.isError(err));
-                    });
+                npmService.installAll(plugin.dependencies, {pluginUid: plugin.uid}, function(err/*, results*/) {
+                    callback(err, !util.isError(err));
                 });
             },
 
             //verify that the Bower dependencies are available
-            function(callback) {console.log('here');
+            function(callback) {
                 if(!util.isObject(details.bowerDependencies) || details.bowerDependencies === {}) {
                     //no bower dependencies declared so we're good
                     return callback(null, true);
                 }
 
                 var bowerService = new pb.BowerPluginDependencyService();
-                bowerService.hasDependencies(plugin, {}, function(err, hasDependencies) {
-                    if(util.isError(err) || hasDependencies) {
-                        if(hasDependencies) {
-                            pb.log.silly('PluginService: Bower dependency check passed for plugin %s', plugin.name);
-                        }
-                        return callback(err, true);
-                    }
-
-                    pb.log.silly('PluginService: Bower dependency check failed for plugin %s', plugin.name);
-                    bowerService.installAll(plugin, {}, function(err/*, results*/) {
-                        callback(err, !util.isError(err));
-                    });
+                bowerService.installAll(plugin.bowerDependencies, {pluginUid: plugin.uid}, function(err/*, results*/) {
+                    callback(err, !util.isError(err));
                 });
             },
 
@@ -1387,7 +1366,7 @@ module.exports = function PluginServiceModule(pb) {
                             pb.log.debug('PluginService:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', details.uid, locale);
                         }
                     }
-                    callback(null, !util.isError(err) && result);
+                    callback(null, !util.isError(err));
                 });
             }
         ];

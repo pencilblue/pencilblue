@@ -19,7 +19,6 @@
 //dependencies
 var npm = require('npm');
 var semver = require('semver');
-var async = require('async');
 var path = require('path');
 
 module.exports = function (pb) {
@@ -114,7 +113,7 @@ module.exports = function (pb) {
         }
 
         //build validation errors
-        var result = PluginDependencyService.buildResult(dependencyFound, validationErrors);
+        var result = PluginDependencyService.buildResult(context.moduleName, dependencyFound, validationErrors);
         process.nextTick(function() {
             cb(null, result);
         });
@@ -125,101 +124,36 @@ module.exports = function (pb) {
      * property of the plugin.  Each iteration calls the "install" function
      * @private
      * @method _installAll
-     * @param {object} plugin
-     * @param {string} plugin.uid The plugin identifier
+     * @param {object} dependencies
      * @param {object} options
+     * @param {string} options.pluginUid The plugin identifier
+     * @param {object} options.configuration
      * @param {function} cb (Error, Boolean)
      */
-    NpmPluginDependencyService.prototype._installAll = function(plugin, options, cb) {
-        var self = this;
+    NpmPluginDependencyService.prototype._installAll = function(dependencies, options, cb) {
 
-        //configure NPM for the plugin
-        NpmPluginDependencyService.configure(plugin.uid, {}, function(err, configuration) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-
-            //build out the tasks
-            var tasks = util.getTasks(Object.keys(plugin.dependencies), function(keys, i) {
-
-                var context = {
-                    pluginUid: plugin.uid,
-                    moduleName: keys[i],
-                    versionExpression: plugin.dependencies[keys[i]],
-                    configuration: configuration
-                };
-                return util.wrapTask(self, self.install, [context]);
-            });
-            async.series(tasks, function(err, results) {
-                npm.removeListener('log', configuration.logListener);
-                cb(err, results);
-            });
+        var command = Object.keys(dependencies).map(function(moduleName) {
+            return moduleName+'@'+dependencies[moduleName];
         });
-    };
+        npm.commands.install(command, function(err, result) {
+            npm.removeListener('log', options.configuration.logListener);
 
-    /**
-     * Installs the dependency by calling NPM.
-     * @private
-     * @method _install
-     * @param {object} context
-     * @param {string} context.pluginUid
-     * @param {string} context.moduleName
-     * @param {string} context.versionExpression
-     * @param {function} cb
-     */
-    NpmPluginDependencyService.prototype._install = function(context, cb) {//setting to skip config
-        var isConfigured = !!context.configuration;
-        NpmPluginDependencyService.configure(context.pluginUid, context, function(err, configuration) {
-
-            var command = [ context.moduleName+'@'+context.versionExpression ];
-            npm.commands.install(command, function(err, result) {
-                if (!isConfigured) {
-                    npm.removeListener('log', configuration.logListener);
-                }
-
-                cb(err, {result: result, logOutput: configuration.logOutput});
-            });
+            cb(err, {result: result, logOutput: options.configuration.logOutput});
         });
-    };
-
-    /**
-     * Generates the path to a NPM module for the specified plugin
-     * @static
-     * @method getPluginPathToPackageJson
-     * @param {string} pluginUid
-     * @param {string} npmPackageName
-     * @return {string} An absolute path
-     */
-    NpmPluginDependencyService.getPluginPathToPackageJson = function(pluginUid, npmPackageName) {
-        return path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', npmPackageName, 'package.json');
-    };
-
-    /**
-     * Generates the path to a NPM module for the platform
-     * @static
-     * @method getPluginPathToPackageJson
-     * @param {string} npmPackageName
-     * @return {string} An absolute path
-     */
-    NpmPluginDependencyService.getRootPathToPackageJson = function(npmPackageName) {
-        return path.join(pb.config.docRoot, 'node_modules', npmPackageName, 'package.json');
     };
 
     /**
      * Configures NPM to emit log statements as well as set the installation directory for the plugin.
      * @static
      * @method configure
-     * @param {string} pluginUid
      * @param {object} options
-     * @param {object} [options.configuration]
+     * @param {string} options.pluginUid
      * @param {function} cb (Error, Object)
      */
-    NpmPluginDependencyService.configure = function(pluginUid, options, cb) {
-        if (options.configuration) {
-            return cb(null, options.configuration);
-        }
+    NpmPluginDependencyService.prototype.configure = function(options, cb) {
+
         //ensure the node_modules directory exists
-        var prefixPath = path.join(PluginService.getPluginsDir(), pluginUid);
+        var prefixPath = path.join(PluginService.getPluginsDir(), options.pluginUid);
 
         //log and load
         var config = {
@@ -248,6 +182,29 @@ module.exports = function (pb) {
 
             cb(err, context);
         });
+    };
+
+    /**
+     * Generates the path to a NPM module for the specified plugin
+     * @static
+     * @method getPluginPathToPackageJson
+     * @param {string} pluginUid
+     * @param {string} npmPackageName
+     * @return {string} An absolute path
+     */
+    NpmPluginDependencyService.getPluginPathToPackageJson = function(pluginUid, npmPackageName) {
+        return path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', npmPackageName, 'package.json');
+    };
+
+    /**
+     * Generates the path to a NPM module for the platform
+     * @static
+     * @method getPluginPathToPackageJson
+     * @param {string} npmPackageName
+     * @return {string} An absolute path
+     */
+    NpmPluginDependencyService.getRootPathToPackageJson = function(npmPackageName) {
+        return path.join(pb.config.docRoot, 'node_modules', npmPackageName, 'package.json');
     };
 
     /**

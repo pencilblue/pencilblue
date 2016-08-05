@@ -115,7 +115,7 @@ module.exports = function (pb) {
         }
 
         //build validation errors
-        var result = PluginDependencyService.buildResult(dependencyFound, validationErrors);
+        var result = PluginDependencyService.buildResult(context.moduleName, dependencyFound, validationErrors);
         process.nextTick(function() {
             cb(null, result);
         });
@@ -126,57 +126,57 @@ module.exports = function (pb) {
      * property of the plugin.  Each iteration calls the "install" function
      * @private
      * @method _installAll
-     * @param {object} plugin
-     * @param {string} plugin.uid The plugin identifier
-     * @param {object} plugin.bowerDependencies
+     * @param {object} dependencies
      * @param {object} options
+     * @param {string} options.pluginUid
+     * @param {object} options.configuration
      * @param {function} cb (Error, Boolean)
      */
-    BowerPluginDependencyService.prototype._installAll = function(plugin, options, cb) {
-        var self = this;
+    BowerPluginDependencyService.prototype._installAll = function(dependencies, options, cb) {
 
-        //configure Bower for the plugin
-        BowerPluginDependencyService.configure(plugin.uid, {}, function(err, configuration) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-
-            //build out the tasks
-            var tasks = util.getTasks(Object.keys(plugin.bowerDependencies), function(keys, i) {
-
-                var context = {
-                    pluginUid: plugin.uid,
-                    moduleName: keys[i],
-                    versionExpression: plugin.bowerDependencies[keys[i]],
-                    configuration: configuration
-                };
-                return util.wrapTask(self, self.install, [context]);
-            });
-            async.series(tasks, cb);
+        var command = Object.keys(dependencies).map(function(moduleName) {
+            return moduleName+'#'+dependencies[moduleName];
         });
+        bower.commands.install(command, {save: false}, options.configuration.bowerRc)
+            .on('log', options.configuration.logListener)
+            .once('end', function(result) {
+                cb(null, {result: result, logOutput: options.configuration.logOutput});
+            })
+            .once('error', cb);
     };
 
     /**
-     * Installs the dependency by calling Bower.
-     * @private
-     * @method _install
-     * @param {object} context
-     * @param {string} context.pluginUid
-     * @param {string} context.moduleName
-     * @param {string} context.versionExpression
-     * @param {function} cb
+     * Configures Bower to emit log statements as well as set the installation directory for the plugin.
+     * @static
+     * @method configure
+     * @param {object} options
+     * @param {object} options.pluginUid
+     * @param {function} cb (Error, {logOutput: Array, logListener: function, bowerRc: object})
      */
-    BowerPluginDependencyService.prototype._install = function(context, cb) {//setting to skip config
-        BowerPluginDependencyService.configure(context.pluginUid, context, function(err, configuration) {
+    BowerPluginDependencyService.prototype.configure = function(options, cb) {
+        var bowerRc = {
+            directory: path.join(PluginService.getPluginsDir(), options.pluginUid, 'public', 'bower_components'),
+            ignoredDependencies: []
+        };
+        bower.commands.list().on('end', function(list) {
 
-            var command = [ context.moduleName+'#'+context.versionExpression ];
-            bower.commands.install(command, {save: false}, configuration.bowerRc)
-            .on('log', configuration.logListener)
-            .once('end', function(result) {
-                cb(null, {result: result, logOutput: configuration.logOutput});
-            })
-            .once('error', cb);
-        });
+            //add pencilblue bower dependencies to ignored dependency list, because we do not want to have them installed in the plugins bower_components folder
+            util.forEach(list.pkgMeta.dependencies, function (packageVersion, packageName) {
+                bowerRc.ignoredDependencies.push(packageName);
+            });
+
+            //prepare a context object
+            var statements = [];
+            var context = {
+                logOutput: statements,
+                logListener: function(message) {
+                    statements.push(message);
+                },
+                bowerRc: bowerRc
+            };
+            cb(null, context);
+        })
+        .once('error', cb);
     };
 
     /**
@@ -200,45 +200,6 @@ module.exports = function (pb) {
      */
     BowerPluginDependencyService.getRootPathToBowerJson = function(bowerPackageName) {
         return path.join(pb.config.docRoot, 'public', 'bower_components', bowerPackageName, '.bower.json');
-    };
-
-    /**
-     * Configures Bower to emit log statements as well as set the installation directory for the plugin.
-     * @static
-     * @method configure
-     * @param {string} pluginUid
-     * @param {object} options
-     * @param {object} [options.configuration]
-     * @param {function} cb (Error, {logOutput: Array, logListener: function, bowerRc: object})
-     */
-    BowerPluginDependencyService.configure = function(pluginUid, options, cb) {
-        if (options.configuration) {
-            return cb(null, options.configuration);
-        }
-
-        var bowerRc = {
-            directory: path.join(PluginService.getPluginsDir(), pluginUid, 'public', 'bower_components'),
-            ignoredDependencies: []
-        };
-        bower.commands.list().on('end', function(list) {
-
-            //add pencilblue bower dependencies to ignored dependency list, because we do not want to have them installed in the plugins bower_components folder
-            util.forEach(list.pkgMeta.dependencies, function (packageVersion, packageName) {
-                bowerRc.ignoredDependencies.push(packageName);
-            });
-
-            //prepare a context object
-            var statements = [];
-            var context = {
-                logOutput: statements,
-                logListener: function(message) {
-                    statements.push(message);
-                },
-                bowerRc: bowerRc
-            };
-            cb(null, context);
-        })
-        .once('error', cb);
     };
 
     return BowerPluginDependencyService;
