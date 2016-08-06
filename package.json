@@ -12,7 +12,7 @@
     }
   ],
   "name": "pencilblue",
-  "description": "A full featured Node.js CMS and blogging platform (plugins, server cluster management, data-driven pages)",
+  "description": "Business class content management for Node.js (plugins, server cluster management, data-driven pages)",
   "keywords": [
     "cms",
     "website",
@@ -62,7 +62,7 @@
   },
   "licenses": [
     {
-      "type": "GNU GENERAL PUBLIC LICENSE Version 3",
+      "type": "GPL-3.0",
       "url": "http://www.gnu.org/licenses/gpl-3.0.html"
     }
   ],
