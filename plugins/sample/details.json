@@ -65,5 +65,11 @@
 				"name": "Same as Default"
 			}
 		]
-	}
+	},
+    "dependencies": {
+        "mime-type": "^2.1.11"
+    },
+    "bowerDependencies": {
+        "doT": "~0.2.0"
+    }
 }
