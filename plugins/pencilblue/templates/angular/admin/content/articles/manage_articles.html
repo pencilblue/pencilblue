@@ -58,7 +58,7 @@
 
       articleFactory.getArticles({
         $limit: $scope.paginationLimit,
-        $offset: $scope.paginationIndex,
+        $offset: $scope.paginationIndex * $scope.paginationLimit,
         $order: $scope.orderString,
         render: 1
       }, function(error, articles, total) {
