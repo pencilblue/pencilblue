@@ -71,6 +71,12 @@ module.exports = function SamplePluginModule(pb) {
      */
     SamplePlugin.onStartupWithContext = function (context, cb) {
 
+        pb.RequestHandler.on(pb.RequestHandler.THEME_ROUTE_RETIEVED, function(ctx, cb) {
+            if (ctx.themeRoute.theme === 'pencilblue') {
+                ctx.requestHandler.doRedirect('/admin');
+            }
+        });
+
         /**
          * Administration Navigation sample
          */
