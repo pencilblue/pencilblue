@@ -58,7 +58,7 @@
 
           pageFactory.getPages({
             $limit: $scope.paginationLimit,
-            $offset: $scope.paginationIndex,
+            $offset: $scope.paginationIndex * $scope.paginationLimit,
     				$order: $scope.orderString,
             render: 1
           }, function(error, pages, total) {
