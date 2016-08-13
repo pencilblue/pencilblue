@@ -4,6 +4,7 @@ var path          = require('path');
 var should        = require('should');
 var Configuration = require('../../include/config.js');
 var Lib           = require('../../lib');
+var sinon         = require('sinon');
 
 describe('Localization', function() {
 
@@ -11,17 +12,26 @@ describe('Localization', function() {
     var dummyLocale = 'pl-pl';
     var dummyDisplay = 'Polski (Polska)';
     var dummyLocalizations = { key: 'value' };
+    var dummyDBSiteLocalizations = [];
+    var sandbox;
 
     var pb = null;
     var Localization = null;
     before('Initialize the Environment with the default configuration', function(next) {
 
+        sandbox = sinon.sandbox.create();
+
         //travis gets slow so we bump the timeout just a little here to get around the BS
         this.timeout(10000);
 
         pb = new Lib(Configuration.getBaseConfig());
+        pb.SiteQueryService.prototype.q = sandbox.stub().yields(null, dummyDBSiteLocalizations);
         Localization = pb.Localization;
         Localization.init(next);
+    });
+
+    after(function(){
+        sandbox.restore();
     });
 
     describe('Localization.getLocalizationPackage', function() {

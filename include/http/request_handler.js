@@ -589,6 +589,9 @@ module.exports = function RequestHandlerModule(pb) {
             return prev + (curr ? (!!i && !!prev ? ',' : '') + curr : '');
         }, '');
 
+        opts.site = this.siteObj.uid;
+        opts.activeTheme = this.activeTheme || RequestHandler.DEFAULT_THEME;
+
         //get locale preference
         return new pb.Localization(localePrefStr, opts);
     };
@@ -722,6 +725,7 @@ module.exports = function RequestHandlerModule(pb) {
         };
 
         getActiveTheme(function(error, activeTheme) {
+            self.localizationService = self.deriveLocalization({ session: self.session });
 
             //build out params for handlers
             self.localizationService = self.localizationService || self.deriveLocalization({});
@@ -780,10 +784,6 @@ module.exports = function RequestHandlerModule(pb) {
             return this.doRedirect(pb.SiteService.getHostWithProtocol(redirectHost), pb.HttpStatus.MOVED_PERMANENTLY);
         }
         this.siteObj = siteObj;
-
-        //derive the localization. We do it here so that if the site isn't
-        //available we can still have one available when we error out
-        this.localizationService = this.deriveLocalization({ session: session });
 
         //make sure we have a site
         if (!siteObj) {
@@ -1011,8 +1011,11 @@ module.exports = function RequestHandlerModule(pb) {
                 return this.serve404();
             }
 
-            //update the localization
+            //create the localization with the pathVars locale
             this.localizationService = this.deriveLocalization({ session: this.session, routeLocalization: pathVars.locale });
+        } else {
+            //create the localization with active theme
+            this.localizationService = this.deriveLocalization({ session: this.session});
         }
 
         //instantiate controller
