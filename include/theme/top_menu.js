@@ -248,9 +248,9 @@ module.exports = function TopMenuServiceModule(pb) {
      * @method getNavItems
      * @param {Object} options
      * @param {Localization} options.ls
-     * @param {String} options.activeTheme
      * @param {Object} options.session
      * @param {String} options.currUrl
+     * @param {string} options.site
      * @param {Function} cb
      */
     TopMenuService.prototype.getNavItems = function(options, cb) {

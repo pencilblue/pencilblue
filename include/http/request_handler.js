@@ -348,7 +348,7 @@ module.exports = function RequestHandlerModule(pb) {
             descriptor.method = descriptor.method.toUpperCase();
         }
         else {
-            descriptor.method = 'ALL'
+            descriptor.method = 'ALL';
         }
 
         //make sure we get a valid prototype back
@@ -672,7 +672,7 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.isPublicRoute = function(path){
         for (var i = 0; i < PUBLIC_ROUTE_PREFIXES.length; i++) {
-            if (path.indexOf(PUBLIC_ROUTE_PREFIXES[i]) == 0) {
+            if (path.indexOf(PUBLIC_ROUTE_PREFIXES[i]) === 0) {
                 return true;
             }
         }

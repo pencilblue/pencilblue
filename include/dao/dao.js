@@ -120,7 +120,7 @@ module.exports = function DAOModule(pb) {
      * @method loadByValues
      * @param {Object}   where      Key value pair object
      * @param {String}   collection The collection to search in
-     * @param {Object}   opts Key value pair object to exclude the retrival of data
+     * @param {Object}   [opts] Key value pair object to exclude the retrieval of data
      * @param {Function} cb         Callback function
      */
     DAO.prototype.loadByValues = function(where, collection, opts, cb) {
@@ -204,7 +204,6 @@ module.exports = function DAOModule(pb) {
         if (exclusionId) {
             where[DAO.getIdField()] = DAO.getNotIdField(exclusionId);
         }
-
         //checks to see how many docs were available
         this.count(collection, where, function(err, count) {
             cb(err, count === 0);
@@ -336,7 +335,9 @@ module.exports = function DAOModule(pb) {
             }
 
             //ensure that an "id" value is provided
-            cursor.map(DAO.mapSimpleIdField);
+            if (!options.count) {
+                cursor.map(DAO.mapSimpleIdField);
+            }
 
             //log the result
             if(pb.config.db.query_logging){
@@ -479,7 +480,7 @@ module.exports = function DAOModule(pb) {
      * @param {String} collection The collection to update object(s) in
      * @param {Object} query The where clause to execute to find the existing object
      * @param {Object} updates The updates to perform
-     * @param {Object} options Any options to go along with the update
+     * @param {Object} [options] Any options to go along with the update
      * @param {Boolean} [options.upsert=false] Inserts the object is not found
      * @param {Boolean} [options.multi=false] Updates multiple records if the query
      * finds more than 1
@@ -982,7 +983,7 @@ module.exports = function DAOModule(pb) {
      * @static
      * @method mapSimpleIdField
      * @param doc
-     * @returns {object}
+     * @return {object}
      */
     DAO.mapSimpleIdField = function(doc) {
         if (typeof doc.id === 'undefined') {

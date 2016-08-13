@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,48 +14,39 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
-module.exports = function WPManageUsersViewControllerModule(pb) {
+module.exports = function(pb) {
 
     //pb dependencies
-    var util          = pb.util;
-    var PluginService = pb.PluginService;
-    var UserService   = pb.UserService;
+    var util        = pb.util;
+    var UserService = pb.UserService;
 
     function WPManageUsersViewController() {}
     util.inherits(WPManageUsersViewController, pb.BaseController);
 
     /**
      * Initializes the controller
-     * @method init
+     * @method initSync
      * @param {Object} context
-     * @param {Function} cb
      */
-    WPManageUsersViewController.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err) {
+    WPManageUsersViewController.prototype.initSync = function(/*context*/) {
 
-            /**
-             * @property service
-             * @type {UserService}
-             */
-            self.service = new UserService(self.getServiceContext());
-
-            cb(err, true);
-        };
-        WPManageUsersViewController.super_.prototype.init.apply(this, [context, init]);
+        /**
+         * @property service
+         * @type {UserService}
+         */
+        this.service = new UserService(this.getServiceContext());
     };
 
     WPManageUsersViewController.prototype.render = function(cb) {
         var self = this;
 
         if(!self.session.importedUsers) {
-            this.redirect('/admin/plugins/wp_import/settings/import', cb);
-            return;
+            return this.redirect('/admin/plugins/wp_import/settings/import', cb);
         }
         else if(!self.session.importedUsers.length) {
-            this.redirect('/admin/plugins/wp_import/settings/import', cb);
-            return;
+            return this.redirect('/admin/plugins/wp_import/settings/import', cb);
         }
 
         var newUsers = false;
@@ -66,32 +57,27 @@ module.exports = function WPManageUsersViewControllerModule(pb) {
             }
         }
         if(!newUsers) {
-            this.redirect('/admin/plugins/wp_import/settings/import', cb);
-            return;
+            return this.redirect('/admin/plugins/wp_import/settings/import', cb);
         }
-
-
-        var tabs = [
-            {
-                active: 'active',
-                href: '#users',
-                icon: 'users',
-                title: self.ls.g('admin.USERS')
-            }
-        ];
-
-        var pills = [
-        {
-            name: 'content_settings',
-            title: self.ls.g('MANAGE_NEW_USERS'),
-            icon: 'chevron-left',
-            href: '/admin/plugins/wp_import/settings'
-        }];
 
         var objects = {
             navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
-            pills: pills,
-            tabs: tabs,
+            pills: [
+                {
+                    name: 'content_settings',
+                    title: self.ls.g('MANAGE_NEW_USERS'),
+                    icon: 'chevron-left',
+                    href: '/admin/plugins/wp_import/settings'
+                }
+            ],
+            tabs: [
+                {
+                    active: 'active',
+                    href: '#users',
+                    icon: 'users',
+                    title: self.ls.g('admin.USERS')
+                }
+            ],
             users: self.session.importedUsers,
             adminOptions: self.service.getAdminOptions(self.session, self.localizationService)
         };

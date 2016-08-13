@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var path = require('path');
@@ -37,6 +38,21 @@ module.exports = function RandomTextViewControllerModule(pb) {
     util.inherits(RandomTextViewController, pb.BaseController);
 
     /**
+     * This method is invoked when the controller is initialized.  Any synchronous
+     * setup such as service creation should be done here.
+     * @method initSync
+     * @param {object} context See BaseController#init for more details
+     */
+    RandomTextViewController.prototype.initSync = function(/*context*/) {
+
+        /**
+         * @property topMenuService
+         * @type {TopMenuService}
+         */
+        this.topMenuService = new TopMenuService();
+    };
+
+    /**
      * This is the function that will be called by the system's RequestHandler.  It
      * will map the incoming route to the ones below and then instantiate this
      * prototype.  The request handler will then proceed to call this function.
@@ -44,10 +60,11 @@ module.exports = function RandomTextViewControllerModule(pb) {
      *
      * @method getRandomText
      * @see BaseController#render
-     * @param cb The callback.  It does not require a an error parameter.  All
-     * errors should be handled by the controller and format the appropriate
-     * response.  The system will attempt to catch any catastrophic errors but
-     * makes no guarantees.
+     * @param cb ({code: 200, content: '', headers: {}}|Error) The callback.  It does
+     * not require a an error parameter however if an error occurs it can be passed
+     * as the first parameter to the callback and will be handled appropriately by
+     * the error handler.  The system will attempt to catch any catastrophic errors
+     * but makes no guarantees.
      */
     RandomTextViewController.prototype.getRandomText = function(cb) {
         var self = this;
@@ -232,9 +249,8 @@ module.exports = function RandomTextViewControllerModule(pb) {
         var options = this.getServiceContext();
         options.currUrl = this.req.url;
 
-        //create a new instance of the top menu service and request the navigation items
-        var service = new TopMenuService();
-        service.getNavItems(options, cb);
+        //request the navigation items
+        this.topMenuService.getNavItems(options, cb);
     };
 
     /**
@@ -291,13 +307,19 @@ module.exports = function RandomTextViewControllerModule(pb) {
                 //specifies the controller prototype instance function that will be
                 //called to handle the incoming request.  Defaults to "render"
                 handler: "getRandomText",
+
+                //False default, the localization flag indicates that the route should be considered locale specific.
+                // For instance, the controller to fire when /es-ES/sample/random/text is called.  The locale that is
+                // used in the route at the time of calling will be used as the language set in the instance of the
+                // Localization service provided to the controller.  Only languages allowed for a given site will be
+                // allowed as part of the URI.  All others will cause a 404.
                 localization: true
             },
             {
                 method: 'get',
                 path: '/sample/redirect/home',
                 handler: 'redirectToHomePage'
-            },
+            }
     //		{ //Use the setup below to override the home page when your plugin is set as the active theme
     //	    	method: 'get',
     //	    	path: "/",

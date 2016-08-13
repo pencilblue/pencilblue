@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var util = require('./util.js');
@@ -35,7 +36,7 @@ module.exports = function ClientJsModule(pb) {
      * @method getAngularController
      * @param {Object} objects     Object to be passed into AngularJS scope
      * @param {Array}  modules     Array of AngularJS module names
-     * @param {String} directiveJS JavaScript to run after on-finish-render directive
+     * @param {String} [directiveJS] JavaScript to run after on-finish-render directive
      */
     ClientJs.getAngularController = function(objects, modules, directiveJS) {
         if(!util.isArray(modules) || modules.length === 0) {
@@ -62,16 +63,16 @@ module.exports = function ClientJsModule(pb) {
      */
     ClientJs.getAngularObjects = function(objects) {
         var scopeString = '';
-        for(var key in objects) {
-            if(util.isString(objects[key]) && objects[key].indexOf('function(') == 0) {
+        Object.keys(objects).forEach(function(key) {
+            if(util.isString(objects[key]) && objects[key].indexOf('function(') === 0) {
                 scopeString = scopeString.concat('$scope.' + key + ' = ' + objects[key] + ";\n");
-                continue;
+                return;
             }
             scopeString = scopeString.concat('$scope.' + key + '=' + JSON.stringify(objects[key], null, pb.log.isSilly() ? ' ' : undefined) + ";\n");
-        }
+        });
 
         return scopeString;
-    }
+    };
 
     /**
      * Creates a JS tag that loads the specified url

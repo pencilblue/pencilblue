@@ -137,7 +137,6 @@ module.exports = function MongoSessionStoreModule(pb) {
 
     /**
      * Constructs a query to find a session in Mongo
-     *
      * @method getSessionQuery
      * @param {String} sessionId The session identifier
      * @return {Object}
@@ -152,7 +151,7 @@ module.exports = function MongoSessionStoreModule(pb) {
      * @static
      * @method getHandler
      * @param {Function} cb
-     * @returns {Function}
+     * @return {Function}
      */
     MongoSessionStore.getHandler = function(cb) {
         return function(err, session) {

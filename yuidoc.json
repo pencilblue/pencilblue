@@ -6,6 +6,6 @@
     "logo": "http://pencilblue.org/img/pb_logo.png",
     "options": {
         "outdir": "public/docs",
-        "exclude": "public,templates,test,plugins"
+        "exclude": "public,templates,test,plugins,sample.config.js,config.js,node_modules"
     }
 }

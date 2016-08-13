@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
 var util  = require('../../../util.js');
@@ -37,7 +38,7 @@ module.exports = function(pb) {
      * @param {Object} context
      * @param {string} context.site
      * @param {boolean} context.onlyThisSite
-     * @param {MediaProvider} [context.mediaProvider]
+     * @param {MediaProvider} [context.provider]
      */
     function MediaServiceV2(context) {
 
@@ -265,6 +266,15 @@ module.exports = function(pb) {
         async.series(tasks, cb);
     };
 
+    /**
+     * Validates any references to topic objects in the data object passed through the context.
+     * @method validateTopicReferences
+     * @param {object} context
+     * @param {object} context.data
+     * @param {Array} context.data.media_topics
+     * @param {Array} context.validationErrors
+     * @param {function} cb (Error)
+     */
     MediaServiceV2.prototype.validateTopicReferences = function(context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
@@ -300,9 +310,19 @@ module.exports = function(pb) {
                     errors.push(BaseObjectService.validationFailure('media_topics[' + index + ']', item + ' is not a valid reference'));
                 }
             });
+
+            cb();
         });
     };
 
+    /**
+     * @method validateName
+     * @param {object} context
+     * @param {object} context.data
+     * @param {string} context.data.name
+     * @param {Array} context.validationErrors
+     * @param {function} cb (Error)
+     */
     MediaServiceV2.prototype.validateName = function(context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
@@ -325,6 +345,14 @@ module.exports = function(pb) {
         });
     };
 
+    /**
+     * Persists the uploaded media content to the provider
+     * @method persistContent
+     * @param {object} context
+     * @param {object} context.data
+     * @param {File} context.data.content Formidable file descriptor
+     * @param {function} cb (Error)
+     */
     MediaServiceV2.prototype.persistContent = function(context, cb) {
         var obj = context.data;
         var fileDescriptor = obj.content;
@@ -453,6 +481,14 @@ module.exports = function(pb) {
         context.service.validate(context, cb);
     };
 
+    /**
+     * @static
+     * @method onBeforeSave
+     * @param {object} context
+     * @param {object} context.data The media descriptor object
+     * @param {MediaServiceV2} context.service
+     * @param {function} cb (Error)
+     */
     MediaServiceV2.onBeforeSave = function(context, cb) {
         var obj = context.data;
         if (obj.content) {
@@ -550,7 +586,7 @@ module.exports = function(pb) {
 
     /**
      * Given a content string the function will search for and extract the first
-     * occurance of a media flag. The parsed value that is returned will include:
+     * occurrence of a media flag. The parsed value that is returned will include:
      * <ul>
      * <li>startIndex - The index where the flag was found to start</li>
      * <li>endIndex - The position in the content string of the last character of the media flag</li>

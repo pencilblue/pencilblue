@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+    Copyright (C) 2016  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,64 +14,80 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var fs         = require('fs');
 var formidable = require('formidable');
 
-module.exports = function ImportWPActionControllerModule(pb) {
-    
+module.exports = function (pb) {
+
     //pb dependencies
-    var util       = pb.util;
+    var util = pb.util;
+    var BaseController = pb.BaseController;
 
     /**
      * @class ImportWPActionController
-     * @constructor
      * @extends BaseController
+     * @constructor
      */
     function ImportWPActionController(){}
-    util.inherits(ImportWPActionController, pb.BaseController);
+    util.inherits(ImportWPActionController, BaseController);
 
     /**
-     * @see BaseController#render
+     * @method initSync
+     */
+    ImportWPActionController.prototype.initSync = function(/*context*/) {
+        var WPXMLParseService = pb.PluginService.getService('wp_xml_parse', 'wp_import', this.site);
+
+        /**
+         * @property wpXMLParse
+         */
+        this.wpXmlParse = new WPXMLParseService(this.site);
+    };
+
+    /**
      * @method render
-     * @param {Function} cb
+     * @param {Function} cb (Error|object)
      */
     ImportWPActionController.prototype.render = function(cb) {
         var self  = this;
         var files = [];
-        var WPXMLParseService = pb.PluginService.getService('wp_xml_parse', 'wp_import', this.site);
-        var wpXMLParse = new WPXMLParseService(this.site);
         var form = new formidable.IncomingForm();
         form.on('file', function(field, file) {
             files.push(file);
         });
         form.on('error', function(err) {
             self.session.error = 'loc_NO_FILE';
-            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_FILE'))});
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('INVALID_FILE'))});
         });
         form.parse(this.req, function() {
 
             fs.readFile(files[0].path, function(err, data) {
                 if(util.isError(err)) {
                     self.session.error = 'NO_FILE';
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('INVALID_FILE'))});
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_FILE'))});
                     return;
                 }
 
-                wpXMLParse.parse(data.toString(), self.session.authentication.user_id, function(err, users) {
+                self.wpXmlParse.parse(data.toString(), self.session.authentication.user_id, function(err, users) {
                     if(util.isError(err)) {
                         self.session.error = err.stack;
-                        return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('ERROR_SAVING'))});
+                        return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'))});
                     }
 
                     self.session.importedUsers = users;
-                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('WP_IMPORT_SUCCESS'))});
+                    cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('WP_IMPORT_SUCCESS'))});
                 });
             });
         });
     };
 
+    /**
+     * @static
+     * @method getRoutes
+     * @param {function} cb (Error, Array)
+     */
     ImportWPActionController.getRoutes = function(cb) {
         var routes = [
             {

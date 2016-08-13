@@ -1,6 +1,0 @@
-/node_modules/*
-/log/*
-/out/*
-/public/media/*
-/plugins/*/node_modules
-/plugins/*/node_modules/*

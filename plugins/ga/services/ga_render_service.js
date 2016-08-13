@@ -14,6 +14,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
+
 module.exports = function(pb) {
 
     //pb dependencies
@@ -26,6 +28,12 @@ module.exports = function(pb) {
      * @copyright 2015 PencilBlue, LLC.  All Rights Reserved
      * @class GoogleAnalyticsRenderService
      * @constructor
+     * @param {object} context
+     * @param {Request} context.req
+     * @param {Localization} context.ls
+     * @param {object} context.session
+     * @param {PluginService} context.pluginService
+     * @param {string} context.site
      */
     function GoogleAnalyticsRenderService(context) {
 
@@ -78,7 +86,7 @@ module.exports = function(pb) {
     /**
      * Renders the script block for analytics
      * @method render
-     * @param {Function} cb
+     * @param {Function} cb (Error, string)
      */
     GoogleAnalyticsRenderService.prototype.render = function(cb) {
         var self = this;
@@ -111,8 +119,7 @@ module.exports = function(pb) {
      *
      * @static
      * @method init
-     * @param cb A callback that should provide one argument: cb(error) or cb(null)
-     * if initialization proceeded successfully.
+     * @param {function} cb (Error)
      */
     GoogleAnalyticsRenderService.init = function(cb) {
         pb.log.debug("GoogleAnalyticsRenderService: Initialized");
