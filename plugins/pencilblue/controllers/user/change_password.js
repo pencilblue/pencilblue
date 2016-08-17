@@ -61,10 +61,11 @@ module.exports = function (pb) {
                 return self.redirect('/', cb);
             }
 
-
-            var uiEntities = ClientJs.getAngularObjects(ChangePasswordFormController.gatherNavData(self.ls));
+            var uiEntities = ChangePasswordFormController.gatherNavData(self.ls);
+            uiEntities.resetPassword = self.session.authentication.reset_password || false;
+            var angularObjects = ClientJs.getAngularObjects(uiEntities);
             self.setPageName(self.ls.g('users.CHANGE_PASSWORD'));
-            self.ts.registerLocal('angular_objects', new pb.TemplateValue(uiEntities, false));
+            self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('user/change_password', function(err, result) {
 
                 cb({content: result});
