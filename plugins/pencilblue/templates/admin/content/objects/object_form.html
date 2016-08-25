@@ -10,13 +10,13 @@
                     <span ng-repeat="field in objectType.fields" fields-built>
                         <div class="form-group" ng-if="field.field_type == 'text'" ng-class="{'has-error': field.name === 'name' && !isFieldValid(objectForm.name)}">
                             <label ng-bind="field.name"></label>
-                            <input type="text" class="form-control" ng-model="customObject[field.name]" ng-if="field.name !== 'name'"></input>
-                            <input type="text" name="name" class="form-control" ng-model="customObject.name" ng-if="field.name === 'name'" required></input>
-                            <div class="form_error" ng-if="field.name === 'name' && !isFieldValid(objectForm.name)">^loc_REQUIRED_FIELD^</div>
+                            <input type="text" class="form-control" ng-model="customObject[field.name]" ng-if="field.name !== 'name'"/>
+                            <input type="text" name="name" class="form-control" ng-model="customObject.name" ng-if="field.name === 'name'" required/>
+                            <div class="form_error" ng-if="field.name === 'name' && !isFieldValid(objectForm.name)">^loc_generic.REQUIRED_FIELD^</div>
                         </div>
                         <div class="form-group" ng-if="field.field_type == 'number'">
                             <label ng-bind="field.name"></label>
-                            <input type="number" class="form-control" ng-model="customObject[field.name]"></input>
+                            <input type="number" class="form-control" ng-model="customObject[field.name]"/>
                         </div>
                         <div class="form-group" ng-if="field.field_type === 'wysiwyg'">
                           <label ng-bind="field.name"></label>
@@ -25,27 +25,29 @@
                         <div class="form-group" ng-if="field.field_type == 'boolean'">
                             <label ng-bind="field.name"></label><br/>
                             <div class="btn-group">
-                                <button type="button" class="btn btn-default" ng-class="{'active': customObject[field.name]}" ng-click="setBoolean(field.name, true)">^loc_YES^</button>
-                                <button type="button" class="btn btn-default" ng-class="{'active': !customObject[field.name]}" ng-click="setBoolean(field.name, false)">^loc_NO^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': customObject[field.name]}" ng-click="setBoolean(field.name, true)">^loc_generic.YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !customObject[field.name]}" ng-click="setBoolean(field.name, false)">^loc_generic.NO^</button>
                             </div>
                         </div>
                         <div class="form-group date_input" ng-if="field.field_type == 'date'">
                             <label ng-bind="field.name"></label>
                             <div class="input-group">
-                                <input type="text" class="form-control date_field" ng-model="customObject[field.name]"></input>
+                                <input type="text" class="form-control date_field" ng-model="customObject[field.name]"/>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" ng-click="setDateToNow(field.name)">^loc_NOW^</button>
+                                    <button class="btn btn-default" type="button" ng-click="setDateToNow(field.name)">^loc_generic.NOW^</button>
                                 </span>
                             </div>
                         </div>
                         <div class="form-group" ng-if="field.field_type == 'peer_object'">
                             <label ng-bind="field.name"></label>
-                            <select class="form-control" ng-model="customObject[field.name]" ng-options="availableObject._id as availableObject.name for availableObject in field.available_objects"></select>
+                            <select class="form-control" ng-model="customObject[field.name]" ng-options="availableObject._id as availableObject.name for availableObject in field.available_objects">
+                                <option value=""></option>
+                            </select>
                         </div>
                         <div id="{{field.name}}" class="form-group" ng-if="field.field_type == 'child_objects'">
                             <label ng-bind="field.name"></label>
                             <div class="panel panel-default">
-                                <div class="panel-heading">^loc_ACTIVE_OBJECTS^...</div>
+                                <div class="panel-heading">^loc_custom_objects.ACTIVE_OBJECTS^...</div>
                                 <div class="panel-body" style="min-height: 50px" data-as-sortable="getSortListeners(field)" is-enabled="true" ng-model="customObject[field.name]">
                                     <div class="panel panel-default draggable_item" ng-repeat="object in customObject[field.name]" data-as-sortable-item>
                                         <div class="panel-heading">
@@ -57,9 +59,9 @@
                             </div>
                             <div class="panel panel-default">
                                 <div class="panel-heading">
-                                    <div style="padding-bottom: .5em">^loc_INACTIVE_OBJECTS^...</div>
+                                    <div style="padding-bottom: .5em">^loc_custom_objects.INACTIVE_OBJECTS^...</div>
                                     <div class="input-group" style="margin-bottom: .5em">
-                                        <input type="text" ng-model="field.searchText" ng-change="search(field)" class="form-control"></input>
+                                        <input type="text" ng-model="field.searchText" ng-change="search(field)" class="form-control"/>
                                         <span class="input-group-btn">
                                             <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !field.searchText.length, 'fa-times': field.searchText.length}" ng-click="clearSearch(field)"></i></button>
                                         </span>
@@ -86,7 +88,7 @@
                     </span>
                 </div>
                 <a class="btn btn-default" ng-href="/admin/content/objects/{{objectType._id}}">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 ^tmp_admin=elements=save_button^
             </div>

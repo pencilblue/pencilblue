@@ -17,9 +17,23 @@ describe('NpmPluginDependencyService', function() {
 
     describe('NpmPluginDependencyService.getType', function() {
 
-        it('should throw when called directly', function() {
+        it('should return npm', function() {
             var service = new NpmPluginDependencyService({});
             service.getType().should.eql('npm');
+        });
+    });
+
+    describe('NpmPluginDependencyService.getRootPathToPackageJson', function() {
+
+        it('should return the path bower_components directory under the installation directory', function() {
+            NpmPluginDependencyService.getRootPathToPackageJson('npm').length.should.be.greaterThan(0);
+        });
+    });
+
+    describe('NpmPluginDependencyService.getPluginPathToPackageJson', function() {
+
+        it('should return the path bower_components directory under the installation directory', function() {
+            NpmPluginDependencyService.getPluginPathToPackageJson('sample', 'npm').length.should.be.greaterThan(0);
         });
     });
 });

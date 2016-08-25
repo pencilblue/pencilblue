@@ -4,17 +4,17 @@
     ^tmp_admin=elements=sub_nav^
     <div class="panel panel-default">
         <div class="panel-heading">
-            ^loc_ACTIVE_PLUGINS^&nbsp;
-            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_ACTIVE_PLUGIN_DESCRIPTION^"></i>
+            ^loc_generic.ACTIVE_PLUGINS^&nbsp;
+            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_generic.ACTIVE_PLUGIN_DESCRIPTION^"></i>
         </div>
         <div class="panel-body" ng-if="!installedPlugins.length">
-            ^loc_NO_ACTIVE_PLUGINS^
+            ^loc_plugins.NO_ACTIVE_PLUGINS^
         </div>
         <table id="installed_plugins_table" class="table table-responsive table-condensed" ng-if="installedPlugins.length > 0">
             <tr id="installed_plugins_table_header">
-                <th id="installed_name_header">^loc_NAME^</th>
-                <th id="installed_description_header">^loc_VERSION^</th>
-                <th id="installed_date_header">^loc_INSTALLED_ON^</th>
+                <th id="installed_name_header">^loc_generic.NAME^</th>
+                <th id="installed_description_header">^loc_generic.VERSION^</th>
+                <th id="installed_date_header">^loc_generic.INSTALLED_ON^</th>
                 <th></th>
             </tr>
             <tr class="installed_plugin_row" ng-repeat="installed in installedPlugins track by installed.uid">
@@ -23,13 +23,13 @@
                 <td ng-bind="installed.created | date: 'yyyy-MM-dd HH:mm'"></td>
                 <td style="text-align: right">
                     <div class="btn-group" style="text-align: left">
-                        <a class="btn btn-sm btn-default" ng-href="/admin/plugins/{{installed.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
+                        <a class="btn btn-sm btn-default" ng-href="/admin/plugins/{{installed.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_admin.SETTINGS^</a>
                         <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-sm fa-chevron-down"></i>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a ng-click="pluginAction('reset_settings', installed)"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_RESET_SETTINGS^</a></li>
-                            <li><a ng-click="pluginAction('uninstall', installed)"><i class="fa fa-fw fa-ban"></i>&nbsp;^loc_UNINSTALL^</a></li>
+                            <li><a ng-click="pluginAction('reset_settings', installed)"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_generic.RESET_SETTINGS^</a></li>
+                            <li><a ng-click="pluginAction('uninstall', installed)"><i class="fa fa-fw fa-ban"></i>&nbsp;^loc_generic.UNINSTALL^</a></li>
                         </ul>
                     </div>
                 </td>
@@ -39,17 +39,17 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            ^loc_INACTIVE_PLUGINS^&nbsp;
-            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_INACTIVE_PLUGIN_DESCRIPTION^"></i>
+            ^loc_generic.INACTIVE_PLUGINS^&nbsp;
+            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_generic.INACTIVE_PLUGIN_DESCRIPTION^"></i>
         </div>
         <div class="panel-body" ng-if="!inactivePlugins.length">
-            ^loc_NO_INACTIVE_PLUGINS^
+            ^loc_plugins.NO_INACTIVE_PLUGINS^
         </div>
         <table id="inactive_plugins_table" class="table table-responsive table-condensed" ng-if="inactivePlugins.length > 0">
             <tr id="inactive_plugins_table_header">
-                <th>^loc_NAME^</th>
-                <th>^loc_VERSION^</th>
-                <th>^loc_INSTALLED_ON^</th>
+                <th>^loc_generic.NAME^</th>
+                <th>^loc_generic.VERSION^</th>
+                <th>^loc_generic.INSTALLED_ON^</th>
                 <th></th>
             </tr>
             <tr class="inactive_plugin_row" ng-repeat="inactive in inactivePlugins track by inactive.uid">
@@ -58,14 +58,14 @@
                 <td ng-bind="inactive.created | date: 'yyyy-MM-dd HH:mm'"></td>
                 <td style="text-align: right">
                     <div class="btn-group" style="text-align: left">
-                        <a class="btn btn-sm btn-default" href="/admin/plugins/{{inactive.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
+                        <a class="btn btn-sm btn-default" href="/admin/plugins/{{inactive.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_admin.SETTINGS^</a>
                         <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-sm fa-chevron-down"></i>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a ng-click="pluginAction('reset_settings', inactive)"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_RESET_SETTINGS^</a></li>
-                            <li><a ng-click="pluginAction('initialize', inactive)"><i class="fa fa-fw fa-check"></i>&nbsp;^loc_INITIALIZE^</a></li>
-                            <li><a ng-click="pluginAction('uninstall', inactive)"><i class="fa fa-fw fa-ban"></i>&nbsp;^loc_UNINSTALL^</a></li>
+                            <li><a ng-click="pluginAction('reset_settings', inactive)"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_generic.RESET_SETTINGS^</a></li>
+                            <li><a ng-click="pluginAction('initialize', inactive)"><i class="fa fa-fw fa-check"></i>&nbsp;^loc_generic.INITIALIZE^</a></li>
+                            <li><a ng-click="pluginAction('uninstall', inactive)"><i class="fa fa-fw fa-ban"></i>&nbsp;^loc_generic.UNINSTALL^</a></li>
                         </ul>
                     </div>
                 </td>
@@ -75,18 +75,18 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            ^loc_AVAILABLE_PLUGINS^&nbsp;
-            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_AVAILABLE_PLUGIN_DESCRIPTION^"></i>
+            ^loc_generic.AVAILABLE_PLUGINS^&nbsp;
+            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_generic.AVAILABLE_PLUGIN_DESCRIPTION^"></i>
         </div>
         <div class="panel-body" ng-if="!availablePlugins.length">
-            ^loc_NO_AVAILABLE_PLUGINS^
+            ^loc_generic.NO_AVAILABLE_PLUGINS^
         </div>
         <div class="table_container">
             <table id="available_plugins_table" class="table table-responsive table-condensed" ng-if="availablePlugins.length > 0">
                 <tr id="available_plugins_table_header">
-                    <th>^loc_NAME^</th>
-                    <th>^loc_VERSION^</th>
-                    <th>^loc_DESCRIPTION^</th>
+                    <th>^loc_generic.NAME^</th>
+                    <th>^loc_generic.VERSION^</th>
+                    <th>^loc_generic.DESCRIPTION^</th>
                     <th></th>
                 </tr>
                 <tr class="available_plugin_row" ng-repeat="available in availablePlugins track by available.uid">
@@ -101,7 +101,7 @@
                         </ul>
                     </td>
                     <td>
-                        <a class="btn btn-sm btn-default pull-right" ng-if="!available.validationErrors" ng-click="pluginAction('install', available)"><i class="fa fa-hdd-o"></i>&nbsp;^loc_INSTALL^</a>
+                        <a class="btn btn-sm btn-default pull-right" ng-if="!available.validationErrors" ng-click="pluginAction('install', available)"><i class="fa fa-hdd-o"></i>&nbsp;^loc_generic.INSTALL^</a>
                     </td>
                 </tr>
             </table>
@@ -110,18 +110,18 @@
 
     <div class="panel panel-default" ng-if="siteUid != 'global'">
         <div class="panel-heading">
-            ^loc_GLOBAL_PLUGINS^&nbsp;
-            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_GLOBAL_ACTIVE_DESCRIPTION^"></i>
+            ^loc_generic.GLOBAL_PLUGINS^&nbsp;
+            <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_generic.GLOBAL_ACTIVE_DESCRIPTION^"></i>
         </div>
         <div class="panel-body" ng-if="!globalActivePlugins.length">
-            ^loc_NO_AVAILABLE_PLUGINS^
+            ^loc_generic.NO_AVAILABLE_PLUGINS^
         </div>
         <div class="table_container">
             <table id="global_active_plugins_table" class="table table-responsive table-condensed" ng-if="globalActivePlugins.length > 0">
                 <tr id="global_active_plugins_table_header">
-                    <th>^loc_NAME^</th>
-                    <th>^loc_VERSION^</th>
-                    <th>^loc_DESCRIPTION^</th>
+                    <th>^loc_generic.NAME^</th>
+                    <th>^loc_generic.VERSION^</th>
+                    <th>^loc_generic.DESCRIPTION^</th>
                     <th></th>
                 </tr>
                 <tr class="global_active_plugin_row" ng-repeat="installed in globalActivePlugins track by installed.uid">
@@ -136,7 +136,7 @@
                         </ul>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-default pull-right" ng-if="!installed.validationErrors" ng-disabled="isInstalled(installed.uid)" ng-click="pluginAction('install', installed)"><i class="fa fa-upload"></i>&nbsp;^loc_OVERRIDE^</button>
+                        <button class="btn btn-sm btn-default pull-right" ng-if="!installed.validationErrors" ng-disabled="isInstalled(installed.uid)" ng-click="pluginAction('install', installed)"><i class="fa fa-upload"></i>&nbsp;^loc_generic.OVERRIDE^</button>
                     </td>
                 </tr>
             </table>

@@ -178,7 +178,7 @@ module.exports = function MediaServiceModule(pb) {
             cb      = options;
             options = {
                 format_media: true,
-                order: {name: 1}
+                order: [['name', 1]]
             };
         }
 

@@ -67,7 +67,7 @@ module.exports = function (pb) {
 
         //ensure we were passed the correct parameters
         if(this.hasRequiredParams(get, ['email', 'code'])) {
-            return this.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
+            return this.formError(self.ls.g('users.INVALID_VERIFICATION'), '/user/login', cb);
         }
 
         //retrieve the user
@@ -77,15 +77,15 @@ module.exports = function (pb) {
 
                 //when no reset is found short circuit the whole thing
                 if (!data.user) {
-                    self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
+                    self.formError(self.ls.g('users.INVALID_VERIFICATION'), '/user/login', cb);
                 }
-                self.passwordResetService.getSingle({where: {userId: data.user.id, verificationCode: self.query.code}}, callback);
+                self.passwordResetService.getSingle({where: {userId: data.user.id + '', verificationCode: self.query.code}}, callback);
             }],
             deletePasswordReset: ['user', 'passwordReset', function(callback, data) {
 
                 //when no reset is found short circuit the whole thing
                 if (!data.passwordReset) {
-                    return self.formError(self.ls.get('INVALID_VERIFICATION'), '/user/login', cb);
+                    return self.formError(self.ls.g('users.INVALID_VERIFICATION'), '/user/login', cb);
                 }
                 self.passwordResetService.deleteSingle({where: {verificationCode: data.passwordReset.verificationCode}}, callback);
             }]

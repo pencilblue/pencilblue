@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var url  = require('url');
@@ -90,10 +91,8 @@ module.exports = function UrlServiceModule(pb) {
             url = url.substring(0, url.length - 1);
         }
         var pattern = "^\\/{0,1}" + util.escapeRegExp(url) + "\\/{0,1}$";
-
-        //execute search
         var where = {
-            url: new RegExp(pattern, 'g')
+            url: new RegExp(pattern, "i")
         };
         if (site !== undefined) {
             where[pb.SiteService.SITE_FIELD] = site;

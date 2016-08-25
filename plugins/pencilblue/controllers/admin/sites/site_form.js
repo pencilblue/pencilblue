@@ -103,7 +103,7 @@ module.exports = function SiteFormModule(pb) {
     var angularObjects = pb.ClientJs.getAngularObjects({
       navigation: pb.AdminNavigation.get(self.session, ['site_entity'], self.ls, self.site),
       pills: pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
-      tabs: [{ active: 'active', href: '#editSite', icon: 'cog', title: self.ls.get('EDIT_SITE') }],
+      tabs: [{ active: 'active', href: '#editSite', icon: 'cog', title: self.ls.g('sites.EDIT_SITE') }],
       displayName: display,
       hostname: host,
       supportedLocales: supportedLocales,
@@ -131,7 +131,7 @@ module.exports = function SiteFormModule(pb) {
   SiteForm.getSubNavItems = function(key, ls) {
     return [{
       name: 'edit_sites',
-      title: ls.get('EDIT_SITE'),
+      title: ls.g('sites.EDIT_SITE'),
       icon: 'chevron-left',
       href: '/admin/sites'
     }, {

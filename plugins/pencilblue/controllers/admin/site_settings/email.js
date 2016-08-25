@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -38,17 +39,17 @@ module.exports = function(pb) {
                 active: 'active',
                 href: '#preferences',
                 icon: 'wrench',
-                title: self.ls.get('PREFERENCES')
+                title: self.ls.g('generic.PREFERENCES')
             },
             {
                 href: '#smtp',
                 icon: 'upload',
-                title: self.ls.get('SMTP')
+                title: self.ls.g('site_settings.SMTP')
             },
             {
                 href: '#test',
                 icon: 'flask',
-                title: self.ls.get('TEST')
+                title: self.ls.g('site_settings.TEST')
             }
         ];
 
@@ -61,7 +62,7 @@ module.exports = function(pb) {
                 emailSettings: emailSettings
             });
 
-            self.setPageName(self.ls.get('EMAIL'));
+            self.setPageName(self.ls.g('generic.EMAIL'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/site_settings/email', function(err, result) {
                 cb({content: result});
@@ -73,12 +74,12 @@ module.exports = function(pb) {
 
         var pills = [{
             name: 'configuration',
-            title: ls.get('EMAIL'),
+            title: ls.g('generic.EMAIL'),
             icon: 'chevron-left',
             href: '/admin/site_settings'
         }, {
             name: 'content',
-            title: ls.get('CONTENT'),
+            title: ls.g('generic.CONTENT'),
             icon: 'quote-right',
             href: '/admin/site_settings/content'
         }];
@@ -86,7 +87,7 @@ module.exports = function(pb) {
         if(data && data.site === SiteService.GLOBAL_SITE) {
             pills.push({
                 name: 'libraries',
-                title: ls.get('LIBRARIES'),
+                title: ls.g('site_settings.LIBRARIES'),
                 icon: 'book',
                 href: '/admin/site_settings/libraries'
             });

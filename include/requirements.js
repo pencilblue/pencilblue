@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var path = require('path');
@@ -278,6 +279,7 @@ module.exports = function PB(config) {
     pb.PluginValidationService = require(path.join(config.docRoot, '/include/service/entities/plugins/plugin_validation_service.js'))(pb);
     pb.PluginDependencyService = require(path.join(config.docRoot, '/include/service/entities/plugins/plugin_dependency_service.js'))(pb);
     pb.NpmPluginDependencyService = require(path.join(config.docRoot, '/include/service/entities/plugins/npm_plugin_dependency_service.js'))(pb);
+    pb.BowerPluginDependencyService = require(path.join(config.docRoot, '/include/service/entities/plugins/bower_plugin_dependency_service.js'))(pb);
     pb.PluginResourceLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_resource_loader.js'))(pb);
     pb.PluginServiceLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_service_loader.js'))(pb);
     pb.PluginLocalizationLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_localization_loader.js'))(pb);
