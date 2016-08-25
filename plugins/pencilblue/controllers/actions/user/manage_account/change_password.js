@@ -38,21 +38,21 @@ module.exports = function(pb) {
       post.confirm_password = BaseController.sanitize(post.confirm_password);
 
       //validate
+      var message;
       if(self.session.authentication.reset_password) {
-        var message = self.hasRequiredParams(post, ['new_password', 'confirm_password']);
+        message = self.hasRequiredParams(post, ['new_password', 'confirm_password']);
       }
       else {
-        var message = self.hasRequiredParams(post, ['current_password', 'new_password', 'confirm_password']);
+        message = self.hasRequiredParams(post, ['current_password', 'new_password', 'confirm_password']);
       }
       if(message) {
-        cb({
+        return cb({
           code: 400,
-          content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+          content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
         });
-        return;
       }
 
-      var where = pb.DAO.getIdWhere(self.session.authentication.user[pb.DAO.getIdField()])
+      var where = pb.DAO.getIdWhere(self.session.authentication.user[pb.DAO.getIdField()]);
       if(!self.session.authentication.reset_password) {
         where.password = pb.security.encrypt(post.current_password);
       }
@@ -61,7 +61,7 @@ module.exports = function(pb) {
       if(post.new_password !== post.confirm_password) {
         cb({
           code: 400,
-          content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('PASSWORD_MISMATCH'))
+          content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('users.PASSWORD_MISMATCH'))
         });
         return;
       }
@@ -75,24 +75,24 @@ module.exports = function(pb) {
         if(util.isError(err) || user === null) {
           cb({
             code: 400,
-            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_PASSWORD'))
+            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('users.INVALID_PASSWORD'))
           });
           return;
         }
 
         pb.DocumentCreator.update(post, user);
-        dao.save(user, function(err, result) {
+        dao.save(user, function(err/*, result*/) {
           if(util.isError(err)) {
             cb({
               code: 500,
-              content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_SAVING'))
+              content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'))
             });
             return;
           }
 
           self.session.authentication.reset_password = false;
           cb({
-            content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('PASSWORD_CHANGED'))
+            content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('users.PASSWORD_CHANGED'))
           });
         });
       });

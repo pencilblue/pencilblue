@@ -93,23 +93,23 @@ module.exports = function(pb) {
                     else if (util.isString(item.value)) {
                         item.type = 'text';
                     }
-                    else if (!isNaN()) {
+                    else if (!isNaN(item.value)) {
                         item.type = 'number';
                     }
                 }
 
                 // First sort the settings alphabetically, then by heading/group
-                clone.sort(sortOn("displayName"));
-                clone.sort(sortOn("heading"));
+                clone.sort(PluginSettingsFormController.sortOn("displayName"));
+                clone.sort(PluginSettingsFormController.sortOn("heading"));
 
-                insertGroupHeadings(clone);
+                clone = PluginSettingsFormController.insertGroupHeadings(clone);
 
                 var tabs = [
                     {
                         active: 'active',
                         href: '#plugin_settings',
                         icon: 'cog',
-                        title: self.ls.get('SETTINGS')
+                        title: self.ls.g('admin.SETTINGS')
                     }
                 ];
 
@@ -135,32 +135,45 @@ module.exports = function(pb) {
             });
         });
     };
-    function insertGroupHeadings(clone){
-        var previous = clone[clone.length - 1], current;
-        for (var i = clone.length - 1; i >= 0; i--) {
-            current = clone[i];
-            if (current.heading != previous.heading) {
-                clone.splice(i+1, 0, {id: previous.heading, isHeading: true, heading: convertNameToDisplayName(previous.heading)});
-            }
+    /**
+     * Inserts a new record before the start of the new group.  This assumes that the settings array is already sorted
+     * by group
+     * @param {Array} settings
+     * @returns {Array}
+     */
+    PluginSettingsFormController.insertGroupHeadings = function(settings) {
 
-            previous = current;
+        var prevHeading = '';
+        var settingsAndHeaders = [];
+        for (var i = 0; i < settings.length; i++) {
+            if (prevHeading !== settings[i].heading) {
+                settingsAndHeaders.push({
+                    id: settings[i].heading,
+                    isHeading: true,
+                    heading: convertNameToDisplayName(settings[i].heading)
+                });
+            }
+            prevHeading = settings[i].heading;
+            settingsAndHeaders.push(settings[i]);
         }
-    }
-    function sortOn(property){
+        return settingsAndHeaders;
+    };
+    PluginSettingsFormController.sortOn = function (property){
         return function(a, b){
             // Forces default heading to appear at the top of the sets of grouped settings
             if(property === 'heading' && a[property] === 'default'){
                 return -1;
             }
-            else if(a[property] < b[property]){
+            else if(a[property].toLowerCase() < b[property].toLowerCase()){
                 return -1;
-            }else if(a[property] > b[property]){
+            }else if(a[property].toLowerCase() > b[property].toLowerCase()){
                 return 1;
             }else{
                 return 0;
             }
         }
-    }
+    };
+
     function convertNameToDisplayName(name){
         name = name.split('_').join(' ');
         return name.charAt(0).toUpperCase() + name.slice(1);
@@ -180,7 +193,7 @@ module.exports = function(pb) {
             else if (util.isNullOrUndefined(settings)) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_UID'))
                 });
             }
 
@@ -214,7 +227,7 @@ module.exports = function(pb) {
             if(errors.length > 0) {
                 cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, errors.join("\n"))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, errors.join("\n"))
                 });
                 return;
             }
@@ -224,12 +237,12 @@ module.exports = function(pb) {
                 if(util.isError(err) || !result) {
                     cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SAVE_PUGIN_SETTINGS_FAILURE'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.SAVE_PUGIN_SETTINGS_FAILURE'))
                     });
                     return;
                 }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVE_PLUGIN_SETTINGS_SUCCESS'))});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('generic.SAVE_PLUGIN_SETTINGS_SUCCESS'))});
             });
         });
     };
@@ -240,7 +253,7 @@ module.exports = function(pb) {
      *
      */
     PluginSettingsFormController.prototype.getPageName = function() {
-        return this.plugin.name + ' - ' + this.ls.get('SETTINGS');
+        return this.plugin.name + ' - ' + this.ls.g('admin.SETTINGS');
     };
 
     /**
@@ -280,7 +293,7 @@ module.exports = function(pb) {
         return [
             {
                 name: 'manage_plugins',
-                title: data.plugin.name + ' ' + ls.get('SETTINGS'),
+                title: data.plugin.name + ' ' + ls.g('admin.SETTINGS'),
                 icon: 'chevron-left',
                 href: '/admin/' + data.settingType
             }

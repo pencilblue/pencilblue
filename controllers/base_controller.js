@@ -527,17 +527,14 @@ module.exports = function BaseControllerModule(pb) {
 
         for (var i = 0; i < requiredParameters.length; i++) {
 
-            if (typeof queryObject[requiredParameters[i]] === 'undefined') {
-                return this.ls.get('FORM_INCOMPLETE');
-            }
-            else if (queryObject[requiredParameters[i]].length === 0) {
-                return this.ls.get('FORM_INCOMPLETE');
+            if (typeof queryObject[requiredParameters[i]] === 'undefined' || queryObject[requiredParameters[i]].length === 0) {
+                return this.ls.g('generic.FORM_INCOMPLETE');
             }
         }
 
         if(queryObject.password && queryObject.confirm_password) {
             if(queryObject.password !== queryObject.confirm_password) {
-                return this.ls.get('PASSWORD_MISMATCH');
+                return this.ls.g('users.PASSWORD_MISMATCH');
             }
         }
 

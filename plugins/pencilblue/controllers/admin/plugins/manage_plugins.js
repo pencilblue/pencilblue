@@ -14,6 +14,7 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -75,7 +76,7 @@ module.exports = function(pb) {
         return [
             {
                 name: 'manage_plugins',
-                title: ls.get('MANAGE_PLUGINS'),
+                title: ls.g('plugins.MANAGE_PLUGINS'),
                 icon: 'refresh',
                 href: '/admin/plugins'
             }

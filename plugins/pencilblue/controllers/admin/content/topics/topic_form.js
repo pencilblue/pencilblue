@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -50,7 +51,7 @@ module.exports = function(pb) {
             data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, self.topic);
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
-            self.setPageName(self.topic[pb.DAO.getIdField()] ? self.topic.name : self.ls.get('NEW_TOPIC'));
+            self.setPageName(self.topic[pb.DAO.getIdField()] ? self.topic.name : self.ls.g('topics.NEW_TOPIC'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/content/topics/topic_form', function(err, result) {
                 cb({content: result});
@@ -68,7 +69,7 @@ module.exports = function(pb) {
                         active: 'active',
                         href: '#topic_settings',
                         icon: 'cog',
-                        title: self.ls.get('SETTINGS')
+                        title: self.ls.g('admin.SETTINGS')
                     }
                 ];
                 callback(null, tabs);
@@ -95,7 +96,7 @@ module.exports = function(pb) {
     TopicForm.getSubNavItems = function(key, ls, data) {
         return [{
             name: SUB_NAV_KEY,
-            title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_TOPIC'),
+            title: data[pb.DAO.getIdField()] ? ls.g('generic.EDIT') + ' ' + data.name : ls.g('topics.NEW_TOPIC'),
             icon: 'chevron-left',
             href: '/admin/content/topics'
         }, {

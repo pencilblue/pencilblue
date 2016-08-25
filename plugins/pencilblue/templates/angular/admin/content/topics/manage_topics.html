@@ -26,7 +26,7 @@
 
       topicFactory.getTopics({
         $limit: $scope.paginationLimit,
-        $offset: $scope.paginationIndex
+        $offset: $scope.paginationIndex * $scope.paginationLimit
       }, function(error, topics, total) {
         if(error) {
           $scope.errorMessage = error.message;

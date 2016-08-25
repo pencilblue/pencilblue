@@ -1,7 +1,7 @@
 ^tmp_admin=head^
 <div class="col-md-9">
     <div class="alert alert-warning error_success" ng-if="permissions.length === 0">
-        ^loc_NO_PERMISSIONS^.
+        ^loc_users.NO_PERMISSIONS^.
     </div>
     ^tmp_admin=elements=sub_nav^
     <div ng-if="permissions.length > 0">
@@ -10,7 +10,7 @@
     <div class="table_container" ng-if="permissions.length > 0">
         <table id="permissions_table" class="table table-responsive table-condensed">
             <tr>
-                <th id="permission_name_header">^loc_NAME^</th>
+                <th id="permission_name_header">^loc_generic.NAME^</th>
                 <th ng-repeat="role in roles"><div ng-class-odd="'odd'"><span ng-bind="role"></span></div></th>
             </tr>
             <tr class="permission_row" ng-repeat="perm in permissions" ng-if="!perm.hidden && !perm.paginated">

@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function LoginViewControllerModule(pb) {
 
@@ -46,7 +47,7 @@ module.exports = function LoginViewControllerModule(pb) {
             return;
         }
 
-        this.setPageName(' ' + this.ls.get('LOGIN'));
+        this.setPageName(' ' + this.ls.g('generic.LOGIN'));
         this.ts.load('admin/login',  function(err, data) {
             cb({content: data});
         });

@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function LocalizationApiControllerModule(pb) {
 
@@ -39,9 +40,9 @@ module.exports = function LocalizationApiControllerModule(pb) {
         var locale = this.query.locale || this.ls.language;
         var plugin = this.query.plugin;
 
-        var package = pb.Localization.getLocalizationPackage(locale, { plugin: plugin });
+        var pkg = pb.Localization.getLocalizationPackage(locale, { plugin: plugin });
         var content = {
-            content: 'var loc = ' + JSON.stringify(package) + ';',
+            content: 'var loc = ' + JSON.stringify(pkg) + ';',
             content_type: 'text/javascript'
         };
         cb(content);

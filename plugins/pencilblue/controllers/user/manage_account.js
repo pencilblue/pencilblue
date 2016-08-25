@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -36,30 +37,21 @@ module.exports = function(pb) {
 
     /**
      * Initializes the controller
-     * @method init
+     * @method initSync
      * @param {Object} context
-     * @param {Function} cb
      */
-    ManageAccount.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err) {
+    ManageAccount.prototype.initSync = function(/*context*/) {
 
-            /**
-             *
-             * @property service
-             * @type {TopicService}
-             */
-            self.service = new UserService(self.getServiceContext());
-
-            cb(err, true);
-        };
-        ManageAccount.super_.prototype.init.apply(this, [context, init]);
+        /**
+         * @property service
+         * @type {TopicService}
+         */
+        this.service = new UserService(this.getServiceContext());
     };
 
     /**
-     *
      * @method render
-     * @param {Function}
+     * @param {Function} cb
      */
     ManageAccount.prototype.render = function(cb) {
         var self = this;
@@ -74,8 +66,8 @@ module.exports = function(pb) {
 
             delete data.user.password;
 
-            self.setPageName(self.ls.get('MANAGE_ACCOUNT'));
-            self.ts.registerLocal('image_title', self.ls.get('USER_PHOTO'));
+            self.setPageName(self.ls.g('users.MANAGE_ACCOUNT'));
+            self.ts.registerLocal('image_title', self.ls.g('users.USER_PHOTO'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(pb.ClientJs.getAngularObjects(data), false));
             self.ts.load('user/manage_account', function(err, result) {
                 cb({content: result});
@@ -126,7 +118,7 @@ module.exports = function(pb) {
             {
                 id: 'account',
                 active: 'active',
-                title: this.ls.get('ACCOUNT'),
+                title: this.ls.g('generic.ACCOUNT'),
                 icon: 'user',
                 href: '#',
                 dropdown: true,
@@ -135,13 +127,13 @@ module.exports = function(pb) {
                     {
                         id: 'manage',
                         active: 'active',
-                        title: this.ls.get('MANAGE_ACCOUNT'),
+                        title: this.ls.g('users.MANAGE_ACCOUNT'),
                         icon: 'cog',
                         href: '/user/manage_account',
                     },
                     {
                         id: 'change_password',
-                        title: this.ls.get('CHANGE_PASSWORD'),
+                        title: this.ls.g('users.CHANGE_PASSWORD'),
                         icon: 'key',
                         href: '/user/change_password',
                     }
@@ -161,12 +153,12 @@ module.exports = function(pb) {
                 active: 'active',
                 href: '#account_info',
                 icon: 'cog',
-                title: this.ls.get('ACCOUNT_INFO')
+                title: this.ls.g('users.ACCOUNT_INFO')
             },
             {
                 href: '#personal_info',
                 icon: 'user',
-                title: this.ls.get('PERSONAL_INFO')
+                title: this.ls.g('users.PERSONAL_INFO')
             }
         ];
     };
@@ -180,7 +172,7 @@ module.exports = function(pb) {
         return [
             {
                 name: 'manage_account',
-                title: this.ls.get('MANAGE_ACCOUNT'),
+                title: this.ls.g('users.MANAGE_ACCOUNT'),
                 icon: 'refresh',
                 href: '/user/manage_account'
             }

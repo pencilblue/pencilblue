@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var fs          = require('fs');
@@ -74,13 +75,17 @@ function PencilBlue(config){
             this.initCommandService,
             this.initLibraries,
             this.registerMetrics,
-            util.wrapTask(this, this.initServer),
+            util.wrapTask(this, this.initServer)
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function(err/*, results*/) {
             if (util.isError(err)) {
                 throw err;
             }
             pb.log.info('PencilBlue: Ready to run!');
+            //console.log('\n\n\n');
+            //console.log('storage');console.log(JSON.stringify(pb.Localization.storage));
+            //console.log('keys');console.log(JSON.stringify(pb.Localization.keys));
+            //console.log('lookup');console.log(JSON.stringify(pb.Localization.supportedLookup));
         });
     };
 
@@ -111,7 +116,7 @@ function PencilBlue(config){
     this.initRequestHandler = function(cb) {
         pb.RequestHandler.init();
         cb(null, true);
-    }
+    };
 
     /**
      * Starts the session handler
@@ -195,7 +200,7 @@ function PencilBlue(config){
         }
 
         pb.log.info('PencilBlue: Ensuring indices...');
-        pb.dbm.processIndices(pb.config.db.indices, function(err, results) {
+        pb.dbm.processIndices(pb.config.db.indices, function(err/*, results*/) {
             cb(err, !util.isError(err));
         });
     };
@@ -354,8 +359,14 @@ function PencilBlue(config){
             self.init();
         });
     };
-};
+}
 
+/**
+ * The default entry point to a stand-alone instance of PencilBlue
+ * @static
+ * @method startInstance
+ * @return {PencilBlue}
+ */
 PencilBlue.startInstance = function() {
     var Configuration = require('./include/config.js');
     var config        = Configuration.load();
