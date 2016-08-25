@@ -118,15 +118,6 @@ module.exports = function PluginServiceModule(pb) {
      */
     var PLUGIN_INIT_CACHE = {};
 
-    function getPluginForSite(theme, site) {
-        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][theme]) {
-            return ACTIVE_PLUGINS[site][theme];
-        } else if (ACTIVE_PLUGINS[GLOBAL_SITE] && ACTIVE_PLUGINS[GLOBAL_SITE][theme]) {
-            return ACTIVE_PLUGINS[GLOBAL_SITE][theme];
-        }
-        return null;
-    }
-
     /**
      * The maximum number of retries to acquire
      * @private
@@ -174,6 +165,17 @@ module.exports = function PluginServiceModule(pb) {
             return true;
         }
         return false;
+    };
+
+    PluginService.activatePlugin = function(pluginUid, pluginSpec, site) {
+        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
+            return false;
+        }
+        if (!ACTIVE_PLUGINS[site]) {
+            ACTIVE_PLUGINS[site] = {};
+        }
+        ACTIVE_PLUGINS[site][pluginUid] = pluginSpec;
+        return true;
     };
 
     /**
@@ -757,6 +759,24 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
+     *
+     * @param theme
+     * @param site
+     * @returns {*}
+     */
+    PluginService.getPluginForSite = function(theme, site) {
+        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][theme]) {
+            return ACTIVE_PLUGINS[site][theme];
+        } else if (ACTIVE_PLUGINS[GLOBAL_SITE] && ACTIVE_PLUGINS[GLOBAL_SITE][theme]) {
+            return ACTIVE_PLUGINS[GLOBAL_SITE][theme];
+        }
+        return null;
+    };
+    function getPluginForSite(theme, site){
+        return PluginService.getPluginForSite(theme, site);
+    }
+
+    /**
      * Indicates if the specified plugin is active for a given site in this instance of PB.
      * @static
      * @method isActivePlugin
@@ -1082,30 +1102,36 @@ module.exports = function PluginServiceModule(pb) {
             return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
         }
 
-        pb.log.debug("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
-
-        var tasks = this.getInitTasksForPlugin(plugin);
-
-        async.series(tasks, function(err/*, results*/) {
-            //cleanup on error
-            if (util.isError(err)) {
-                delete ACTIVE_PLUGINS[plugin.uid];
-
-                //log it all
-                var hasValidationErrs = !!err.validationErrors;
-                pb.log.error('PluginService:[%s] failed to initialize: %s', plugin.uid, hasValidationErrs ? err.message : err.stack);
-                if (hasValidationErrs) {
-                    err.validationErrors.forEach(function(validationError) {
-                        pb.log.error('PluginService:[%s] details.json validation error FIELD=%s MSG=%s', plugin.uid, validationError.field, validationError.message);
-                    });
-                }
-            }
-            else {
-                pb.log.debug('PluginService:[%s] successfully initialized', plugin.name, plugin.uid);
-            }
-
-            cb(err, !util.isError(err));
+        var service = new pb.PluginInitializationService({
+            pluginService: this,
+            pluginCache: PLUGIN_INIT_CACHE
         });
+        service.initialize(plugin, {}, cb);
+
+        //pb.log.debug("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
+        //
+        //var tasks = this.getInitTasksForPlugin(plugin);
+        //
+        //async.series(tasks, function(err/*, results*/) {
+        //    //cleanup on error
+        //    if (util.isError(err)) {
+        //        delete ACTIVE_PLUGINS[plugin.uid];
+        //
+        //        //log it all
+        //        var hasValidationErrs = !!err.validationErrors;
+        //        pb.log.error('PluginService:[%s] failed to initialize: %s', plugin.uid, hasValidationErrs ? err.message : err.stack);
+        //        if (hasValidationErrs) {
+        //            err.validationErrors.forEach(function(validationError) {
+        //                pb.log.error('PluginService:[%s] details.json validation error FIELD=%s MSG=%s', plugin.uid, validationError.field, validationError.message);
+        //            });
+        //        }
+        //    }
+        //    else {
+        //        pb.log.debug('PluginService:[%s] successfully initialized', plugin.name, plugin.uid);
+        //    }
+        //
+        //    cb(err, !util.isError(err));
+        //});
     };
 
     /**
@@ -1433,8 +1459,8 @@ module.exports = function PluginServiceModule(pb) {
      * When the directory does not exist NULL is returned as the result parameter.
      */
     PluginService.prototype.getLocalizations = function(pluginDirName, cb) {
-        var service = new pb.PluginLocalizationLoader({pluginUid: pluginDirName});
-        service.getAll(cb);
+        var service = new pb.PluginLocalizationLoader({pluginUid: pluginDirName, site: this.site});
+        service.getAll({}, cb);
     };
 
     /**
@@ -1714,7 +1740,7 @@ module.exports = function PluginServiceModule(pb) {
         var pathParts = pathToPlugin.split(path.sep);
 
         var service = new pb.PluginServiceLoader({pluginUid: pathParts[pathParts.length - 1]});
-        service.getAll(cb);
+        service.getAll({}, cb);
     };
 
     /**

@@ -19,7 +19,6 @@
 //dependencies
 var npm = require('npm');
 var semver = require('semver');
-var async = require('async');
 var path = require('path');
 var fs = require('fs');
 
@@ -47,9 +46,10 @@ module.exports = function (pb) {
      * module wrapper function
      * @method initResource
      * @param {object} resource
+     * @param {object} options
      * @param {function} cb (Error)
      */
-    PluginServiceLoader.prototype.initResource = function(resource, cb) {
+    PluginServiceLoader.prototype.initResource = function(resource, options, cb) {
         var service = resource(pb);
         service.init(function(err) {
             cb(err, service);

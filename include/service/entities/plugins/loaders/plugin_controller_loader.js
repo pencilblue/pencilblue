@@ -14,10 +14,13 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-"use strict";
+'use strict';
 
 //dependencies
+var npm = require('npm');
+var semver = require('semver');
 var path = require('path');
+var fs = require('fs');
 
 module.exports = function (pb) {
 
@@ -25,17 +28,17 @@ module.exports = function (pb) {
     var util = pb.util;
     var PluginService = pb.PluginService;
     var PluginResourceLoader = pb.PluginResourceLoader;
-    var Localization = pb.Localization;
+    var RequestHandler = pb.RequestHandler;
 
     /**
-     * @class PluginLocalizationLoader
+     * @class PluginControllerLoader
      * @extends PluginResourceLoader
      * @constructor
      * @param {object} context
      * @param {string} context.pluginUid
      * @param {string} context.site
      */
-    function PluginLocalizationLoader(context){
+    function PluginControllerLoader(context){
 
         /**
          * @property site
@@ -43,9 +46,9 @@ module.exports = function (pb) {
          */
         this.site = context.site;
 
-        PluginLocalizationLoader.super_.call(this, context);
+        PluginControllerLoader.super_.call(this, context);
     }
-    util.inherits(PluginLocalizationLoader, PluginResourceLoader);
+    util.inherits(PluginControllerLoader, PluginResourceLoader);
 
     /**
      * Responsible for initializing the resource.  Calls the init function after extracting the prototype from the
@@ -56,14 +59,15 @@ module.exports = function (pb) {
      * @param {boolean} [context.register=false]
      * @param {function} cb (Error, ControllerPrototype)
      */
-    PluginLocalizationLoader.prototype.initResource = function(resource, context, cb) {
+    PluginControllerLoader.prototype.initResource = function(resource, context, cb) {
+        var ControllerPrototype = resource(pb);
         if (!context.register) {
-            return cb(null, resource);
+            return cb(null, ControllerPrototype);
         }
 
         //we made it this far so we need to register the controller with the RequestHandler
-        this.register(resource, context, function(err) {
-            cb(err, resource);
+        this.register(ControllerPrototype, context, function(err) {
+            cb(err, ControllerPrototype);
         });
     };
 
@@ -71,23 +75,40 @@ module.exports = function (pb) {
      * Responsible for initializing the resource.  Calls the init function after extracting the prototype from the
      * module wrapper function
      * @method register
-     * @param {object} localization
+     * @param {function} ControllerPrototype
      * @param {object} context
      * @param {string} context.path
      * @param {function} cb (Error)
      */
-    PluginLocalizationLoader.prototype.register = function(localization, context, cb) {
-        var locale = this.getResourceName(context.path, localization);
-        pb.log.debug('PluginLocalizationLoader:[%s] Registering localizations for locale [%s]', this.pluginUid, locale);
-
-        var opts = {
-            site: this.site,
-            plugin: this.pluginUid
-        };
-        if (!Localization.registerLocale(locale, localization, opts)) {
-            pb.log.debug('PluginLocalizationLoader:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', this.pluginUid, locale);
+    PluginControllerLoader.prototype.register = function(ControllerPrototype, context, cb) {
+        //ensure we can get the routes
+        if (!util.isFunction(ControllerPrototype.getRoutes)){
+            return cb(new Error('Controller at [' + context.path + '] does not implement function "getRoutes"'));
         }
-        process.nextTick(cb);
+
+        //get the routes
+        var self = this;
+        ControllerPrototype.getRoutes(function(err, routes) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            else if (!util.isArray(routes)) {
+                return cb(new Error('Controller at [' + context.path + '] did not return an array of routes'));
+            }
+
+            //attempt to register route
+            for(var i = 0; i < routes.length; i++) {
+                var route = routes[i];
+                route.controller = context.path;
+
+                //register and verify
+                if (!RequestHandler.registerRoute(route, self.pluginUid, self.site)) {
+                    pb.log.warn('PluginControllerLoaderService: Failed to register route [%s] for controller at [%s]', util.inspect(route), context.path);
+                }
+            }
+
+            cb();
+        });
     };
 
     /**
@@ -97,8 +118,8 @@ module.exports = function (pb) {
      * @param {object} resource
      * @return {string}
      */
-    PluginLocalizationLoader.prototype.getResourceName = function(pathToResource, resource) {
-        return PluginResourceLoader.getResourceName(pathToResource);
+    PluginControllerLoader.prototype.getResourceName = function(pathToResource/*, resource*/) {
+        return pathToResource;
     };
 
     /**
@@ -107,8 +128,8 @@ module.exports = function (pb) {
      * @method getFileFilter
      * @return {function} (string, object)
      */
-    PluginLocalizationLoader.prototype.getFileFilter = function() {
-        return util.getFileExtensionFilter('json');
+    PluginControllerLoader.prototype.getFileFilter = function() {
+        return util.getFileExtensionFilter('js');
     };
 
     /**
@@ -116,20 +137,20 @@ module.exports = function (pb) {
      * @method getBaseResourcePath
      * @return {string}
      */
-    PluginLocalizationLoader.prototype.getBaseResourcePath = function() {
-        return PluginLocalizationLoader.getPathToLocalizations(this.pluginUid);
+    PluginControllerLoader.prototype.getBaseResourcePath = function() {
+        return PluginControllerLoader.getPathToControllers(this.pluginUid);
     };
 
     /**
-     * Creates an absolute path pointing to the directory where a plugin's localizations live
+     * Creates an absolute path pointing to the directory where a plugin's controllers live
      * @static
      * @method getPathToServices
      * @param {string} pluginUid
      * @return {string}
      */
-    PluginLocalizationLoader.getPathToLocalizations = function(pluginUid) {
-        return path.join(PluginService.getPublicPath(pluginUid), 'localization');
+    PluginControllerLoader.getPathToControllers = function(pluginUid) {
+        return path.join(PluginService.getPluginsDir(), pluginUid, 'controllers');
     };
 
-    return PluginLocalizationLoader;
+    return PluginControllerLoader;
 };
