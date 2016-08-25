@@ -83,8 +83,9 @@ module.exports = function(pb) {
                 for (var i = 0; i < clone.length; i++) {
                     var item = clone[i];
 
-                    item.displayName = item.name.split('_').join(' ');
-                    item.displayName = item.displayName.charAt(0).toUpperCase() + item.displayName.slice(1);
+                    item.id = item.name.split(' ').join('_');
+                    item.heading = item.heading || 'default';
+                    item.displayName = convertNameToDisplayName(item.name);
 
                     if (item.value === true || item.value === false) {
                         item.type = 'checkbox';
@@ -96,6 +97,12 @@ module.exports = function(pb) {
                         item.type = 'number';
                     }
                 }
+
+                // First sort the settings alphabetically, then by heading/group
+                clone.sort(sortOn("displayName"));
+                clone.sort(sortOn("heading"));
+
+                insertGroupHeadings(clone);
 
                 var tabs = [
                     {
@@ -128,6 +135,36 @@ module.exports = function(pb) {
             });
         });
     };
+    function insertGroupHeadings(clone){
+        var previous = clone[clone.length - 1], current;
+        for (var i = clone.length - 1; i >= 0; i--) {
+            current = clone[i];
+            if (current.heading != previous.heading) {
+                clone.splice(i+1, 0, {id: previous.heading, isHeading: true, heading: convertNameToDisplayName(previous.heading)});
+            }
+
+            previous = current;
+        }
+    }
+    function sortOn(property){
+        return function(a, b){
+            // Forces default heading to appear at the top of the sets of grouped settings
+            if(property === 'heading' && a[property] === 'default'){
+                return -1;
+            }
+            else if(a[property] < b[property]){
+                return -1;
+            }else if(a[property] > b[property]){
+                return 1;
+            }else{
+                return 0;
+            }
+        }
+    }
+    function convertNameToDisplayName(name){
+        name = name.split('_').join(' ');
+        return name.charAt(0).toUpperCase() + name.slice(1);
+    }
 
 
     PluginSettingsFormController.prototype.post = function(cb) {
