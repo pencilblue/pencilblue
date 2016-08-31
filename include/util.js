@@ -190,6 +190,38 @@ Util.wrapTask = function(context, func, argArray) {
 };
 
 /**
+ * Wraps a task in a context as well as a function to mark the start and end time.  The result of the task will be
+ * provided in the callback as the "result" property of the result object.  The time of execution can be found as the
+ * "time" property.
+ * @static
+ * @method wrapTimedTask
+ * @param {*} context The value of "this" for the function to be called
+ * @param {Function} func The function to be executed
+ * @param {string} [name] The task's name
+ * @param {Array} [argArray] The arguments to be supplied to the func parameter
+ * when executed.
+ * @return {Function}
+ */
+Util.wrapTimedTask = function(context, func, name, argArray) {
+    if (Util.isString(argArray)) {
+        name = argArray;
+        argArray = [];
+    }
+    var task = Util.wrapTask(context, func, argArray);
+    return function(callback) {
+        var start = Date.now();
+        task(function(err, result) {
+            callback(err, {
+                result: result,
+                time: Date.now() - start,
+                start: start,
+                name: name
+            });
+        });
+    };
+};
+
+/**
  * Provides an implementation of for each that accepts an array or object.
  * @static
  * @method forEach
