@@ -128,7 +128,7 @@ module.exports = function PluginServiceModule(pb) {
         var self = this;
         var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.site);
         settings.get('active_theme', function(err, theme) {
-            var active_theme = getPluginForSite(theme, self.site);
+            var active_theme = PluginService.getPluginForSite(theme, self.site);
             cb(err, active_theme && active_theme.icon ? active_theme.icon : '/favicon.ico');
         });
     };
@@ -752,7 +752,7 @@ module.exports = function PluginServiceModule(pb) {
         if(!site) {
             site = GLOBAL_SITE;
         }
-        return !!getPluginForSite(uid, site);
+        return !!PluginService.getPluginForSite(uid, site);
     };
 
     /**
@@ -769,9 +769,6 @@ module.exports = function PluginServiceModule(pb) {
         }
         return null;
     };
-    function getPluginForSite(theme, site){
-        return PluginService.getPluginForSite(theme, site);
-    }
 
     /**
      * Indicates if the specified plugin is active for a given site in this instance of PB.
@@ -1056,7 +1053,7 @@ module.exports = function PluginServiceModule(pb) {
             function(plugins, callback) {
                 if (plugins.length === 0) {
                     pb.log.debug('PluginService: No plugins are installed');
-                    return callback();
+                    return callback(null, []);
                 }
                 var tasks  = util.getTasks(plugins, function(plugins, i) {
                     return function(callback) {
