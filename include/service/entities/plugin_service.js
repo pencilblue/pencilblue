@@ -1031,7 +1031,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.installPlugin = function(pluginDirName, cb) {
 
-        cb       = cb || util.cb;
+        cb = cb || util.cb;
         var name = util.format('INSTALL_PLUGIN_%s', pluginDirName);
         var job  = new pb.PluginInstallJob();
         job.init(name);
@@ -1051,38 +1051,29 @@ module.exports = function PluginServiceModule(pb) {
         pb.log.debug('PluginService: Beginning plugin initialization...');
 
         var self = this;
-        self._pluginRepository.loadPluginsAcrossAllSites(function(err, plugins) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            else if (!util.isArray(plugins)) {
-                err = new Error('An array of plugins was expected but found ['+(typeof plugins)+']['+util.inspect(plugins)+'] instead.');
-                pb.log.error('PluginService %s', err.stack);
-                return cb(err, plugins);
-            }
+        async.waterfall([
+            util.wrapTask(this._pluginRepository, this._pluginRepository.loadPluginsAcrossAllSites),
+            function(plugins, callback) {
+                if (plugins.length === 0) {
+                    pb.log.debug('PluginService: No plugins are installed');
+                    return callback();
+                }
+                var tasks  = util.getTasks(plugins, function(plugins, i) {
+                    return function(callback) {
 
-            //make sure there are plugins to initialize
-            if (plugins.length === 0) {
-                pb.log.debug('PluginService: No plugins are installed');
-                return cb(null, true);
+                        try {
+                            self.initPlugin(plugins[i], function(err, didInitialize) {
+                                callback(null, {plugin: plugins[i], error: err, initialized: didInitialize});
+                            });
+                        }
+                        catch(err) {
+                            callback(null, {plugin: plugins[i], error: err, initialized: false});
+                        }
+                    };
+                });
+                async.series(tasks, callback);
             }
-            var tasks  = util.getTasks(plugins, function(plugins, i) {
-                return function(callback) {
-
-                    try {
-                        self.initPlugin(plugins[i], function(err, didInitialize) {
-                            callback(null, {plugin: plugins[i], error: err, initialized: didInitialize});
-                        });
-                    }
-                    catch(err) {
-                        callback(null, {plugin: plugins[i], error: err, initialized: false});
-                    }
-                };
-            });
-            async.series(tasks, function(err/*, results*/) {
-                cb(err, true);
-            });
-        });
+        ], cb);
     };
 
     /**
@@ -1101,20 +1092,6 @@ module.exports = function PluginServiceModule(pb) {
             pluginCache: PLUGIN_INIT_CACHE
         });
         service.initialize(plugin, {}, cb);
-    };
-
-    /**
-     * Returns tasks to be executed for initializing a plugin.
-     * A cache is used to store already known plugin information that can be shared between sites to speed up the process.
-     * @deprecated
-     * @method getInitTasksForPlugin
-     * @param {object} plugin The plugin details
-     * @return {Array}
-     */
-    PluginService.prototype.getInitTasksForPlugin = function(plugin) {
-        pb.log.warn('PluginService: getinitTasksForPlugin is deprecated.  Use PluginInitializationService.getInitTasksForPlugin');
-        var service = new pb.PluginInitializationService({pluginService: this, pluginCache: PLUGIN_INIT_CACHE});
-        return service.getInitTasksForPlugin(plugin);
     };
 
     /**

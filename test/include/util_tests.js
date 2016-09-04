@@ -239,6 +239,33 @@ describe('Util', function() {
         });
     });
 
+    describe('Util.wrapTimedTask', function() {
+
+        it('should wrap a task and provide the execution time', function(done) {
+
+            function SomePrototype(){
+
+                this.f1 = function(cb) {
+                    var tasks = [
+                        util.wrapTimedTask(this, this.f2)
+                    ];
+                    async.parallel(tasks, cb);
+                };
+
+                this.f2 = function(cb) {
+                    setTimeout(cb, 100);
+                };
+            }
+
+            var instance = new SomePrototype();
+            instance.f1(function(err, results) {
+                var wrapper = results[0];
+                wrapper.time.should.be.greaterThan(100);
+                done(err);
+            });
+        });
+    });
+
     describe('Util.forEach', function() {
 
         it('should iterate over each item in the array', function() {

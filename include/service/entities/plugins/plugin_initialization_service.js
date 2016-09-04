@@ -80,7 +80,7 @@ module.exports = function (pb) {
                 return cb(new Error('The options argument must be an object'));
             }
 
-            pb.log.debug("PluginInitializationService: Initializing plugin=%s site=%s", plugin.uid, plugin.site);
+            pb.log.debug("PluginInitializationService:[%s] Initializing plugin for site=%s", plugin.uid, plugin.site);
 
             var concurrency = options.concurrency || PluginInitializationService.DEFAULT_CONCURRENCY;
             var tasks = this.getTasks(plugin);
@@ -140,7 +140,7 @@ module.exports = function (pb) {
          */
         static getDetailsHandler (context) {
             return [function(callback/*, results*/) {
-                pb.log.debug("PluginInitializationService:[INIT] Attempting to load details.json file for %s", context.plugin.name);
+
 
                 //look in cache first
                 if (context.cachedPlugin && !!context.cachedPlugin.details) {
@@ -148,7 +148,7 @@ module.exports = function (pb) {
                 }
 
                 //it isn't cached so go load it
-                PluginService.loadDetailsFile(PluginService.getDetailsPath(context.plugin.dirName), callback);
+                PluginService.loadDetailsFile(PluginService.getDetailsPath(context.plugin.uid), callback);
             }];
         }
 
@@ -169,7 +169,7 @@ module.exports = function (pb) {
                 var err = null;
                 results.validationErrors = results.validationErrors || [];
                 if (results.validationErrors.length > 0) {
-                    err = new Error("Failed to validate plugin details");
+                    err = new Error("Failed to validate plugin details for plugin "+context.plugin.uid);
                     err.validationErrors = results.validationErrors;
                 }
                 callback(err);
@@ -260,13 +260,13 @@ module.exports = function (pb) {
                 if (!results.details.pb_version) {
                     // pb version was not specified
                     // assumes plugin is compatible with all pb versions
-                    pb.log.warn('PluginInitializationService: The plugin, %s does not specify pb version.', results.details.name);
+                    pb.log.warn('PluginInitializationService:[%s] The plugin does not specify a pb version.', results.details.uid);
                     return callback();
                 }
 
                 var err = null;
                 if (!semver.satisfies(pb.config.version, results.details.pb_version)) {
-                    err = new Error('PB version '+pb.config.version+' does not satisfy plugin version expression '+results.details.pb_version);
+                    err = new Error('PB version '+pb.config.version+' does not satisfy plugin version expression '+results.details.pb_version+'for plugin '+results.details.uid);
                 }
                 callback(err);
             });
@@ -286,8 +286,6 @@ module.exports = function (pb) {
          */
         static getValidationErrorsHandler (context) {
             return PluginInitializationService.buildNoActionOnCachedTask(context, ['details'], function(callback, results) {
-                pb.log.debug("PluginInitializationService: Validating details of %s", context.plugin.name);
-
                 var validationService = new pb.PluginValidationService({});
                 validationService.validate(results.details, {}, callback);
             });
@@ -350,14 +348,13 @@ module.exports = function (pb) {
                 //convert perm array to hash
                 var map = {};
                 if (context.plugin.permissions) {
-                    pb.log.debug('PluginInitializationService: Loading permission sets for plugin [%s]', context.plugin.uid);
 
                     Object.keys(context.plugin.permissions).forEach(function(role) {
                         map[role] = util.arrayToHash(context.plugin.permissions[role]);
                     });
                 }
                 else {
-                    pb.log.debug('PluginInitializationService: Skipping permission set load for plugin [%s]. None were found.', context.plugin.uid);
+                    pb.log.debug('PluginInitializationService:[%s] Skipping permission set load. None were found.', context.plugin.uid);
                 }
 
                 //create cached active plugin structure
@@ -399,7 +396,6 @@ module.exports = function (pb) {
          */
         static getOnStartupHandler (context) {
             return ['loadMainModule', function(callback/*, results*/) {
-                pb.log.debug('PluginInitializationService: Attempting to call onStartup function for %s.', context.plugin.uid);
 
                 var mainModule = context.pluginSpec.main_module;
                 if (!util.isFunction(mainModule.onStartupWithContext) && !util.isFunction(mainModule.onStartup)) {
@@ -410,7 +406,7 @@ module.exports = function (pb) {
 
                     // Clear the local timer variable, indicating the timeout has been triggered.
                     timeoutProtect = null;
-                    callback(new Error("PluginInitializationService: Startup function for plugin "+context.plugin.uid+" never called back!"));
+                    callback(new Error("Startup function for plugin "+context.plugin.uid+" never called back!"));
 
                 }, 2000);
 
@@ -425,10 +421,6 @@ module.exports = function (pb) {
 
                 //provide a callback for the module to execute.
                 var startupCallback = function(err) {
-                    if (!util.isError(err)) {
-                        pb.log.debug('PluginInitializationService: Plugin %s onStartup called back OK', context.plugin.uid);
-                    }
-
                     if (timeoutProtect) {
                         clearTimeout(timeoutProtect);
                         onDone(err);
@@ -484,10 +476,10 @@ module.exports = function (pb) {
                 var service = new pb.PluginServiceLoader({pluginUid: context.plugin.uid});
                 service.getAll({}, function(err, services) {
                     if (util.isError(err)) {
-                        pb.log.debug("PluginInitializationService[INIT]: No services directory was found for %s", context.plugin.uid);
+                        pb.log.debug("PluginInitializationService:[%s] No services directory was found", context.plugin.uid);
                     }
                     if (!services) {
-                        pb.log.debug("PluginInitializationService[INIT]: No services were found for %s", context.plugin.uid);
+                        pb.log.debug("PluginInitializationService:[%s] No services were found", context.plugin.uid);
                         services = {};
                     }
                     context.pluginSpec.services = services;

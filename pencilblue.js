@@ -67,12 +67,12 @@ function PencilBlue(config){
             util.wrapTimedTask(this, this.initRequestHandler, 'initRequestHandler'),
             util.wrapTimedTask(this, this.initDBConnections, 'initDBConnections'),
             util.wrapTimedTask(this, this.initDBIndices, 'initDBIndices'),
+            util.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
+            util.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
             util.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
             util.wrapTimedTask(this, this.initSessions, 'initSessions'),
             util.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
             util.wrapTimedTask(this, this.initSites, 'initSites'),
-            util.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
-            util.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
             util.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
             util.wrapTimedTask(this, this.registerMetrics, 'registerMetrics'),
             util.wrapTimedTask(this, this.initServer, 'initServer')
@@ -90,7 +90,7 @@ function PencilBlue(config){
                     obj.total += result.time;
                     return obj;
                 }, {total: 0});
-                pb.log.info('Startup Stats (ms):\n%s', JSON.stringify(stats, null, 2));
+                pb.log.debug('Startup Stats (ms):\n%s', JSON.stringify(stats, null, 2));
             }
         });
     };
