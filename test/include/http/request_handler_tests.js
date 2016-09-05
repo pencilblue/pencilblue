@@ -5,7 +5,7 @@ var Configuration = require('../../../include/config.js');
 var Lib           = require('../../../lib');
 
 describe('RequestHandler', function(){
-    
+
     var pb = null;
     var RequestHandler = null;
     before('Initialize the Environment with the default configuration', function() {
@@ -16,9 +16,9 @@ describe('RequestHandler', function(){
         pb = new Lib(Configuration.getBaseConfig());
         RequestHandler = pb.RequestHandler;
     });
-    
+
     describe('RequestHandler.getBodyParsers', function() {
-        
+
         it('should return the default list of body parsers', function() {
            var result = RequestHandler.getBodyParsers();
             result.should.be.type('object');
@@ -28,38 +28,63 @@ describe('RequestHandler', function(){
             Object.keys(result).length.should.be.exactly(3);
         });
     });
-    
+
     describe('RequestHandler.registerBodyParser', function(){
-        
+
         [null, undefined, ''].forEach(function(mime){
-            
+
             it('should return false when an invalid mime '+mime+' is provided', function(){
                 var result = RequestHandler.registerBodyParser(mime, function(){});
                 result.should.be.false;
             });
         });
-        
+
         [null, undefined, '', false, true, 1, 10.0, {}].forEach(function(parser){
-            
+
             it('should return false when an invalid parser '+parser+' is provided', function(){
                 var result = RequestHandler.registerBodyParser('application/xml', parser);
                 result.should.be.false;
             });
         });
-        
+
         it('should replace the default parser when supplied with a mime that is already registered', function(){
-            
+
             var parsers = RequestHandler.getBodyParsers();
             var originalJsonParser = parsers['application/json'];
             originalJsonParser.should.be.type('function');
-            
+
             var newParser = function(){};
             var result = RequestHandler.registerBodyParser('application/json', newParser);
             result.should.be.true;
-            
+
             parsers = RequestHandler.getBodyParsers();
             parsers['application/json'].should.not.eql(originalJsonParser);
             parsers['application/json'].should.eql(newParser);
+        });
+    });
+
+    describe('RequestHandler.emitThemeRouteRetieved', function() {
+
+        it('should emit the theme route retrieved to the listener and provide the proper context', function(done) {
+
+            var themeRoute = {a: '1', b: 2};
+            var site = 'abc123';
+            var reqHandler = new RequestHandler(null, {url: '/hello/world', headers: {}});
+            reqHandler.routeTheme = themeRoute;
+            reqHandler.site = site;
+            var cnt = 0;
+            RequestHandler.on(RequestHandler.THEME_ROUTE_RETIEVED, function(ctx, cb) {
+                cnt++;
+                ctx.themeRoute.should.eql(themeRoute);
+                ctx.requestHandler.should.eql(reqHandler);
+                ctx.site.should.eql(site);
+                cb();
+            });
+            reqHandler.emitThemeRouteRetrieved(function(err) {
+                (err === null).should.eql(true);
+                cnt.should.eql(1);
+                done();
+            });
         });
     });
 });

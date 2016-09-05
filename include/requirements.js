@@ -52,6 +52,7 @@ module.exports = function PB(config) {
 
     //initialize logging
     pb.log    = require(path.join(config.docRoot, '/include/utils/logging.js'))(config);
+    pb.AsyncEventEmitter = require(path.join(config.docRoot, '/include/utils/async_event_emitter.js'))(pb);
 
     //setup the System instance
     pb.System = require(path.join(config.docRoot, 'include/system/system.js'));
@@ -95,7 +96,7 @@ module.exports = function PB(config) {
     pb.SiteQueryService = require(path.join(config.docRoot, '/include/service/entities/site_query_service.js'))(pb);
 
 
-  //setup object services
+    //setup object services
     pb.SimpleLayeredService         = require(path.join(config.docRoot, '/include/service/simple_layered_service.js'))(pb);
     pb.MemoryEntityService          = require(path.join(config.docRoot, '/include/service/memory_entity_service.js'))(pb);
     pb.CacheEntityService           = require(path.join(config.docRoot, '/include/service/cache_entity_service.js'))(pb);
