@@ -83,8 +83,9 @@ module.exports = function(pb) {
                 for (var i = 0; i < clone.length; i++) {
                     var item = clone[i];
 
-                    item.displayName = item.name.split('_').join(' ');
-                    item.displayName = item.displayName.charAt(0).toUpperCase() + item.displayName.slice(1);
+                    item.id = item.name.split(' ').join('_');
+                    item.heading = item.heading || 'default';
+                    item.displayName = convertNameToDisplayName(item.name);
 
                     if (item.value === true || item.value === false) {
                         item.type = 'checkbox';
@@ -92,10 +93,16 @@ module.exports = function(pb) {
                     else if (util.isString(item.value)) {
                         item.type = 'text';
                     }
-                    else if (!isNaN()) {
+                    else if (!isNaN(item.value)) {
                         item.type = 'number';
                     }
                 }
+
+                // First sort the settings alphabetically, then by heading/group
+                clone.sort(PluginSettingsFormController.sortOn("displayName"));
+                clone.sort(PluginSettingsFormController.sortOn("heading"));
+
+                clone = PluginSettingsFormController.insertGroupHeadings(clone);
 
                 var tabs = [
                     {
@@ -128,6 +135,49 @@ module.exports = function(pb) {
             });
         });
     };
+    /**
+     * Inserts a new record before the start of the new group.  This assumes that the settings array is already sorted
+     * by group
+     * @param {Array} settings
+     * @returns {Array}
+     */
+    PluginSettingsFormController.insertGroupHeadings = function(settings) {
+
+        var prevHeading = '';
+        var settingsAndHeaders = [];
+        for (var i = 0; i < settings.length; i++) {
+            if (prevHeading !== settings[i].heading) {
+                settingsAndHeaders.push({
+                    id: settings[i].heading,
+                    isHeading: true,
+                    heading: convertNameToDisplayName(settings[i].heading)
+                });
+            }
+            prevHeading = settings[i].heading;
+            settingsAndHeaders.push(settings[i]);
+        }
+        return settingsAndHeaders;
+    };
+    PluginSettingsFormController.sortOn = function (property){
+        return function(a, b){
+            // Forces default heading to appear at the top of the sets of grouped settings
+            if(property === 'heading' && a[property] === 'default'){
+                return -1;
+            }
+            else if(a[property].toLowerCase() < b[property].toLowerCase()){
+                return -1;
+            }else if(a[property].toLowerCase() > b[property].toLowerCase()){
+                return 1;
+            }else{
+                return 0;
+            }
+        }
+    };
+
+    function convertNameToDisplayName(name){
+        name = name.split('_').join(' ');
+        return name.charAt(0).toUpperCase() + name.slice(1);
+    }
 
 
     PluginSettingsFormController.prototype.post = function(cb) {
