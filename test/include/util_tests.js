@@ -260,7 +260,7 @@ describe('Util', function() {
             var instance = new SomePrototype();
             instance.f1(function(err, results) {
                 var wrapper = results[0];
-                wrapper.time.should.be.greaterThan(100);
+                wrapper.time.should.not.be.below(100);
                 done(err);
             });
         });
