@@ -68,13 +68,16 @@ describe('RequestHandler', function(){
         it('should emit the theme route retrieved to the listener and provide the proper context', function(done) {
 
             var themeRoute = {a: '1', b: 2};
+            var site = 'abc123';
             var reqHandler = new RequestHandler(null, {url: '/hello/world', headers: {}});
             reqHandler.routeTheme = themeRoute;
+            reqHandler.site = site;
             var cnt = 0;
             RequestHandler.on(RequestHandler.THEME_ROUTE_RETIEVED, function(ctx, cb) {
                 cnt++;
                 ctx.themeRoute.should.eql(themeRoute);
                 ctx.requestHandler.should.eql(reqHandler);
+                ctx.site.should.eql(site);
                 cb();
             });
             reqHandler.emitThemeRouteRetrieved(function(err) {

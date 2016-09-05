@@ -810,7 +810,7 @@ module.exports = function RequestHandlerModule(pb) {
         this.siteName = this.siteObj.displayName;
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
-        if (route == null) {
+        if (route === null) {
             return this.serve404();
         }
         this.route = route;
@@ -1017,6 +1017,7 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.prototype.emitThemeRouteRetrieved = function(cb) {
         var context = {
+            site: this.site,
             themeRoute: this.routeTheme,
             requestHandler: this
         };
