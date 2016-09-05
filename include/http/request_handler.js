@@ -27,9 +27,13 @@ var _ = require('lodash');
 
 module.exports = function RequestHandlerModule(pb) {
 
+    //pb dependencies
+    var AsyncEventEmitter = pb.AsyncEventEmitter;
+
     /**
      * Responsible for processing a single req by delegating it to the correct controllers
      * @class RequestHandler
+     * @extends AsyncEventEmitter
      * @constructor
      * @param {Server} server The http server that the request came in on
      * @param {Request} req The incoming request
@@ -55,6 +59,7 @@ module.exports = function RequestHandlerModule(pb) {
         this.activeTheme = null;
         this.errorCount = 0;
     }
+    AsyncEventEmitter.extend(RequestHandler);
 
     /**
      * A mapping that provides the interface type to parse the body based on the
@@ -123,6 +128,15 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.CORE_ROUTES = require(path.join(pb.config.docRoot, '/plugins/pencilblue/include/routes.js'))(pb);
 
     /**
+     * The event emitted when a route and theme is derived for an incoming request
+     * @static
+     * @readonly
+     * @property THEME_ROUTE_RETRIEVED
+     * @type {string}
+     */
+    RequestHandler.THEME_ROUTE_RETIEVED = 'themeRouteRetrieved';
+
+    /**
      * Initializes the request handler prototype by registering the core routes for
      * the system.  This should only be called once at startup.
      * @static
@@ -135,15 +149,13 @@ module.exports = function RequestHandlerModule(pb) {
         util.forEach(RequestHandler.CORE_ROUTES, function(descriptor) {
 
             //register the route
+            var result;
             try {
-                var result = RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
-                if (!result) {
-                    throw new Error();
-                }
+                result = RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
             }
-            catch(e) {
+            catch(e) {}
+            if (!result) {
                 pb.log.error('RequestHandler: Failed to register PB route: %s %s', descriptor.method, descriptor.path);
-                pb.log.silly(e.stack);
             }
         });
     };
@@ -798,7 +810,7 @@ module.exports = function RequestHandlerModule(pb) {
         this.siteName = this.siteObj.displayName;
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
-        if (route == null) {
+        if (route === null) {
             return this.serve404();
         }
         this.route = route;
@@ -960,37 +972,56 @@ module.exports = function RequestHandlerModule(pb) {
             pb.log.silly("RequestHandler: Settling on theme [%s] and method [%s] for URL=[%s:%s]", rt.theme, rt.method, this.req.method, this.url.href);
         }
 
-        //sanity check
-        if (rt.theme === null || rt.method === null || rt.site === null) {
-            return this.serve404();
-        }
-
-        var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
-        if (!this.siteObj.active && !inactiveSiteAccess) {
-            if (this.siteObj.uid === pb.SiteService.GLOBAL_SITE) {
-                return this.doRedirect('/admin');
+        //make sure we let the plugins hook in.
+        this.emitThemeRouteRetrieved(function(err) {
+            if (util.isError(err)) {
+                return self.serveError(err);
             }
-            else {
-                return this.serve404();
-            }
-        }
 
-        //do security checks
-        this.checkSecurity(rt.theme, rt.method, rt.site, function(err, result) {
-            if (pb.log.isSilly()) {
-                pb.log.silly('RequestHandler: Security Result=[%s]', result.success);
-                for (var key in result.results) {
-                    pb.log.silly('RequestHandler:%s: %s', key, JSON.stringify(result.results[key]));
+            //sanity check
+            if (rt.theme === null || rt.method === null || rt.site === null) {
+                return self.serve404();
+            }
+
+            var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
+            if (!self.siteObj.active && !inactiveSiteAccess) {
+                if (self.siteObj.uid === pb.SiteService.GLOBAL_SITE) {
+                    return self.doRedirect('/admin');
+                }
+                else {
+                    return self.serve404();
                 }
             }
-            //all good
-            if (result.success) {
-                return self.onSecurityChecksPassed(activeTheme, rt.theme, rt.method, rt.site, route);
-            }
 
-            //handle failures through bypassing other processing and doing output
-            self.onRenderComplete(err);
+            //do security checks
+            self.checkSecurity(rt.theme, rt.method, rt.site, function(err, result) {
+                if (pb.log.isSilly()) {
+                    pb.log.silly('RequestHandler: Security Result=[%s] - %s', result.success, JSON.stringify(result.results));
+                }
+                //all good
+                if (result.success) {
+                    return self.onSecurityChecksPassed(activeTheme, rt.theme, rt.method, rt.site, route);
+                }
+
+                //handle failures through bypassing other processing and doing output
+                self.onRenderComplete(err);
+            });
         });
+    };
+
+    /**
+     * Emits the event to let listeners know that a request has derived the route and theme that matches the incoming
+     * request
+     * @method emitThemeRouteRetrieved
+     * @param {function} cb
+     */
+    RequestHandler.prototype.emitThemeRouteRetrieved = function(cb) {
+        var context = {
+            site: this.site,
+            themeRoute: this.routeTheme,
+            requestHandler: this
+        };
+        RequestHandler.emit(RequestHandler.THEME_ROUTE_RETIEVED, context, cb);
     };
 
     /**
@@ -1430,7 +1461,7 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     *
+     * Parses cookies passed for a request
      * @static
      * @method parseCookies
      * @param {Request} req
@@ -1452,11 +1483,13 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     *
+     * Checks to see if the URL exists in the current context of the system
      * @static
      * @method urlExists
      * @param {String} url
-     * @param {
+     * @param {string} id
+     * @param {string} site
+     * @param {function} cb
      */
     RequestHandler.urlExists = function(url, id, site, cb) {
         var dao = new pb.DAO();
