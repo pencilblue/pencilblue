@@ -71,9 +71,16 @@ module.exports = function SamplePluginModule(pb) {
      */
     SamplePlugin.onStartupWithContext = function (context, cb) {
 
-        pb.RequestHandler.on(pb.RequestHandler.THEME_ROUTE_RETIEVED, function(ctx, cb) {
+        /**
+         * Example for hooking into the RequestHandler for custom control flow
+         * @param ctx {object}
+         * @param {RequestHandler} ctx.requestHandler
+         * @param {object} ctx.themeRoute
+         * @param {function} (Error)
+         */
+        pb.RequestHandler.on(pb.RequestHandler.THEME_ROUTE_RETIEVED, function(ctx, callback) {
             //do what ever needs to be done.  Use the callback to continue normal control flow or don't if you need to do redirects
-            cb();
+            callback();
         });
 
         /**
