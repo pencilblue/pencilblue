@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var path        = require('path');
@@ -687,7 +688,7 @@ module.exports = function(pb) {
         var completedResult = true;
         while (queue.length > 0 && completedResult) {
             var item = queue.shift();
-            completedResult &= register(item.prefix, item.key, item.value);
+            completedResult = completedResult && register(item.prefix, item.key, item.value);
         }
         return completedResult;
     };
@@ -701,7 +702,7 @@ module.exports = function(pb) {
         var self = this;
         this._getActiveTheme(function(err, activeTheme) {
 
-            if(util.isError(err) || activeTheme == null) {
+            if(util.isError(err) || activeTheme === null) {
                 cb(err, []);
                 return;
             }
@@ -746,7 +747,8 @@ module.exports = function(pb) {
 
         var opts = {
             ls: this.localizationService,
-            activeTheme: this.activeTheme
+            activeTheme: this.activeTheme,
+            site: this.siteUid
         };
         var childTs                     = new TemplateService(opts);
         childTs.theme                   = this.theme;
@@ -944,11 +946,11 @@ module.exports = function(pb) {
      * @param {Boolean} [htmlEncode=true] Indicates if the value should be
      * encoded during serialization.
      */
-    function TemplateValue(val, htmlEncode){
+    function TemplateValue(val, htmlEncode) {
 
         this.raw        = val;
         this.htmlEncode = util.isBoolean(htmlEncode) ? htmlEncode : true;
-    };
+    }
 
     /**
      * Encodes the value for an HTML document when a value is provided.
@@ -957,7 +959,7 @@ module.exports = function(pb) {
      * @return {Boolean} The current value of the htmlEncode property
      */
     TemplateValue.prototype.encode = function(doHtmlEncoding) {
-        if (doHtmlEncoding == true || doHtmlEncoding == false) {
+        if (doHtmlEncoding === true || doHtmlEncoding === false) {
             this.htmlEncode = doHtmlEncoding;
         }
         return this.htmlEncode;

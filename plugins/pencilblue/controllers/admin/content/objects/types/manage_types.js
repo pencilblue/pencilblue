@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -69,7 +70,7 @@ module.exports = function(pb) {
                         objectTypes: custObjTypes
                     });
 
-                self.setPageName(self.ls.get('MANAGE_OBJECT_TYPES'));
+                self.setPageName(self.ls.g('custom_objects.MANAGE_OBJECT_TYPES'));
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('admin/content/objects/types/manage_types', function (err, data) {
                     var result = '' + data;
@@ -83,7 +84,7 @@ module.exports = function(pb) {
     ManageObjectTypes.getSubNavItems = function(key, ls, data) {
         return [{
             name: SUB_NAV_KEY,
-            title: ls.get('MANAGE_OBJECT_TYPES'),
+            title: ls.g('custom_objects.MANAGE_OBJECT_TYPES'),
             icon: 'refresh',
             href: '/admin/content/objects/types'
         }, {

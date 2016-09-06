@@ -1010,7 +1010,8 @@ module.exports = function PluginServiceModule(pb) {
      * @method installPlugin
      * @param {string} pluginDirName The name of the directory that contains the
      * plugin and its details.json file.
-     * @param {function} cb A callback that provides two parameters: cb(err, TRUE/FALSE)
+     * @param {function} [cb] A callback that provides two parameters: cb(err, TRUE/FALSE)
+     * @return {String} The job ID
      */
     PluginService.prototype.installPlugin = function(pluginDirName, cb) {
 
@@ -1164,7 +1165,7 @@ module.exports = function PluginServiceModule(pb) {
                 });
             },
 
-            //verify that dependencies are available
+            //verify that NPM dependencies are available
             function(callback) {
                 if (!util.isObject(details.dependencies) || details.dependencies === {}) {
                     //no dependencies were declared so we're good
@@ -1172,19 +1173,22 @@ module.exports = function PluginServiceModule(pb) {
                 }
 
                 //iterate over dependencies to ensure that they exist
-                self.hasDependencies(plugin, function (err, hasDependencies) {
-                    if (util.isError(err) || hasDependencies) {
-                        if (hasDependencies) {
-                            pb.log.silly('PluginService: Dependency check passed for plugin %s', plugin.name);
-                        }
-                        return callback(err, true);
-                    }
+                var npmService = new pb.NpmPluginDependencyService();
+                npmService.installAll(plugin.dependencies, {pluginUid: plugin.uid}, function(err/*, results*/) {
+                    callback(err, !util.isError(err));
+                });
+            },
 
-                    //dependencies are missing, go install them
-                    pb.log.silly('PluginService: Dependency check failed for plugin %s', plugin.name);
-                    self.installPluginDependencies(plugin.dirName, details.dependencies, plugin, function (err/*, results*/) {
-                        callback(err, !util.isError(err));
-                    });
+            //verify that the Bower dependencies are available
+            function(callback) {
+                if(!util.isObject(details.bowerDependencies) || details.bowerDependencies === {}) {
+                    //no bower dependencies declared so we're good
+                    return callback(null, true);
+                }
+
+                var bowerService = new pb.BowerPluginDependencyService();
+                bowerService.installAll(plugin.bowerDependencies, {pluginUid: plugin.uid}, function(err/*, results*/) {
+                    callback(err, !util.isError(err));
                 });
             },
 
@@ -1362,7 +1366,7 @@ module.exports = function PluginServiceModule(pb) {
                             pb.log.debug('PluginService:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', details.uid, locale);
                         }
                     }
-                    callback(null, !util.isError(err) && result);
+                    callback(null, !util.isError(err));
                 });
             }
         ];

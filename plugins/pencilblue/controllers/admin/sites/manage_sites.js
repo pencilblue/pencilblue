@@ -62,7 +62,7 @@ module.exports = function(pb) {
     ManageSites.getSubNavItems = function(key, ls) {
         return [{
             name: 'manage_sites',
-            title: ls.get('MANAGE_SITES'),
+            title: ls.g('admin.MANAGE_SITES'),
             icon: 'refresh',
             href: '/admin/sites'
         }, {

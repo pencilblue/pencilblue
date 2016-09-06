@@ -110,7 +110,7 @@ module.exports = function (pb) {
                 if(util.isError(err)) {
                     return cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('users.EXISTING_USERNAME'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('users.EXISTING_USERNAME'))
                     });
                 }
 
@@ -127,14 +127,14 @@ module.exports = function (pb) {
                 if (errMsg) {
                     return cb({
                         code: 400,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, errMsg)
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, errMsg)
                     });
                 }
                 self.dao.save(user, function(err, data) {
                     if(util.isError(err)) {
                         return cb({
                             code: 500,
-                            content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.ERROR_SAVING'))
+                            content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'))
                         });
                     }
 

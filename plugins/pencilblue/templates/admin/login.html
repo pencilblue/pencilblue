@@ -29,16 +29,16 @@
                         <form id="login_form" method="post" action="/actions/login?admin_attempt=1">
                             <fieldset>
                                 <div class="form-group">
-                                    <label>^loc_USERNAME_OR_EMAIL^</label>
+                                    <label>^loc_login.USERNAME_OR_EMAIL^</label>
                                     <input type="text" id="username" name="username" class="form-control" onkeyup="checkForLogin(event)"></input>
                                 </div>
                                 <div class="form-group">
-                                    <label>^loc_PASSWORD^</label>
+                                    <label>^loc_generic.PASSWORD^</label>
                                     <input type="password" id="password" name="password" class="form-control" onkeyup="checkForLogin(event)"></input>
                                 </div>
-                                <input type="button" class="btn btn-lg btn-primary btn-block" value="^loc_LOGIN^" onclick="login()">
+                                <input type="button" class="btn btn-lg btn-primary btn-block" value="^loc_generic.LOGIN^" onclick="login()">
                                 <div class="forgot_password">
-                                    <a href="javascript:forgotPassword()">^loc_FORGOT_PASSWORD^</a>
+                                    <a href="javascript:forgotPassword()">^loc_login.FORGOT_PASSWORD^</a>
                                 </div>
                             </fieldset>
                         </form>

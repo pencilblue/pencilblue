@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function NewCommentModule(pb) {
 
@@ -56,7 +57,7 @@ module.exports = function NewCommentModule(pb) {
             }
 
             self.siteQueryService.loadById(post.article, 'article', function(err, article) {
-                if(util.isError(err) || article == null) {
+                if(util.isError(err) || article === null) {
                     cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'article does not exist'), code: 400});
                     return;
                 }
@@ -64,13 +65,12 @@ module.exports = function NewCommentModule(pb) {
                 var commentDocument       = pb.DocumentCreator.create('comment', post);
                 commentDocument.commenter = self.session.authentication.user_id;
 
-                self.siteQueryService.save(commentDocument, function(err, data) {
+                self.siteQueryService.save(commentDocument, function(err/*, data*/) {
                     if (util.isError(err)) {
                         return cb({content: BaseController.apiResponse(BaseController.API_FAILURE, 'error saving'), code: 500});
                     }
 
-                    var timestamp  = pb.ContentService.getTimestampTextFromSettings(commentDocument.created, contentSettings, self.ls);
-                    commentDocument.timestamp = self.localizationService.localize(['timestamp'], timestamp, self.hostname);
+                    commentDocument.timestamp  = pb.ContentService.getTimestampTextFromSettings(commentDocument.created, contentSettings, self.ls);
                     cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, 'comment created' , commentDocument)});
                 });
             });

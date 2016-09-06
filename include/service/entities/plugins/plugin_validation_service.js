@@ -290,8 +290,18 @@ module.exports = function (pb) {
             return cb(null, BaseObjectService.validationFailure(fieldPrefix, 'The setting value must be an object'));
         }
 
-        //validate name
+        //validate displayName
         var errors = [];
+        if (!v.isNonEmptyStr(setting.displayName, false)) {
+            errors.push(BaseObjectService.validationFailure(fieldPrefix+'.displayName', 'The setting display name must be a non-empty string'));
+        }
+
+        //validate group
+        if (!v.isNonEmptyStr(setting.group, false)) {
+            errors.push(BaseObjectService.validationFailure(fieldPrefix+'.group', 'The setting group must be a non-empty string'));
+        }
+
+        //validate name
         if (!v.isNonEmptyStr(setting.name, true)) {
             errors.push(BaseObjectService.validationFailure(fieldPrefix+'.name', 'The setting name must be provided'));
         }
