@@ -18,7 +18,7 @@
     "website",
     "platform"
   ],
-  "version": "0.6.0",
+  "version": "0.7.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/pencilblue/pencilblue.git"
@@ -39,7 +39,6 @@
     "node.extend": "1.1.5",
     "nodemailer": "0.7.1",
     "npm": "3.8.5",
-    "process": "0.11.2",
     "redis": "2.5.3",
     "sanitize-html": "1.11.4",
     "semver": "5.1.0",
@@ -54,7 +53,7 @@
   },
   "main": "./pencilblue.js",
   "engines": {
-    "node": ">= 0.11.0 <=6"
+    "node": ">=4"
   },
   "scripts": {
     "start": "node pencilblue.js",
@@ -71,5 +70,5 @@
   "bugs": {
     "url": "https://github.com/pencilblue/pencilblue/issues"
   },
-  "_id": "pencilblue@0.6.0"
+  "_id": "pencilblue@0.7.0"
 }

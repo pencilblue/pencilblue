@@ -45,9 +45,10 @@ module.exports = function (pb) {
     /**
      * Retrieves all of the resource objects for a plugin as a hash where the derived resource name is the key.
      * @method getAll
+     * @param {object} options
      * @param {function} cb (Error, object)
      */
-    PluginResourceLoader.prototype.getAll = function(cb) {
+    PluginResourceLoader.prototype.getAll = function(options, cb) {
         var self = this;
         var pathToResources = this.getBaseResourcePath();
         fs.exists(pathToResources, function(exists) {
@@ -56,17 +57,18 @@ module.exports = function (pb) {
                 return cb(null, {});
             }
 
-            self._getAll(pathToResources, cb);
+            self._getAll(pathToResources, options, cb);
         });
     };
 
     /**
      * Creates the tasks to load the resources and then executes them in parallel.
      * @param {string} pathToResources
+     * @param {object} options
      * @param {function} cb (Error, object)
      * @private
      */
-    PluginResourceLoader.prototype._getAll = function(pathToResources, cb) {
+    PluginResourceLoader.prototype._getAll = function(pathToResources, options, cb) {
         var self = this;
         var tasks = [
 
@@ -75,7 +77,7 @@ module.exports = function (pb) {
 
             //get resources
             function (resourceFilePaths, callback) {
-                async.parallel(self.getLoaderTasks(resourceFilePaths), callback);
+                async.parallel(self.getLoaderTasks(resourceFilePaths, options), callback);
             }
         ];
         async.waterfall(tasks, PluginResourceLoader.getResultReducer(cb));
@@ -101,9 +103,10 @@ module.exports = function (pb) {
      * Retrieves a single resource from the file system
      * @method get
      * @param {string} pathToResource
+     * @param {object} options
      * @param {function} cb (Error, object)
      */
-    PluginResourceLoader.prototype.get = function(pathToResource, cb) {
+    PluginResourceLoader.prototype.get = function(pathToResource, options, cb) {
         pb.log.silly('PluginResourceLoader:[%s] Attempting to load resource [%s]', this.pluginUid, pathToResource);
 
         try {
@@ -111,7 +114,7 @@ module.exports = function (pb) {
             var rawResource = require(pathToResource);
 
             var self = this;
-            this.initResource(rawResource, function(err, initializedResource) {
+            this.initResource(rawResource, util.merge(options, {path: pathToResource}), function(err, initializedResource) {
                 cb(err, {
                     name: self.getResourceName(pathToResource, initializedResource),
                     data: initializedResource
@@ -128,10 +131,12 @@ module.exports = function (pb) {
      * Responsible for initializing the resource.  The default implementation just calls back without modifying or
      * accessing the resource
      * @method initResource
-     * @param {object} resource
+     * @param {function|object|string} resource
+     * @param {object} context
+     * @param {string} context.path The absolute path to the resource
      * @param {function} cb (Error)
      */
-    PluginResourceLoader.prototype.initResource = function(resource, cb) {
+    PluginResourceLoader.prototype.initResource = function(resource, context, cb) {
         cb(null, resource);
     };
 
@@ -169,12 +174,13 @@ module.exports = function (pb) {
      * Creates the tasks (functions) that will be used load all resources for a given plugin
      * @method getLoaderTasks
      * @param {Array} resourceFilePaths
+     * @param {object} options
      * @return Array of functions(callback) that call the 'get' function with one of the resource file paths
      */
-    PluginResourceLoader.prototype.getLoaderTasks = function(resourceFilePaths) {
+    PluginResourceLoader.prototype.getLoaderTasks = function(resourceFilePaths, options) {
         var self = this;
         return util.getTasks(resourceFilePaths, function(sfp, i) {
-            return util.wrapTask(self, self.get, [sfp[i]]);
+            return util.wrapTask(self, self.get, [sfp[i], options]);
         });
     };
 

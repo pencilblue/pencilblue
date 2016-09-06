@@ -283,7 +283,9 @@ module.exports = function PB(config) {
     pb.BowerPluginDependencyService = require(path.join(config.docRoot, '/include/service/entities/plugins/bower_plugin_dependency_service.js'))(pb);
     pb.PluginResourceLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_resource_loader.js'))(pb);
     pb.PluginServiceLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_service_loader.js'))(pb);
+    pb.PluginControllerLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_controller_loader.js'))(pb);
     pb.PluginLocalizationLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_localization_loader.js'))(pb);
+    pb.PluginInitializationService = require(path.join(config.docRoot, '/include/service/entities/plugins/plugin_initialization_service.js'))(pb);
 
     pb.PasswordResetService = require(path.join(config.docRoot, '/include/service/entities/password_reset_service.js'))(pb);
 

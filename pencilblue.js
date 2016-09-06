@@ -63,29 +63,35 @@ function PencilBlue(config){
      */
     this.init = function(){
         var tasks = [
-            this.initModules,
-            this.initRequestHandler,
-            this.initDBConnections,
-            this.initDBIndices,
-            this.initSiteMigration,
-            this.initSessions,
-            this.initPlugins,
-            this.initSites,
-            this.initServerRegistration,
-            this.initCommandService,
-            this.initLibraries,
-            this.registerMetrics,
-            util.wrapTask(this, this.initServer)
+            util.wrapTimedTask(this, this.initModules, 'initModules'),
+            util.wrapTimedTask(this, this.initRequestHandler, 'initRequestHandler'),
+            util.wrapTimedTask(this, this.initDBConnections, 'initDBConnections'),
+            util.wrapTimedTask(this, this.initDBIndices, 'initDBIndices'),
+            util.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
+            util.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
+            util.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
+            util.wrapTimedTask(this, this.initSessions, 'initSessions'),
+            util.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
+            util.wrapTimedTask(this, this.initSites, 'initSites'),
+            util.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
+            util.wrapTimedTask(this, this.registerMetrics, 'registerMetrics'),
+            util.wrapTimedTask(this, this.initServer, 'initServer')
         ];
-        async.series(tasks, function(err/*, results*/) {
+        async.series(tasks, function(err, results) {
             if (util.isError(err)) {
                 throw err;
             }
             pb.log.info('PencilBlue: Ready to run!');
-            //console.log('\n\n\n');
-            //console.log('storage');console.log(JSON.stringify(pb.Localization.storage));
-            //console.log('keys');console.log(JSON.stringify(pb.Localization.keys));
-            //console.log('lookup');console.log(JSON.stringify(pb.Localization.supportedLookup));
+
+            //print out stats
+            if (pb.log.isDebug()) {
+                var stats = results.reduce(function (obj, result) {
+                    obj[result.name] = result.time;
+                    obj.total += result.time;
+                    return obj;
+                }, {total: 0});
+                pb.log.debug('Startup Stats (ms):\n%s', JSON.stringify(stats, null, 2));
+            }
         });
     };
 
