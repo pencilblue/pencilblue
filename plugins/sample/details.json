@@ -18,15 +18,21 @@
 	},
     "settings": [
 		{
+            "displayName": "SAMPLE_NUMBER_SETTING",
+            "group": "SAMPLE_GROUP1",
 			"name": "pencilblue_sample_number_setting",
 			"value": 123
 		},
 		{
-			"name": "pencilblue_sample_string_setting",
+            "displayName": "SAMPLE_STRING_SETTING",
+            "group": "SAMPLE_GROUP1",
+            "name": "pencilblue_sample_string_setting",
 			"value": "abc"
 		},
 		{
-			"name": "pencilblue_sample_boolean_setting",
+            "displayName": "SAMPLE_BOOL_SETTING",
+            "group": "SAMPLE_GROUP2",
+            "name": "pencilblue_sample_boolean_setting",
 			"value": true
 		}
 	],
@@ -42,15 +48,21 @@
 	"theme": {
 		"settings": [
 			{
-				"name": "pencilblue_sample_theme_number_setting",
+                "displayName": "SAMPLE_BOOL_THEME_SETTING",
+                "group": "SAMPLE_GROUP1",
+                "name": "pencilblue_sample_theme_number_setting",
 				"value": 456
 			},
 			{
-				"name": "pencilblue_sample_theme_string_setting",
+                "displayName": "SAMPLE_BOOL_THEME_SETTING",
+                "group": "SAMPLE_GROUP2",
+                "name": "pencilblue_sample_theme_string_setting",
 				"value": "789"
 			},
 			{
-				"name": "pencilblue_sample_theme_boolean_setting",
+                "displayName": "SAMPLE_BOOL_THEME_SETTING",
+                "group": "SAMPLE_GROUP2",
+                "name": "pencilblue_sample_theme_boolean_setting",
 				"value": true
 			}
 		],
