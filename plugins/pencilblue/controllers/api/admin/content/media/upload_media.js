@@ -75,9 +75,10 @@ module.exports = function(pb) {
         form.maxFieldSize = pb.config.media.max_upload_size;
         form.on('progress', function(bytesReceived, bytesExpected) {
             if (bytesReceived > pb.config.media.max_upload_size || bytesExpected > pb.config.max_upload_size) {
-                if (!self.errored++) {
+                if (!self.errored) {
                     this.emit('error', new Error(self.ls.g('media.FILE_TOO_BIG')));
                 }
+                self.errored++;
             }
         });
 

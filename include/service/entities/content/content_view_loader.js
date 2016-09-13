@@ -458,7 +458,7 @@ module.exports = function(pb) {
         ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
         ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
         ts.registerLocal('individual_comments', function(flag, cb) {
-            if (!util.isArray(content.comments) || content.comments.length == 0) {
+            if (!util.isArray(content.comments) || content.comments.length === 0) {
                 return cb(null, '');
             }
 

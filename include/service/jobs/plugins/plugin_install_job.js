@@ -208,7 +208,7 @@ module.exports = function PluginInstallJobModule(pb) {
                     self.log("WARN: Plugin %s did not provide an 'onInstall' function.", details.uid);
                     callback(null, true);
                 }
-            },
+            }
         ];
         async.series(tasks, function(err, results) {
             if(util.isError(err)) {

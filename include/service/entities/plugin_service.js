@@ -1088,7 +1088,10 @@ module.exports = function PluginServiceModule(pb) {
             pluginService: this,
             pluginCache: PLUGIN_INIT_CACHE
         });
-        service.initialize(plugin, {}, cb);
+        service.initialize(plugin, {}, function(err, result) {
+            PLUGIN_INIT_CACHE = {};
+            cb(err, result);
+        });
     };
 
     /**
@@ -1454,6 +1457,7 @@ module.exports = function PluginServiceModule(pb) {
     /**
      * Loads the controllers for a plugin by iterating through the files in the
      * plugin's controllers directory.
+     * @deprecated
      * @static
      * @method loadControllers
      * @param {String} pathToPlugin The absolute file path to the plugin =

@@ -293,7 +293,6 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * key/value pairs within the registered instance
      * @static
      * @method
-     * @param {String} objType The type of object being referenced
      * @return {String} The command type to be registered for
      */
     MemoryEntityService.getOnChangeType = function() {
