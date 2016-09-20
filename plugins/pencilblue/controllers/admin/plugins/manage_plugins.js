@@ -16,59 +16,81 @@
 */
 'use strict';
 
+//dependencies
+var async = require('async');
+
 module.exports = function(pb) {
 
     //pb dependencies
-    var util           = pb.util;
+    var util = pb.util;
+    var BaseAdminController = pb.BaseAdminController;
+    var PluginService = pb.PluginService;
 
     /**
      * Interface for managing plugins
+     * @class ManagePlugins
+     * @extends BaseAdminController
      */
     function ManagePlugins(){}
-
-    //inheritance
-    util.inherits(ManagePlugins, pb.BaseAdminController);
+    util.inherits(ManagePlugins, BaseAdminController);
 
     //statics
     var SUB_NAV_KEY = 'manage_plugins';
 
+    /**
+     * See BaseController.initSync
+     * @method initSync
+     */
+    ManagePlugins.prototype.initSync = function(/*context*/) {
+
+        this.pluginService = new PluginService(this.getServiceContext());
+
+        this.globalPluginService = new PluginService({});
+    };
+
     ManagePlugins.prototype.render = function (cb) {
         var self = this;
 
-        var pluginService = new pb.PluginService({site: self.site});
-        var globalPluginService = new pb.PluginService();
-        pluginService.getPluginMap(function (err, sitePluginMap) {
-            if (util.isError(err)) {
-                self.reqHandler.serveError(err);
-                return;
-            }
-            globalPluginService.getPluginMap(function(err, globalPluginMap) {
-                //filter globally installed plugins out of inactive
-                var availablePluginsMinusGlobal = sitePluginMap.available.filter(function(val) {
-                    var accepted = true;
-                    for (var i = 0; i < globalPluginMap.active.length; i++) {
-                        if (globalPluginMap.active[i].uid === val.uid) {
-                            accepted = false;
-                        }
-                    }
-                    return accepted;
+        var tasks = {
+            sitePluginMap: [util.wrapTask(this.pluginService, this.pluginService.getPluginMap)],
+            globalPluginMap: [util.wrapTask(this.globalPluginService, this.globalPluginService.getPluginMap)],
+            availablePluginsMinusGlobal: ['sitePluginMap', 'globalPluginMap', function(callback, results) {
+
+                //create lookup
+                var lookup = {};
+                results.globalPluginMap.active.forEach(function(plugin) {
+                    lookup[plugin.uid] = true;
                 });
+
+                //filter globally installed plugins out of inactive
+                var availablePluginsMinusGlobal = results.sitePluginMap.available.filter(function(val) {
+                    return !lookup[val.uid];
+                });
+                callback(null, availablePluginsMinusGlobal);
+            }],
+            angularObjects: ['availablePluginsMinusGlobal', function(callback, results) {
+
                 //setup angular
                 var angularObjects = pb.ClientJs.getAngularObjects({
                     navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
                     pills: self.getAdminPills(SUB_NAV_KEY, self.ls, null),
-                    installedPlugins: sitePluginMap.active,
-                    inactivePlugins: sitePluginMap.inactive,
-                    availablePlugins: availablePluginsMinusGlobal,
-                    globalActivePlugins: globalPluginMap.active,
+                    installedPlugins: results.sitePluginMap.active,
+                    inactivePlugins: results.sitePluginMap.inactive,
+                    availablePlugins: results.availablePluginsMinusGlobal,
+                    globalActivePlugins: results.globalPluginMap.active,
                     siteUid: self.site
                 });
                 //load the template
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
-                self.ts.load('/admin/plugins/manage_plugins', function(err, result) {
-                    cb({content: result});
-                });
-            });
+                callback();
+            }],
+            content: ['angularObjects', util.wrapTask(this.ts, this.ts.load, ['/admin/plugins/manage_plugins'])]
+        };
+        async.auto(tasks, 2, function(err, results) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            cb({content: results.content});
         });
     };
 

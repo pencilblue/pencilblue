@@ -475,7 +475,18 @@ module.exports = function (pb) {
      * @return {Boolean} TRUE if the path is valid, FALSE if not
      */
     PluginValidationService.validateMainModulePath = function(mmPath, pluginDirName) {
-        return !util.isNullOrUndefined(PluginService.loadMainModule(pluginDirName, mmPath));
+        var pluginMM = path.join(PluginService.getPluginsDir(), pluginDirName, mmPath);
+        var paths    = [pluginMM, mmPath];
+
+        for (var i = 0; i < paths.length; i++) {
+            try {
+                if (fs.existsSync(paths[i])) {
+                    return true;
+                }
+            }
+            catch(e) {}
+        }
+        return false;
     };
 
     /**
