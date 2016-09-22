@@ -332,6 +332,9 @@ describe('Localization', function() {
             var locale = 'nl-BE';
             Localization.unregisterLocale(locale).should.eql(true);
             Localization.isSupported(locale).should.eql(false);
+            Localization.getSupported().filter(function(localeObj) {
+                return localeObj.toString() === locale;
+            }).length.should.eql(0);
         });
 
         it('should return false when an unregistered locale is passed', function() {

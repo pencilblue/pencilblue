@@ -787,6 +787,7 @@ module.exports = function LocalizationModule(pb) {
 
         //remove from quick lookup
         delete Localization.supportedLookup[Localization.formatLocale(locale.language, locale.countryCode)];
+        Localization.supported = new Locale.Locales(Object.keys(Localization.supportedLookup));
         return keysRemoved > 0;
     };
 
