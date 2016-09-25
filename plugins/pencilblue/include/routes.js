@@ -826,6 +826,50 @@ module.exports = function Routes(pb){
             content_type: 'text/html'
         },
 
+        // Custom Object Type API
+        {
+            method: 'get',
+            path: "/api/content/customobjecttypes",
+            handler: "getAll",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            content_type: 'application/json',
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'content', 'customobjects', 'custom_object_type_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/customobjecttypes/:id",
+            handler: "get",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            content_type: 'application/json',
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'content', 'customobjects', 'custom_object_type_api_controller.js')
+        },
+
+        // Custom Object API
+        {
+            method: 'get',
+            path: "/api/content/customobjecttypes/:customObjectTypeId/customobjects",
+            handler: "getAll",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            content_type: 'application/json',
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'content', 'customobjects', 'custom_object_api_controller.js')
+        },
+        {
+            method: 'get',
+            path: "/api/content/customobjecttypes/:customObjectTypeId/customobjects/:id",
+            handler: "get",
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            auth_required: true,
+            inactive_site_access: true,
+            content_type: 'application/json',
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'content', 'customobjects', 'custom_object_api_controller.js')
+        },
+
         // PLUGINS
         {
             method: 'get',

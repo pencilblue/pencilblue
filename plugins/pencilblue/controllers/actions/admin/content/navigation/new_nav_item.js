@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -85,7 +86,7 @@ module.exports = function(pb) {
         if (message) {
             return cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
             });
         }
 
@@ -102,7 +103,7 @@ module.exports = function(pb) {
                 else if (!util.isObject(navItem)){
                     return cb({
                         code: 404,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.g('generic.INVALID_UID'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_UID'))
                     });
                 }
 
@@ -114,7 +115,8 @@ module.exports = function(pb) {
 
     /**
      * Handles the formatting and persists a nav item
-     * @method render
+     * @method persist
+     * @param {object} navItem
      * @param {Function} cb
      */
     PersistNavItemController.prototype.persist = function(navItem, cb) {
@@ -151,6 +153,7 @@ module.exports = function(pb) {
     /**
      * Forces the nav map to update
      * @method checkForNavMapUpdate
+     * @param {object} navItem
      * @param {Function} cb
      */
     PersistNavItemController.prototype.checkForNavMapUpdate = function(navItem, cb) {
@@ -165,7 +168,7 @@ module.exports = function(pb) {
     PersistNavItemController.prototype.handleError = function(err, cb) {
         return cb({
             code: 500,
-            content: BaseController.apiResponse(BaseController.API_ERROR, this.ls.g('generic.ERROR_SAVING'))
+            content: BaseController.apiResponse(BaseController.API_FAILURE, this.ls.g('generic.ERROR_SAVING'))
         });
     };
 
@@ -177,15 +180,15 @@ module.exports = function(pb) {
     PersistNavItemController.prototype.handleBadRequest = function(validationErrors, cb) {
         return cb({
             code: 400,
-            content: BaseController.apiResponse(BaseController.API_ERROR, PersistNavItemController.getHtmlErrorMsg(validationErrors))
+            content: BaseController.apiResponse(BaseController.API_FAILURE, PersistNavItemController.getHtmlErrorMsg(validationErrors))
         });
     };
 
     /**
      * Formats the errors as a single HTML message
      * @static
-     * @method checkForNavMapUpdate
-     * @param {Function} cb
+     * @method getHtmlErrorMsg
+     * @param {Array} validationErrors
      */
     PersistNavItemController.getHtmlErrorMsg = function(validationErrors) {
         return validationErrors.reduce(function(html, error, i) {

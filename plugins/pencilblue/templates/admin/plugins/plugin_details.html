@@ -3,7 +3,7 @@
 	^tmp_admin=elements=error_success^
 	^tmp_admin=elements=sub_nav^
 	<div class="alert alert-danger" ng-if="d.errors">
-		<p><b>^loc_ERRORS^:</b></p>
+		<p><b>^loc_generic.ERRORS^:</b></p>
 		<p ng-repeat="error in d.errors" ng-bind="error"></p>
 	</div>
 	<div class="row">
@@ -11,9 +11,9 @@
 			<div class="table_container">
 				<table class="table table-responsive table-condensed table-bordered">
 					<tr>
-						<th>^loc_STATUS^</th>
-						<th>^loc_UID^</th>
-						<th>^loc_VERSION^</th>
+						<th>^loc_generic.STATUS^</th>
+						<th>^loc_generic.UID^</th>
+						<th>^loc_generic.VERSION^</th>
 					</tr>
 					<tr>
 						<td ng-bind="status"></td>
@@ -27,21 +27,21 @@
 	<div class="spacer"></div>
 	<div class="panel panel-default">
 		<div class="panel-body">
-			<label>^loc_ABOUT^ <span ng-bind="d.name"></label>
+			<label>^loc_plugins.ABOUT^ <span ng-bind="d.name"></span></label>
 			<p ng-bind="d.description"></p>
 		</div>
 	</div>
 	<form role="form">
 		<div class="panel panel-info">
 			<div class="panel-heading">
-				^loc_AUTHOR_INFORMATION^
+				^loc_generic.AUTHOR_INFORMATION^
 			</div>
 			<div class="table_container">
 				<table class="table table-responsive table-condensed">
 					<tr>
-						<th><i class="fa fa-user"></i>&nbsp;^loc_NAME^</th>
-						<th><i class="fa fa-envelope"></i>&nbsp;^loc_EMAIL^</th>
-						<th><i class="fa fa-link"></i>&nbsp;^loc_WEBSITE^</th>
+						<th><i class="fa fa-user"></i>&nbsp;^loc_generic.NAME^</th>
+						<th><i class="fa fa-envelope"></i>&nbsp;^loc_generic.EMAIL^</th>
+						<th><i class="fa fa-link"></i>&nbsp;^loc_generic.WEBSITE^</th>
 					</tr>
 					<tr>
 						<td ng-bind="d.author.name"></td>
@@ -50,7 +50,7 @@
 					</tr>
 					<span ng-if="d.author.contributors.length">
 						<tr>
-							<th>^loc_CONTRIBUTORS^</th>
+							<th>^loc_generic.CONTRIBUTORS^</th>
 							<th></th>
 							<th></th>
 						</tr>
@@ -65,18 +65,18 @@
 		</div>
 		<div ng-if="d.theme" class="panel panel-info">
             <div class="panel-heading">
-				^loc_THEME_INFORMATION^
+				^loc_generic.THEME_INFORMATION^
 			</div>
 			<div class="panel-body" ng-if="!d.theme.content_templates">
 				<p>
-					^loc_NONE^
+					^loc_generic.NONE^
 				</p>
 			</div>
 			<div class="table_container">
 				<table class="table table-responsive table-condensed" ng-if="d.theme.content_templates">
 					<tr>
-						<th>^loc_NAME^</th>
-						<th>^loc_TEMPLATE^</th>
+						<th>^loc_generic.NAME^</th>
+						<th>^loc_pages.TEMPLATE^</th>
 					</tr>
 					<tr ng-repeat="t in d.theme.content_templates">
 						<td ng-bind="t.name"></td>

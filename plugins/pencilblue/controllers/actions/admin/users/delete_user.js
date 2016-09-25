@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -37,7 +38,7 @@ module.exports = function(pb) {
         if (message) {
             cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, message)
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
             });
             return;
         }
@@ -45,7 +46,7 @@ module.exports = function(pb) {
         if(vars.id === self.session.authentication.user_id) {
             cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('USER_DELETE_SELF'))
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('users.USER_DELETE_SELF'))
             });
             return;
         }
@@ -56,7 +57,7 @@ module.exports = function(pb) {
             if(user === null) {
                 cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_UID'))
                 });
                 return;
             }
@@ -70,12 +71,12 @@ module.exports = function(pb) {
                         if(util.isError(err) || result < 1) {
                             cb({
                                 code: 500,
-                                content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('ERROR_DELETING'))
+                                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_DELETING'))
                             });
                             return;
                         }
 
-                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, user.username + ' ' + self.ls.get('DELETED'))});
+                        cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, user.username + ' ' + self.ls.g('admin.DELETED'))});
                     });
                 });
             });

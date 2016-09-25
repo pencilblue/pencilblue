@@ -14,11 +14,12 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
     //pb dependencies
-    var util           = pb.util;
+    var util = pb.util;
 
     /**
      * Interface for changing a plugin's settings
@@ -83,8 +84,9 @@ module.exports = function(pb) {
                 for (var i = 0; i < clone.length; i++) {
                     var item = clone[i];
 
-                    item.displayName = item.name.split('_').join(' ');
-                    item.displayName = item.displayName.charAt(0).toUpperCase() + item.displayName.slice(1);
+                    item.id = item.name.split(' ').join('_');
+                    item.heading = self.deriveHeadingLabel(item);
+                    item.displayName = self.deriveDisplayLabel(item);
 
                     if (item.value === true || item.value === false) {
                         item.type = 'checkbox';
@@ -92,17 +94,23 @@ module.exports = function(pb) {
                     else if (util.isString(item.value)) {
                         item.type = 'text';
                     }
-                    else if (!isNaN()) {
+                    else if (!isNaN(item.value)) {
                         item.type = 'number';
                     }
                 }
+
+                // First sort the settings alphabetically, then by heading/group
+                clone.sort(sortOn("displayName"));
+                clone.sort(sortOn("heading"));
+
+                clone = self.insertGroupHeadings(clone);
 
                 var tabs = [
                     {
                         active: 'active',
                         href: '#plugin_settings',
                         icon: 'cog',
-                        title: self.ls.get('SETTINGS')
+                        title: self.ls.g('admin.SETTINGS')
                     }
                 ];
 
@@ -129,6 +137,66 @@ module.exports = function(pb) {
         });
     };
 
+    PluginSettingsFormController.prototype.insertGroupHeadings = function(clone){
+        if (clone.length === 0) {
+            return clone;
+        }
+
+        var items = [];
+        var previous = {};
+        for (var i = 0; i < clone.length; i++) {
+            if (previous.heading !== clone[i].heading) {
+                items.push({id: clone[i].heading, isHeading: true, heading: clone[i].heading});
+            }
+            items.push(clone[i]);
+            previous = clone[i];
+        }
+        return items;
+    };
+
+    function sortOn(property){
+        return function(a, b){
+            // Forces default heading to appear at the top of the sets of grouped settings
+            if(property === 'heading' && a[property] === 'default'){
+                return -1;
+            }
+            else if(a[property] < b[property]){
+                return -1;
+            }else if(a[property] > b[property]){
+                return 1;
+            }else{
+                return 0;
+            }
+        };
+    }
+
+    PluginSettingsFormController.prototype.deriveDisplayLabel = function(item){
+        var label;
+        if (item.displayName) {
+            label = this.ls.g(item.displayName);
+            if (!label) {
+                label = item.displayName;
+            }
+        }
+        if (!label) {
+            label = item.name.split('_').join(' ');
+            label = label.charAt(0).toUpperCase() + label.slice(1);
+        }
+        return label;
+    };
+
+    PluginSettingsFormController.prototype.deriveHeadingLabel = function(item) {
+        var label;
+        if (item.group) {
+            label = this.ls.g(item.group);
+        }
+        if (!label || label === item.group) {
+            label = (item.group || 'default').split('_').join(' ');
+            label = label.charAt(0).toUpperCase() + label.slice(1);
+        }
+        return label;
+    };
+
 
     PluginSettingsFormController.prototype.post = function(cb) {
         var self = this;
@@ -143,7 +211,7 @@ module.exports = function(pb) {
             else if (util.isNullOrUndefined(settings)) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('INVALID_UID'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_UID'))
                 });
             }
 
@@ -177,7 +245,7 @@ module.exports = function(pb) {
             if(errors.length > 0) {
                 cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, errors.join("\n"))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, errors.join("\n"))
                 });
                 return;
             }
@@ -187,12 +255,12 @@ module.exports = function(pb) {
                 if(util.isError(err) || !result) {
                     cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_ERROR, self.ls.get('SAVE_PUGIN_SETTINGS_FAILURE'))
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.SAVE_PUGIN_SETTINGS_FAILURE'))
                     });
                     return;
                 }
 
-                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.get('SAVE_PLUGIN_SETTINGS_SUCCESS'))});
+                cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('generic.SAVE_PLUGIN_SETTINGS_SUCCESS'))});
             });
         });
     };
@@ -203,7 +271,7 @@ module.exports = function(pb) {
      *
      */
     PluginSettingsFormController.prototype.getPageName = function() {
-        return this.plugin.name + ' - ' + this.ls.get('SETTINGS');
+        return this.plugin.name + ' - ' + this.ls.g('admin.SETTINGS');
     };
 
     /**
@@ -243,7 +311,7 @@ module.exports = function(pb) {
         return [
             {
                 name: 'manage_plugins',
-                title: data.plugin.name + ' ' + ls.get('SETTINGS'),
+                title: data.plugin.name + ' ' + ls.g('admin.SETTINGS'),
                 icon: 'chevron-left',
                 href: '/admin/' + data.settingType
             }
@@ -295,10 +363,10 @@ module.exports = function(pb) {
      */
     PluginSettingsFormController.validateValue = function(value, type) {
         if (type === 'boolean') {
-            return value !== null && value !== undefined && (value === true || value === false || value === 1 || value === 0 || value == '1' || value === '0' || value.toLowerCase() === 'true' || value.toLowerCase() === 'false');
+            return value !== null && value !== undefined && (value === true || value === false || value === 1 || value === 0 || value === '1' || value === '0' || value.toLowerCase() === 'true' || value.toLowerCase() === 'false');
         }
         else if (type === 'string') {
-            return pb.validation.validateStr(value, true);
+            return pb.validation.isStr(value, true);
         }
         else if (type === 'number') {
             return !isNaN(value);

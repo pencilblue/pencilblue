@@ -1,7 +1,7 @@
 {
     "name": "PencilBlue",
     "description": "PencilBlue: Full stack online publishing for Node.js",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "url": "http://pencilblue.org/",
     "logo": "http://pencilblue.org/img/pb_logo.png",
     "options": {

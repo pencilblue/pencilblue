@@ -11,30 +11,30 @@
                         <div class="panel-heading" ng-bind="user.username"></div>
                         <div class="panel-body">
                             <div class="form-group">
-                                <label>^loc_FIRST_NAME^</label>
-                                <input type="text" class="form-control" ng-model="user.first_name"></input>
+                                <label>^loc_users.FIRST_NAME^</label>
+                                <input type="text" class="form-control" ng-model="user.first_name"/>
                             </div>
                             <div class="form-group">
-                                <label>^loc_LAST_NAME^</label>
-                                <input type="text" class="form-control" ng-model="user.last_name"></input>
+                                <label>^loc_users.LAST_NAME^</label>
+                                <input type="text" class="form-control" ng-model="user.last_name"/>
                             </div>
                             <div class="form-group">
-                                <label>^loc_POSITION^</label>
-                                <input type="text" class="form-control" ng-model="user.position"></input>
+                                <label>^loc_users.POSITION^</label>
+                                <input type="text" class="form-control" ng-model="user.position"/>
                             </div>
                             <div class="form-group">
-                                <label>^loc_PASSWORD^</label>
-                                <input type="text" class="form-control" ng-model="user.password"></input>
+                                <label>^loc_generic.PASSWORD^</label>
+                                <input type="text" class="form-control" ng-model="user.password"/>
                             </div>
                             <div class="form-group">
-                                <label>^loc_USER_TYPE^</label>
+                                <label>^loc_users.USER_TYPE^</label>
                                 <select name="admin" class="form-control" ng-model="user.admin" ng-options="adminOption.value as adminOption.name for adminOption in adminOptions"></select>
                             </div>
                         </div>
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/plugins/wp_import/settings">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 ^tmp_admin=elements=save_button^
             </div>

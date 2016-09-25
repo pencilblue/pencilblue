@@ -439,7 +439,7 @@ module.exports = function AdminNavigationModule(pb) {
 
     AdminNavigation.addChild = function(parentId, node) {
         AdminNavigation.addChildToSite(parentId, node, pb.SiteService.GLOBAL_SITE);
-    }
+    };
 
     /**
      * Adds a new child node to an existing top level node
@@ -612,7 +612,7 @@ module.exports = function AdminNavigationModule(pb) {
                         }
 
                         for (var p = 0; p < activeItems.length; p++) {
-                            if (activeItems[p] == adminNavigation[i].children[j].id) {
+                            if (activeItems[p] === adminNavigation[i].children[j].id) {
                                 adminNavigation[i].children[j].active = 'active';
                                 break;
                             }

@@ -14,14 +14,17 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
 var async = require('async');
+var _ = require('lodash');
 
 module.exports = function (pb) {
 
     //pb dependencies
     var util = pb.util;
+    var log = pb.log;
 
     /**
      * @class PluginDependencyService
@@ -52,6 +55,50 @@ module.exports = function (pb) {
     };
 
     /**
+     * Inspects each dependency to see if it is already installed for the plugin or the platform.
+     * @param {object} dependencies Key value pairs of moduleName => versionExpression
+     * @param {object} context
+     * @param {string} context.pluginUid
+     * @param cb (Error, Array({{success: boolean, validationFailures: Array}}))
+     */
+    PluginDependencyService.prototype.areSatisfied = function(dependencies, context, cb) {
+        var self = this;
+        var tasks = util.getTasks(Object.keys(dependencies), function(keys, i) {
+
+            var ctx = {
+                pluginUid: context.pluginUid,
+                moduleName: keys[i],
+                versionExpression: dependencies[keys[i]]
+            };
+            return util.wrapTask(self, self.isSatisfied, [ctx]);
+        });
+        async.series(tasks, cb);
+    };
+
+    /**
+     * Inspects a hash of dependencies looking to see which ones are available for the specified plugin.  Those that are
+     * not available are in a new hash that is part of the callback
+     * @method filterSatisfied
+     * @param dependencies
+     * @param {object}options
+     * @param {function} cb (Error, object)
+     */
+    PluginDependencyService.prototype.filterSatisfied = function(dependencies, options, cb) {
+        async.waterfall([
+            util.wrapTask(this, this.areSatisfied, [dependencies, {pluginUid: options.pluginUid}]),
+            function(resultArray, callback) {
+                var unsatisfiedObj = resultArray.reduce(function(unsatisfied, result) {
+                    if (!result.success) {
+                        unsatisfied[result.moduleName] = dependencies[result.moduleName];
+                    }
+                    return unsatisfied;
+                }, {});
+                callback(null, unsatisfiedObj);
+            }
+        ], cb);
+    };
+
+    /**
      * <b>NOTE: This function must be overriden by the inheriting prototype</b>
      * Checks to see if the plugin dependency is already installed
      * @method isSatisfied
@@ -59,7 +106,7 @@ module.exports = function (pb) {
      * @param {string} context.moduleName
      * @param {string} context.versionExpression
      * @param {string} context.pluginUid
-     * @param {function} cb (Error, {{success: boolean, validationFailures: Array}})
+     * @param {function} cb (Error, {{moduleName: string, success: boolean, validationFailures: Array}})
      */
     PluginDependencyService.prototype.isSatisfied = function(context, cb) {
         throw new Error('This function must overriden by the inheriting prototype');
@@ -70,16 +117,48 @@ module.exports = function (pb) {
      * given plugin.  The function will acquire a lock (semaphore) to prevent other processes from causing concurrency
      * issues then proceed with the installation
      * @method installAll
-     * @param {object} plugin
-     * @param {string} plugin.uid The plugin identifier
+     * @param {object} dependencies
      * @param {object} options
+     * @param {string} options.pluginUid The plugin identifier
+     * @param {boolean} [options.skipValidation=false]
      * @param {function} cb (Error, Boolean)
      */
-    PluginDependencyService.prototype.installAll = function(plugin, options, cb) {
-        async.series([
-            util.wrapTask(this, this.acquireLock, [plugin.uid]),
-            util.wrapTask(this, this._installAll, [plugin, options])
-        ],
+    PluginDependencyService.prototype.installAll = function(dependencies, options, cb) {
+        var self = this;
+        async.auto({
+
+            //get the lock so no other process can screw us over by writing to the same file in parallel
+            lockContext: util.wrapTask(this, this.acquireLock, [options.pluginUid]),
+
+            //create a dependency list of only those that are unsatisfied, unless explicitly told to skip the validation
+            unsatisfiedDependencies: ['lockContext', function(callback) {
+                if (options.skipValidation) {
+                    log.silly('PluginDependencyService: Skipping %s dependency validation for plugin %s', self.getType(), options.pluginUid);
+                    return callback(null, dependencies);
+                }
+
+                log.silly('PluginDependencyService: Filtering satisfied %s dependencies for plugin %s', self.getType(), options.pluginUid);
+                self.filterSatisfied(dependencies, {pluginUid: options.pluginUid}, callback);
+            }],
+
+            //configure the module that will handle the dependencies such that it is specific to the provided plugin
+            configuration: ['unsatisfiedDependencies', function(callback, results) {
+                //when there are no unsatisfied dependencies then callback to break the chain
+                if (_.isEqual(results.unsatisfiedDependencies, {})) {
+                    log.silly('PluginDependencyService: All %s dependencies for plugin %s are satisfied', self.getType(), options.pluginUid);
+                    return callback(true);
+                }
+
+                log.silly('PluginDependencyService: Configuring %s for plugin %s', self.getType(), options.pluginUid);
+                self.configure(options, callback);
+            }],
+
+            //perform the installation
+            install: ['unsatisfiedDependencies', 'configuration', function(callback, results) {
+                log.silly('PluginDependencyService: Installing unsatisfied %s dependencies: %s', self.getType(), JSON.stringify(results.unsatisfiedDependencies));
+                self._installAll(results.unsatisfiedDependencies, util.merge(options, {configuration: results.configuration}), callback);
+            }]
+        },
         PluginDependencyService.getLockRelease(cb));
     };
 
@@ -89,12 +168,25 @@ module.exports = function (pb) {
      * iterate over each of dependency specified for the plugin and call the "install" function for each one.
      * @private
      * @method _installAll
-     * @param {object} plugin
-     * @param {string} plugin.uid The plugin identifier
+     * @param {object} dependencies
      * @param {object} options
+     * @param {string} options.pluginUid The plugin identifier
+     * @param {object} options.configuration
      * @param {function} cb (Error, Boolean)
      */
-    PluginDependencyService.prototype._installAll = function(plugin, options, cb) {
+    PluginDependencyService.prototype._installAll = function(dependencies, options, cb) {
+        throw new Error('This function must overriden by the inheriting prototype');
+    };
+
+    /**
+     * Configures Bower to emit log statements as well as set the installation directory for the plugin.
+     * @static
+     * @method configure
+     * @param {object} options
+     * @param {string} options.pluginUid
+     * @param {function} cb (Error, {logOutput: Array, logListener: function})
+     */
+    PluginDependencyService.prototype.configure = function(options, cb) {
         throw new Error('This function must overriden by the inheriting prototype');
     };
 
@@ -107,46 +199,13 @@ module.exports = function (pb) {
      * @param {string} context.pluginUid The plugin identifier
      * @param {string} context.moduleName The name of the dependent module to install
      * @param {string} context.versionExpression The version or version expression to use for installation
+     * @param {boolean} [context.skipValidation=false]
      * @param {function} cb (Error, Boolean)
      */
     PluginDependencyService.prototype.install = function(context, cb) {
-        var self = this;
-        var isSatisfiedFunc = function(cb) {
-            if (context.skipValidation) {
-                return cb(null, true);
-            }
-            self.isSatisfied(context, function(err, result) {
-                cb(err, result ? result.success : false);
-            });
-        };
-
-        isSatisfiedFunc(function(err, isSatisfied) {
-            if (util.isError(err)) {
-                return cb(err, isSatisfied);
-            }
-            if (isSatisfied) {
-                return cb(null, true);
-            }
-
-            //perform the install
-            self._install(context, cb);
-        });
-    };
-
-    /**
-     * <b>This method must be implemented by an inheriting prototype</b>
-     * Responsible for installing the individual dependency.  Implementations are safe to assume that the dependency
-     * does not exist or that it is safe to replace it.
-     * @private
-     * @method _install
-     * @param {object} context
-     * @param {string} context.pluginUid The plugin identifier
-     * @param {string} context.moduleName The name of the dependent module to install
-     * @param {string} context.versionExpression The version or version expression to use for installation
-     * @param {function} cb (Error, Boolean)
-     */
-    PluginDependencyService.prototype._install = function(context, cb) {
-        throw new Error('This function must overriden by the inheriting prototype');
+        var dependencies = {};
+        dependencies[context.moduleName] = context.versionExpression;
+        this.installAll(dependencies, context, cb);
     };
 
     /**
@@ -192,12 +251,13 @@ module.exports = function (pb) {
      */
     PluginDependencyService.getLockRelease = function(cb) {
         return function(err, result) {
-            var context = result[0];
+            var context = result ? result.lockContext : null;
             if (!context || !context.didLock) {
                 return cb(err, result);
             }
             context.lockService.release(context.lockKey, function(error, didRelease) {
-                cb(err || error, didRelease);
+                var e = (util.isError(err) ? err : null) || error;
+                cb(e, didRelease);
             });
         };
     };
@@ -263,14 +323,16 @@ module.exports = function (pb) {
      * Constructs an object that will be returned as the result for the dependency install operation
      * @static
      * @method buildResult
+     * @param {string} moduleName
      * @param {boolean} success
      * @param {Array} [validationFailures]
-     * @returns {{success: boolean, validationFailures: Array}}
+     * @returns {{success: boolean, validationFailures: Array, moduleName: string}}
      */
-    PluginDependencyService.buildResult = function(success, validationFailures) {
+    PluginDependencyService.buildResult = function(moduleName, success, validationFailures) {
         return {
             success: !!success,
-            validationErrors: validationFailures || []
+            validationErrors: validationFailures || [],
+            moduleName: moduleName
         };
     };
 

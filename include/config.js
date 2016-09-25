@@ -14,12 +14,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var fs      = require('fs');
 var path    = require('path');
 var cluster = require('cluster');
-var process = global.process || require('process');
 var util    = require('./util.js');
 var winston = require('winston');
 
@@ -422,7 +422,7 @@ Configuration.getBaseConfig = function(multisite) {
  * the system.
  * @static
  * @method load
- * @param {Array|String} filePaths
+ * @param {Array|String} [filePaths]
  * @return {Object}
  */
 Configuration.load = function(filePaths) {

@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var path   = require('path');
@@ -33,7 +34,7 @@ module.exports = function SessionModule(pb) {
      * @module Session
      * @class SessionHandler
      * @constructor
-     * @param {SessionStore} sesisonStore
+     * @param {SessionStore} sessionStore
      */
     function SessionHandler(sessionStore){
 

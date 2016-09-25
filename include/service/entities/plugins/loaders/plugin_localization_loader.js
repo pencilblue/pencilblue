@@ -25,6 +25,7 @@ module.exports = function (pb) {
     var util = pb.util;
     var PluginService = pb.PluginService;
     var PluginResourceLoader = pb.PluginResourceLoader;
+    var Localization = pb.Localization;
 
     /**
      * @class PluginLocalizationLoader
@@ -32,11 +33,62 @@ module.exports = function (pb) {
      * @constructor
      * @param {object} context
      * @param {string} context.pluginUid
+     * @param {string} context.site
      */
     function PluginLocalizationLoader(context){
+
+        /**
+         * @property site
+         * @type {string}
+         */
+        this.site = context.site;
+
         PluginLocalizationLoader.super_.call(this, context);
     }
     util.inherits(PluginLocalizationLoader, PluginResourceLoader);
+
+    /**
+     * Responsible for initializing the resource.  Calls the init function after extracting the prototype from the
+     * module wrapper function
+     * @method initResource
+     * @param {function} resource
+     * @param {object} context
+     * @param {boolean} [context.register=false]
+     * @param {function} cb (Error, ControllerPrototype)
+     */
+    PluginLocalizationLoader.prototype.initResource = function(resource, context, cb) {
+        if (!context.register) {
+            return cb(null, resource);
+        }
+
+        //we made it this far so we need to register the controller with the RequestHandler
+        this.register(resource, context, function(err) {
+            cb(err, resource);
+        });
+    };
+
+    /**
+     * Responsible for initializing the resource.  Calls the init function after extracting the prototype from the
+     * module wrapper function
+     * @method register
+     * @param {object} localization
+     * @param {object} context
+     * @param {string} context.path
+     * @param {function} cb (Error)
+     */
+    PluginLocalizationLoader.prototype.register = function(localization, context, cb) {
+        var locale = this.getResourceName(context.path, localization);
+        pb.log.debug('PluginLocalizationLoader:[%s] Registering localizations for locale [%s]', this.pluginUid, locale);
+
+        var opts = {
+            site: this.site,
+            plugin: this.pluginUid
+        };
+        if (!Localization.registerLocale(locale, localization, opts)) {
+            pb.log.debug('PluginLocalizationLoader:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', this.pluginUid, locale);
+        }
+        process.nextTick(cb);
+    };
 
     /**
      * Derives the unique name of the resource

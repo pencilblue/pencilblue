@@ -14,6 +14,7 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -69,7 +70,7 @@ module.exports = function(pb) {
 
       var tabs = self.getTabs();
 
-      self.setPageName(self.page[pb.DAO.getIdField()] ? self.page.headline : self.ls.get('NEW_PAGE'));
+      self.setPageName(self.page[pb.DAO.getIdField()] ? self.page.headline : self.ls.g('pages.NEW_PAGE'));
       self.ts.registerLocal('angular_objects', new pb.TemplateValue(self.getAngularObjects(tabs, results), false));
       self.ts.load('admin/content/pages/page_form', function(err, data) {
           var result = data;
@@ -146,7 +147,7 @@ module.exports = function(pb) {
     PageFormController.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_pages',
-            title: data.page[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.page.headline : ls.get('NEW_PAGE'),
+            title: data.page[pb.DAO.getIdField()] ? ls.g('generic.EDIT') + ' ' + data.page.headline : ls.g('pages.NEW_PAGE'),
             icon: 'chevron-left',
             href: '/admin/content/pages'
         }, {
@@ -225,22 +226,22 @@ module.exports = function(pb) {
                 active: 'active',
                 href: '#content',
                 icon: 'quote-left',
-                title: this.ls.get('CONTENT')
+                title: this.ls.g('generic.CONTENT')
             },
             {
                 href: '#media',
                 icon: 'camera',
-                title: this.ls.get('MEDIA')
+                title: this.ls.g('admin.MEDIA')
             },
             {
                 href: '#topics_dnd',
                 icon: 'tags',
-                title: this.ls.get('TOPICS')
+                title: this.ls.g('admin.TOPICS')
             },
             {
                 href: '#seo',
                 icon: 'tasks',
-                title: this.ls.get('SEO')
+                title: this.ls.g('generic.SEO')
             }
         ];
     };

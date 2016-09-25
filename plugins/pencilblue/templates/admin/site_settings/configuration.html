@@ -2,62 +2,62 @@
 <div class="col-md-9">
     ^tmp_admin=elements=error_success^
     ^tmp_admin=elements=sub_nav^
-    <div class="alert alert-info" ng-if="!config.configSet">^loc_EDIT_CONFIGURATION^</div>
+    <div class="alert alert-info" ng-if="!config.configSet">^loc_site_settings.EDIT_CONFIGURATION^</div>
     <form class="form" ng-submit="saveConfiguration()" novalidate>
         <div class="table_container">
             <table class="table table-responsive table-condensed table-bordered">
                 <tr>
-                    <td><b>^loc_SITE_NAME^</b></td>
+                    <td><b>^loc_site_settings.SITE_NAME^</b></td>
                     <td ng-bind="config.siteName"></td>
                 </tr>
                 <tr>
-                    <td><b>^loc_SITE_ROOT^</b></td>
+                    <td><b>^loc_site_settings.SITE_ROOT^</b></td>
                     <td ng-bind="config.siteRoot"></td>
                 </tr>
                 <tr>
-                    <td><b>^loc_MEDIA_ROOT^</b></td>
+                    <td><b>^loc_site_settings.MEDIA_ROOT^</b></td>
                     <td ng-bind="config.mediaRoot"></td>
                 </tr>
                 <tr>
-                    <td><b>^loc_DOCUMENT_ROOT^</b></td>
+                    <td><b>^loc_site_settings.DOCUMENT_ROOT^</b></td>
                     <td ng-bind="config.documentRoot"></td>
                 </tr>
                 <tr>
-                    <td><b>^loc_IP_ADDRESS^</b></td>
+                    <td><b>^loc_site_settings.IP_ADDRESS^</b></td>
                     <td ng-bind="config.siteIP"></td>
                 </tr>
                 <tr>
-                    <td><b>^loc_PORT^</b></td>
+                    <td><b>^loc_site_settings.PORT^</b></td>
                     <td ng-bind="config.sitePort"></td>
                 </tr>
                 <tr>
-                    <td><b>^loc_DB_TYPE^</b></td>
+                    <td><b>^loc_site_settings.DB_TYPE^</b></td>
                     <td ng-bind="config.dbType"></td>
                 </tr>
                 <tr>
-                    <td><b>^loc_DB_NAME^</b></td>
+                    <td><b>^loc_site_settings.DB_NAME^</b></td>
                     <td ng-bind="config.dbName"></td>
                 </tr>
                 <tr>
-                    <td><b>^loc_DB_SERVERS^</b></td>
+                    <td><b>^loc_site_settings.DB_SERVERS^</b></td>
                     <td>
                         <div ng-repeat="server in config.dbServers" ng-bind="server"></div>
                     </td>
                 </tr>
                 <tr>
-                    <td><b>^loc_MAKE_PB_BETTER^</b></td>
+                    <td><b>^loc_generic.MAKE_PB_BETTER^</b></td>
                     <td>
                         <div class="btn-group" style="margin-bottom: .5em">
-                            <button type="button" class="btn btn-default" ng-class="{'active': config.callHome}" ng-click="setCallHome(true)" ng-checked="config.callHome">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !config.callHome}" ng-click="setCallHome(false)" ng-checked="!config.callHome">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': config.callHome}" ng-click="setCallHome(true)" ng-checked="config.callHome">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !config.callHome}" ng-click="setCallHome(false)" ng-checked="!config.callHome">^loc_generic.NO^</button>
                         </div><br/>
-                        <a href="#privacy_policy_modal" data-toggle="modal" style="font-size:.9em">^loc_PRIVACY_POLICY^</a>
+                        <a href="#privacy_policy_modal" data-toggle="modal" style="font-size:.9em">^loc_generic.PRIVACY_POLICY^</a>
                     </td>
                 </tr>
             </table>
         </div>
         <button type="submit" class="btn btn-primary" ng-disabled="saving || !isGlobalSite">
-            <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_APPLY_SETTINGS^
+            <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_generic.APPLY_SETTINGS^
         </button>
     </form>
     ^tmp_elements=privacy_policy^
