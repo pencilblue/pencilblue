@@ -61,6 +61,51 @@ describe('BaseObjectService', function() {
                 BaseObjectService.parseBoolean(val).should.eql(false);
             });
         });
-    })
+    });
 
+    describe('BaseObjectService.setDefaultSanitizationRules', function() {
+
+        ['0', false, 0, 1.1, 2.2, -1, undefined, []].forEach(function(val) {
+
+            it('should throw when passed a non-object, including array but not null', function() {
+                BaseObjectService.setDefaultSanitizationRules.bind(val).should.throwError();
+            });
+        });
+
+        it('should override the default set of rules when passed a valid object and reset when passed null', function() {
+
+            var overrides = {
+                allowedTags: ['div', 'h4']
+            };
+            var defaults = BaseObjectService.getDefaultSanitizationRules();
+            BaseObjectService.setDefaultSanitizationRules(overrides);
+            BaseObjectService.getDefaultSanitizationRules().should.eql(overrides);
+
+            BaseObjectService.setDefaultSanitizationRules(null);
+            BaseObjectService.getDefaultSanitizationRules().should.eql(defaults);
+        });
+    });
+
+    describe('BaseObjectService.setContentSanitizationRules', function() {
+
+        ['0', false, 0, 1.1, 2.2, -1, undefined, []].forEach(function(val) {
+
+            it('should throw when passed a non-object, including array but not null', function() {
+                BaseObjectService.setContentSanitizationRules.bind(val).should.throwError();
+            });
+        });
+
+        it('should override the default set of rules when passed a valid object and reset when passed null', function() {
+
+            var overrides = {
+                allowedTags: ['div', 'h4']
+            };
+            var defaults = BaseObjectService.getContentSanitizationRules();
+            BaseObjectService.setContentSanitizationRules(overrides);
+            BaseObjectService.getContentSanitizationRules().should.eql(overrides);
+
+            BaseObjectService.setContentSanitizationRules(null);
+            BaseObjectService.getContentSanitizationRules().should.eql(defaults);
+        });
+    });
 });

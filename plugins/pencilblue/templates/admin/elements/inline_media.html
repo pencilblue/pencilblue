@@ -1,6 +1,6 @@
 <div ng-controller="InlineMediaController">
     <div class="panel panel-default">
-        <div class="panel-heading">^loc_RELATED_MEDIA^...</div>
+        <div class="panel-heading">^loc_media.RELATED_MEDIA^...</div>
         <div class="panel-body" style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="editingObject[variablePrefix + '_media']">
             <div class="panel panel-default draggable_item" ng-repeat="mediaItem in editingObject[variablePrefix + '_media'] track by mediaItem._id" data-as-sortable-item>
                 <div class="panel-heading">
@@ -14,7 +14,7 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <div style="padding-bottom: .5em">^loc_UNRELATED_MEDIA^...</div>
+            <div style="padding-bottom: .5em">^loc_media.UNRELATED_MEDIA^...</div>
             ^tmp_admin=elements=search_input^
         </div>
         <div class="panel-body" style="min-height: 50px">
@@ -33,20 +33,20 @@
     </div>
     <div class="form-group">
         <button type="button" class="btn btn-info" ng-click="showMediaModal(false)">
-            <i class="fa fa-link"></i>&nbsp;^loc_LINK_TO_MEDIA^...
+            <i class="fa fa-link"></i>&nbsp;^loc_media.LINK_TO_MEDIA^...
         </button>
         <button type="button" class="btn btn-info" ng-click="showMediaModal(true)">
-            <i class="fa fa-upload"></i>&nbsp;^loc_UPLOAD_MEDIA^...
+            <i class="fa fa-upload"></i>&nbsp;^loc_media.UPLOAD_MEDIA^...
         </button>
     </div>
     <div class="modal fade" id="media_modal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header" ng-if="addedMedia.isFile">
-                    ^loc_UPLOAD_MEDIA^
+                    ^loc_media.UPLOAD_MEDIA^
                 </div>
                 <div class="modal-header" ng-if="!addedMedia.isFile">
-                    ^loc_LINK_TO_MEDIA^
+                    ^loc_media.LINK_TO_MEDIA^
                 </div>
                 <div class="modal-body">
                     <span ng-if="addedMedia.isFile">
@@ -55,7 +55,7 @@
                         </div>
                         <span class="btn btn-success fileinput-button" ng-disabled="uploading">
                             <i class="fa" ng-class="{'fa-plus': !uploading, 'fa-circle-o-notch fa-spin': uploading}"></i>
-                            <span>^loc_SELECT_FILE^...</span>
+                            <span>^loc_generic.SELECT_FILE^...</span>
                             <input type="file" ng-file-select="onFileSelect($files)" accept=".jpg,.jpeg,.png,.gif,.svg,.webp,.mp4,.webm,.ogv"></input>
                         </span>
                         <div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="dropSupported=true" ng-file-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">Drop image and video files here</div>
@@ -63,28 +63,28 @@
                     </span>
                     <span ng-if="!addedMedia.isFile">
                         <div class="form-group">
-                            <label>^loc_MEDIA_URL^</label>
-                            <input type="text" class="form-control" ng-model="addedMedia.link" placeholder="^loc_MEDIA_URL_PLACEHOLDER^"></input>
+                            <label>^loc_media.MEDIA_URL^</label>
+                            <input type="text" class="form-control" ng-model="addedMedia.link" placeholder="^loc_media.MEDIA_URL_PLACEHOLDER^"></input>
                         </div>
                         <button type="button" class="btn btn-primary" ng-click="loadMediaLink()" ng-disabled="!addedMedia.link.length || loadingLink">
-                            <i class="fa" ng-class="{'fa-link': !loadingLink, 'fa-circle-o-notch fa-spin': loadingLink}"></i>&nbsp;^loc_LOAD_LINK^
+                            <i class="fa" ng-class="{'fa-link': !loadingLink, 'fa-circle-o-notch fa-spin': loadingLink}"></i>&nbsp;^loc_media.LOAD_LINK^
                         </button>
                         <div style="margin: 1em 0" ng-bind-html="getMediaPreviewHTML()" ng-if="mediaPreview.length" style="width: 100%"></div>
                     </span>
                     <fieldset>
                         <div class="form-group">
-                            <label>^loc_MEDIA_NAME^</label>
+                            <label>^loc_media.MEDIA_NAME^</label>
                             <input type="text" ng-model="addedMedia.name" class="form-control"></input>
                         </div>
                         <div class="form-group">
-                            <label>^loc_CAPTION^</label>
+                            <label>^loc_media.CAPTION^</label>
                             <input type="text" ng-model="addedMedia.caption" class="form-control"></input>
                         </div>
                         <button type="button" class="btn btn-default" data-dismiss="modal">
-                            <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                            <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                         </button>
                         <button type="button" class="btn btn-primary" ng-click="saveAddedMedia()" ng-disabled="!isSaveMediaEnabled() || savingMedia">
-                            <i class="fa" ng-class="{'fa-save': !savingMedia, 'fa-circle-o-notch fa-spin': savingMedia}"></i>&nbsp;^loc_SAVE^
+                            <i class="fa" ng-class="{'fa-save': !savingMedia, 'fa-circle-o-notch fa-spin': savingMedia}"></i>&nbsp;^loc_generic.SAVE^
                         </button>
                     <fieldset>
                 </div>

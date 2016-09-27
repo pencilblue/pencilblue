@@ -8,14 +8,14 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="articles">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(contentForm.articles_per_page)}">
-                        <label>^loc_ARTICLES_PER_PAGE^</label>
-                        <input type="number" name="articles_per_page" class="form-control" ng-model="contentSettings.articles_per_page" step="1" min="1" required></input>
-                        <div class="form_error" ng-if="!isFieldValid(contentForm.articles_per_page)">^loc_REQUIRED_FIELD^</div>
+                        <label>^loc_site_settings.ARTICLES_PER_PAGE^</label>
+                        <input type="number" name="articles_per_page" class="form-control" ng-model="contentSettings.articles_per_page" step="1" min="1" required/>
+                        <div class="form_error" ng-if="!isFieldValid(contentForm.articles_per_page)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_AUTO_BREAK_ARTICLES^</label><br/>
+                        <label>^loc_site_settings.AUTO_BREAK_ARTICLES^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.auto_break_articles === 0}" ng-click="setContentValue('auto_break_articles', 0)">^loc_DONT_BREAK^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.auto_break_articles === 0}" ng-click="setContentValue('auto_break_articles', 0)">^loc_site_settings.DONT_BREAK^</button>
                             <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.auto_break_articles === 1}" ng-click="setContentValue('auto_break_articles', 1)">1</button>
                             <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.auto_break_articles === 2}" ng-click="setContentValue('auto_break_articles', 2)">2</button>
                             <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.auto_break_articles === 3}" ng-click="setContentValue('auto_break_articles', 3)">3</button>
@@ -24,20 +24,20 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_READ_MORE_TEXT^</label>
-                        <input type="text" class="form-control" ng-model="contentSettings.read_more_text"></input>
+                        <label>^loc_site_settings.READ_MORE_TEXT^</label>
+                        <input type="text" class="form-control" ng-model="contentSettings.read_more_text"/>
                     </div>
                 </div>
                 <div class="tab-pane" id="timestamp">
                     <div class="form-group">
-                        <label>^loc_DISPLAY_TIMESTAMP^</label><br/>
+                        <label>^loc_site_settings.DISPLAY_TIMESTAMP^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_timestamp}" ng-click="setContentValue('display_timestamp', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_timestamp}" ng-click="setContentValue('display_timestamp', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_timestamp}" ng-click="setContentValue('display_timestamp', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_timestamp}" ng-click="setContentValue('display_timestamp', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_DATE_FORMAT^</label>
+                        <label>^loc_site_settings.DATE_FORMAT^</label>
                         <select class="form-control" ng-model="contentSettings.date_format">
                             <option value="M dd, YYYY">M dd, YYYY</option>
                             <option value="mm/dd/YYYY">mm/dd/YYYY</option>
@@ -53,89 +53,89 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>^loc_TWO_DIGIT_DATE^</label><br/>
+                        <label>^loc_site_settings.TWO_DIGIT_DATE^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.two_digit_date}" ng-click="setContentValue('two_digit_date', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.two_digit_date}" ng-click="setContentValue('two_digit_date', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.two_digit_date}" ng-click="setContentValue('two_digit_date', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.two_digit_date}" ng-click="setContentValue('two_digit_date', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_DISPLAY_HOURS_MINUTES^</label><br/>
+                        <label>^loc_site_settings.DISPLAY_HOURS_MINUTES^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_hours_minutes}" ng-click="setContentValue('display_hours_minutes', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_hours_minutes}" ng-click="setContentValue('display_hours_minutes', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_hours_minutes}" ng-click="setContentValue('display_hours_minutes', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_hours_minutes}" ng-click="setContentValue('display_hours_minutes', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_TIME_FORMAT^</label><br/>
+                        <label>^loc_site_settings.TIME_FORMAT^</label><br/>
                         <div class="btn-group">
                             <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.time_format === '12'}" ng-click="setContentValue('time_format', '12')">12</button>
                             <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.time_format === '24'}" ng-click="setContentValue('time_format', '24')">24</button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_TWO_DIGIT_TIME^</label><br/>
+                        <label>^loc_site_settings.TWO_DIGIT_TIME^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.two_digit_time}" ng-click="setContentValue('two_digit_time', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.two_digit_time}" ng-click="setContentValue('two_digit_time', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.two_digit_time}" ng-click="setContentValue('two_digit_time', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.two_digit_time}" ng-click="setContentValue('two_digit_time', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                 </div>
                 <div class="tab-pane" id="authors">
                     <div class="form-group">
-                        <label>^loc_DISPLAY_BYLINES^</label><br/>
+                        <label>^loc_site_settings.DISPLAY_BYLINES^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_bylines}" ng-click="setContentValue('display_bylines', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_bylines}" ng-click="setContentValue('display_bylines', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_bylines}" ng-click="setContentValue('display_bylines', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_bylines}" ng-click="setContentValue('display_bylines', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                     <div id="default_comments_group" class="form-group">
-                        <label>^loc_DISPLAY_AUTHOR_PHOTO^</label><br/>
+                        <label>^loc_site_settings.DISPLAY_AUTHOR_PHOTO^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_author_photo}" ng-click="setContentValue('display_author_photo', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_author_photo}" ng-click="setContentValue('display_author_photo', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_author_photo}" ng-click="setContentValue('display_author_photo', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_author_photo}" ng-click="setContentValue('display_author_photo', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                     <div id="default_comments_group" class="form-group">
-                        <label>^loc_DISPLAY_AUTHOR_POSITION^</label><br/>
+                        <label>^loc_site_settings.DISPLAY_AUTHOR_POSITION^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_author_position}" ng-click="setContentValue('display_author_position', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_author_position}" ng-click="setContentValue('display_author_position', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.display_author_position}" ng-click="setContentValue('display_author_position', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.display_author_position}" ng-click="setContentValue('display_author_position', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                 </div>
                 <div class="tab-pane" id="comments">
                     <div class="form-group">
-                        <label>^loc_ALLOW_COMMENTS^</label><br/>
+                        <label>^loc_site_settings.ALLOW_COMMENTS^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.allow_comments}" ng-click="setContentValue('allow_comments', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.allow_comments}" ng-click="setContentValue('allow_comments', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.allow_comments}" ng-click="setContentValue('allow_comments', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.allow_comments}" ng-click="setContentValue('allow_comments', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                     <div id="default_comments_group" class="form-group">
-                        <label>^loc_COMMENTS_ON^</label><br/>
+                        <label>^loc_site_settings.COMMENTS_ON^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.default_comments}" ng-click="setContentValue('default_comments', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.default_comments}" ng-click="setContentValue('default_comments', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.default_comments}" ng-click="setContentValue('default_comments', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.default_comments}" ng-click="setContentValue('default_comments', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_REQUIRE_ACCOUNT^</label><br/>
+                        <label>^loc_site_settings.REQUIRE_ACCOUNT^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.require_account}" ng-click="setContentValue('require_account', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.require_account}" ng-click="setContentValue('require_account', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.require_account}" ng-click="setContentValue('require_account', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.require_account}" ng-click="setContentValue('require_account', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_REQUIRE_VERIFICATION^</label><br/>
+                        <label>^loc_site_settings.REQUIRE_VERIFICATION^</label><br/>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.require_verification}" ng-click="setContentValue('require_verification', true)">^loc_YES^</button>
-                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.require_verification}" ng-click="setContentValue('require_verification', false)">^loc_NO^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': contentSettings.require_verification}" ng-click="setContentValue('require_verification', true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !contentSettings.require_verification}" ng-click="setContentValue('require_verification', false)">^loc_generic.NO^</button>
                         </div>
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/site_settings">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 ^tmp_admin=elements=save_button^
             </div>

@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
 var fs      = require('fs');
@@ -87,7 +88,7 @@ module.exports = function PluginServiceModule(pb) {
      * @property PLUGINS_DIR
      * @type {String}
      */
-    var PLUGINS_DIR       = path.join(pb.config.docRoot, 'plugins');
+    var PLUGINS_DIR = path.join(pb.config.docRoot, 'plugins');
 
     /**
      * The name of the file that defines the plugin's properties
@@ -118,25 +119,6 @@ module.exports = function PluginServiceModule(pb) {
      */
     var PLUGIN_INIT_CACHE = {};
 
-    function getPluginForSite(theme, site) {
-        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][theme]) {
-            return ACTIVE_PLUGINS[site][theme];
-        } else if (ACTIVE_PLUGINS[GLOBAL_SITE] && ACTIVE_PLUGINS[GLOBAL_SITE][theme]) {
-            return ACTIVE_PLUGINS[GLOBAL_SITE][theme];
-        }
-        return null;
-    }
-
-    /**
-     * The maximum number of retries to acquire
-     * @private
-     * @static
-     * @readonly
-     * @property MAX_DEPENDENCY_LOCK_RETRY_CNT
-     * @type {Integer}
-     */
-    var MAX_DEPENDENCY_LOCK_RETRY_CNT = 45;
-
     /**
      * Retrieves the path to the active fav icon.
      * @method getActiveIcon
@@ -146,7 +128,7 @@ module.exports = function PluginServiceModule(pb) {
         var self = this;
         var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.site);
         settings.get('active_theme', function(err, theme) {
-            var active_theme = getPluginForSite(theme, self.site);
+            var active_theme = PluginService.getPluginForSite(theme, self.site);
             cb(err, active_theme && active_theme.icon ? active_theme.icon : '/favicon.ico');
         });
     };
@@ -174,6 +156,32 @@ module.exports = function PluginServiceModule(pb) {
             return true;
         }
         return false;
+    };
+
+    /**
+     * Activates a plugin based on the UID and the provided spec
+     * @static
+     * @method activatePlugin
+     * @param {string} pluginUid
+     * @param {object} pluginSpec
+     * @param {function} pluginSpec.main_module
+     * @param {string} pluginSpec.public_dir
+     * @param {object} pluginSpec.permissions
+     * @param {Array} pluginSpec.templates
+     * @param {string} pluginSpec.icon
+     * @param {object} pluginSpec.services
+     * @param {string} site
+     * @returns {boolean} TRUE if the site is set as active and FALSE when the site is already active
+     */
+    PluginService.activatePlugin = function(pluginUid, pluginSpec, site) {
+        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
+            return false;
+        }
+        if (!ACTIVE_PLUGINS[site]) {
+            ACTIVE_PLUGINS[site] = {};
+        }
+        ACTIVE_PLUGINS[site][pluginUid] = pluginSpec;
+        return true;
     };
 
     /**
@@ -226,10 +234,8 @@ module.exports = function PluginServiceModule(pb) {
         return pluginNames;
     };
 
-
     /**
      * Retrieves a single setting for the specified plugin.
-     *
      * @method getSetting
      * @param {string} settingName The name of the setting to retrieve
      * @param {string} pluginName The name of the plugin who owns the setting
@@ -244,7 +250,6 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Retrieves all of the settings for the specfied plugin.
-     *
      * @method getSettings
      * @param pluginName The name of the plugin who's settings are being requested
      * @param cb A callback that provides two parameters: cb(error, settings).
@@ -275,7 +280,6 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Replaces a single setting for the specified plugin
-     *
      * @method setSetting
      * @param name The name of the setting to change
      * @param value The new value for the setting
@@ -290,7 +294,6 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Replaces the settings for the specified plugin.
-     *
      * @method setSettings
      * @param settings The settings object to be validated and persisted
      * @param pluginName The name of the plugin who's settings are being represented
@@ -304,7 +307,6 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Replaces a single theme setting for the specified plugin
-     *
      * @method setThemeSetting
      * @param name The name of the setting to change
      * @param value The new value for the setting
@@ -319,7 +321,6 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Replaces the theme settings for the specified plugin.
-     *
      * @method setThemeSettings
      * @param settings The settings object to be validated and persisted
      * @param pluginName The uid of the plugin who's settings are being represented
@@ -333,7 +334,6 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Retrieves a single theme setting value.
-     *
      * @method getThemeSetting
      * @param settingName The uid of the setting
      * @param pluginName The plugin to retrieve the setting from
@@ -346,7 +346,6 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * Retrieves the theme settings for the specified plugin
-     *
      * @method getThemeSettings
      * @param pluginName The uid of the plugin
      * @param cb A callback that provides two parameters: cb(err, settingsObject)
@@ -552,7 +551,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.syncSettings = function(plugin, details, cb) {
         var self = this;
-        this.getSettingsKV(plugin.dirName, function(err, settings) {
+        this.getSettingsKV(plugin.uid, function(err, settings) {
             var isError = util.isError(err);
             if (isError || !settings) {
                 if (isError) {
@@ -753,7 +752,22 @@ module.exports = function PluginServiceModule(pb) {
         if(!site) {
             site = GLOBAL_SITE;
         }
-        return !!getPluginForSite(uid, site);
+        return !!PluginService.getPluginForSite(uid, site);
+    };
+
+    /**
+     *
+     * @param theme
+     * @param site
+     * @returns {*}
+     */
+    PluginService.getPluginForSite = function(theme, site) {
+        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][theme]) {
+            return ACTIVE_PLUGINS[site][theme];
+        } else if (ACTIVE_PLUGINS[GLOBAL_SITE] && ACTIVE_PLUGINS[GLOBAL_SITE][theme]) {
+            return ACTIVE_PLUGINS[GLOBAL_SITE][theme];
+        }
+        return null;
     };
 
     /**
@@ -806,13 +820,12 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.getActiveContentTemplates = function(targetSite) {
 
         var templates = [];
-
-        for (var site in ACTIVE_PLUGINS) {
+        Object.keys(ACTIVE_PLUGINS).forEach(function(site) {
             if (!pb.SiteService.isNotSetOrEqual(targetSite, site)) {
-                continue;
+                return;
             }
             var pluginsForSite = ACTIVE_PLUGINS[site];
-            for (var uid in pluginsForSite) {
+            Object.keys(pluginsForSite).forEach(function(uid) {
                 var plugin = pluginsForSite[uid];
                 if (plugin.templates) {
                     var clone = util.clone(plugin.templates);
@@ -821,8 +834,8 @@ module.exports = function PluginServiceModule(pb) {
                         templates.push(clone[i]);
                     }
                 }
-            }
-        }
+            });
+        });
         return templates;
     };
 
@@ -1010,11 +1023,12 @@ module.exports = function PluginServiceModule(pb) {
      * @method installPlugin
      * @param {string} pluginDirName The name of the directory that contains the
      * plugin and its details.json file.
-     * @param {function} cb A callback that provides two parameters: cb(err, TRUE/FALSE)
+     * @param {function} [cb] A callback that provides two parameters: cb(err, TRUE/FALSE)
+     * @return {String} The job ID
      */
     PluginService.prototype.installPlugin = function(pluginDirName, cb) {
 
-        cb       = cb || util.cb;
+        cb = cb || util.cb;
         var name = util.format('INSTALL_PLUGIN_%s', pluginDirName);
         var job  = new pb.PluginInstallJob();
         job.init(name);
@@ -1034,40 +1048,29 @@ module.exports = function PluginServiceModule(pb) {
         pb.log.debug('PluginService: Beginning plugin initialization...');
 
         var self = this;
-        self._pluginRepository.loadPluginsAcrossAllSites(function(err, plugins) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            else if (!util.isArray(plugins)) {
-                err = new Error('An array of plugins was expected but found ['+(typeof plugins)+']['+util.inspect(plugins)+'] instead.');
-                pb.log.error('PluginService %s', err.stack);
-                return cb(err, plugins);
-            }
+        async.waterfall([
+            util.wrapTask(this._pluginRepository, this._pluginRepository.loadPluginsAcrossAllSites),
+            function(plugins, callback) {
+                if (plugins.length === 0) {
+                    pb.log.debug('PluginService: No plugins are installed');
+                    return callback(null, []);
+                }
+                var tasks  = util.getTasks(plugins, function(plugins, i) {
+                    return function(callback) {
 
-            //make sure there are plugins to initialize
-            if (plugins.length === 0) {
-                pb.log.debug('PluginService: No plugins are installed');
-                return cb(null, true);
-            }
-            var tasks  = util.getTasks(plugins, function(plugins, i) {
-                return function(callback) {
-
-                    try {
-                        self.initPlugin(plugins[i], function(err, didInitialize) {
-                            process.nextTick(function() {
+                        try {
+                            self.initPlugin(plugins[i], function(err, didInitialize) {
                                 callback(null, {plugin: plugins[i], error: err, initialized: didInitialize});
                             });
-                        });
-                    }
-                    catch(err) {
-                        callback(null, {plugin: plugins[i], error: err, initialized: false});
-                    }
-                };
-            });
-            async.series(tasks, function(err, results) {
-                cb(err, true);
-            });
-        });
+                        }
+                        catch(err) {
+                            callback(null, {plugin: plugins[i], error: err, initialized: false});
+                        }
+                    };
+                });
+                async.series(tasks, callback);
+            }
+        ], cb);
     };
 
     /**
@@ -1081,298 +1084,14 @@ module.exports = function PluginServiceModule(pb) {
             return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
         }
 
-        pb.log.debug("PluginService:[INIT] Beginning initialization of %s (%s)", plugin.name, plugin.uid);
-
-        var tasks = this.getInitTasksForPlugin(plugin);
-
-        async.series(tasks, function(err/*, results*/) {
-            //cleanup on error
-            if (util.isError(err)) {
-                delete ACTIVE_PLUGINS[plugin.uid];
-
-                //log it all
-                var hasValidationErrs = !!err.validationErrors;
-                pb.log.error('PluginService:[%s] failed to initialize: %s', plugin.uid, hasValidationErrs ? err.message : err.stack);
-                if (hasValidationErrs) {
-                    err.validationErrors.forEach(function(validationError) {
-                        pb.log.error('PluginService:[%s] details.json validation error FIELD=%s MSG=%s', plugin.uid, validationError.field, validationError.message);
-                    });
-                }
-            }
-            else {
-                pb.log.debug('PluginService:[%s] successfully initialized', plugin.name, plugin.uid);
-            }
-
-            cb(err, !util.isError(err));
+        var service = new pb.PluginInitializationService({
+            pluginService: this,
+            pluginCache: PLUGIN_INIT_CACHE
         });
-    };
-
-    /**
-     * Returns tasks to be executed for initializing a plugin.
-     * A cache is used to store already known plugin information that can be shared between sites to speed up the process.
-     * @method getInitTasksForPlugin
-     * @param {object} plugin The plugin details
-     * @return {Array}
-     */
-    PluginService.prototype.getInitTasksForPlugin = function(plugin) {
-        var self = this;
-        var details = null;
-        var site = plugin.site || GLOBAL_SITE;
-        var cached_plugin = PLUGIN_INIT_CACHE[plugin.uid] || null;
-        var syncSettingsAtStartup = pb.config.settings.syncSettingsAtStartup;
-        // TODO: Abstract the construction of these init tasks
-        var site_independant_tasks = [
-            //load the details file
-            function(callback) {
-                pb.log.debug("PluginService:[INIT] Attempting to load details.json file for %s", plugin.name);
-
-                if(!cached_plugin || !cached_plugin.details) {
-                    return PluginService.loadDetailsFile(PluginService.getDetailsPath(plugin.dirName), function (err, loadedDetails) {
-                        details = loadedDetails;
-                        if (syncSettingsAtStartup && !pb.util.isError(err) && details) {
-                            // TODO: Can we sync these plugin settings without instantiating a new PluginService each time?
-                            var pluginService = new PluginService({site: site});
-                            pluginService.syncSettings(plugin, details, callback);
-                        }
-                        else {
-                            callback(err, !!details);
-                        }
-                    });
-                }
-                callback(null, true);
-            },
-
-            function(callback) {
-                PLUGIN_INIT_CACHE[plugin.uid].details = details;
-                plugin.dependencies = details.dependencies;
-                callback(null, true);
-            },
-
-            //validate the details
-            function(callback) {
-                pb.log.debug("PluginService:[INIT] Validating details of %s", plugin.name);
-                PluginService.validateDetails(details, plugin.dirName, callback);
-            },
-
-            //check for discrepancies
-            function(callback) {
-                if (plugin.uid !== details.uid) {
-                    pb.log.warn('PluginService:[INIT] The UID [%s] for plugin %s does not match what was found in the details.json file [%s].  The details file takes precendence.', plugin.uid, plugin.name, details.uid);
-                }
-                process.nextTick(function () {
-                    callback(null, true);
-                });
-            },
-
-            //verify that dependencies are available
-            function(callback) {
-                if (!util.isObject(details.dependencies) || details.dependencies === {}) {
-                    //no dependencies were declared so we're good
-                    return callback(null, true);
-                }
-
-                //iterate over dependencies to ensure that they exist
-                self.hasDependencies(plugin, function (err, hasDependencies) {
-                    if (util.isError(err) || hasDependencies) {
-                        if (hasDependencies) {
-                            pb.log.silly('PluginService: Dependency check passed for plugin %s', plugin.name);
-                        }
-                        return callback(err, true);
-                    }
-
-                    //dependencies are missing, go install them
-                    pb.log.silly('PluginService: Dependency check failed for plugin %s', plugin.name);
-                    self.installPluginDependencies(plugin.dirName, details.dependencies, plugin, function (err/*, results*/) {
-                        callback(err, !util.isError(err));
-                    });
-                });
-            },
-
-            // check the pb version plugin supports
-            function(callback) {
-                if (!details.pb_version) {
-                    // pb version was not specified
-                    // assumes plugin is compatible with all pb versions
-                    pb.log.warn('PluginService: The plugin, %s does not specify pb version.', details.name);
-                    return callback(null, true);
-                } else {
-                    var results = semver.satisfies(pb.config.version, details.pb_version);
-
-                    return callback(null, results);
-                }
-            }
-        ];
-
-        var tasks   = [
-            // Sync plugin settings
-            function(callback) {
-                if (cached_plugin && cached_plugin.details && syncSettingsAtStartup) {
-                    var pluginService = new PluginService({site: site});
-                    pluginService.syncSettings(plugin, cached_plugin.details, callback);
-                }
-                else {
-                    return callback(null, true);
-                }
-            },
-
-            //register plugin & load main module
-            function(callback) {
-
-                //convert perm array to hash
-                var map = {};
-                if (plugin.permissions) {
-                    pb.log.debug('PluginService:[INIT] Loading permission sets for plugin [%s]', details.uid);
-
-                    for (var role in plugin.permissions) {
-                        map[role] = util.arrayToHash(plugin.permissions[role]);
-                    }
-                }
-                else {
-                    pb.log.debug('PluginService:[INIT] Skipping permission set load for plugin [%s]. None were found.', details.uid);
-                }
-
-                //create cached active plugin structure
-                var templates  = null;
-                if (details.theme && details.theme.content_templates) {
-                    templates = details.theme.content_templates;
-                    for (var i = 0; i < templates.length; i++) {
-                        templates[i].theme_name = details.name;
-                    }
-                }
-                var mainModule = PluginService.loadMainModule(plugin.dirName, details.main_module.path);
-                if (!mainModule) {
-                    return callback(new Error('Failed to load main module for plugin '+plugin.uid));
-                }
-                if(!ACTIVE_PLUGINS[site]) {
-                    ACTIVE_PLUGINS[site] = {};
-                }
-                ACTIVE_PLUGINS[site][details.uid] = {
-                    main_module: mainModule,
-                    public_dir: PluginService.getPublicPath(plugin.dirName),
-                    permissions: map,
-                    templates: templates
-                };
-
-                //set icon url (if exists)
-                if (details.icon) {
-                    ACTIVE_PLUGINS[site][details.uid].icon = PluginService.genPublicPath(details.uid, details.icon);
-                }
-                process.nextTick(function() {callback(null, true);});
-            },
-
-            //call plugin's onStartup function
-            function(callback) {
-                pb.log.debug('PluginService:[INIT] Attempting to call onStartup function for %s.', details.uid);
-
-                var mainModule = ACTIVE_PLUGINS[site][details.uid].main_module;
-                if (util.isFunction(mainModule.onStartupWithContext) || util.isFunction(mainModule.onStartup)) {
-                    var timeoutProtect = setTimeout(function() {
-
-                        // Clear the local timer variable, indicating the timeout has been triggered.
-                        timeoutProtect = null;
-                        callback(new Error("PluginService: Startup function for plugin "+details.uid+" never called back!"), false);
-
-                    }, 2000);
-
-                    //attempt to make connection
-                    var d = domain.create();
-                    var onDone = function(err, result) {
-                        d.removeAllListeners('error');
-                        callback(err, result);
-                    };
-                    d.once('error', function(err) {
-                        if (timeoutProtect) {
-                            clearTimeout(timeoutProtect);
-                            onDone(err, false);
-                        }
-                        else {
-                            pb.log.error('PluginService:[INIT] Plugin %s failed to start. %s', details.uid, err.stack);
-                        }
-                    });
-                    d.run(function () {
-                        if (util.isFunction(mainModule.prototype.onStartup)) {
-                            mainModule = new mainModule(site);
-                        }
-                        if (util.isFunction(mainModule.onStartupWithContext)) {
-                            var context = {site: site};
-                            mainModule.onStartupWithContext(context, startupCallback);
-                        }
-                        else {
-                            mainModule.onStartup(startupCallback);
-                        }
-                        function startupCallback(err, didStart) {
-                            if (util.isError(err)) {
-                                throw err;
-                            }
-
-                            if (timeoutProtect) {
-                                pb.log.debug('PluginService:[INIT] Plugin %s onStartup returned with result: %s', details.uid, didStart);
-
-                                clearTimeout(timeoutProtect);
-                                onDone(err, didStart);
-                            }
-                        }
-                    });
-                }
-                else {
-                    pb.log.warn("PluginService: Plugin %s did not provide an 'onStartup' function.", details.uid);
-                    callback(null, false);
-                }
-            },
-
-            //load services
-            function(callback) {
-                if(cached_plugin && cached_plugin.services) {
-                    ACTIVE_PLUGINS[site][details.uid].services = cached_plugin.services;
-                    return callback(null, true);
-                }
-                PluginService.getServices(path.join(PLUGINS_DIR, plugin.dirName), function(err, services) {
-                    if (util.isError(err)) {
-                        pb.log.debug("PluginService[INIT]: No services directory was found for %s", details.uid);
-                    }
-                    if (!services) {
-                        pb.log.debug("PluginService[INIT]: No services were found for %s", details.uid);
-                        services = {};
-                    }
-                    ACTIVE_PLUGINS[site][details.uid].services = services;
-                    plugin.services = services;
-                    callback(null, !util.isError(err));
-                });
-            },
-
-            //process routes
-            function(callback) {
-                PluginService.loadControllers(path.join(PLUGINS_DIR, plugin.dirName), details.uid, site, callback);
-            },
-
-            //process localization
-            function(callback) {
-                self.getLocalizations(plugin.dirName, function(err, localizations) {
-                    for (var locale in localizations) {
-                        if (pb.log.isDebug()) {
-                            pb.log.debug('PluginService:[%s] Registering localizations for locale [%s]', details.uid, locale);
-                        }
-
-                        var opts = {
-                            site: self.site,
-                            plugin: details.uid
-                        };
-                        var result = pb.Localization.registerLocale(locale, localizations[locale], opts);
-                        if (!result && pb.log.isDebug()) {
-                            pb.log.debug('PluginService:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', details.uid, locale);
-                        }
-                    }
-                    callback(null, !util.isError(err) && result);
-                });
-            }
-        ];
-
-        if(cached_plugin) {
-            details = cached_plugin.details;
-            return tasks;
-        }
-        PLUGIN_INIT_CACHE[plugin.uid] = plugin;
-        return site_independant_tasks.concat(tasks);
+        service.initialize(plugin, {}, function(err, result) {
+            PLUGIN_INIT_CACHE = {};
+            cb(err, result);
+        });
     };
 
     /**
@@ -1429,8 +1148,8 @@ module.exports = function PluginServiceModule(pb) {
      * When the directory does not exist NULL is returned as the result parameter.
      */
     PluginService.prototype.getLocalizations = function(pluginDirName, cb) {
-        var service = new pb.PluginLocalizationLoader({pluginUid: pluginDirName});
-        service.getAll(cb);
+        var service = new pb.PluginLocalizationLoader({pluginUid: pluginDirName, site: this.site});
+        service.getAll({}, cb);
     };
 
     /**
@@ -1710,7 +1429,7 @@ module.exports = function PluginServiceModule(pb) {
         var pathParts = pathToPlugin.split(path.sep);
 
         var service = new pb.PluginServiceLoader({pluginUid: pathParts[pathParts.length - 1]});
-        service.getAll(cb);
+        service.getAll({}, cb);
     };
 
     /**
@@ -1738,6 +1457,7 @@ module.exports = function PluginServiceModule(pb) {
     /**
      * Loads the controllers for a plugin by iterating through the files in the
      * plugin's controllers directory.
+     * @deprecated
      * @static
      * @method loadControllers
      * @param {String} pathToPlugin The absolute file path to the plugin =

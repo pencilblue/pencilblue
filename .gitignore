@@ -28,3 +28,4 @@ config.json
 config.js
 
 npm-debug.log
+**/bower_components

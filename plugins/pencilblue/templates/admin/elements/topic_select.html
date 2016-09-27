@@ -1,6 +1,6 @@
 <div ng-controller="TopicSelectController">
     <div class="panel panel-default">
-        <div class="panel-heading">^loc_ACTIVE_TOPICS^...</div>
+        <div class="panel-heading">^loc_admin.ACTIVE_TOPICS^...</div>
         <div class="panel-body" style="min-height: 50px" data-as-sortable="board.dragControlListeners" is-enabled="true" ng-model="editingObject[variablePrefix + '_topics']">
             <div class="panel panel-default draggable_item" ng-repeat="topic in editingObject[variablePrefix + '_topics'] track by topic._id" data-as-sortable-item>
                 <div class="panel-heading">
@@ -12,7 +12,7 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <div style="padding-bottom: .5em">^loc_INACTIVE_TOPICS^...</div>
+            <div style="padding-bottom: .5em">^loc_admin.INACTIVE_TOPICS^...</div>
             ^tmp_admin=elements=search_input^
         </div>
         <div id="inactive_topics" class="panel-body">

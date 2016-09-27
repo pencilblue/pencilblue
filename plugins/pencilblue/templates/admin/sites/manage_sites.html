@@ -43,12 +43,12 @@
                     <td ng-bind="active.created | date: 'yyyy-MM-dd HH:mm'"></td>
                     <td style="text-align: right">
                         <div class="btn-group" style="text-align: left">
-                            <a class="btn btn-sm btn-default" ng-click="deactivateSite(active)"><i class="fa fa-remove"></i>&nbsp;^loc_DEACTIVATE^</a>
+                            <a class="btn btn-sm btn-default" ng-click="deactivateSite(active)"><i class="fa fa-remove"></i>&nbsp;^loc_sites.DEACTIVATE^</a>
                             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-sm fa-chevron-down"></i>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a ng-href="/admin/sites/{{active.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_EDIT^</a></li>
+                                <li><a ng-href="/admin/sites/{{active.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_generic.EDIT^</a></li>
                             </ul>
                         </div>
                     </td>
@@ -98,13 +98,13 @@
                     <td ng-bind="inactive.created | date: 'yyyy-MM-dd HH:mm'"></td>
                     <td style="text-align: right">
                         <div class="btn-group" style="text-align: left">
-                            <a class="btn btn-sm btn-default" ng-click="activateSite(inactive)"><i class="fa fa-plus"></i>&nbsp;^loc_ACTIVATE^</a>
+                            <a class="btn btn-sm btn-default" ng-click="activateSite(inactive)"><i class="fa fa-plus"></i>&nbsp;^loc_sites.ACTIVATE^</a>
                             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-sm fa-chevron-down"></i>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a ng-href="/admin/sites/{{inactive.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_EDIT^</a></li>
-                                <li><a ng-click="deleteSite(inactive)"><i class="fa fa-fw fa-trash"></i>&nbsp;^loc_DELETE^</a></li>
+                                <li><a ng-href="/admin/sites/{{inactive.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_generic.EDIT^</a></li>
+                                <li><a ng-click="deleteSite(inactive)"><i class="fa fa-fw fa-trash"></i>&nbsp;^loc_generic.DELETE^</a></li>
                             </ul>
                         </div>
                     </td>

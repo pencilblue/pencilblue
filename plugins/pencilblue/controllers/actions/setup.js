@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -44,11 +45,11 @@ module.exports = function SetupActionControllerModule(pb) {
      * @type {Object}
      */
     var ERROR_KEYS = Object.freeze({
-        1: 'ERROR_CREATING_USER',
-        2: 'ERROR_SETTING_ACTIVE_THEME',
-        3: 'ERROR_SETTING_CONTENT_SETTINGS',
-        4: 'ERROR_SETTING_SYS_INITIALIZED',
-        5: 'ERROR_SETTING_CALLHOME'
+        1: 'generic.ERROR_CREATING_USER',
+        2: 'generic.ERROR_SETTING_ACTIVE_THEME',
+        3: 'generic.ERROR_SETTING_CONTENT_SETTINGS',
+        4: 'generic.ERROR_SETTING_SYS_INITIALIZED',
+        5: 'generic.ERROR_SETTING_CALLHOME'
     });
 
     /**
@@ -151,10 +152,10 @@ module.exports = function SetupActionControllerModule(pb) {
         async.series(tasks, function(err, results){
             if (util.isError(err)) {
                 pb.log.error('An error occurred while attempting to perform setup: %s', err.stack || err.message);
-                return self.formError(self.ls.get(ERROR_KEYS[results.length]), '/setup', cb);
+                return self.formError(self.ls.g(ERROR_KEYS[results.length]), '/setup', cb);
             }
 
-            self.session.success = self.ls.get('READY_TO_USE');
+            self.session.success = self.ls.g('login.READY_TO_USE');
             self.redirect('/admin/login', cb);
         });
     };

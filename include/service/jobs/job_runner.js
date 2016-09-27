@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var util = require('../../util.js');
@@ -58,7 +59,7 @@ module.exports = function JobRunnerModule(pb) {
          * jobs to calculate their update increments.  The number must be a value
          * between 0 (exclusive) & 1 (inclusive).
          * @property taskFactor
-         * @type {Float}
+         * @type {Number}
          */
         this.chunkOfWorkPercentage = 1;
     }
@@ -113,7 +114,7 @@ module.exports = function JobRunnerModule(pb) {
      * The initialization function sets the job's name and ID as well as provide an
      * instace of DAO.
      * @method init
-     * @param {String} name The job's name
+     * @param {String} [name] The job's name
      * @param {String} [jobId] The job's unique identifier
      */
     JobRunner.prototype.init = function(name, jobId) {
@@ -122,7 +123,7 @@ module.exports = function JobRunnerModule(pb) {
         this.id   = jobId || util.uniqueId();
         this.name = name || this.id;
         return this;
-    }
+    };
 
     /**
      * Retrieves the unique identifier for the job
@@ -137,7 +138,7 @@ module.exports = function JobRunnerModule(pb) {
      * Sets the portion of the over arching job that this job instance will
      * contribute once complete.
      * @method setChunkOfWorkPercentage
-     * @param {Float} chunkOfWorkPercentage
+     * @param {Number} chunkOfWorkPercentage
      * @return {JobRunner}
      */
     JobRunner.prototype.setChunkOfWorkPercentage = function(chunkOfWorkPercentage) {
@@ -152,7 +153,7 @@ module.exports = function JobRunnerModule(pb) {
     /**
      * Retrieves the chunk of work percentage
      * @method getChunkOfWorkPercentage
-     * @return {Float}
+     * @return {Number}
      */
     JobRunner.prototype.getChunkOfWorkPercentage = function() {
         return this.chunkOfWorkPercentage;
@@ -166,7 +167,7 @@ module.exports = function JobRunnerModule(pb) {
      * any error that was generated and the second is the implementation specific
      * result of the job.
      */
-    JobRunner.prototype.run = function(cb) {
+    JobRunner.prototype.run = function(/*cb*/) {
         throw new Error('This function must be overriden by an extending prototype');
     };
 
@@ -215,7 +216,7 @@ module.exports = function JobRunnerModule(pb) {
         job.name        = this.name;
         job.status      = status || DEFAULT_START_STATUS;
         job.progress    = 0;
-        this.dao.save(job, function(err, result) {
+        this.dao.save(job, function(err/*, result*/) {
             if (util.isError(err)) {
                 pb.log.error('JobRunner: Failed to mark job as started %s', err.stack);
             }
@@ -237,16 +238,16 @@ module.exports = function JobRunnerModule(pb) {
         var query   = pb.DAO.getIdWhere(this.getId());
         var updates = {};
         if (pb.validation.isFloat(progressIncrement, true, true)) {
-            updates['$inc'] = {progress: progressIncrement};
+            updates.$inc = {progress: progressIncrement};
         }
-        if (pb.validation.validateNonEmptyStr(status, true)) {
-            updates['$set'] = {status: status};
+        if (pb.validation.isNonEmptyStr(status, true)) {
+            updates.$set = {status: status};
         }
 
         //ensure we need to update
         if (updates !== {}) {
 
-            this.dao.updateFields(JOB_STORE_NAME, query, updates, function(err, result) {
+            this.dao.updateFields(JOB_STORE_NAME, query, updates, function(err/*, result*/) {
                 if (util.isError(err)) {
                     pb.log.error('JobRunner: Failed to update job progress - ', err.stack);
                 }
@@ -285,7 +286,7 @@ module.exports = function JobRunnerModule(pb) {
                 error: err ? err.stack : undefined
             }
         };
-        this.dao.updateFields(JOB_STORE_NAME, query, sets, function(err, result) {
+        this.dao.updateFields(JOB_STORE_NAME, query, sets, function(err/*, result*/) {
             if (util.isError(err)) {
                 pb.log.error('JobRunner: Failed to update job as completed - %s', err.stack);
             }

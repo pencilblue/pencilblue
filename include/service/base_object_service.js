@@ -192,6 +192,20 @@ module.exports = function(pb) {
     BaseObjectService.AFTER_DELETE = "afterDelete";
 
     /**
+     * @static
+     * @property ContentSanitizationRulesOverride
+     * @type {object|null}
+     */
+    BaseObjectService.ContentSanitizationRulesOverride = null;
+
+    /**
+     * @static
+     * @property DefaultSanitizationRulesOverride
+     * @type {object|null}
+     */
+    BaseObjectService.DefaultSanitizationRulesOverride = null;
+
+    /**
      * Retrieves the object type supported by the service
      * @method getType
      * @return {String} The object type supported
@@ -812,7 +826,7 @@ module.exports = function(pb) {
      * @return {Object}
      */
     BaseObjectService.getContentSanitizationRules = function() {
-        return {
+        return BaseObjectService.ContentSanitizationRulesOverride || {
             allowedTags: [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'img', 'u', 'span' ],
             allowedAttributes: {
                 a: [ 'href', 'name', 'target', 'class', 'align'],
@@ -841,13 +855,41 @@ module.exports = function(pb) {
     };
 
     /**
+     * Sets a system-wide override for the set of sanitization rules for content.  The function will throw if a non-object
+     * is passed.  NULL can be used to reset any override that is put into place.
+     * @static
+     * @method setDefaultSanitizationRules
+     * @param {object} rules
+     */
+    BaseObjectService.setContentSanitizationRules = function(rules) {
+        if (typeof rules !== 'object' || util.isArray(rules)) {
+            throw new Error('The content sanitization rules must be an object or null');
+        }
+        BaseObjectService.ContentSanitizationRulesOverride = rules;
+    };
+
+    /**
+     * Sets a system-wide override for the default set of sanitization rules.  The function will throw if a non-object
+     * is passed.  NULL can be used to reset any override that is put into place.
+     * @static
+     * @method setDefaultSanitizationRules
+     * @param {object} rules
+     */
+    BaseObjectService.setDefaultSanitizationRules = function(rules) {
+        if (typeof rules !== 'object' || util.isArray(rules)) {
+            throw new Error('The default sanitization rules must be an object or null');
+        }
+        BaseObjectService.DefaultSanitizationRulesOverride = rules;
+    };
+
+    /**
      * Retrieves the default sanitization rules for string fields.
      * @static
      * @method getDefaultSanitizationRules
      * @return {Object}
      */
     BaseObjectService.getDefaultSanitizationRules = function() {
-        return {
+        return BaseObjectService.DefaultSanitizationRulesOverride || {
             allowedTags: [],
             allowedAttributes: {}
         };

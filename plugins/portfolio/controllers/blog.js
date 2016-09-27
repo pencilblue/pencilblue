@@ -142,12 +142,12 @@ module.exports = function BlogModule(pb) {
                                         throw err;
                                     }
 
-                                    var loggedIn = pb.security.isAuthenticated(self.session);
-                                    var commentingUser = loggedIn ? self.commentService.getCommentingUser(self.session.authentication.user) : null;
-                                    var heroImage = null;
-                                    if(data.content[0]) {
-                                        heroImage = data.content[0].hero_image ? data.content[0].hero_image: null;
-                                    }
+                                    //var loggedIn = pb.security.isAuthenticated(self.session);
+                                    //var commentingUser = loggedIn ? self.commentService.getCommentingUser(self.session.authentication.user) : null;
+                                    //var heroImage = null;
+                                    //if(data.content[0]) {
+                                    //    heroImage = data.content[0].hero_image ? data.content[0].hero_image: null;
+                                    //}
                                     cb({content: result});
                                 });
                             });
@@ -179,7 +179,7 @@ module.exports = function BlogModule(pb) {
         //preference and we can fall back on the default (index).  We depend on the
         //template service to determine who has priority based on the active theme
         //then defaulting back to pencilblue.
-        if (!pb.validation.validateNonEmptyStr(uidAndTemplate, true)) {
+        if (!pb.validation.isNonEmptyStr(uidAndTemplate, true)) {
             pb.log.silly("ContentController: No template specified, defaulting to index.");
             cb(null, "index");
             return;
@@ -259,7 +259,7 @@ module.exports = function BlogModule(pb) {
 
         var service = new ArticleService(this.site, true);
         if(this.req.pencilblue_preview) {
-            if(this.req.pencilblue_preview == page || article) {
+            if(this.req.pencilblue_preview === page || article) {
                 if(page) {
                     service.setContentType('page');
                 }
@@ -357,7 +357,7 @@ module.exports = function BlogModule(pb) {
         ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
         ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
         ts.registerLocal('individual_comments', function(flag, cb) {
-            if (!util.isArray(content.comments) || content.comments.length == 0) {
+            if (!util.isArray(content.comments) || content.comments.length === 0) {
                 cb(null, '');
                 return;
             }
@@ -390,6 +390,7 @@ module.exports = function BlogModule(pb) {
     Blog.prototype.getContentSpecificPageName = function(content, cb) {
 
 
+        var searchId;
         if(this.req.pencilblue_article || this.req.pencilblue_page) {
             cb(null, content.headline + ' | ' + pb.config.siteName);
         }

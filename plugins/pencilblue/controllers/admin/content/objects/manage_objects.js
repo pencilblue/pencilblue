@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -64,7 +65,7 @@ module.exports = function(pb) {
                 data.custObjType = custObjType;
                 var pills = pb.AdminSubnavService.get(SUB_NAV_KEY, self.ls, 'manage_objects', data);
                 for(var i = 0; i < pills.length; i++) {
-                    if(pills[i].name == 'manage_objects') {
+                    if(pills[i].name === 'manage_objects') {
                         pills[i].title += ' (' + customObjects.length + ')';
                         break;
                     }
@@ -76,10 +77,10 @@ module.exports = function(pb) {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'custom_objects'], self.ls, self.site),
                     pills: pills,
                     customObjects: customObjects,
-                    objectType: custObjType,
+                    objectType: custObjType
                 });
 
-                var title = self.ls.get('MANAGE') + ' ' + custObjType.name;
+                var title = self.ls.g('generic.MANAGE') + ' ' + custObjType.name;
                 self.setPageName(title);
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('admin/content/objects/manage_objects', function(err, result) {
@@ -92,7 +93,7 @@ module.exports = function(pb) {
     ManageObjects.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_objects',
-            title: ls.get('MANAGE') + ' ' + data.custObjType.name + ' ' + ls.get('OBJECTS'),
+            title: ls.g('generic.MANAGE') + ' ' + data.custObjType.name + ' ' + ls.g('custom_objects.OBJECTS'),
             icon: 'chevron-left',
             href: '/admin/content/objects/types'
         }, {

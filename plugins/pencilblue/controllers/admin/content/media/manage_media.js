@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
@@ -22,6 +23,9 @@ module.exports = function(pb) {
 
     /**
      * Interface for managing media
+     * @class ManageMedia
+     * @constructor
+     * @extends BaseAdminController
      */
     function ManageMedia(){}
     util.inherits(ManageMedia, pb.BaseAdminController);
@@ -50,7 +54,7 @@ module.exports = function(pb) {
             }
 
             self.getAngularObjects(mediaData, function(angularObjects) {
-                var title = self.ls.get('MANAGE_MEDIA');
+                var title = self.ls.g('media.MANAGE_MEDIA');
                 self.setPageName(title);
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('admin/content/media/manage_media', function(err, result) {
@@ -83,7 +87,7 @@ module.exports = function(pb) {
     ManageMedia.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_media',
-            title: ls.get('MANAGE_MEDIA'),
+            title: ls.g('media.MANAGE_MEDIA'),
             icon: 'refresh',
             href: '/admin/content/media'
         }, {
