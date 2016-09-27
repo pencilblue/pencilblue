@@ -105,6 +105,8 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.index   = {};
     RequestHandler.sites = {};
     RequestHandler.redirectHosts = {};
+    RequestHandler.sectionsPaths = {};
+
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
     /**
      * The internal storage of static routes after they are validated and processed.
@@ -152,6 +154,7 @@ module.exports = function RequestHandlerModule(pb) {
             var result;
             try {
                 result = RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
+                pb.SectionService.updateSectionsPaths();
             }
             catch(e) {}
             if (!result) {
@@ -808,6 +811,12 @@ module.exports = function RequestHandlerModule(pb) {
 
         this.site = this.siteObj.uid;
         this.siteName = this.siteObj.displayName;
+
+        //if found section navigation path then redirected
+        var path = RequestHandler.sectionsPaths[this.url.pathname];
+        if (path){
+            this.url.pathname = path.section_path;
+        }
         //find the controller to hand off to
         var route = this.getRoute(this.url.pathname);
         if (route === null) {

@@ -129,9 +129,12 @@ module.exports = function(pb) {
                         callback(err, navItem);
                         return;
                     }
-
+                    var type = navItem.type;
+                    if (type === 'container'){
+                      type = 'page';
+                    }
                     //TODO modify such that only the needed field of "headline" is returned.
-                    self.siteQueryService.loadById(navItem.item, navItem.type, function(err, articleOrPage) {
+                    self.siteQueryService.loadById(navItem.item, type, function(err, articleOrPage) {
                         if(articleOrPage) {
                             navItem.contentSearchValue = articleOrPage.headline;
                         }

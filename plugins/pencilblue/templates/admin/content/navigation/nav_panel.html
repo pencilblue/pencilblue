@@ -1,0 +1,19 @@
+<script type="text/ng-template"  id="nav_panel.html">
+<div class="panel-heading">
+    <h5>
+        <i class="fa fa-bars" style="float: left; margin: 0 1em 0 -.25em" data-as-sortable-item-handle></i>
+        <a ng-href="/admin/content/navigation/{{item._id}}">
+            <i class="fa fa-fw fa-{{icons[item.type]}}" style="float: left; margin-right: .25em"></i>
+            <span ng-bind="item.name"></span>
+        </a>
+        <a href="#" ng-click="confirmDelete(item)" style="float: right;">
+            <i class="fa fa-trash" ></i>&nbsp;&nbsp;
+        </a>
+    </h5>
+</div>
+<div class="panel-body" ng-hide="item.type !== 'container'" style="padding: 1em; min-height: 50px" ng-model="item.children"  data-as-sortable="containerDragListeners" is-enabled="true">
+    <div class="panel panel-default subnav-item" ng-repeat="item in item.children track by item._id" data-as-sortable-item ng-include="'nav_panel.html'">
+
+    </div>
+</div>
+</script>

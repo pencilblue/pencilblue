@@ -119,7 +119,6 @@ module.exports = function(pb) {
      */
     PersistNavItemController.prototype.persist = function(navItem, cb) {
         var self = this;
-
         //ensure a URL was provided
         if(!navItem.url && navItem.name) {
             navItem.url = navItem.name.toLowerCase().split(' ').join('-');
@@ -137,14 +136,10 @@ module.exports = function(pb) {
             else if(util.isArray(result) && result.length > 0) {
                 return self.handleBadRequest(result, cb);
             }
-
-            //update cached nav map
-            self.checkForNavMapUpdate(navItem, function() {
-                var msg = navItem.name + ' ' + self.ls.g(isUpdate ? 'admin.EDITED' : 'admin.CREATED');
+             var msg = navItem.name + ' ' + self.ls.g(isUpdate ? 'admin.EDITED' : 'admin.CREATED');
                 cb({
                     content: BaseController.apiResponse(pb.BaseController.API_SUCCESS, msg, true)
                 });
-            });
         });
     };
 

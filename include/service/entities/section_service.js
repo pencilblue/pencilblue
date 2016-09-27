@@ -20,7 +20,9 @@
 var async   = require('async');
 var util    = require('../../util.js');
 
+
 module.exports = function SectionServiceModule(pb) {
+
 
     /**
      * Service for managing the site's navigation
@@ -52,6 +54,19 @@ module.exports = function SectionServiceModule(pb) {
         page: true,
         link: true,
     };
+
+    /**
+     * update navigation sections paths
+     */
+    SectionService.updateSectionsPaths = function () {
+        var site = pb.SettingServiceFactory.getServiceBySite(pb.SiteService.GLOBAL_SITE, false).get('section_map', function(err, sectionMap) {
+            new pb.SiteQueryService({site: site, onlyThisSite: false}).q('section', function(err, sections) {
+                pb.RequestHandler.sectionsPaths = SectionService.getPathsSections(sectionMap, sections);
+
+            });
+        });
+
+    }
 
     /**
      *
@@ -139,24 +154,21 @@ module.exports = function SectionServiceModule(pb) {
 
         //inspect the top level
         var orphans = [];
-        for (var i = sectionMap.length - 1; i >= 0; i--) {
-
-            var item = sectionMap[i];
-            if (item.uid === sid) {
-                sectionMap.splice(i, 1);
-                util.arrayPushAll(item.children, orphans);
+         var removeFromSectionMap = function(items){
+          for (var i = 0; i < items.length; i++){
+            var item = items[i];
+            if (item.uid === sid){
+              items.splice(i, 1);
+              util.arrayPushAll(item.children, orphans);
+            }else if(util.isArray(item.children)){
+               removeFromSectionMap(item.children);
             }
-            else if (util.isArray(item.children)) {
+          }
 
-                for (var j = item.children.length - 1; j >= 0; j--) {
-
-                    var child = item.children[j];
-                    if (child.uid === sid) {
-                        item.children.splice(j, 1);
-                    }
-                }
-            }
         }
+
+        removeFromSectionMap(sectionMap);
+
         return orphans;
     };
 
@@ -196,85 +208,110 @@ module.exports = function SectionServiceModule(pb) {
     };
 
     /**
-     *
-     * @method updateNavMap
-     * @param {Object} section
-     * @param {Function} cb
+     * Get array paths navigation sections
+     * @param  {Array} sectionMap
+     * @param  {Array} sections
+     * @return {Object}
      */
-    SectionService.prototype.updateNavMap = function(section, cb) {
-        var self = this;
+    SectionService.getPathsSections = function(sectionMap, sections){
+        var result = {};
 
-        //do validation
-        if (!util.isObject(section) || !section[pb.DAO.getIdField()]) {
-            return cb(new Error("A valid section object must be provided", false));
+        for (var i = 0; i < sectionMap.length; i++){
+                var section = SectionService.getSectionData(sectionMap[i].uid, sections, '');
+                if (section.type === 'container'){
+                            var childrenPaths = SectionService.getPathsSections(sectionMap[i].children, sections);
+                            if (childrenPaths){
+                                for (var key in childrenPaths){
+
+                                    if (section.use_in_path){
+                                        var prefix = '/';
+                                        if (childrenPaths[key].path[0] === prefix){
+                                            prefix = '';
+                                        }
+                                        childrenPaths[key].path = '/' + section.name + prefix + childrenPaths[key].path;
+                                    }
+                                    if (result[childrenPaths[key].path]){
+                                        continue;
+                                    }
+                                    result[childrenPaths[key].path] = {
+                                        path : childrenPaths[key].path,
+                                        section_path : childrenPaths[key].section_path
+                                    };
+                                };
+                            }
+
+                }else if (section.type === 'page' || section.type === 'section' || section.type === 'article'){
+                     if (!result[section.name]){
+                        result[section.name] = {
+                            path : section.name,
+                            section_path : section.url
+                        };
+                     }
+                }else{
+                    return null
+                }
+
         }
+        return result;
+    }
 
-        //retrieve the section map
-        var sid = section[pb.DAO.getIdField()].toString();
-        self.settings.get('section_map', function(err, sectionMap) {
-            if (util.isError(err)) {
-                return cb(err, false);
-            }
+    /**
+     * Validate sectisonMap paths on no conflicts
+     * @param  {Array}   sectionMap
+     * @param  {Object}   section
+     * @param  {Function} cb
+     */
+    SectionService.prototype.validationSectionMap = function(sectionMap, section, cb){
+        var self = this;
+        if (util.isFunction(section)) {
+            cb = section;
+            section = null;
+        }
+        self.siteQueryService.q('section', function(err, sections) {
+            var newRoutes = [];
+            if (section){
+                var sectionBase = SectionService.getSectionData(section[pb.DAO.getIdField()].toString(), sections);
 
-            //create it if not already done
-            var mapWasNull = sectionMap === null;
-            if(mapWasNull) {
-                sectionMap = [];
-            }
-
-            //check if the section already exist in sectionMap
-            var sectionIndex = self.getSectionMapIndex(sid, sectionMap);
-            //remove the section from the map
-            var orphans = self._removeFromSectionMap(sid, sectionMap);
-
-            //make a top level item if there is no parent or the map was originally
-            //empty (means its impossible for there to be a parent)
-            var navItem = {
-                uid: sid,
-                children: orphans
-            };
-            if (mapWasNull || !section.parent) {
-
-                //we are attaching the items back to a parent.  There are no
-                //orphans to return in the callback.
-                orphans = [];
-
-                if (sectionIndex.index > -1) {
-                    sectionMap.splice(sectionIndex.index, 0, navItem);
-                }
-                else {
-                    sectionMap.push(navItem);
+                if (sectionBase){
+                    sectionBase.url = undefined;
+                    sectionBase.use_in_path = section.use_in_path;
+                    sectionBase.name = section.name;
+                }else{
+                    sections.push(section);
                 }
             }
-            else {//set as child of parent in map
+            Object.keys(SectionService.getPathsSections(sectionMap, sections)).forEach(function(route){
+                route = '/' + (/^\/\w+/).exec(route);
+                if (route && newRoutes.indexOf(route[0]) < 0){
+                    newRoutes.push(route[0]);
+                }
+            })
+            var staticRoutes = Object.keys(pb.RequestHandler.staticRoutes);
+            for (var i = 0; i < staticRoutes.length; i++){
+                var route = (/^\/\w+/).exec(staticRoutes[i]);
 
-                //we only support two levels so ensure we drop any children
-                navItem.children = undefined;
-
-                for (var i = 0; i < sectionMap.length; i++) {
-                    if (sectionMap[i].uid === section.parent) {
-                        if (sectionIndex.childIndex > -1) {
-                            sectionMap[i].children.splice(sectionIndex.childIndex, 0, navItem);
-                        }
-                        else {
-                            sectionMap[i].children.push(navItem);
-                        }
-                        break;
-                    }
+                if (route && newRoutes.indexOf(route[0]) > -1){
+                    return cb(null, [{field: 'Navigation Element', message: 'Created duplicate path "'+route[0]+'"'}]);
                 }
             }
 
-            self.settings.set('section_map', sectionMap, function(err, settingSaveResult){
-                if (util.isError(err)){
-                    return cb(err);
+             for (var i = 0; i < pb.RequestHandler.storage.length; i++) {
+                var route = '/' + (/^\w+/).exec(pb.RequestHandler.storage[i].path);
+                if (route && newRoutes.indexOf(route) > -1){
+
+                    return cb(null, [{field: 'Navigation Element', message: 'Created duplicate path "'+route+'"'}]);
                 }
-                else if (!settingSaveResult) {
-                    return cb(new Error('Failed to persist cached navigation map'));
-                }
-                cb(null, orphans);
-            });
+             }
+            cb(null, []);
+
         });
-    };
+
+
+
+
+    }
+
+
 
     /**
      *
@@ -318,39 +355,33 @@ module.exports = function SectionServiceModule(pb) {
                 }
 
                 var formattedSections = [];
-                for(var i = 0; i < sectionMap.length; i++) {
-                    var section    = SectionService.getSectionData(sectionMap[i].uid, sections, currUrl);
+                var getSection = function(item){
+                    var section = SectionService.getSectionData(item.uid, sections, currUrl);
                     if (util.isNullOrUndefined(section)) {
-                        pb.log.error('SectionService: The navigation map is out of sync.  Root [%s] could not be found for site [%s].', sectionMap[i].uid, self.site);
-                        continue;
+                        pb.log.error('SectionService: The navigation map is out of sync.  Section [%s] could not be found for site [%s].', item.uid, self.site);
+                        return null;
                     }
-
-                    if(sectionMap[i].children.length === 0) {
-                        formattedSections.push(section);
-                    }
-                    else {
-                        if(section) {
-                            section.dropdown = 'dropdown';
-
-                            section.children = [];
-                            for(var j = 0; j < sectionMap[i].children.length; j++) {
-                                var child = SectionService.getSectionData(sectionMap[i].children[j].uid, sections, currUrl);
-                                if (util.isNullOrUndefined(child)) {
-                                    pb.log.error('SectionService: The navigation map is out of sync.  Child [%s] could not be found for site [%s].', sectionMap[i].children[j].uid, self.site);
-                                    continue;
-                                }
-
-                                //when the child is active so is the parent.
-                                if (child.active) {
-                                    section.active = true;
-                                }
-                                section.children.push(child);
+                    if(item.children.length !== 0){
+                        section.dropdown = 'dropdown';
+                        section.children = [];
+                        for(var i =0; i < item.children.length; i++){
+                            var child = getSection(item.children[i]);
+                            if (child.active){
+                                section.active = true;
                             }
-
-                            formattedSections.push(section);
+                            section.children.push(child);
                         }
                     }
+                    return section;
                 }
+                for(var i = 0; i < sectionMap.length; i++){
+                    var el = getSection(sectionMap[i]);
+                    if(el){
+                        formattedSections.push(el);
+                    }
+
+                }
+
                 cb(null, formattedSections);
             });
         });
@@ -391,28 +422,30 @@ module.exports = function SectionServiceModule(pb) {
      */
     SectionService.trimForType = function(navItem) {
         if (navItem.type === 'container') {
-            navItem.parent = null;
             navItem.url    = null;
             navItem.editor = null;
-            navItem.item   = null;
             navItem.link   = null;
             navItem.new_tab = null;
+            navItem.item = null;
         }
         else if (navItem.type === 'section') {
             navItem.item = null;
             navItem.link = null;
             navItem.new_tab = null;
+            navItem.use_in_path = null;
         }
         else if (navItem.type === 'article' || navItem.type === 'page') {
             navItem.link   = null;
             navItem.url    = null;
             navItem.editor = null;
             navItem.new_tab = null;
+            navItem.use_in_path = null;
         }
         else if (navItem.type === 'link') {
             navItem.editor = null;
             navItem.url    = null;
             navItem.item   = null;
+            navItem.use_in_path = null;
         }
     };
 
@@ -437,48 +470,64 @@ module.exports = function SectionServiceModule(pb) {
             cb(null, errors);
             return;
         }
+        self.settings.get('section_map', function(err, sectionMap) {
 
-        //name
-        this.validateNavItemName(navItem, function(err, validationError) {
-            if (util.isError(err)) {
-                cb(err, errors);
-                return;
-            }
+            self.validationSectionMap(sectionMap, navItem, function (err, validationError){
 
-            if (validationError) {
-                errors.push(validationError);
-            }
+                  if (util.isError(err)) {
+                        cb(err, errors);
+                        return;
+                    }
 
-            //description
-            if (!pb.validation.isNonEmptyStr(navItem.name, true)) {
-                errors.push({field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
-            }
+                    if (validationError) {
+                        cb(err, validationError)
+                        return;
+                    }
+                //name
+                self.validateNavItemName(navItem, function(err, validationError) {
+                    if (util.isError(err)) {
+                        cb(err, errors);
+                        return;
+                    }
 
-            //compile all errors and call back
-            var onDone = function(err, validationErrors) {
-                util.arrayPushAll(validationErrors, errors);
-                cb(err, errors);
-            };
+                    if (validationError) {
+                        errors.push(validationError);
+                    }
 
-            //validate for each type of nav item
-            switch(navItem.type) {
-            case 'container':
-                onDone(null, []);
-                break;
-            case 'section':
-                self.validateSectionNavItem(navItem, onDone);
-                break;
-            case 'article':
-            case 'page':
-                self.validateContentNavItem(navItem, onDone);
-                break;
-            case 'link':
-                self.validateLinkNavItem(navItem, onDone);
-                break;
-            default:
-                throw new Error("An invalid nav item type made it through!");
-            }
+                    //description
+                    if (!pb.validation.isNonEmptyStr(navItem.name, true)) {
+                        errors.push({field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
+                    }
+
+                    //compile all errors and call back
+                    var onDone = function(err, validationErrors) {
+                        util.arrayPushAll(validationErrors, errors);
+                        cb(err, errors);
+                    };
+
+                    //validate for each type of nav item
+                    switch(navItem.type) {
+                    case 'container':
+                        onDone(null, []);
+                        break;
+                    case 'section':
+                        self.validateSectionNavItem(navItem, onDone);
+                        break;
+                    case 'article':
+                    case 'page':
+                        self.validateContentNavItem(navItem, onDone);
+                        break;
+                    case 'link':
+                        self.validateLinkNavItem(navItem, onDone);
+                        break;
+                    default:
+                        throw new Error("An invalid nav item type made it through!");
+                    }
+                });
+            });
         });
+
+
     };
 
     /**
@@ -715,26 +764,12 @@ module.exports = function SectionServiceModule(pb) {
             else if (validationErrors.length > 0) {
                 return cb(null, validationErrors);
             }
-
             //persist the changes
             self.siteQueryService.save(navItem, function(err, data) {
                 if(util.isError(err)) {
                     return cb(err);
                 }
-
-                //update the navigation map
-                self.updateNavMap(navItem, function(err, orphans) {
-                    if (util.isError(err)) {
-                        return cb(err);
-                    }
-                    else if (orphans.length === 0) {
-                        //we kept the children so there is nothing to do
-                        return cb(null, true);
-                    }
-
-                    //ok, now we can delete the orhphans if they exist
-                    self.deleteChildren(navItem[pb.DAO.getIdField()], cb);
-                });
+                return cb(null, true);
             });
         });
     };
