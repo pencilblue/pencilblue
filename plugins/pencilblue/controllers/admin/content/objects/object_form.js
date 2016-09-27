@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -86,7 +87,7 @@ module.exports = function(pb) {
             data.pills = self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY, {objectType: self.objectType, customObject: self.customObject});
             var angularObjects = pb.ClientJs.getAngularObjects(data);
 
-            self.setPageName(self.customObject[pb.DAO.getIdField()] ? self.customObject.name : self.ls.get('NEW') + ' ' + self.objectType.name + ' ' + self.ls.get('OBJECT'));
+            self.setPageName(self.customObject[pb.DAO.getIdField()] ? self.customObject.name : self.ls.g('generic.NEW') + ' ' + self.objectType.name + ' ' + self.ls.g('custom_objects.OBJECT'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/content/objects/object_form',  function(err, result) {
                 cb({content: result});
@@ -105,7 +106,7 @@ module.exports = function(pb) {
                         active: 'active',
                         href: '#object_fields',
                         icon: 'list-ul',
-                        title: self.ls.get('FIELDS')
+                        title: self.ls.g('custom_objects.FIELDS')
                     }
                 ];
 
@@ -119,8 +120,7 @@ module.exports = function(pb) {
             objectType: function(callback) {
                 cos.loadTypeById(vars.type_id, function(err, objectType) {
                     if(util.isError(err)) {
-                        callback(err, customObject);
-                        return;
+                        return callback(err);
                     }
 
                     if (!util.isObject(objectType)) {
@@ -194,7 +194,7 @@ module.exports = function(pb) {
                 }
 
                 //TODO: This is REALLY bad for large systems.  This needs to move
-                //to an API call (searchable and pagable)
+                //to an API call (searchable and pageable)
                 var query = {
                     where: pb.DAO.ANYWHERE,
                     select: {
@@ -230,11 +230,11 @@ module.exports = function(pb) {
             delete objectType.fields.name;
 
             var fieldsArray = [{name: 'name', field_type: 'text'}];
-            for(var key in objectType.fields) {
+            Object.keys(objectType.fields).forEach(function(key) {
                 var field = JSON.parse(JSON.stringify(objectType.fields[key]));
                 field.name = key;
                 fieldsArray.push(field);
-            }
+            });
 
             objectType.fields = fieldsArray;
             cb(err, objectType);
@@ -245,7 +245,7 @@ module.exports = function(pb) {
         return [
             {
                 name: 'manage_objects',
-                title: data.customObject[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.customObject.name : ls.get('NEW') + ' ' + data.objectType.name + ' ' + ls.get('OBJECT'),
+                title: data.customObject[pb.DAO.getIdField()] ? ls.g('generic.EDIT') + ' ' + data.customObject.name : ls.g('generic.NEW') + ' ' + data.objectType.name + ' ' + ls.g('custom_objects.OBJECT'),
                 icon: 'chevron-left',
                 href: '/admin/content/objects/' + data.objectType[pb.DAO.getIdField()]
             },

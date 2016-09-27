@@ -1,74 +1,69 @@
 {
-    "author": {
-        "name": "PencilBlue, LLC",
-        "email": "info@pencilblue.com"
+  "author": {
+    "name": "PencilBlue, LLC",
+    "email": "info@pencilblue.com"
+  },
+  "contributors": [
+    {
+      "name": "Blake Callens"
     },
-    "contributors": [
-        {
-            "name": "Blake Callens"
-        },
-        {
-            "name": "Brian Hyder"
-        }
-    ],
-    "name": "pencilblue",
-    "description": "A full featured Node.js CMS and blogging platform (plugins, server cluster management, data-driven pages)",
-    "keywords": [
-        "cms",
-        "website",
-        "platform"
-    ],
-    "version": "0.6.1",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/pencilblue/pencilblue.git"
-    },
-    "dependencies": {
-        "async": "1.5.2",
-        "async-eventemitter": "0.2.2",
-        "cookies": "0.6.1",
-        "fakeredis": "1.0.2",
-        "formidable": "1.0.17",
-        "htmlencode": "0.0.4",
-        "http-status-codes": "^1.0.6",
-        "locale": "0.0.21",
-        "lodash": "4.7.0",
-        "mongodb": "2.1.21",
-        "node-uuid": "1.4.7",
-        "node.extend": "1.1.5",
-        "nodemailer": "0.7.1",
-        "npm": "3.8.5",
-        "process": "0.11.2",
-        "redis": "2.5.3",
-        "sanitize-html": "1.11.4",
-        "semver": "5.1.0",
-        "winston": "2.2.0"
-    },
-    "devDependencies": {
-        "coveralls": "2.11.9",
-        "istanbul": "0.4.2",
-        "mocha": "2.4.5",
-        "mocha-lcov-reporter": "1.2.0",
-        "should": "8.3.0"
-    },
-    "main": "./pencilblue.js",
-    "engines": {
-        "node": ">= 0.11.0 <=6"
-    },
-    "scripts": {
-        "start": "node pencilblue.js",
-        "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec --recursive"
-    },
-    "licenses": [
-        {
-            "type": "GNU GENERAL PUBLIC LICENSE Version 3",
-            "url": "http://www.gnu.org/licenses/gpl-3.0.html"
-        }
-    ],
-    "readme": "See README file",
-    "readmeFilename": "README.md",
-    "bugs": {
-        "url": "https://github.com/pencilblue/pencilblue/issues"
-    },
-    "_id": "pencilblue@0.6.0"
+    {
+      "name": "Brian Hyder"
+    }
+  ],
+  "name": "pencilblue",
+  "description": "Business class content management for Node.js (plugins, server cluster management, data-driven pages)",
+  "keywords": [
+    "cms",
+    "website",
+    "platform"
+  ],
+  "version": "0.7.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pencilblue/pencilblue.git"
+  },
+  "dependencies": {
+    "async": "1.5.2",
+    "async-eventemitter": "0.2.2",
+    "bower": "^1.7.9",
+    "cookies": "0.6.1",
+    "fakeredis": "1.0.3",
+    "formidable": "1.0.17",
+    "htmlencode": "0.0.4",
+    "http-status-codes": "^1.0.6",
+    "locale": "0.0.21",
+    "lodash": "4.15.0",
+    "mongodb": "2.1.21",
+    "node-uuid": "1.4.7",
+    "node.extend": "1.1.6",
+    "nodemailer": "0.7.1",
+    "npm": "3.8.5",
+    "redis": "2.5.3",
+    "sanitize-html": "1.13.0",
+    "semver": "5.3.0",
+    "winston": "2.2.0"
+  },
+  "devDependencies": {
+    "coveralls": "2.11.12",
+    "istanbul": "0.4.5",
+    "mocha": "2.4.5",
+    "mocha-lcov-reporter": "1.2.0",
+    "should": "8.3.0"
+  },
+  "main": "./pencilblue.js",
+  "engines": {
+    "node": ">=4"
+  },
+  "scripts": {
+    "start": "node pencilblue.js",
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec --recursive"
+  },
+  "license": "GPL-3.0",
+  "readme": "See README file",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/pencilblue/pencilblue/issues"
+  },
+  "_id": "pencilblue@0.7.0"
 }

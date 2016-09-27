@@ -2,7 +2,7 @@
 <div class="col-md-9">
     ^tmp_admin=elements=error_success^
     <div class="alert alert-warning error_success" ng-if="!allowComments">
-        ^loc_COMMENTS_DISABLED^. <a href="/admin/site_settings/content">^loc_ENABLE_HERE^.</a>
+        ^loc_comments.COMMENTS_DISABLED^. <a href="/admin/site_settings/content">^loc_comments.ENABLE_HERE^.</a>
     </div>
     ^tmp_admin=elements=sub_nav^
     ^tmp_admin=elements=search_input^
@@ -23,14 +23,14 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
-                    ^loc_CONFIRM_DELETE_COMMENT^ <span style="font-style: italic" ng-bind="objectToDelete[deleteNameKey]"></span>?
+                    ^loc_comments.CONFIRM_DELETE_COMMENT^ <span style="font-style: italic" ng-bind="objectToDelete[deleteNameKey]"></span>?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="deleting">
-                        <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                        <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                     </button>
                     <button type="button" class="btn btn-danger" ng-click="deleteObject()" ng-disabled="deleting">
-                        <i class="fa fa-trash"></i>&nbsp;^loc_DELETE^&nbsp;<i class="fa fa-spinner fa-spin" ng-if="deleting"></i>
+                        <i class="fa fa-trash"></i>&nbsp;^loc_generic.DELETE^&nbsp;<i class="fa fa-spinner fa-spin" ng-if="deleting"></i>
                     </button>
                 </div>
             </div>

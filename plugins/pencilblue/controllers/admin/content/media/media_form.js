@@ -14,6 +14,7 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -60,7 +61,7 @@ module.exports = function(pb) {
             self.media = data.media;
             data.media.media_topics = self.getMediaTopics(data);
             self.getAngularObjects(data, function(angularObjects) {
-                self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.get('NEW_MEDIA'));
+                self.setPageName(self.media[pb.DAO.getIdField()] ? self.media.name : self.ls.g('media.NEW_MEDIA'));
                 self.ts.registerLocal('acceptable_extensions', function(flag, cb) {
                     //get acceptable file extensions
                     var extensions = pb.MediaServiceV2.getSupportedExtensions();
@@ -109,12 +110,12 @@ module.exports = function(pb) {
                     active: 'active',
                     href: '#media_upload',
                     icon: 'film',
-                    title: self.ls.get('LINK_OR_UPLOAD')
+                    title: self.ls.g('media.LINK_OR_UPLOAD')
                 },
                 {
                     href: '#topics_dnd',
                     icon: 'tags',
-                    title: self.ls.get('TOPICS')
+                    title: self.ls.g('admin.TOPICS')
                 }];
                 callback(null, tabs);
             },
@@ -146,7 +147,7 @@ module.exports = function(pb) {
                     order: {name: pb.DAO.ASC}
                 };
                 self.siteQueryService.q('topic', opts, callback);
-            },
+            }
         };
         async.series(tasks, cb);
     };
@@ -173,7 +174,7 @@ module.exports = function(pb) {
     MediaForm.getSubNavItems = function(key, ls, data) {
         return [{
             name: 'manage_media',
-            title: data[pb.DAO.getIdField()] ? ls.get('EDIT') + ' ' + data.name : ls.get('NEW_MEDIA'),
+            title: data[pb.DAO.getIdField()] ? ls.g('generic.EDIT') + ' ' + data.name : ls.g('media.NEW_MEDIA'),
             icon: 'chevron-left',
             href: '/admin/content/media'
         }, {

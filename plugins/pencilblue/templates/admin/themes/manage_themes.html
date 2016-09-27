@@ -10,22 +10,22 @@
                     <div class="input-group">
     		            <select class="form-control" ng-model="activeTheme" ng-options="t.uid as t.name for t in options"></select>
                         <span class="input-group-btn">
-                            <button type="button" class="btn btn-default" ng-click="pluginAction('set_theme', activeTheme)"><i class="fa fa-check-square-o"></i>&nbsp;^loc_SET_THEME^</button>
+                            <button type="button" class="btn btn-default" ng-click="pluginAction('set_theme', activeTheme)"><i class="fa fa-check-square-o"></i>&nbsp;^loc_generic.SET_THEME^</button>
                         </span>
                     </div>
 		        </div>
 		    </form>
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    ^loc_THEMES^
+                    ^loc_admin.THEMES^
                 </div>
                 <div class="table_container">
                     <table id="themes_table" class="table table-responsive table-condensed">
                         <tr id="themes_table_header">
-                            <th>^loc_NAME^</th>
-                            <th>^loc_VERSION^</th>
-                            <th>^loc_INSTALLED_ON^</th>
-                            <th>^loc_ACTIVE^</th>
+                            <th>^loc_generic.NAME^</th>
+                            <th>^loc_generic.VERSION^</th>
+                            <th>^loc_generic.INSTALLED_ON^</th>
+                            <th>^loc_generic.ACTIVE^</th>
                             <th></th>
                         </tr>
                         <tr class="theme_row" ng-repeat="t in themes track by t.uid" on-finish-render ng-cloak>
@@ -35,8 +35,8 @@
                             <td><i class="fa fa-check" ng-if="t.uid === activeTheme"></i></td>
                             <td style="text-align: right">
                                 <div class="btn-group">
-                                    <a class="btn btn-sm btn-default" ng-href="/admin/themes/{{t.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_SETTINGS^</a>
-                                    <button type="button" class="btn btn-sm btn-default" ng-click="pluginAction('reset_settings', t.uid)"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_RESET_SETTINGS^</button>
+                                    <a class="btn btn-sm btn-default" ng-href="/admin/themes/{{t.uid}}/settings"><i class="fa fa-cog"></i>&nbsp;^loc_admin.SETTINGS^</a>
+                                    <button type="button" class="btn btn-sm btn-default" ng-click="pluginAction('reset_settings', t.uid)"><i class="fa fa-fw fa-refresh"></i>&nbsp;^loc_generic.RESET_SETTINGS^</button>
                                 </div>
                             </td>
                         </tr>
@@ -48,10 +48,10 @@
             <form ng-submit="saveSiteLogo()" novalidate>
                 ^tmp_admin=elements=upload_and_link_photo^
                 <a class="btn btn-default" href="/admin/themes">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 <button type="submit" class="btn btn-primary" ng-disabled="!photoValue || saving">
-                    <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_SAVE^
+                    <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_generic.SAVE^
                 </button>
             </form>
         </div>

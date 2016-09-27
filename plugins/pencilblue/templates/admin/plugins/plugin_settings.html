@@ -1,29 +1,35 @@
 ^tmp_admin=head^
 <div class="col-md-9">
-	^tmp_admin=elements=error_success^
-	^tmp_admin=elements=sub_nav^
-	^tmp_admin=elements=tab_nav^
-	<form name="pluginSettingsForm" ng-submit="savePluginSettings()" novalidate>
-		<fieldset>
-			<div class="tab-content">
-				<div class="tab-pane active" id="plugin_settings">
-					<div class="form-group" ng-repeat="item in settings">
-						<label ng-bind="item.displayName"></label>
-						<input class="form-control" ng-model="item.value" type="{{item.type}}" ng-if="item.type != 'checkbox'"></input>
-						<br ng-if="item.type == 'checkbox'"/>
-						<div class="btn-group" ng-if="item.type == 'checkbox'">
-							<button type="button" class="btn btn-default" ng-class="{'active': item.value}" ng-click="item.value = true">^loc_YES^</button>
-							<button type="button" class="btn btn-default" ng-class="{'active': !item.value}" ng-click="item.value = false">^loc_NO^</button>
-						</div>
-					</div>
-				</div>
-				<a class="btn btn-default" href="/admin/plugins">
-					<i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
-				</a>
-				^tmp_admin=elements=save_button^
-			</div>
-		</fieldset>
-	</form>
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form name="pluginSettingsForm" ng-submit="savePluginSettings()" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="plugin_settings">
+                    <div id="{{item.id}}" class="form-group" ng-repeat="item in settings">
+                        <div ng-if="item.isHeading">
+                            <h3>{{item.heading}}</h3>
+                            <hr>
+                        </div>
+                        <div ng-if="!item.isHeading">
+                            <label ng-bind="item.displayName"></label>
+                            <input class="form-control" ng-model="item.value" type="{{item.type}}" ng-if="item.type != 'checkbox'"/>
+                            <br ng-if="item.type == 'checkbox'"/>
+                            <div class="btn-group" ng-if="item.type == 'checkbox'">
+                                <button type="button" class="btn btn-default" ng-class="{'active': item.value}" ng-click="item.value = true">^loc_generic.YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !item.value}" ng-click="item.value = false">^loc_generic.NO^</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="btn btn-default" href="/admin/plugins">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
+                </a>
+                ^tmp_admin=elements=save_button^
+            </div>
+        </fieldset>
+    </form>
 </div>
 ^tmp_angular=admin=plugins=plugin_settings^
 ^tmp_admin=footer^

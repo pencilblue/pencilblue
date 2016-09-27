@@ -14,13 +14,13 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 module.exports = function(pb) {
 
     //pb dependencies
     var util = pb.util;
     var PluginService  = pb.PluginService;
-    var LocalizationService = pb.LocalizationService;
 
     /**
     * Interface for viewing plugin details
@@ -58,7 +58,7 @@ module.exports = function(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
                 d: obj.details,
                 status: obj.status,
-                is_active: PluginService.isActivePlugin(obj.details.uid)
+                is_active: PluginService.isActivePlugin(obj.details.uid, self.site)
             });
 
             //render page
@@ -88,7 +88,7 @@ module.exports = function(pb) {
             if (plugin) {
                 var obj = {
                     details: plugin,
-                    status: self.ls.get(PluginService.isActivePlugin(plugin.uid) ? 'ACTIVE' : 'INACTIVE')
+                    status: self.ls.g(PluginService.isActivePlugin(plugin.uid, self.site) ? 'generic.ACTIVE' : 'generic.INACTIVE')
                 };
                 cb(err, obj);
                 return;
@@ -99,7 +99,7 @@ module.exports = function(pb) {
             var detailsFile = PluginService.getDetailsPath(puid);
             PluginService.loadDetailsFile(detailsFile, function(err, details) {
                 var obj = {
-                    status: self.ls.get('ERRORED')
+                    status: self.ls.g('generic.ERRORED')
                 };
                 if (util.isError(err)) {
                     obj.details = {
@@ -119,7 +119,7 @@ module.exports = function(pb) {
                         cb(null, obj);
                         return;
                     }
-                    obj.status = self.ls.get('AVAILABLE');
+                    obj.status = self.ls.g('generic.AVAILABLE');
                     cb(null, obj);
                 });
             });

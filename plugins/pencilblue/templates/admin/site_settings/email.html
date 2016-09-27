@@ -8,20 +8,20 @@
             <div class="tab-content">
                 <div class="tab-pane active" id="preferences">
                     <div class="form-group">
-                        <label>^loc_FROM_NAME^</label>
-                        <input type="text" class="form-control" ng-model="emailSettings.from_name"></input>
+                        <label>^loc_site_settings.FROM_NAME^</label>
+                        <input type="text" class="form-control" ng-model="emailSettings.from_name"/>
                     </div>
                     <div class="form-group">
-                        <label>^loc_FROM_ADDRESS^</label>
-                        <input type="text" class="form-control" ng-model="emailSettings.from_address"></input>
+                        <label>^loc_site_settings.FROM_ADDRESS^</label>
+                        <input type="text" class="form-control" ng-model="emailSettings.from_address"/>
                     </div>
                     <div class="form-group">
-                        <label>^loc_VERIFICATION_SUBJECT^</label>
-                        <input type="text" class="form-control" ng-model="emailSettings.verification_subject"></input>
+                        <label>^loc_site_settings.VERIFICATION_SUBJECT^</label>
+                        <input type="text" class="form-control" ng-model="emailSettings.verification_subject"/>
                     </div>
                     <div class="form-group">
-                        <label>^loc_VERIFICATION_CONTENT^</label>&nbsp;
-                        <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_EMAIL_DIRECTIVES_DESCRIPTION^"></i>
+                        <label>^loc_site_settings.VERIFICATION_CONTENT^</label>&nbsp;
+                        <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="^loc_site_settings.EMAIL_DIRECTIVES_DESCRIPTION^"></i>
                         <div id="email_wysiwyg">
                             <wysiwyg layout="layout"></wysiwyg>
                         </div>
@@ -29,9 +29,9 @@
                 </div>
                 <div class="tab-pane" id="smtp">
                     <div class="form-group">
-                        <label>^loc_SERVICE^</label>
+                        <label>^loc_site_settings.SERVICE^</label>
                         <select class="form-control" ng-model="emailSettings.service">
-                            <option value="custom">^loc_CUSTOM^</option>
+                            <option value="custom">^loc_site_settings.CUSTOM^</option>
                             <option value="Gmail">Gmail</option>
                             <option value="Yahoo">Yahoo</option>
                             <option value="Hotmail">Hotmail</option>
@@ -50,49 +50,49 @@
                     </div>
                     <div ng-if="emailSettings.service === 'custom'">
                         <div class="form-group">
-                            <label>^loc_HOST^</label>
-                            <input type="text" class="form-control" ng-model="emailSettings.host"></input>
+                            <label>^loc_site_settings.HOST^</label>
+                            <input type="text" class="form-control" ng-model="emailSettings.host"/>
                         </div>
                         <div class="form-group">
-                            <label>^loc_SECURE_CONNECTION^</label><br/>
+                            <label>^loc_site_settings.SECURE_CONNECTION^</label><br/>
                             <div class="btn-group">
-                                <button type="button" class="btn btn-default" ng-class="{'active': emailSettings.secure_connection}" ng-click="setEmailValue('secure_connection', true)">^loc_YES^</button>
-                                <button type="button" class="btn btn-default" ng-class="{'active': !emailSettings.secure_connection}" ng-click="setEmailValue('secure_connection', false)">^loc_NO^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': emailSettings.secure_connection}" ng-click="setEmailValue('secure_connection', true)">^loc_generic.YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !emailSettings.secure_connection}" ng-click="setEmailValue('secure_connection', false)">^loc_generic.NO^</button>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>^loc_PORT^</label>
-                            <input type="number" class="form-control" ng-model="emailSettings.port" step="1" min="0"></input>
+                            <label>^loc_site_settings.PORT^</label>
+                            <input type="number" class="form-control" ng-model="emailSettings.port" step="1" min="0"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>^loc_USERNAME^</label>
-                        <input type="text" class="form-control" autocomplete="off" ng-model="emailSettings.username"></input>
+                        <label>^loc_generic.USERNAME^</label>
+                        <input type="text" class="form-control" autocomplete="off" ng-model="emailSettings.username"/>
                     </div>
                     <div class="form-group">
-                        <label>^loc_PASSWORD^</label>
-                        <input type="password" class="form-control" autocomplete="off" ng-model="emailSettings.password"></input>
+                        <label>^loc_generic.PASSWORD^</label>
+                        <input type="password" class="form-control" autocomplete="off" ng-model="emailSettings.password"/>
                     </div>
                 </div>
                 <div class="tab-pane" id="test">
                     <div class="form-group">
-                        <label>^loc_SEND_TEST_EMAIL^</label>
+                        <label>^loc_site_settings.SEND_TEST_EMAIL^</label>
                         <div class="input-group">
-                            <input type="email" class="form-control" placeholder="^loc_EMAIL^" ng-model="testEmailAddress"></input>
+                            <input type="email" class="form-control" placeholder="^loc_generic.EMAIL^" ng-model="testEmailAddress"/>
                             <span class="input-group-btn">
                                 <button type="button" class="btn btn-default" ng-click="sendTestEmail()">
-                                    <i class="fa fa-send" ng-class="{'fa-send': !sendingEmail, 'fa-circle-o-notch fa-spin': sendingEmail}"></i>&nbsp;^loc_SEND^
+                                    <i class="fa fa-send" ng-class="{'fa-send': !sendingEmail, 'fa-circle-o-notch fa-spin': sendingEmail}"></i>&nbsp;^loc_site_settings.SEND^
                                 </button>
                             </span>
                         </div>
                     </div>
                     <div class="alert" ng-class="{'alert-success': emailTestSuccess, 'alert-danger': emailTestFailure}" ng-if="emailTestSuccess || emailTestFailure">
-                        <span ng-if="emailTestSuccess">^loc_TEST_EMAIL_SUCCESS^</span>
+                        <span ng-if="emailTestSuccess">^loc_site_settings.TEST_EMAIL_SUCCESS^</span>
                         <span ng-if="emailTestFailure" ng-bind="emailTestFailure"></span>
                     </div>
                 </div>
                 <a class="btn btn-default" href="/admin/site_settings">
-                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                    <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
                 </a>
                 ^tmp_admin=elements=save_button^
             </div>

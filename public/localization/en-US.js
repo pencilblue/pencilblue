@@ -172,6 +172,8 @@ module.exports = {
         ERROR_SETTING_SYS_INITIALIZED: 'An error occurred while attempting to set the system initialized setting',
         ERROR_SETTING_CALLHOME: 'An error occurred while attempting to set the system reporting preference',
         USE_IN_PATH: 'Use in a path',
+        OK: "OK",
+        DEFAULT_LOCALE: "Default Locale"
     },
     error: {
     	ERROR: 'Error',
@@ -283,7 +285,8 @@ module.exports = {
         UPLOAD_IMAGE: 'Upload image',
         IMAGE_URL: 'Image URL',
         IMAGE_URL_PLACEHOLDER: '.jpg, .png, .gif, or .svg',
-        FILE_TOO_BIG: 'The file is larger than the allowed limit'
+        FILE_TOO_BIG: 'The file is larger than the allowed limit',
+        DRAG_DROP_IMG_VID: 'Drop image and video files here'
     },
     pages: {
         MANAGE_PAGES: 'Manage pages',

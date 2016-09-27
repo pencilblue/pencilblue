@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var util = require('../util.js');
@@ -292,7 +293,6 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * key/value pairs within the registered instance
      * @static
      * @method
-     * @param {String} objType The type of object being referenced
      * @return {String} The command type to be registered for
      */
     MemoryEntityService.getOnChangeType = function() {

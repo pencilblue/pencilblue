@@ -11,7 +11,7 @@
                 </div>
                 <span class="btn btn-success fileinput-button" ng-disabled="uploading">
                     <i class="fa" ng-class="{'fa-plus': !uploading, 'fa-circle-o-notch fa-spin': uploading}"></i>
-                    <span>^loc_SELECT_FILE^...</span>
+                    <span>^loc_generic.SELECT_FILE^...</span>
                     <input type="file" ng-file-select="onFileSelect($files)" accept=".txt,.csv"></input>
                 </span>
                 <div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="dropSupported=true" ng-file-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">Drop CSV files here</div>

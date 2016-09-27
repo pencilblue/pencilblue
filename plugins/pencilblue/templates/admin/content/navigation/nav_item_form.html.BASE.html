@@ -1,0 +1,85 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form name="navItemForm" ng-submit="saveNavItem()" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="section_settings">
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(navItemForm.type)}">
+                        <label for="type">^loc_TYPE^</label>
+                        <select id="content_type" name="type" class="form-control" ng-model="navItem.type" ng-options="type.value as type.label for type in types" required></select>
+                        <div class="form_error" ng-if="!isFieldValid(navItemForm.type)">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(navItemForm.name)}">
+                        <label>^loc_NAME^</label>
+                        <input type="text" name="name" class="form-control" ng-model="navItem.name" required></input>
+                        <div class="form_error" ng-if="!isFieldValid(navItemForm.name)">^loc_REQUIRED_FIELD^</div>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_DESCRIPTION^</label>
+                        <textarea class="form-control" ng-model="navItem.description"></textarea>
+                    </div>
+                    <div class="form-group" ng-if="navItem.type !== 'container'">
+                        <label>^loc_PARENT_NAV_ITEM^</label>
+                        <select class="form-control" ng-model="navItem.parent" ng-options="parent._id as parent.name for parent in parents"></select>
+                    </div>
+                    <div ng-if="navItem.type === 'section'">
+                        <div class="form-group" ng-class="{'has-error': !isFieldValid(navItemForm.url)}">
+                            <label>^loc_URL_KEY^</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">section/</span>
+                                <input type="text" name="url" class="form-control" ng-model="navItem.url" ng-change="resetUrlAvailability()" required></input>
+                                <span class="input-group-btn">
+                                  <button type="button" class="btn" ng-class="{'btn-default': urlAvailable === null, 'btn-success': urlAvailable === true, 'btn-danger': urlAvailable === false}" ng-click="getUrlAvailability()" ng-disabled="!navItem.url.length">
+                                    <span ng-if="urlAvailable === null">^loc_CHECK^</span>
+                                    <span ng-if="urlAvailable === true"><i class="fa fa-check"></i>&nbsp;^loc_AVAILABLE^</span>
+                                    <span ng-if="urlAvailable === false"><i class="fa fa-ban"></i>&nbsp;^loc_UNAVAILABLE^</span>
+                                  </button>
+                                </span>
+                            </div>
+                            <div class="form_error" ng-if="!isFieldValid(navItemForm.url)">^loc_REQUIRED_FIELD^</div>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_EDITOR^</label>
+                            <select class="form-control" ng-model="navItem.editor" ng-options="editor._id as editor.name for editor in editors"></select>
+                        </div>
+                    </div>
+                    <div ng-if="navItem.type === 'article' || navItem.type === 'page'">
+                        <div class="form-group" ng-class="{'has-error': !isFieldValid(navItemForm.item)}">
+                            <label>
+                              <span ng-if="navItem.type === 'article'">^loc_ARTICLE^</span>
+                              <span ng-if="navItem.type === 'page'">^loc_PAGE^</span>
+                            </label>
+                            &nbsp;<i class="fa fa-info-circle content_search_tooltip" title="^loc_CONTENT_SEARCH_EXPLANATION^" data-placement="right" data-toggle="tooltip" style="cursor: pointer;"></i>
+                            ^tmp_admin=elements=content_search^
+                            <input id="item" name="item" type="hidden" ng-model="navItem.item" required></input>
+                            <div class="form_error" ng-if="!isFieldValid(navItemForm.item)">^loc_REQUIRED_FIELD^</div>
+                        </div>
+                    </div>
+                    <div ng-if="navItem.type === 'link'">
+                        <div class="form-group" ng-class="{'has-error': !isFieldValid(navItemForm.link)}">
+                            <label>^loc_LINK^</label>
+                            <input type="text" name="link" class="form-control" ng-model="navItem.link" required></input>
+                            <div class="form_error" ng-if="!isFieldValid(navItemForm.link)">^loc_REQUIRED_FIELD^</div>
+                        </div>
+                        <div class="form-group">
+                            <label>^loc_LINK_IN_TAB^</label><br/>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default" ng-class="{'active': navItem.new_tab}" ng-click="setNavItemValue('new_tab', true)">^loc_YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !navItem.new_tab}" ng-click="setNavItemValue('new_tab', false)">^loc_NO^</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a class="btn btn-default" href="/admin/content/navigation">
+                    <i class="fa fa-ban"></i>&nbsp;^loc_CANCEL^
+                </a>
+                ^tmp_admin=elements=save_button^
+            </div>
+        </fieldset>
+    </form>
+</div>
+^tmp_angular=admin=content=navigation=nav_item_form^
+^tmp_admin=footer^

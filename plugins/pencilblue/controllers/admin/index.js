@@ -14,11 +14,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
 
-module.exports = function AdminIndexControllerModule(pb) {
+module.exports = function (pb) {
 
     //pb dependencies
     var util            = pb.util;
@@ -48,7 +49,7 @@ module.exports = function AdminIndexControllerModule(pb) {
                 //throw err;
             }
 
-            var name        = self.localizationService.get('ARTICLES');
+            var name = self.localizationService.g('admin.ARTICLES');
             var contentInfo = [
                {
                    name: name,
@@ -57,7 +58,7 @@ module.exports = function AdminIndexControllerModule(pb) {
                },
             ];
 
-            name = self.localizationService.get('PAGES');
+            name = self.ls.g('admin.PAGES');
             contentInfo.push({name: name, count: data.pageCount, href: '/admin/content/pages'});
 
             var angularObjects = pb.ClientJs.getAngularObjects({
@@ -67,7 +68,7 @@ module.exports = function AdminIndexControllerModule(pb) {
                 access: self.session.authentication.admin_level,
                 isAdmin: self.session.authentication.admin_level === SecurityService.ACCESS_ADMINISTRATOR
             });
-            self.setPageName(self.localizationService.get('DASHBOARD'));
+            self.setPageName(self.ls.g('admin.DASHBOARD'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.load('admin/index', function(error, result) {
                 cb({content: result});

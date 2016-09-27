@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var fs          = require('fs');
@@ -62,25 +63,35 @@ function PencilBlue(config){
      */
     this.init = function(){
         var tasks = [
-            this.initModules,
-            this.initRequestHandler,
-            this.initDBConnections,
-            this.initDBIndices,
-            this.initSiteMigration,
-            this.initSessions,
-            this.initPlugins,
-            this.initSites,
-            this.initServerRegistration,
-            this.initCommandService,
-            this.initLibraries,
-            this.registerMetrics,
-            util.wrapTask(this, this.initServer),
+            util.wrapTimedTask(this, this.initModules, 'initModules'),
+            util.wrapTimedTask(this, this.initRequestHandler, 'initRequestHandler'),
+            util.wrapTimedTask(this, this.initDBConnections, 'initDBConnections'),
+            util.wrapTimedTask(this, this.initDBIndices, 'initDBIndices'),
+            util.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
+            util.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
+            util.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
+            util.wrapTimedTask(this, this.initSessions, 'initSessions'),
+            util.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
+            util.wrapTimedTask(this, this.initSites, 'initSites'),
+            util.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
+            util.wrapTimedTask(this, this.registerMetrics, 'registerMetrics'),
+            util.wrapTimedTask(this, this.initServer, 'initServer')
         ];
         async.series(tasks, function(err, results) {
             if (util.isError(err)) {
                 throw err;
             }
             pb.log.info('PencilBlue: Ready to run!');
+
+            //print out stats
+            if (pb.log.isDebug()) {
+                var stats = results.reduce(function (obj, result) {
+                    obj[result.name] = result.time;
+                    obj.total += result.time;
+                    return obj;
+                }, {total: 0});
+                pb.log.debug('Startup Stats (ms):\n%s', JSON.stringify(stats, null, 2));
+            }
         });
     };
 
@@ -111,7 +122,7 @@ function PencilBlue(config){
     this.initRequestHandler = function(cb) {
         pb.RequestHandler.init();
         cb(null, true);
-    }
+    };
 
     /**
      * Starts the session handler
@@ -195,7 +206,7 @@ function PencilBlue(config){
         }
 
         pb.log.info('PencilBlue: Ensuring indices...');
-        pb.dbm.processIndices(pb.config.db.indices, function(err, results) {
+        pb.dbm.processIndices(pb.config.db.indices, function(err/*, results*/) {
             cb(err, !util.isError(err));
         });
     };
@@ -354,8 +365,14 @@ function PencilBlue(config){
             self.init();
         });
     };
-};
+}
 
+/**
+ * The default entry point to a stand-alone instance of PencilBlue
+ * @static
+ * @method startInstance
+ * @return {PencilBlue}
+ */
 PencilBlue.startInstance = function() {
     var Configuration = require('./include/config.js');
     var config        = Configuration.load();

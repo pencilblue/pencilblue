@@ -14,6 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -23,16 +24,16 @@ module.exports = function PluginInstallJobModule(pb) {
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
-     * A system job that coordinates the uninstall of a plugin across the cluster.
+     * A system job that coordinates the install of a plugin across the cluster.
      * The job has two modes.  The first is initiator.  This is the process that
      * receives the request to uninstall the plugin.  It coordinates a sequenced
-     * uninstall from each process in the cluster.  The initiator does this by
+     * install from each process in the cluster.  The initiator does this by
      * getting a list of active processes through the service registry.  It then
      * uses the registry to send a message to each process to uninstall the plugin.
      * Some operations are repeated for each server but this is ok based on the
      * current set of operations.  When a command is received that instructs a
-     * process to uninstall a plugin it creates an instance of the plugin uninstall
-     * job with isInitiator = FALSE.  This changes causes the actual uninstall
+     * process to install a plugin it creates an instance of the plugin install
+     * job with isInitiator = FALSE.  This changes causes the actual install
      * process to take place.  Log statements are sent both to the system logger
      * and to the job log persistence entity.
      * @class PluginInstallJob
@@ -207,7 +208,7 @@ module.exports = function PluginInstallJobModule(pb) {
                     self.log("WARN: Plugin %s did not provide an 'onInstall' function.", details.uid);
                     callback(null, true);
                 }
-            },
+            }
         ];
         async.series(tasks, function(err, results) {
             if(util.isError(err)) {
