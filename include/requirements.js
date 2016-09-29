@@ -143,6 +143,7 @@ module.exports = function PB(config) {
     pb.ApiActionController = require(path.join(config.docRoot, '/controllers/api/api_action_controller.js'))(pb);
     pb.ErrorViewController = require(path.join(config.docRoot, '/controllers/error_controller.js'))(pb);
     pb.RequestHandler      = require(path.join(config.docRoot, '/include/http/request_handler.js'))(pb);
+    pb.RequestHandler2     = require(path.join(config.docRoot, '/include/http/request_handler2.js'))(pb);
     pb.HttpStatus          = require('http-status-codes');
 
     //setup errors

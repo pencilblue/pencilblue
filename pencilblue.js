@@ -241,6 +241,10 @@ function PencilBlue(config){
 
             cb(err, true);
         });
+
+
+        //TODO remove
+        pb.RequestHandler2.init();
     };
 
     /**
@@ -270,8 +274,9 @@ function PencilBlue(config){
         }
 
         //route the request
-        var handler = new pb.RequestHandler(pb.server, req, res);
-        handler.handleRequest();
+        //var handler = new pb.RequestHandler(pb.server, req, res);
+        //handler.handleRequest();
+        (new pb.RequestHandler2()).handle(req, res);
     };
 
     /**
