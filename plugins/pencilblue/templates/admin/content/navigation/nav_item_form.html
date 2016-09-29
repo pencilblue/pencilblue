@@ -69,13 +69,18 @@
                         </div>
                     </div>
 
-                    <div ng-if="navItem.type === 'container'">
+                    <div ng-if="navItem.type !== 'link'">
                         <div class="form-group">
                             <label>^loc_USE_IN_PATH^</label><br/>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default" ng-class="{'active': navItem.use_in_path}" ng-click="setNavItemValue('use_in_path', true)">^loc_YES^</button>
                                 <button type="button" class="btn btn-default" ng-class="{'active': !navItem.use_in_path}" ng-click="setNavItemValue('use_in_path', false)">^loc_NO^</button>
                             </div>
+                        </div>
+                         <div ng-if="navItem.use_in_path" class="form-group" ng-class="{'has-error': !isSafeFileName(navItemForm.path_name)}">
+                            <label>^loc_PATH_NAME^</label>
+                            <input type="text" name="path_name" class="form-control" ng-model="navItem.path_name" ng-pattern="patternSafeFileName" required></input>
+                            <div class="form_error" ng-if="!isSafeFileName(navItemForm.path_name)">^loc_generic.INVALID_NAME^</div>
                         </div>
                     </div>
 

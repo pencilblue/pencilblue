@@ -190,13 +190,14 @@ module.exports = function RequestHandlerModule(pb) {
 
         //iterate core routes adding them
         pb.log.debug('RequestHandler: Registering System Routes');
+        pb.SectionService.updateSectionsPaths();
+
         util.forEach(RequestHandler.CORE_ROUTES, function(descriptor) {
 
             //register the route
             var result;
             try {
                 result = RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
-                pb.SectionService.updateSectionsPaths();
             }
             catch(e) {}
             if (!result) {

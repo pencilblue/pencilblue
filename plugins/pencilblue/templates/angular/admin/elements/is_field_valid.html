@@ -5,3 +5,10 @@ $scope.isFieldValid = function(field, validationType) {
 
     return validationService.isFieldValid(field, validationType);
 }
+$scope.isSafeFileName = function(value, required) {
+    if(!$scope.formSubmitted) {
+        return true;
+    }
+
+    return validationService.isSafeFileName(value, required);
+}

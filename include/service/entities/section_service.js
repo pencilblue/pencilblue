@@ -228,7 +228,7 @@ module.exports = function SectionServiceModule(pb) {
                                         if (childrenPaths[key].path[0] === prefix){
                                             prefix = '';
                                         }
-                                        childrenPaths[key].path = '/' + section.name + prefix + childrenPaths[key].path;
+                                        childrenPaths[key].path = '/' + section.path_name + prefix + childrenPaths[key].path;
                                     }
                                     if (result[childrenPaths[key].path]){
                                         continue;
@@ -241,11 +241,17 @@ module.exports = function SectionServiceModule(pb) {
                             }
 
                 }else if (section.type === 'page' || section.type === 'section' || section.type === 'article'){
-                     if (!result[section.name]){
-                        result[section.name] = {
-                            path : section.name,
+                     if (section.path_name){
+                      if(section.path_name[0] !== '/'){
+                        section.path_name = '/' + section.path_name;
+                      }
+                      if(!result[section.path_name]){
+                        result[section.path_name] = {
+                            path : section.path_name,
                             section_path : section.url
                         };
+                      }
+                        
                      }
                 }else{
                     return null
@@ -270,12 +276,13 @@ module.exports = function SectionServiceModule(pb) {
         self.siteQueryService.q('section', function(err, sections) {
             var newRoutes = [];
             if (section){
-                var sectionBase = SectionService.getSectionData(section[pb.DAO.getIdField()].toString(), sections);
 
-                if (sectionBase){
+                if (section[pb.DAO.getIdField()]){
+                    var sectionBase = SectionService.getSectionData(section[pb.DAO.getIdField()].toString(), sections);
                     sectionBase.url = undefined;
                     sectionBase.use_in_path = section.use_in_path;
                     sectionBase.name = section.name;
+                    sectionBase.path_name = section.path_name;
                 }else{
                     sections.push(section);
                 }
@@ -432,20 +439,19 @@ module.exports = function SectionServiceModule(pb) {
             navItem.item = null;
             navItem.link = null;
             navItem.new_tab = null;
-            navItem.use_in_path = null;
         }
         else if (navItem.type === 'article' || navItem.type === 'page') {
             navItem.link   = null;
             navItem.url    = null;
             navItem.editor = null;
             navItem.new_tab = null;
-            navItem.use_in_path = null;
         }
         else if (navItem.type === 'link') {
             navItem.editor = null;
             navItem.url    = null;
             navItem.item   = null;
             navItem.use_in_path = null;
+            navItem.path_name =null;
         }
     };
 
@@ -470,6 +476,7 @@ module.exports = function SectionServiceModule(pb) {
             cb(null, errors);
             return;
         }
+
         self.settings.get('section_map', function(err, sectionMap) {
 
             self.validationSectionMap(sectionMap, navItem, function (err, validationError){
@@ -479,12 +486,13 @@ module.exports = function SectionServiceModule(pb) {
                         return;
                     }
 
-                    if (validationError) {
+                    if (validationError.length > 0) {
                         cb(err, validationError)
                         return;
                     }
                 //name
                 self.validateNavItemName(navItem, function(err, validationError) {
+
                     if (util.isError(err)) {
                         cb(err, errors);
                         return;
@@ -497,6 +505,9 @@ module.exports = function SectionServiceModule(pb) {
                     //description
                     if (!pb.validation.isNonEmptyStr(navItem.name, true)) {
                         errors.push({field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
+                    }
+                    if (!pb.validation.isSafeFileName(navItem.path_name, true)) {
+                        errors.push({field: 'path_name', message: 'An invalid name ['+navItem.path_name+'] was provided'});
                     }
 
                     //compile all errors and call back
@@ -769,6 +780,7 @@ module.exports = function SectionServiceModule(pb) {
                 if(util.isError(err)) {
                     return cb(err);
                 }
+                SectionService.updateSectionsPaths();
                 return cb(null, true);
             });
         });

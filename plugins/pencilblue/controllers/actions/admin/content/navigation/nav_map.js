@@ -81,7 +81,7 @@ module.exports = function(pb) {
                             content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'))
                         });
                     }
-
+                    pb.SectionService.updateSectionsPaths();
                     cb({
                         code: 200,
                         content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('generic.NAV_MAP_SAVED'), post)
