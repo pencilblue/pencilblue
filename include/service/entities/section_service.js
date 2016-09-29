@@ -506,7 +506,7 @@ module.exports = function SectionServiceModule(pb) {
                     if (!pb.validation.isNonEmptyStr(navItem.name, true)) {
                         errors.push({field: 'name', message: 'An invalid name ['+navItem.name+'] was provided'});
                     }
-                    if (!pb.validation.isSafeFileName(navItem.path_name, true)) {
+                    if (navItem.use_in_path && !pb.validation.isSafeFileName(navItem.path_name, true)) {
                         errors.push({field: 'path_name', message: 'An invalid name ['+navItem.path_name+'] was provided'});
                     }
 
