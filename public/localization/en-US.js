@@ -295,7 +295,8 @@ module.exports = {
         TEMPLATE: 'Template',
         HEADLINE: 'Headline',
         SUBHEADING: 'Subheading',
-        PUBLISH_DATE: 'Publish date'
+        PUBLISH_DATE: 'Publish date',
+        PAGE_NAME: 'Page name'
     },
     articles: {
         MANAGE_ARTICLES: 'Manage articles',

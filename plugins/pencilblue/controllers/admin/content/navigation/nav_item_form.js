@@ -63,7 +63,7 @@ module.exports = function(pb) {
             self.setPageName(self.navItem[pb.DAO.getIdField()] ? self.navItem.name : self.ls.g('generic.NEW_NAV_ITEM'));
             self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
             self.ts.registerLocal('content_type', '{{section.type}}');
-            self.ts.registerLocal('selection_id_field', 'item');
+            self.ts.registerLocal('selection_id_field', 'headline');
             self.ts.registerLocal('content_search_value', contentSearchValue ? contentSearchValue : '');
             self.ts.load('admin/content/navigation/nav_item_form', function(err, result) {
                 cb({content: result});

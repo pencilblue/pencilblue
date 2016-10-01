@@ -17,6 +17,7 @@
 
 $(document).ready(function() {
   var input = $('#content_search');
+  var id_field = $('#selection_id_field').val();
   input.autocomplete({
     source: function(request, response) {
       $.ajax({
@@ -26,14 +27,15 @@ $(document).ready(function() {
           'q': $('#content_search').val(),
           '$offset': 0,
           '$limit': 8,
-          '$order': 'headline=1',
-          '$select': 'headline=1'
+          '$order': id_field + '=1',
+          '$select': id_field + '=1'
         },
         success: function(data) {
+          data.data.unshift({_id:'\u00A0'});
           response($.map(data.data, function(item) {
             return {
               value: item._id,
-              label: item.headline
+              label: item[id_field]
             };
           }));
         }
@@ -41,6 +43,10 @@ $(document).ready(function() {
     },
     minLength: 0,
     select: function(event, ui) {
+      if(ui.item.value === '\u00A0'){
+        ui.item.value = '';
+        ui.item.label = '';
+      }
       setItem(ui.item.value);
       $(this).val(ui.item.label);
       return false;

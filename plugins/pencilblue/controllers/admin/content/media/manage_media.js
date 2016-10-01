@@ -41,7 +41,8 @@ module.exports = function(pb) {
                 caption: 1,
                 last_modified: 1,
                 media_type: 1,
-                location: 1
+                location: 1,
+                media_topics: 1
             },
             order: {created: pb.DAO.DESC},
             format_media: true
@@ -57,6 +58,10 @@ module.exports = function(pb) {
                 var title = self.ls.g('media.MANAGE_MEDIA');
                 self.setPageName(title);
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+                self.ts.registerLocal('content_type', 'topic');
+                self.ts.registerLocal('selection_id_field', 'name');
+                self.ts.registerLocal('content_search_value', '');
+
                 self.ts.load('admin/content/media/manage_media', function(err, result) {
                     cb({content: result});
                 });
@@ -77,7 +82,8 @@ module.exports = function(pb) {
                 {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site),
                     pills: pills,
-                    media: pb.MediaServiceV2.formatMedia(mediaData)
+                    media: pb.MediaServiceV2.formatMedia(mediaData),
+                    navItem: { type : 'topic'}
                 });
             //TODO: err first arg for style. User experience error when no pills?
             cb(angularObjects);
