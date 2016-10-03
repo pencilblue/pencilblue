@@ -335,8 +335,8 @@
           if(newVal !== oldVal) {
             scope.wysiwyg.markdown = toMarkdown(scope.layout);
           }
-
-          //scope.saveSelection();
+            scope.loadMediaPreviews();
+            scope.setPublicLayout();
         });
 
         scope.$watch('layout', function(newVal, oldVal) {
@@ -366,7 +366,7 @@
             selection.removeAllRanges();
           }
         });
-        
+
         editableDiv.on('mouseup', function(event) {
           if(!scope.wysiwyg.layout.length) {
             scope.setElement(loc.wysiwyg.NORMAL_TEXT, 'p');
@@ -377,8 +377,6 @@
         });
 
         rangy.init();
-        $interval(scope.loadMediaPreviews, 500);
-        $interval(scope.setPublicLayout, 500);
       }
     };
   })
