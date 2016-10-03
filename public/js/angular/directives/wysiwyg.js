@@ -360,6 +360,13 @@
         });
 
         var editableDiv = angular.element(element).find('[contenteditable]');
+        editableDiv.on('mousedown', function(event) {
+          var selection = window.getSelection();
+          if(selection.toString()!==''){
+            selection.removeAllRanges();
+          }
+        });
+        
         editableDiv.on('mouseup', function(event) {
           if(!scope.wysiwyg.layout.length) {
             scope.setElement(loc.wysiwyg.NORMAL_TEXT, 'p');
