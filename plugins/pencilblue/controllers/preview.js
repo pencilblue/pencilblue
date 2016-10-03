@@ -44,12 +44,12 @@ module.exports = function PreviewModule(pb) {
             switch(vars.type) {
                 case 'page':
                     self.req.pencilblue_page = item[pb.DAO.getIdField()].toString();
-                    this.page = item;
+                    self.page = item;
                     break;
                 case 'article':
                 default:
                     self.req.pencilblue_article = item[pb.DAO.getIdField()].toString();
-                    this.article = item;
+                    self.article = item;
                     break;
             }
             Preview.super_.prototype.render.apply(self, [cb]);
