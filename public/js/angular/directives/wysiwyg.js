@@ -69,7 +69,7 @@
           /*if(!$document[0].queryCommandState('insertorderedlist') && !$document[0].queryCommandState('insertunorderedlist') && !scope.getSelection().length) {
             scope.setElement('p');
           }*/
-          
+
           return scope.availableElements[0];
         };
 
@@ -139,11 +139,10 @@
         };
 
         scope.insertMedia = function() {
+          scope.restoreSelection();
           var mediaFormat = scope.getMediaFormat();
           scope.formatAction('inserthtml', '<div>^media_display_' + scope.wysiwyg.selectedMediaItem._id + mediaFormat + '^</div>');
-
           angular.element(element).find('[insert-media-modal]').modal('hide');
-          scope.restoreSelection();
           scope.wysiwyg.layout = angular.element(element).find('[contenteditable]').html();
         };
 
