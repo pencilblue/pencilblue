@@ -1,6 +1,6 @@
 (function() {
   angular.module('wysiwygElement', [])
-  .directive('wysiwyg', function($sce, $http, $document, $interval, $window) {
+  .directive('wysiwyg', function($sce, $http, $document, $window) {
     return {
       restrict: 'AE',
       replace: true,
@@ -19,6 +19,7 @@
           mediaMaxHeightUnit: 'px',
           fullscreen: false
         };
+        scope.formatblock = loc.wysiwyg.NORMAL_TEXT;
 
         scope.availableElements = [{
           name: loc.wysiwyg.NORMAL_TEXT,
@@ -55,34 +56,38 @@
 
         scope.setElement = function(type) {
           scope.formatAction('formatblock', type);
-        };
-
-        scope.getCurrentElement = function() {
-          var block = $document[0].queryCommandValue('formatblock');
-
           for(var i = 0; i < scope.availableElements.length; i++) {
-            if(scope.availableElements[i].type === block) {
-              return scope.availableElements[i];
+            if(scope.availableElements[i].type === type) {
+              scope.formatblock = scope.availableElements[i].name;
+              return;
             }
           }
-
-          /*if(!$document[0].queryCommandState('insertorderedlist') && !$document[0].queryCommandState('insertunorderedlist') && !scope.getSelection().length) {
-            scope.setElement('p');
-          }*/
-
-          return scope.availableElements[0];
+          scope.formatblock = scope.availableElements[0].name;
         };
+
+
 
         scope.formatAction = function(action, args) {
           if(scope.wysiwyg.currentView !== 'editable') {
             return;
           }
+          if(!scope.isFocusContent()){
+            var layout_editable = angular.element(element).find('.layout_editable')[0];
+            layout_editable.focus();
+              scope.restoreSelection();
+              scope.saveSelection();
+          }
+
 
           $document[0].execCommand(action, false, args);
         };
 
         scope.isFormatActive = function(type) {
-          return $document[0].queryCommandState(type);
+            if($document[0].queryCommandState(type) && scope.isFocusContent()){
+              return 'active';
+            }else{
+              return '';
+            }
         };
 
         scope.clearStyles = function() {
@@ -155,12 +160,14 @@
 
           return mediaFormat;
         };
+        scope.isFocusContent = function(){
+          return angular.element(element).find('[contenteditable]').is(':focus');
+        }
 
         scope.saveSelection = function(force) {
-          if(!angular.element(element).find('[contenteditable]').is(':focus') && !force) {
+          if(!scope.isFocusContent && !force) {
             return;
           }
-
           if(scope.editableSelection) {
             rangy.removeMarkers(scope.editableSelection);
           }
@@ -366,14 +373,21 @@
           }
         });
 
-        editableDiv.on('mouseup', function(event) {
+        editableDiv.on('mouseup',function(event) {
           if(!scope.wysiwyg.layout.length) {
             scope.setElement(loc.wysiwyg.NORMAL_TEXT, 'p');
           }
-
-          scope.saveSelection();
-          scope.$apply();
         });
+
+        editableDiv.on('mouseleave',function(event) {
+          if(scope.isFocusContent()){
+            scope.saveSelection();
+            scope.$apply();
+          }
+        });
+
+
+
 
         rangy.init();
       }
