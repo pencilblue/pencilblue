@@ -1,6 +1,6 @@
 (function() {
   angular.module('wysiwygElement', [])
-  .directive('wysiwyg', function($sce, $http, $document, $window) {
+  .directive('wysiwyg', function($sce, $http, $document, $timeout, $window) {
     return {
       restrict: 'AE',
       replace: true,
@@ -381,8 +381,11 @@
 
         editableDiv.on('mouseleave',function(event) {
           if(scope.isFocusContent()){
-            scope.saveSelection();
-            scope.$apply();
+            $timeout(function(){
+              scope.saveSelection();
+              scope.$apply();
+            },100)
+            
           }
         });
 
