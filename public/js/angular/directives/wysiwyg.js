@@ -23,31 +23,31 @@
 
         scope.availableElements = [{
           name: loc.wysiwyg.NORMAL_TEXT,
-          type: 'p'
+          type: '<p>'
         }, {
           name: loc.wysiwyg.QUOTE,
-          type: 'blockquote'
+          type: '<blockquote>'
         }, {
           name: loc.wysiwyg.PRE,
-          type: 'pre'
+          type: '<pre>'
         }, {
           name: loc.wysiwyg.HEADING_1,
-          type: 'h1'
+          type: '<h1>'
         }, {
           name: loc.wysiwyg.HEADING_2,
-          type: 'h2'
+          type: '<h2>'
         }, {
           name: loc.wysiwyg.HEADING_3,
-          type: 'h3'
+          type: '<h3>'
         }, {
           name: loc.wysiwyg.HEADING_4,
-          type: 'h4'
+          type: '<h4>'
         }, {
           name: loc.wysiwyg.HEADING_5,
-          type: 'h5'
+          type: '<h5>'
         }, {
           name: loc.wysiwyg.HEADING_6,
-          type: 'h6'
+          type: '<h6>'
         }];
 
         scope.setLayoutView = function(view) {
@@ -385,7 +385,7 @@
               scope.saveSelection();
               scope.$apply();
             },100)
-            
+
           }
         });
 
