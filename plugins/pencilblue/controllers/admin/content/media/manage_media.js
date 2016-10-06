@@ -59,7 +59,7 @@ module.exports = function(pb) {
                 self.setPageName(title);
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.registerLocal('content_type', 'topic');
-                self.ts.registerLocal('selection_id_field', 'name');
+                self.ts.registerLocal('selection_id_field', 'item');
                 self.ts.registerLocal('content_search_value', '');
 
                 self.ts.load('admin/content/media/manage_media', function(err, result) {
@@ -83,7 +83,8 @@ module.exports = function(pb) {
                     navigation: pb.AdminNavigation.get(self.session, ['content', 'media'], self.ls, self.site),
                     pills: pills,
                     media: pb.MediaServiceV2.formatMedia(mediaData),
-                    navItem: { type : 'topic'}
+                    navItem: { type : 'topic'},
+                    content_search: { selectField: 'name', orderField: 'name'}
                 });
             //TODO: err first arg for style. User experience error when no pills?
             cb(angularObjects);

@@ -17,25 +17,25 @@
 
 $(document).ready(function() {
   var input = $('#content_search');
-  var id_field = $('#selection_id_field').val();
   input.autocomplete({
     source: function(request, response) {
+      var angularObjects = angular.element('#content_type').scope();
       $.ajax({
-        url: '/api/content/' + angular.element('#content_type').scope().navItem.type + 's',
+        url: '/api/content/' + angularObjects.navItem.type + 's',
         dataType: 'json',
         data: {
           'q': $('#content_search').val(),
           '$offset': 0,
           '$limit': 8,
-          '$order': id_field + '=1',
-          '$select': id_field + '=1'
+          '$order': angularObjects.content_search.orderField + '=1',
+          '$select': angularObjects.content_search.selectField + '=1'
         },
         success: function(data) {
           data.data.unshift({_id:'\u00A0'});
           response($.map(data.data, function(item) {
             return {
               value: item._id,
-              label: item[id_field]
+              label: item[angularObjects.content_search.selectField]
             };
           }));
         }
