@@ -39,11 +39,16 @@ module.exports = function(pb) {
 
         var angularObjects = pb.ClientJs.getAngularObjects({
             navigation: pb.AdminNavigation.get(self.session, ['content', 'articles'], self.ls, self.site),
-            pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY)
+            pills: self.getAdminPills(SUB_NAV_KEY, self.ls, SUB_NAV_KEY),
+            navItem: { type : 'topic'},
+            content_search: { selectField: 'name', orderField: 'name'}
         });
 
         self.setPageName(self.ls.g('articles.MANAGE_ARTICLES'));
         self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
+        self.ts.registerLocal('content_type', 'topic');
+        self.ts.registerLocal('selection_id_field', 'item');
+        self.ts.registerLocal('content_search_value', '');
         self.ts.load('admin/content/articles/manage_articles', function (err, data) {
             var result = '' + data;
             cb({content: result});
