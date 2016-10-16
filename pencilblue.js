@@ -244,7 +244,9 @@ function PencilBlue(config){
 
 
         //TODO remove
-        pb.RequestHandler2.init();
+        pb.Middleware.getAll().forEach(function(middleware) {
+            pb.Router.addMiddlewareAfterAll(middleware);
+        });
     };
 
     /**
@@ -276,7 +278,7 @@ function PencilBlue(config){
         //route the request
         //var handler = new pb.RequestHandler(pb.server, req, res);
         //handler.handleRequest();
-        (new pb.RequestHandler2()).handle(req, res);
+        (new pb.Router()).handle(req, res);
     };
 
     /**

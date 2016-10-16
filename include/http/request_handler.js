@@ -1374,90 +1374,42 @@ module.exports = function RequestHandlerModule(pb) {
 
         //verify if setup is needed
         var checkSystemSetup = function(callback) {
-            var result = {success: true};
-            if (self.themeRoute.setup_required === undefined || self.themeRoute.setup_required === true) {
-                pb.settings.get('system_initialized', function(err, isSetup){
-
-                    //verify system init
-                    if (!isSetup) {
-                        result.success = false;
-                        result.redirect = '/setup';
-                        callback(result, result);
-                        return;
-                    }
-                    callback(null, result);
-                });
-            }
-            else {
-                callback(null, result);
-            }
+            var ctx = {
+                themeRoute: self.themeRoute
+            };
+            self.checkSystemSetup(ctx, function(err, result) {
+                callback(result.success ? null : result, result);
+            });
         };
 
         var checkRequiresAuth = function(callback) {
-
-            var result = {success: true};
-            if (self.themeRoute.auth_required === true) {
-
-                if (self.session.authentication.user_id === null || self.session.authentication.user_id === undefined) {
-                    result.success  = false;
-                    result.redirect = RequestHandler.isAdminURL(self.url.href) ? '/admin/login' : '/user/login';
-                    self.session.on_login = self.req.method.toLowerCase() === 'get' ? self.url.href :
-                        pb.UrlService.createSystemUrl('/admin', { hostname: self.hostname });
-                    callback(result, result);
-                    return;
-                }
-                callback(null, result);
-            }
-            else{
-                callback(null, result);
-            }
+            var ctx = {
+                themeRoute: self.themeRoute,
+                session: self.session,
+                req: self.req,
+                hostname: self.hostname,
+                url: self.url
+            };
+            var result = RequestHandler.checkRequiresAuth(ctx);
+            callback(result.success ? null : result, result);
         };
 
         var checkAdminLevel = function(callback) {
-
-            var result = {success: true};
-            if (self.themeRoute.access_level !== undefined) {
-
-                if (self.session.authentication.admin_level < self.themeRoute.access_level) {
-                    result.success = false;
-                    result.content = '403 Forbidden';
-                    result.code    = 403;
-                    callback(result, result);
-                    return;
-                }
-                callback(null, result);
-            }
-            else{
-                callback(null, result);
-            }
+            var ctx = {
+                themeRoute: self.themeRoute,
+                session: self.session
+            };
+            var result = RequestHandler.checkAdminLevel(ctx);
+            callback(result.success ? null : result, result);
         };
 
         var checkPermissions = function(callback) {
-
-            var result   = {success: true};
-            var reqPerms = self.themeRoute.permissions;
-            var auth     = self.session.authentication;
-            if (auth && auth.user &&
-                auth.access_level !== pb.SecurityService.ACCESS_ADMINISTRATOR &&
-                auth.user.permissisions &&
-                util.isArray(reqPerms)) {
-
-                var permMap = self.session.authentication.user.permissions;
-                for(var i = 0; i < reqPerms.length; i++) {
-
-                    if (!permMap[reqPerms[i]]) {
-                        result.success = false;
-                        result.content = '403 Forbidden';
-                        result.code    = 403;
-                        callback(result, result);
-                        return;
-                    }
-                }
-                callback(null, result);
-            }
-            else{
-                callback(null, result);
-            }
+            var ctx = {
+                themeRoute: self.themeRoute,
+                session: self.session
+            };
+            var result = RequestHandler.checkPermissions(ctx);
+            callback(result.success ? null : result, result);
         };
 
         var tasks = {
@@ -1473,6 +1425,22 @@ module.exports = function RequestHandlerModule(pb) {
             }
 
             cb(null, {success: true, results: results});
+        });
+    };
+
+    RequestHandler.prototype.checkSystemSetup = function(context, cb) {
+        var result = {success: true};
+        if (context.themeRoute.setup_required !== undefined && !context.themeRoute.setup_required) {
+            return cb(null, result);
+        }
+        pb.settings.get('system_initialized', function(err, isSetup){
+
+            //verify system init
+            if (!isSetup) {
+                result.success = false;
+                result.redirect = '/setup';
+            }
+            cb(err, result);
         });
     };
 
@@ -1627,6 +1595,65 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.getBodyParsers = function() {
         return util.merge(BODY_PARSER_MAP, {});
+    };
+
+    RequestHandler.forbidden = function() {
+        var err = new Error('Forbidden');
+        err.code = 403;
+        return err;
+    };
+
+    RequestHandler.checkPermissions = function(context) {
+
+        var result   = {success: true};
+        var reqPerms = context.themeRoute.permissions;
+        var auth     = context.session.authentication;
+        if (auth && auth.user &&
+            auth.access_level !== pb.SecurityService.ACCESS_ADMINISTRATOR &&
+            auth.user.permissisions &&
+            util.isArray(reqPerms)) {
+
+            var permMap = context.session.authentication.user.permissions;
+            for(var i = 0; i < reqPerms.length; i++) {
+
+                if (!permMap[reqPerms[i]]) {
+                    result.success = false;
+                    result.content = '403 Forbidden';
+                    result.code    = 403;
+                    break;
+                }
+            }
+        }
+        return result;
+    };
+
+    RequestHandler.checkAdminLevel = function(context) {
+
+        var result = {success: true};
+        if (context.themeRoute.access_level !== undefined) {
+
+            if (context.session.authentication.admin_level < context.themeRoute.access_level) {
+                result.success = false;
+                result.content = '403 Forbidden';
+                result.code    = 403;
+            }
+        }
+        return result;
+    };
+
+    RequestHandler.checkRequiresAuth = function(context) {
+
+        var result = {success: true};
+        if (context.themeRoute.auth_required === true) {
+
+            if (context.session.authentication.user_id === null || context.session.authentication.user_id === undefined) {
+                result.success  = false;
+                result.redirect = RequestHandler.isAdminURL(context.url.href) ? '/admin/login' : '/user/login';
+                context.session.on_login = context.req.method.toLowerCase() === 'get' ? context.url.href :
+                    pb.UrlService.createSystemUrl('/admin', { hostname: context.hostname });
+            }
+        }
+        return result;
     };
 
     return RequestHandler;
