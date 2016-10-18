@@ -31,7 +31,7 @@ module.exports = function(pb) {
      * Provides functions to interact with pages
      *
      * @class PageService
-     * @extends BaseObjectService
+     * @extends ContentObjectService
      * @constructor
      * @param {object} context
      * @param {object} [context.contentSettings]
@@ -65,7 +65,7 @@ module.exports = function(pb) {
      * @param {Boolean} isMultiple
      * @return {Object}
      */
-    PageService.prototype.getRenderOptions = function(options, isMultiple) {
+    PageService.prototype.getRenderOptions = function(options/*, isMultiple*/) {
         if (!util.isObject(options)) {
             options = {};
         }
@@ -230,10 +230,6 @@ module.exports = function(pb) {
             errors.push(BaseObjectService.validationFailure('url', 'An invalid URL slug was provided'));
         }
 
-        if (!ValidationService.isNonEmptyStr(obj.headline, true)) {
-            errors.push(BaseObjectService.validationFailure('headline', 'The headline is required'));
-        }
-
         if (!ValidationService.isNonEmptyStr(obj.subheading, false)) {
             errors.push(BaseObjectService.validationFailure('subheading', 'An invalid subheading was provided'));
         }
@@ -266,7 +262,7 @@ module.exports = function(pb) {
             errors.push(BaseObjectService.validationFailure('page_layout', 'The layout is required'));
         }
 
-        cb(null);
+        context.service.validateHeadline(context, cb);
     };
 
     /**

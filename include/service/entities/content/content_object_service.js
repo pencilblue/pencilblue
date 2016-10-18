@@ -41,6 +41,7 @@ module.exports = function(pb) {
      * @param {object} [context.contentSettings]
      * @param {string} context.site
      * @param {boolean} context.onlyThisSite
+     * @param {string} context.type
      */
     function ContentObjectService(context){
         if (!util.isObject(context)) {
@@ -486,6 +487,33 @@ module.exports = function(pb) {
      */
     ContentObjectService.prototype.getTopicsForContent = function(/*content*/) {
         throw new Error('getTopicsForContent must be overriden by the extending prototype');
+    };
+
+    /**
+     * Validates that a headline is provided and is unique
+     * @param {object} context
+     * @param {object} context.data
+     * @param {Array} context.validationErrors
+     * @param {function} cb (Error)
+     * @returns {*}
+     */
+    ContentObjectService.prototype.validateHeadline = function(context, cb) {
+        var obj = context.data;
+        var errors = context.validationErrors;
+
+        //quick check on format
+        if (!ValidationService.isNonEmptyStr(obj.headline, true)) {
+            errors.push(BaseObjectService.validationFailure('headline', 'The headline is required'));
+            return cb();
+        }
+
+        //now ensure it is unique
+        this.dao.unique(this.type, {headline: obj.headline}, obj[DAO.getIdField()], function(err, unique) {
+            if (!unique) {
+                errors.push(BaseObjectService.validationFailure('headline', 'The headline must be unique'));
+            }
+            cb(err);
+        });
     };
 
     /**
