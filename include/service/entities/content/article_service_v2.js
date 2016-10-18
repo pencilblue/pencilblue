@@ -29,11 +29,13 @@ module.exports = function (pb) {
 
     /**
      * Provides functions to interact with articles
-     *
      * @class ArticleServiceV2
      * @constructor
-     * @extends BaseObjectService
+     * @extends ContentObjectService
      * @param {Object} context
+     * @param {object} [context.contentSettings]
+     * @param {string} context.site
+     * @param {boolean} context.onlyThisSite
      */
     function ArticleServiceV2(context) {
         if (!util.isObject(context)) {
@@ -105,7 +107,7 @@ module.exports = function (pb) {
         //add where clause to search based on section
         var section = sectionId;
         if (util.isObject(section)) {
-            section = section[pb.DAO.getIdField()] + '';
+            section = section[DAO.getIdField()] + '';
         }
         options.where.article_sections = section;
 
@@ -191,9 +193,10 @@ module.exports = function (pb) {
      * @method validate
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
+     * @param {Array} context.validationErrors
      * @param {ArticleServiceV2} context.service An instance of the service that triggered
      * the event that called this handler
-     * @param {Function} cb A callback that takes a single parameter: an error if occurred
+     * @param {Function} cb (Error) A callback that takes a single parameter: an error if occurred
      */
     ArticleServiceV2.validate = function (context, cb) {
         var obj = context.data;
@@ -280,10 +283,6 @@ module.exports = function (pb) {
             }
         }
 
-        if (!ValidationService.isNonEmptyStr(obj.headline, true)) {
-            errors.push(BaseObjectService.validationFailure('headline', 'The headline is required'));
-        }
-
         if (!ValidationService.isNonEmptyStr(obj.subheading, false)) {
             errors.push(BaseObjectService.validationFailure('subheading', 'An invalid subheading was provided'));
         }
@@ -316,7 +315,7 @@ module.exports = function (pb) {
             errors.push(BaseObjectService.validationFailure('article_layout', 'The layout is required'));
         }
 
-        cb(null);
+        context.service.validateHeadline(context, cb);
     };
 
     /**
