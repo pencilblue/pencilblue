@@ -143,7 +143,7 @@ module.exports = function(pb) {
                 }
                 var opts = {
                     select: pb.DAO.PROJECT_ALL,
-                    where: pb.DAO.getIdInWhere(media.media_topics),
+                    where: pb.DAO.ANYWHERE,
                     order: {name: pb.DAO.ASC}
                 };
                 self.siteQueryService.q('topic', opts, callback);

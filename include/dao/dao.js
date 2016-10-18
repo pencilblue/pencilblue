@@ -435,12 +435,6 @@ module.exports = function DAOModule(pb) {
     DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
         if (util.isFunction(options)) {
             cb      = options;
-            options = {
-                useLegacyOps: true
-            };
-        }
-        else if (!util.isObject(options)) {
-            return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
         }
         if (!util.isArray(objArray)) {
             return cb(new Error('The objArray parameter must be an Array'));
@@ -457,7 +451,7 @@ module.exports = function DAOModule(pb) {
 
             //initialize the batch operation
             var col = db.collection(collection);
-            var batch = col.initializeUnorderedBulkOp(options);
+            var batch = col.initializeUnorderedBulkOp();
 
             //build the batch
             objArray.forEach(function(item) {
@@ -465,7 +459,8 @@ module.exports = function DAOModule(pb) {
                 item.object_type = collection;
                 DAO.updateChangeHistory(item);
                 if (item._id) {
-                    batch.update(item);
+                    batch.find(DAO.getIdWhere(item._id)).updateOne({ $set: item });
+                    delete item._id;;
                 }
                 else {
                     batch.insert(item);
