@@ -4,6 +4,7 @@
 var url = require('url');
 var Cookies = require('cookies');
 var HttpStatus = require('http-status-codes');
+var ErrorUtils = require('../../error/error_utils');
 
 module.exports = function(pb) {
 
@@ -15,9 +16,11 @@ module.exports = function(pb) {
 
     var DEFAULT_MIDDLEWARE = [
         'startTime', 'urlParse', 'checkPublicRoute', 'principal', 'deriveSite', 'deriveRoute', 'deriveActiveTheme',
-        'deriveRouteTheme', 'emitRouteThemeRetrieved', 'inactiveAccessCheck', 'systemSetupCheck', 'requiresAuthenticationCheck', 'authorizationCheck',
-        'derivePathVariables', 'localizedRouteCheck', 'instantiateController', 'parseRequestBody',
-        'initializeController', 'render', 'writeSessionCookie', 'writeResponse', 'responseTime', 'principalClose'];
+        'deriveRouteTheme', 'emitRouteThemeRetrieved', 'inactiveAccessCheck', 'systemSetupCheck',
+        'requiresAuthenticationCheck', 'authorizationCheck', 'derivePathVariables', 'localizedRouteCheck',
+        'instantiateController', 'parseRequestBody', 'initializeController', 'render', 'writeSessionCookie',
+        'writeResponse', 'responseTime', 'principalClose'
+    ];
 
 
     Middleware.startTime = function (req, res, next) {
@@ -35,7 +38,7 @@ module.exports = function(pb) {
     Middleware.checkPublicRoute = function (req, res, next) {
         if (RequestHandler.isPublicRoute(req.handler.url.pathname)) {
             return req.handler.servePublicContent();
-        }
+        }//TODO ensure this still follows through with setting cookie and timings
 
         //only continue when content is not public
         next();
@@ -65,8 +68,7 @@ module.exports = function(pb) {
             }
 
             //continue processing
-            req.handler.session = session;
-            req.session = session;
+            req.handler.session = req.session = session;
             next();
         });
     };
@@ -78,7 +80,7 @@ module.exports = function(pb) {
 
         // If we need to redirect to a different host
         if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
-            return req.handler.doRedirect(pb.SiteService.getHostWithProtocol(redirectHost), HttpStatus.MOVED_PERMANENTLY);
+            return req.router.redirect(pb.SiteService.getHostWithProtocol(redirectHost), HttpStatus.MOVED_PERMANENTLY);
         }
         req.handler.siteObj = req.siteObj = siteObj;
 
@@ -101,7 +103,7 @@ module.exports = function(pb) {
 
         var route = req.handler.getRoute(req.handler.url.pathname);
         if (route === null) {
-            return req.handler.serve404();
+            return next(ErrorUtils.notFound());
         }
         req.handler.route = req.route = route;
 
@@ -127,7 +129,7 @@ module.exports = function(pb) {
         //routeTheme describes the site/theme/method combo
         var rt = req.handler.routeTheme = req.routeTheme = req.handler.getRouteTheme(req.activeTheme, req.route);
         if (rt.theme === null || rt.method === null || rt.site === null) {
-            return next(pb.BaseObjectService.notFound());
+            return next(ErrorUtils.notFound());
         }
 
         //while themeRoute describes the specific route definition based on the theme
@@ -148,10 +150,10 @@ module.exports = function(pb) {
         var inactiveSiteAccess = req.themeRoute.inactive_site_access;
         if (!req.siteObj.active && !inactiveSiteAccess) {
             if (req.siteObj.uid === pb.SiteService.GLOBAL_SITE) {
-                return req.handler.doRedirect('/admin');
+                return req.router.redirect('/admin');
             }
             else {
-                return next(pb.BaseObjectService.notFound());
+                return next(ErrorUtils.notFound());
             }
         }
 
@@ -170,7 +172,7 @@ module.exports = function(pb) {
 
             //setup has not been completed so redirect that way
             if (!result.success) {
-                return req.handler.doRedirect(result.redirect);
+                return req.router.redirect(result.redirect);
             }
             next();
         });
@@ -185,10 +187,7 @@ module.exports = function(pb) {
             url: req.handler.url
         };
         var result = RequestHandler.checkRequiresAuth(ctx);
-        if (result.redirect) {
-            return req.handler.doRedirect(result.redirect);
-        }
-        next();
+        next(result.redirect ? ErrorUtils.notAuthorized() : null);
     };
 
     Middleware.authorizationCheck = function(req, res, next) {
@@ -200,12 +199,12 @@ module.exports = function(pb) {
         //check role
         var result = RequestHandler.checkAdminLevel(ctx);
         if (!result.success) {
-            return next(RequestHandler.forbidden());
+            return next(ErrorUtils.forbidden());
         }
 
         //check permissions
         result = RequestHandler.checkPermissions(ctx);
-        next(result.success ? null : RequestHandler.forbidden());
+        next(result.success ? null : ErrorUtils.forbidden());
     };
 
     Middleware.derivePathVariables = function (req, res, next) {
@@ -217,9 +216,7 @@ module.exports = function(pb) {
         var pathVars = req.pathVars;
         if (typeof pathVars.locale !== 'undefined') {
             if (!this.siteObj.supportedLocales[pathVars.locale]) {
-
-                //TODO make this check more general
-                return req.handler.serve404();
+                return next(ErrorUtils.notFound());
             }
 
             //update the localization
@@ -251,22 +248,7 @@ module.exports = function(pb) {
     };
 
     Middleware.initializeController = function (req, res, next) {
-        var props = {
-            request_handler: req.handler,
-            request: req,
-            response: res,
-            session: req.session,
-            localization_service: req.localizationService,
-            path_vars: req.pathVars,
-            pathVars: req.pathVars,
-            query: req.handler.url.query,
-            body: req.body,
-            site: req.site,
-            siteObj: req.siteObj,
-            siteName: req.siteName,
-            activeTheme: req.activeTheme,
-            routeLocalized: !!req.routeTheme.localization
-        };
+        var props = RequestHandler.buildControllerContext(req, res);
         req.controllerInstance.init(props, next);
     };
 
@@ -298,7 +280,7 @@ module.exports = function(pb) {
         var doRedirect = typeof data.redirect !== 'undefined';
         if (doRedirect) {
             req.didRedirect = true;
-            req.handler.doRedirect(data.redirect, data.statusCode);
+            req.handler.doRedirect(data.redirect, data.code);
         }
         else {
             req.handler.writeResponse(data);

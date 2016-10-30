@@ -278,7 +278,7 @@ function PencilBlue(config){
         //route the request
         //var handler = new pb.RequestHandler(pb.server, req, res);
         //handler.handleRequest();
-        (new pb.Router()).handle(req, res);
+        (new pb.Router(req, res)).handle(req, res);
     };
 
     /**

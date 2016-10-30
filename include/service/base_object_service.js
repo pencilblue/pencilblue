@@ -17,7 +17,8 @@
 'use strict';
 
 //dependencies
-var util              = require('../util.js');
+var util              = require('../util');
+var ErrorUtils        = require('../error/error_utils');
 var async             = require('async');
 var AsyncEventEmitter = require('async-eventemitter');
 var Sanitizer         = require('sanitize-html');
@@ -767,37 +768,19 @@ module.exports = function(pb) {
      * @return {Error}
      */
     BaseObjectService.validationError = function(validationFailures) {
-        var error = new Error('Validation Failure');
-        error.code = 400;
-        error.validationErrors = validationFailures;
-        return error;
-    };
-
-    /**
-     * Creates a new Error representative of an action that was performed that
-     * the current principal did not have authroization to perform.
-     * @static
-     * @method forbiddenError
-     * @param {String} [message]
-     * @return {Error}
-     */
-    BaseObjectService.forbiddenError = function(message) {
-        var error = new Error(message || 'Forbidden');
-        error.code = 403;
-        return error;
+        return ErrorUtils.badRequest({message: 'Validation Failure', validationErrors: validationFailures});
     };
 
     /**
      * Creates a new Error representative of the inability to locate the requested resource
+     * @deprecated Will be removed in 1.0
      * @static
      * @method notFound
      * @param {String} [message]
      * @return {Error}
      */
     BaseObjectService.notFound = function(message) {
-        var error = new Error(message || 'Not Found');
-        error.code = 404;
-        return error;
+        return ErrorUtils.notFound(message);
     };
 
     /**

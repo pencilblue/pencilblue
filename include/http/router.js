@@ -10,49 +10,82 @@ module.exports = function (pb) {
     var RequestHandler = pb.RequestHandler;
 
     class Router {
-        constructor() {}
+        constructor(req, res) {
 
-        handle(req, res) {
+            this.index = 0;
+
+            this.req = req;
+
+            this.res = res;
+        }
+
+        handle() {
 
             //set reference to the handler
-            req.handler = new RequestHandler(null, req, res);
+            this.req.handler = new RequestHandler(null, this.req, this.res);
+            this.req.router = this;
 
+            this._handle(this.req, this.res);
+        }
+
+        _handle (req, res) {
             // initialize completion function
+            var self = this;
             var done = function (err) {
                 if (util.isError(err)) {
-                    req.handler.serveError(err);
+                    req.handler.serveError(err, { handler: function(data) {
+                        req.controllerResult = data;
+                        self.continueAfter('render');
+                    }});
                 }
             };
 
             //create execution loop
-            var cnt = 0;
-            var execute = function (index) {
-                if (index >= Router.middleware.length) {
+            var execute = function () {
+                if (self.index >= Router.middleware.length) {
                     return done();
                 }
-
+console.log(Router.middleware[self.index].name);
                 //execute the next task
                 var sync = true;
-                var action = Router.middleware[index].action;
+                var action = Router.middleware[self.index].action;
                 action(req, res, function (err) {
                     if (err) {
                         return done(err);
                     }
 
                     // delay by a tick when reaching here synchronously otherwise just proceed
-                    cnt++;
+                    self.index++;
                     if (sync) {
                         process.nextTick(function() {
-                            execute(cnt);
+                            execute();
                         });
                     }
                     else {
-                        execute(cnt);
+                        execute();
                     }
                 });
                 sync = false;
             };
-            execute(0);
+            execute();
+        }
+
+        continueAfter (middlewareName) {
+            var index = Router.indexOfMiddleware(middlewareName);
+            this.continueAt(index + 1);
+        }
+
+        continueAt (index) {
+            this.index = index;
+            this._handle(this.req, this.res);
+        }
+
+        redirect (location, httpStatusCode) {
+            this.req.controllerResult = {
+                location: location,
+                code: httpStatusCode
+            };
+            this.continueAfter('render');
         }
 
         static removeMiddleware(name) {

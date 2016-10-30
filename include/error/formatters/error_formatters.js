@@ -129,9 +129,14 @@ module.exports = function(pb) {
         var ErrorController  = null;
         var paths = [
             path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'),
-            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error/index.js'),
-            path.join(pb.config.docRoot, 'controllers/error_controller.js')
+            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error/index.js')
         ];
+        if (params.activeTheme !== pb.config.plugins.default) {
+            paths.push(path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'));
+        }
+        paths.push(path.join(pb.config.docRoot, 'controllers/error_controller.js'));
+
+        //iterate over paths until you find a good one
         for (var i = 0; i < paths.length; i++) {
             if (failedControllerPaths[paths[i]]) {
                 //we've seen it and it didn't exist or had a syntax error.  Moving on!
@@ -146,20 +151,11 @@ module.exports = function(pb) {
             catch(e){
 
                 //we failed so make sure don't do that again...
-                failedControllerPaths[paths[i]];
+                failedControllerPaths[paths[i]] = true;
             }
-        };
-        var cInstance = new ErrorController();
-        var context = {
-            pathVars: {},
-            cInstance: cInstance,
-            themeRoute: {},
-            activeTheme: params.activeTheme,
-            initParams: {
-                error: params.error
-            }
-        };
-        params.reqHandler.doRender(context);
+        }
+        params.request.controllerInstance = new ErrorController();
+        params.request.router.continueAfter('parseRequestBody');
     };
 
     /**
@@ -176,7 +172,7 @@ module.exports = function(pb) {
     ErrorFormatters.xml = function(params, cb) {
 
         var xmlObj = function(key, obj) {
-            var xml = '<'+HtmlEncoder.htmlEncode(key)+'>'
+            var xml = '<'+HtmlEncoder.htmlEncode(key)+'>';
             util.forEach(obj, function(val, key) {
 
                 if (util.isArray(val)) {

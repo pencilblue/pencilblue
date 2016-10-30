@@ -15,7 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//dependecies
+//dependencies
 var util  = require('util');
 var async = require('async');
 var http  = require('http');
