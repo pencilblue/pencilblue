@@ -155,7 +155,7 @@ module.exports = function(pb) {
         //preference and we can fall back on the default (index).  We depend on the
         //template service to determine who has priority based on the active theme
         //then defaulting back to pencilblue.
-        if (!pb.validation.validateNonEmptyStr(uidAndTemplate, true)) {
+        if (!pb.validation.isNonEmptyStr(uidAndTemplate, true)) {
             var defautTemplatePath = this.getDefaultTemplatePath();
             pb.log.silly("ContentController: No template specified, defaulting to %s.", defautTemplatePath);
             return cb(null, defautTemplatePath);

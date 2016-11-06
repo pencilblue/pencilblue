@@ -79,7 +79,7 @@ module.exports = function(pb) {
                 content: {
                     data: obj
                 },
-                code: 201
+                code: 200
             });
         });
     };

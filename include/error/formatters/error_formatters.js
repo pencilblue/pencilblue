@@ -155,6 +155,8 @@ module.exports = function(pb) {
             }
         }
         params.request.controllerInstance = new ErrorController();
+        params.request.themeRoute = params.request.themeRoute || {};
+        params.request.themeRoute.handler = 'render';
         params.request.router.continueAfter('parseRequestBody');
     };
 

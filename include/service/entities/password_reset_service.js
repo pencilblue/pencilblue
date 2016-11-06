@@ -17,8 +17,9 @@
 'use strict';
 
 //dependencies
-var util = require('../../util.js');
 var async = require('async');
+var ErrorUtils = require('../../error/error_utils');
+var util = require('../../util.js');
 
 module.exports = function(pb) {
 
@@ -92,7 +93,7 @@ module.exports = function(pb) {
                 return cb(err);
             }
             if (util.isNullOrUndefined(userObj)) {
-                return cb(BaseObjectService.notFound());
+                return cb(ErrorUtils.notFound());
             }
 
             //attempt to retrieve any existing reset
