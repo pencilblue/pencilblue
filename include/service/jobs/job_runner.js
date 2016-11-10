@@ -237,7 +237,7 @@ module.exports = function JobRunnerModule(pb) {
 
         var query   = pb.DAO.getIdWhere(this.getId());
         var updates = {};
-        if (pb.validation.isFloat(progressIncrement, true, true)) {
+        if (pb.validation.isNum(progressIncrement, true) && progressIncrement > 0) {
             updates.$inc = {progress: progressIncrement};
         }
         if (pb.validation.isNonEmptyStr(status, true)) {
