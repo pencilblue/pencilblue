@@ -17,6 +17,7 @@
 'use strict';
 
 //dependencies
+var _        = require('lodash');
 var semver   = require('semver');
 var ObjectID = require('mongodb').ObjectID;
 var util     = require('../util.js');
@@ -57,7 +58,7 @@ module.exports = function ValidationModule(pb) {
      * @property
      * @type {RegExp}
      */
-    var EMAIL_REGEX          = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    var EMAIL_REGEX          = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
 
     /**
      * A pattern to validate a fully qualified URL
@@ -370,7 +371,7 @@ module.exports = function ValidationModule(pb) {
         }
 
         var parsed = parseFloat(val);
-        if (strict && val !== parsed) {
+        if ((Math.floor(parsed) === val) || (strict && val !== parsed)) {
             return false;
         }
         return val == parsed;
@@ -405,15 +406,15 @@ module.exports = function ValidationModule(pb) {
     };
 
     /**
-     * Validates that the value is null, defined, an empty object, or an empty
-     * string.
+     * Validates that the value is null, defined, an empty object, and empty
+     * array or an empty string.
      * @static
      * @method isEmpty
      * @param {*} val The value under test
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     ValidationService.isEmpty = function(val) {
-        return val === null || val === undefined || val === '' || val === {};
+        return val === null || val === undefined || val === '' || _.isEqual(val, {}) || _.isEqual(val, []);
     };
 
     /**
