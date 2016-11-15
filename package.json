@@ -30,6 +30,7 @@
     "cookies": "0.6.1",
     "fakeredis": "1.0.3",
     "formidable": "1.0.17",
+    "fs-extra": "1.0.0",
     "htmlencode": "0.0.4",
     "http-status-codes": "^1.0.6",
     "locale": "0.0.21",

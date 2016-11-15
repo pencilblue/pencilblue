@@ -17,7 +17,7 @@
 'use strict';
 
 //dependencies
-var fs      = require('fs');
+var fs      = require('fs-extra');
 var npm     = require('npm');
 var path    = require('path');
 var async   = require('async');
@@ -414,6 +414,30 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.resetThemeSettings = function(details, cb) {
         var settingService = getPluginSettingService(this);
         settingService.resetThemeSettings(details, cb);
+    };
+    
+    /**
+     * Deletes the plugin
+     * @method purgePlugin
+     * @param {String} pluginUid - the plugin unique id
+     * @param {Function} cb - callback function
+     */
+    PluginService.prototype.purgePlugin = function(pluginUid, cb) {
+        this.getPluginMap(function(err, pluginMap) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            var plugin = _.find(pluginMap.available, {uid: pluginUid});
+            if (!plugin) {
+                return cb(new Error('Unable to find the plugin: ' + pluginUid));
+            }
+            fs.remove(path.join(PLUGINS_DIR, plugin.dirName), function (err) {
+                if (util.isError(err)) {
+                    return cb(err);
+                }
+                return cb(null);
+            });
+        });
     };
 
     /**

@@ -101,7 +101,8 @@
                         </ul>
                     </td>
                     <td>
-                        <a class="btn btn-sm btn-default pull-right" ng-if="!available.validationErrors" ng-click="pluginAction('install', available)"><i class="fa fa-hdd-o"></i>&nbsp;^loc_generic.INSTALL^</a>
+                        <a href="#" class="btn btn-sm btn-default pull-right" ng-click="confirmDelete($index)"><i class="fa fa-trash"></i></a>
+                        <a href="#" class="btn btn-sm btn-default pull-right" ng-if="!available.validationErrors" ng-click="pluginAction('install', available)"><i class="fa fa-hdd-o"></i>&nbsp;^loc_generic.INSTALL^</a>
                     </td>
                 </tr>
             </table>
@@ -145,5 +146,6 @@
 
     ^tmp_admin=elements=progress_console_modal^
 </div>
+^tmp_admin=elements=delete_modal^
 ^tmp_angular=admin=plugins=manage_plugins^
 ^tmp_admin=footer^

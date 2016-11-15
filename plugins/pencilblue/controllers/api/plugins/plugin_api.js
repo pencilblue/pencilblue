@@ -35,14 +35,7 @@ module.exports = function(pb) {
      * @constructor
      * @extends BaseController
      */
-    function PluginApiController(){
-
-        /**
-         *
-         * @property pluginService
-         * @type {PluginService}
-         */
-    }
+    function PluginApiController(){}
     util.inherits(PluginApiController, pb.BaseAdminController);
 
     //constants
@@ -56,6 +49,7 @@ module.exports = function(pb) {
      * @type {Object}
      */
     var VALID_ACTIONS = {
+        delete: true,
         install: true,
         uninstall: true,
         reset_settings: true,
@@ -246,6 +240,22 @@ module.exports = function(pb) {
                     code: util.isError(err) ? 500 : 200
                 });
             });
+        });
+    };
+    
+    /**
+     * Deletes a plugin
+     * @method delete
+     * @param {String} uid The unique id of the plugin to be deleted
+     * @param {Function} cb
+     */
+    PluginApiController.prototype.delete = function(uid, cb) {
+        var self = this;
+        this.pluginService.purgePlugin(uid, function(err) {
+            if (util.isError(err)) {
+                return cb({content: BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.g('generic.ERROR_DELETING'), uid), [err.message]), code: 500});
+            }
+            return cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, self.ls.g('generic.SUCCESS')), code: 200});
         });
     };
 
