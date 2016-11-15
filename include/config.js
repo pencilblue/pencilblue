@@ -261,6 +261,10 @@ Configuration.getBaseConfig = function(multisite) {
                 memory_timeout: 0
             },
 
+            //The maximum size of plugin archives that can be uploaded to the server in
+            //bytes
+            max_archive_size: 256 * 1024 * 1024,
+
             //The default plugin.  Allows for the default plugin to be
             //referenced from a single location.  The property can be overriden
             //but may have unexpected behavior.

@@ -882,6 +882,15 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
+            path: "/admin/plugins/add",
+            auth_required: true,
+            inactive_site_access: true,
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'plugins', 'add_plugin.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
             path: "/admin/plugins/:id",
             auth_required: true,
             inactive_site_access: true,

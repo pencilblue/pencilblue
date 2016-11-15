@@ -38,12 +38,14 @@
     "mongodb": "2.1.21",
     "node-uuid": "1.4.7",
     "node.extend": "1.1.6",
+    "nodegit": "0.16.0",
     "nodemailer": "0.7.1",
     "npm": "3.8.5",
     "redis": "2.5.3",
     "sanitize-html": "1.13.0",
     "semver": "5.3.0",
-    "winston": "2.2.0"
+    "winston": "2.2.0",
+    "yauzl": "2.7.0"
   },
   "devDependencies": {
     "coveralls": "2.11.12",

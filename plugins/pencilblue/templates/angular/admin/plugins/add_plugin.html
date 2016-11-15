@@ -1,0 +1,60 @@
+<script type="text/javascript" src="^angular_upload_src^"></script>
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['angularFileUpload', 'validation'])
+        .controller('PencilBlueController', function ($scope, $sce, $http, $window, $timeout, validationService, $upload) {
+            ^angular_objects^
+            ^tmp_angular=admin=elements=is_field_valid^
+            ^tmp_angular=admin=elements=error_success^
+
+            $scope.plugin = {};
+
+            $scope.setRepoPrivateState = function (state) {
+                $scope.plugin.private = state;
+            };
+            
+            $scope.clonePlugin = function () {
+                $scope.cloning = true;
+                $http.post('/api/plugins/clone', $scope.plugin)
+                .then(function (response) {
+                    $scope.successMessage = response.data.message;
+                    $scope.cloning = false;
+                    $scope.goToPluginManagementPage();
+                }, function (response) {
+                    $scope.errorMessage = response.data.message;
+                    $scope.cloning = false;
+                })   
+            };
+
+            $scope.onFileSelect = function ($files) {
+                var file = $files[0];
+                if (file.name.indexOf('.zip') === -1) {
+                    $scope.errorMessage = 'Invalid file type';
+                    $scope.uploading = false;
+                    return;
+                }
+                $scope.uploading = true;
+                $scope.uploadPercent = 0;
+                $upload.upload({
+                    url: '/api/plugins/upload',
+                    file: file
+                })
+                .progress(function (evt) {
+                    $scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
+                })
+                .success(function (data, status, headers, config) {
+                    $scope.successMessage = 'Uploaded ' + file.name;
+                    $scope.uploading = false;
+                    $scope.goToPluginManagementPage();
+                })
+                .error(function (data, status, headers, config) {
+                    $scope.errorMessage = data.message;
+                    $scope.uploading = false;
+                });
+            };
+            
+            $scope.goToPluginManagementPage = function () {
+                $window.location = '/admin/plugins';
+            };
+        });
+</script>

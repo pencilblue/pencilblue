@@ -17,12 +17,15 @@
 'use strict';
 
 //dependencies
+var _       = require('lodash');
 var fs      = require('fs-extra');
+var NodeGit = require('nodegit');
 var npm     = require('npm');
 var path    = require('path');
 var async   = require('async');
 var domain  = require('domain');
 var semver  = require('semver');
+var yauzl   = require('yauzl');
 var util    = require('../../util.js');
 
 module.exports = function PluginServiceModule(pb) {
@@ -1119,6 +1122,39 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
+     * Clones a git repository containing a plugin into the plugin directory
+     * @param {Object} repo Contains the repository details
+     * @param {type} cb A callback that provides one parameter: cb(Err)
+     */
+    PluginService.prototype.cloneFromRepository = function(repo, cb) {
+        var folder = repo.url.substring(repo.url.lastIndexOf('/') + 1, repo.url.length - 4);
+        var cloneOptions = {};
+
+        cloneOptions.fetchOpts = {
+            callbacks: {
+                certificateCheck: function () {
+                    return 1;
+                }
+            }
+        };
+
+        if (repo.private) {
+            cloneOptions.fetchOpts.callbacks.credentials = function() {
+                return NodeGit.Cred.userpassPlaintextNew(repo.username, repo.password);
+            };
+        };
+
+        NodeGit.Clone(repo.url, path.join(PLUGINS_DIR, folder), cloneOptions)
+            .then(function(repository) {
+                repository.free();
+                return cb(null);
+            })
+            .catch(function(err) {
+                return cb(err);
+            });
+    };
+
+    /**
      * Verifies that a plugin has all of the required dependencies installed from NPM
      * @method hasDependencies
      * @param {Object} plugin
@@ -1197,6 +1233,52 @@ module.exports = function PluginServiceModule(pb) {
             //for backward compatibility until the function is removed
             return null;
         }
+    };
+    
+    /**
+     * Unzips a plugin archive to the plugin directory
+     * @method unzipPlugin
+     * @param {Object} archive Plugin ZIP file
+     * @param {Function} cb A callback that provides one parameter: cb(Error).
+     */
+    PluginService.prototype.unzipPlugin = function(archive, cb) {
+        yauzl.open(archive.path, {lazyEntries: true}, function(err, zipfile) {
+            if (err) {
+                cb(err);
+            }
+            zipfile.readEntry();
+            zipfile.on("entry", function (entry) {
+                if (/\/$/.test(entry.fileName)) {
+                    // directory
+                    fs.mkdirs(path.join(PLUGINS_DIR, entry.fileName), function (err) {
+                        if (err) {
+                            cb(err);
+                        }
+                        zipfile.readEntry();
+                    });
+                } else {
+                    // file
+                    zipfile.openReadStream(entry, function (err, readStream) {
+                        if (err) {
+                            cb(err);
+                        }
+                        // ensure parent directory exists
+                        fs.mkdirs(path.dirname(path.join(PLUGINS_DIR, entry.fileName)), function (err) {
+                            if (err) {
+                                cb(err);
+                            }
+                            readStream.pipe(fs.createWriteStream(path.join(PLUGINS_DIR, entry.fileName)));
+                            readStream.on("end", function () {
+                                zipfile.readEntry();
+                            });
+                        });
+                    });
+                }
+            });
+            zipfile.on("close", function () {
+                cb(null);
+            });
+        });
     };
 
     /**
