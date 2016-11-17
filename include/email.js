@@ -87,8 +87,8 @@ module.exports = function EmailServiceModule(pb) {
     /**
     * Uses an HTML layout and sends it as an email
     *
-    * @method sendFromTemplate
-    * @param {Object}   options Object containing the email settings and template name
+    * @method sendFromLayout
+    * @param {Object}   options Object containing the email settings and layout
     * @param {Function} cb      Callback function
     */
     EmailService.prototype.sendFromLayout = function(options, cb){
