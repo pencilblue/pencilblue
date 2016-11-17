@@ -145,7 +145,12 @@ module.exports = function (pb) {
          * @returns {boolean}
          */
         static removeMiddleware(name) {
-            return Router.replaceMiddleware(name, undefined);
+            var index = Router.indexOfMiddleware(name);
+            if (index >= 0) {
+                Router.middleware.splice(index, 1);
+                return true;
+            }
+            return false;
         }
 
         /**
@@ -251,7 +256,7 @@ module.exports = function (pb) {
          * @param {string} name
          * @returns {number} The position of the middleware or -1 when not found
          */
-        static indexOfMiddleware(name) {
+        static indexOfMiddleware(name) {console.log(name);
             for (var i = 0; i < Router.middleware.length; i++) {
                 if (Router.middleware[i].name === name) {
                     return i;
