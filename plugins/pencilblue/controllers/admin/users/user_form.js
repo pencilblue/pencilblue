@@ -147,4 +147,4 @@ module.exports = function(pb) {
 
     //exports
     return UserForm;
-}
+};

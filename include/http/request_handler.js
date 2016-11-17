@@ -24,7 +24,7 @@ var async   = require('async');
 var domain  = require('domain');
 var Cookies = require('cookies');
 var util    = require('../util.js');
-var _ = require('lodash');
+var _       = require('lodash');
 
 module.exports = function RequestHandlerModule(pb) {
 

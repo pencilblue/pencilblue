@@ -36,7 +36,7 @@ module.exports = function PBErrorModule(pb) {
         this.httpStatus      = httpStatus ? httpStatus : 500;
         this.localizationKey = null;
         this.source          = null;
-    };
+    }
 
     //setup inheritance
     util.inherits(PBError, Error);

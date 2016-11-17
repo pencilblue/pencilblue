@@ -148,7 +148,7 @@ module.exports = function(pb) {
                 //we failed so make sure don't do that again...
                 failedControllerPaths[paths[i]];
             }
-        };
+        }
         var cInstance = new ErrorController();
         var context = {
             pathVars: {},
@@ -176,7 +176,7 @@ module.exports = function(pb) {
     ErrorFormatters.xml = function(params, cb) {
 
         var xmlObj = function(key, obj) {
-            var xml = '<'+HtmlEncoder.htmlEncode(key)+'>'
+            var xml = '<' + HtmlEncoder.htmlEncode(key) + '>';
             util.forEach(obj, function(val, key) {
 
                 if (util.isArray(val)) {

@@ -144,7 +144,7 @@ module.exports = function InstagramMediaRendererModule(pb) {
      */
     InstagramMediaRenderer.getType = function(urlStr) {
         return InstagramMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    }
+    };
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type

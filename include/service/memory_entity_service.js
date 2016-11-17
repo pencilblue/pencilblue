@@ -136,7 +136,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         }
 
         //value not found
-        if (rawVal == null) {
+        if (rawVal === null) {
             return null;
         }
 
@@ -153,7 +153,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
      */
     function getCorrectValueField(rawVal, valueField) {
         var value = null;
-        if (valueField == null) {
+        if (valueField === null) {
             value = rawVal;
         }
         else {
@@ -193,14 +193,14 @@ module.exports = function MemoryEntityServiceModule(pb) {
         var internalKey = MemoryEntityService.getKey(key, this.site, this.objType);
         if (STORAGE[internalKey]) {
             rawValue = STORAGE[internalKey];
-            if (this.valueField == null) {
+            if (this.valueField === null) {
                 rawValue = value;
             }
             else {
                 rawValue[this.valueField] = value;
             }
         }
-        else if (this.valueField == null){
+        else if (this.valueField === null){
             rawValue = value;
         }
         else{

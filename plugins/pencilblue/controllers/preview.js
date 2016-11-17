@@ -46,7 +46,6 @@ module.exports = function PreviewModule(pb) {
                     self.req.pencilblue_page = item[pb.DAO.getIdField()].toString();
                     self.page = item;
                     break;
-                case 'article':
                 default:
                     self.req.pencilblue_article = item[pb.DAO.getIdField()].toString();
                     self.article = item;
@@ -54,10 +53,6 @@ module.exports = function PreviewModule(pb) {
             }
             Preview.super_.prototype.render.apply(self, [cb]);
         });
-    };
-
-    Preview.prototype.getPageTitle = function() {
-        return article.name;
     };
 
     //exports

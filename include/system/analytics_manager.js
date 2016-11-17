@@ -425,7 +425,7 @@ module.exports = function AnalyticsManagerModule(pb) {
             Object.keys(PROVIDER_HOOKS[site]).forEach(keyFunc);
         }
         return Object.keys(keyHash);
-    }
+    };
 
     /**
      * @private

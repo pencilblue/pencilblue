@@ -38,4 +38,4 @@ angular.module('search', [])
 
 		cb(items);
 	};
-})
+});

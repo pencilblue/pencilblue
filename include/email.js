@@ -119,7 +119,7 @@ module.exports = function EmailServiceModule(pb) {
                 throw err;
             }
             else if (!emailSettings) {
-                var err = new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
+                err = new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
                 pb.log.error(err.stack);
                 return cb(err);
             }

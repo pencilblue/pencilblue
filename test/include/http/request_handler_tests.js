@@ -35,7 +35,7 @@ describe('RequestHandler', function(){
 
             it('should return false when an invalid mime '+mime+' is provided', function(){
                 var result = RequestHandler.registerBodyParser(mime, function(){});
-                result.should.be.false;
+                result.should.be.false();
             });
         });
 
@@ -43,7 +43,7 @@ describe('RequestHandler', function(){
 
             it('should return false when an invalid parser '+parser+' is provided', function(){
                 var result = RequestHandler.registerBodyParser('application/xml', parser);
-                result.should.be.false;
+                result.should.be.false();
             });
         });
 
@@ -55,7 +55,7 @@ describe('RequestHandler', function(){
 
             var newParser = function(){};
             var result = RequestHandler.registerBodyParser('application/json', newParser);
-            result.should.be.true;
+            result.should.be.true();
 
             parsers = RequestHandler.getBodyParsers();
             parsers['application/json'].should.not.eql(originalJsonParser);

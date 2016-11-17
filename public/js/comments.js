@@ -25,7 +25,7 @@ function submitComment(button)
     var buttonID = button.attr('id');
     var articleIndex = buttonID.split('comment_submit_button_').join('');
 
-    if($('#comment_content_' + articleIndex).val().length == 0)
+    if($('#comment_content_' + articleIndex).val().length === 0)
     {
         return;
     }

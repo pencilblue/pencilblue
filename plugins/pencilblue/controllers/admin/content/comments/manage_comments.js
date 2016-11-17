@@ -104,7 +104,7 @@ module.exports = function(pb) {
 
         this.getCommentingUser = function(index) {
             self.dao = new pb.DAO();
-            self.dao.__proto__.loadById(comments[index].commenter, 'user', function(err, user) {
+            self.dao.loadById(comments[index].commenter, 'user', function(err, user) {
                 if(!util.isError(err) && user !== null) {
                     comments[index].user_name = user.first_name + ' ' + user.last_name;
                 }
