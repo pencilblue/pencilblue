@@ -49,7 +49,7 @@ module.exports = function (pb) {
             this.req.handler = new RequestHandler(null, this.req, this.res);
             this.req.router = this;
 
-            this._handle(this.req, this.res);
+            return this._handle(this.req, this.res);
         }
 
         /**
@@ -60,15 +60,21 @@ module.exports = function (pb) {
          * @param {Response} res
          */
         _handle (req, res) {
+            var resolve, reject;
+            var promise = new Promise(function(reso, rej) { resolve = reso; reject = rej; });
+
             // initialize completion function
             var self = this;
             var done = function (err) {
-                if (util.isError(err)) {
-                    req.handler.serveError(err, { handler: function(data) {
-                        req.controllerResult = data;
-                        self.continueAfter('render');
-                    }});
+                if (!util.isError(err)) {
+                    return resolve();
                 }
+
+                req.handler.serveError(err, { handler: function(data) {
+                    req.controllerResult = data;
+                    self.continueAfter('render')
+                        .then(resolve, reject);
+                }});
             };
 
             //create execution loop
@@ -99,16 +105,18 @@ module.exports = function (pb) {
                 sync = false;
             };
             execute();
+            return promise;
         }
 
         /**
          * Instructs the router to continue pipeline execution after the specified middleware.
          * @method continueAfter
          * @param {string} middlewareName
+         * @param {function} [cb]
          */
         continueAfter (middlewareName) {
             var index = Router.indexOfMiddleware(middlewareName);
-            this.continueAt(index + 1);
+            return this.continueAt(index + 1);
         }
 
         /**
@@ -118,7 +126,7 @@ module.exports = function (pb) {
          */
         continueAt (index) {
             this.index = index;
-            this._handle(this.req, this.res);
+            return this._handle(this.req, this.res);
         }
 
         /**
@@ -134,7 +142,7 @@ module.exports = function (pb) {
                 redirect: location,
                 code: httpStatusCode
             };
-            this.continueAfter('render');
+            return this.continueAfter('render');
         }
 
         /**
@@ -256,7 +264,7 @@ module.exports = function (pb) {
          * @param {string} name
          * @returns {number} The position of the middleware or -1 when not found
          */
-        static indexOfMiddleware(name) {console.log(name);
+        static indexOfMiddleware(name) {
             for (var i = 0; i < Router.middleware.length; i++) {
                 if (Router.middleware[i].name === name) {
                     return i;
