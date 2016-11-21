@@ -83,7 +83,7 @@ module.exports = function SimpleLayeredServiceModule(pb) {
                     //set value in services that didn't have it.
                     for (var j = 0; j < i; j++) {
                         if (instance.services[j]._set) {
-                            instance.services[j]._set(key, entity, util.cb)
+                            instance.services[j]._set(key, entity, util.cb);
                         }
                         else {
                            instance.services[j].set(key, entity, util.cb);
@@ -110,7 +110,7 @@ module.exports = function SimpleLayeredServiceModule(pb) {
         var self = this;
 
         var tasks = [];
-        for (var i = this.services.length -1; i >= 0; i--){
+        for (var i = this.services.length -1; i >= 0; i--) {
             var task = function(index){
                 return function(callback) {
                     if (pb.log.isSilly()) {

@@ -72,7 +72,7 @@ module.exports = function(pb) {
             if (util.isError(err)) {
                 return cb(err);
             }
-            else if (content == null) {
+            else if (content === null) {
                 return self.reqHandler.serve404();
             }
 

@@ -78,7 +78,7 @@ module.exports = function CacheEntityServiceModule(pb) {
             }
 
             //site specific value doesn't exist in cache
-            if (result == null) {
+            if (result === null) {
 
                 if (self.site === GLOBAL_SITE || self.onlyThisSite) {
                     return cb(null, null);
@@ -90,7 +90,7 @@ module.exports = function CacheEntityServiceModule(pb) {
                     }
 
                     //value doesn't exist in cache
-                    if (result == null) {
+                    if (result === null) {
                         return cb(null, null);
                     }
 
@@ -107,7 +107,7 @@ module.exports = function CacheEntityServiceModule(pb) {
 
     CacheEntityService.prototype.getRightFieldFromValue = function(result, valueField) {
         var val = result;
-        if (valueField != null){
+        if (valueField !== null){
             var rawVal = JSON.parse(result);
             val        = rawVal[valueField];
         }
@@ -139,7 +139,7 @@ module.exports = function CacheEntityServiceModule(pb) {
 
             //value doesn't exist in cache
             var val = null;
-            if (self.valueField == null) {
+            if (self.valueField === null) {
                 val = value;
 
                 if (util.isObject(val)) {
@@ -148,7 +148,7 @@ module.exports = function CacheEntityServiceModule(pb) {
             }
             else{
                 var rawVal = null;
-                if (result == null) {
+                if (result === null) {
                     rawVal = {
                         object_type: this.objType
                     };

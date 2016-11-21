@@ -45,7 +45,7 @@ $(document).ready(function()
 
 function checkPasswordMatch()
 {
-    if($('#password').val() != $('#confirm_password').val() || $('#password').val().length == 0)
+    if($('#password').val() != $('#confirm_password').val() || $('#password').val().length === 0)
     {
         $('#password_check').attr('class', 'fa fa-thumbs-down');
         $('#password_check').attr('style', 'color: #AA0000');

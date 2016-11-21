@@ -30,7 +30,7 @@ module.exports = function MongoCommandBrokerModule(pb) {
      * @class MongoCommandBroker
      * @constructor
      */
-    function MongoCommandBroker(){
+    function MongoCommandBroker() {
 
         /**
          * The cursor that trails the collection looking for new items
@@ -38,7 +38,7 @@ module.exports = function MongoCommandBrokerModule(pb) {
          * @type {Cursor}
          */
         this.cursor = null;
-    };
+    }
 
     //statics
     /**
@@ -319,7 +319,7 @@ module.exports = function MongoCommandBrokerModule(pb) {
 
             process.nextTick(next);
         };
-    };
+    }
 
     //exports
     return MongoCommandBroker;

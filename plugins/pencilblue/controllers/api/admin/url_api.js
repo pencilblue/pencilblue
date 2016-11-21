@@ -91,8 +91,7 @@ module.exports = function(pb) {
         var themes  = UrlService.exists(this.query.url);
 
         //now build response
-        var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', themes);
-        cb({content: content});
+        cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, '', themes)});
     };
 
     /**
@@ -118,14 +117,11 @@ module.exports = function(pb) {
         }
         service.existsForType(params, function(err, exists) {
             if (util.isError(err)) {
-                var content = BaseController.apiResponse(BaseController.API_FAILURE, err.message);
-                cb({content: content, code: 500});
-                return;
+                return cb({content: BaseController.apiResponse(BaseController.API_FAILURE, err.message), code: 500});
             }
 
             //now build response
-            var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', exists);
-            cb({content: content});
+            cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, '', exists)});
         });
     };
 

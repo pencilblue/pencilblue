@@ -205,7 +205,7 @@ module.exports = function ClusterJobRunnerModule(pb) {
                 }
                 callback(null, true);
             });
-        }
+        };
     };
 
     //exports

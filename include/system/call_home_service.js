@@ -135,7 +135,7 @@ module.exports = function CallHomeServiceModule(pb) {
             pb.log.silly('CallHomeService: An error occurred attempting to send event. %s', err.stack);
         });
         d.run(getDomainRunner(options, postData));
-    };
+    }
 
     /**
      *
@@ -163,7 +163,7 @@ module.exports = function CallHomeServiceModule(pb) {
             post_req.write(postData);
             post_req.end();
         };
-    };
+    }
 
     /**
      *
@@ -175,7 +175,7 @@ module.exports = function CallHomeServiceModule(pb) {
      */
     function onResponseRecieved(res, json) {
         pb.log.silly('CallHomeService: Event Response: %s', json);
-    };
+    }
 
     //exports
     return CallHomeService;

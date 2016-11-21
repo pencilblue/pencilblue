@@ -18,7 +18,7 @@ describe('CustomObjectService', function() {
     describe('CustomObjectService.getFieldTypes', function() {
 
         it('should return an array', function() {
-            CustomObjectService.getFieldTypes().should.be.an.Array;
+            CustomObjectService.getFieldTypes().should.be.an.Array();
         });
     });
 });

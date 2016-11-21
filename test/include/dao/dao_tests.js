@@ -39,7 +39,7 @@ describe('DAO', function() {
 
         it('should return _id', function() {
             DAO.getIdField().should.eql('_id');
-        })
+        });
     });
 
     describe('DAO.areIdsEqual', function() {
@@ -61,19 +61,19 @@ describe('DAO', function() {
         });
 
         it('should return true when the IDs are strings and equivalent', function() {
-            DAO.areIdsEqual('1', '1').should.be.ok;
+            DAO.areIdsEqual('1', '1').should.be.ok();
         });
 
         it('should return true when the IDs are ObjectIDs and equivalent', function() {
             var id1 = new ObjectID();
             var id2 = id1;
-            DAO.areIdsEqual(id1, id2).should.be.ok;
+            DAO.areIdsEqual(id1, id2).should.be.ok();
         });
 
         it('should return true when one id is an ObjectID and the other is a string and equivalent', function() {
             var id1 = new ObjectID();
             var id2 = id1.toString();
-            DAO.areIdsEqual(id1, id2).should.be.ok;
+            DAO.areIdsEqual(id1, id2).should.be.ok();
         });
     });
 });

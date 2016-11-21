@@ -44,7 +44,7 @@ module.exports = function(pb) {
                 if(util.isError(data)) {
                     cb({
                         code: 500,
-                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'), result)
+                        content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'), data)
                     });
                     return;
                 }

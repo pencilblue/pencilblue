@@ -31,7 +31,7 @@ module.exports = function(pb) {
      * @class ClusterApiController
      * @constructor
      */
-    function ClusterApiController() {};
+    function ClusterApiController() {}
     util.inherits(ClusterApiController, BaseApiController);
 
     /**

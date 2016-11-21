@@ -127,7 +127,7 @@ describe('SiteMapService', function() {
 
         it('should return true when a valid registration is made', function() {
             var result = SiteMapService.register('extra-items', function(context, cb){cb(null, true);});
-            result.should.be.true;
+            result.should.be.true();
         });
     });
 
@@ -142,14 +142,14 @@ describe('SiteMapService', function() {
 
         it('should return false when attempting to unregister a non-existent type', function() {
             var result = SiteMapService.unregister('some-unknown-type');
-            result.should.be.false;
+            result.should.be.false();
         });
 
         it('should return true when an existing type is unregistered', function() {
             var registerResult = SiteMapService.register('extra-items-u', function(context, cb){cb(null, true);});
             var unregisterResult = SiteMapService.unregister('extra-items-u');
-            registerResult.should.be.true;
-            unregisterResult.should.be.true;
+            registerResult.should.be.true();
+            unregisterResult.should.be.true();
         });
     });
 

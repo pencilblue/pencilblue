@@ -34,11 +34,10 @@ module.exports = function(pb) {
         var vars = this.pathVars;
 
         if(!vars.type_id) {
-            cb({
+            return cb({
                 code: 400,
                 content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.INVALID_UID'))
             });
-            return
         }
 
         var service = new pb.CustomObjectService(self.site, false);

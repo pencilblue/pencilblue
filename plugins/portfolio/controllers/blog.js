@@ -394,8 +394,9 @@ module.exports = function BlogModule(pb) {
         if(this.req.pencilblue_article || this.req.pencilblue_page) {
             cb(null, content.headline + ' | ' + pb.config.siteName);
         }
-        else if(searchId = this.req.pencilblue_section || this.req.pencilblue_topic) {
+        else if(this.req.pencilblue_section || this.req.pencilblue_topic) {
 
+            searchId = this.req.pencilblue_section || this.req.pencilblue_topic;
             var objType = this.req.pencilblue_section ? 'section' : 'topic';
             if(this.req.pencilblue_topic) {
                 searchId = searchId.toString();
@@ -444,8 +445,8 @@ module.exports = function BlogModule(pb) {
             }
             else if(self.req.pencilblue_page) {
                 articleIDs = [];
-                for(i = 0; i < articles.length; i++) {
-                    for(j = 0; j < articles[i].page_topics.length; j++) {
+                for(var i = 0; i < articles.length; i++) {
+                    for(var j = 0; j < articles[i].page_topics.length; j++) {
                         topics.push(articles[i].page_topics[j]);
                     }
                 }

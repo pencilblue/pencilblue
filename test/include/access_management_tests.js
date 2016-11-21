@@ -48,12 +48,12 @@ describe('SecurityService', function() {
             var result = SecurityService.getRoleNames(ls);
 
             result.should.be.instanceof(Array);
-            should(result.length === 5).be.ok;
-            should(result.indexOf('generic.ACCESS_ADMINISTRATOR') >= 0).be.ok;
-            should(result.indexOf('generic.ACCESS_MANAGING_EDITOR') >= 0).be.ok;
-            should(result.indexOf('generic.ACCESS_EDITOR') >= 0).be.ok;
-            should(result.indexOf('generic.ACCESS_WRITER') >= 0).be.ok;
-            should(result.indexOf('generic.ACCESS_USER') >= 0).be.ok;
+            should(result.length === 5).be.ok();
+            should(result.indexOf('generic.ACCESS_ADMINISTRATOR') >= 0).be.ok();
+            should(result.indexOf('generic.ACCESS_MANAGING_EDITOR') >= 0).be.ok();
+            should(result.indexOf('generic.ACCESS_EDITOR') >= 0).be.ok();
+            should(result.indexOf('generic.ACCESS_WRITER') >= 0).be.ok();
+            should(result.indexOf('generic.ACCESS_USER') >= 0).be.ok();
         });
 
         it('should throw when no localization instance is provided', function() {

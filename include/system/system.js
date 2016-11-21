@@ -119,7 +119,7 @@ module.exports = function System(pb){
 
         var self = this;
         cluster.on('disconnect', function(worker) {
-            self.onWorkerDisconntect(worker)
+            self.onWorkerDisconnect(worker);
         });
 
         pb.log.info('System[%s]: %d workers spawned. Listening for disconnects.', this.getWorkerId(), workerCnt);
@@ -129,7 +129,7 @@ module.exports = function System(pb){
      *
      * @method
      */
-    this.onWorkerDisconntect = function(worker) {
+    this.onWorkerDisconnect = function(worker) {
         pb.log.debug('System[%s]: Worker [%d] disconnected', this.getWorkerId(), worker.id);
 
         var okToFork = true;
@@ -139,27 +139,27 @@ module.exports = function System(pb){
         DISCONNECTS.push(currTime);
 
         //splice it down if needed.  Remove first element (FIFO)
-        if (DISCONNECTS.length > pb.config.fatal_error_count) {
+        if (DISCONNECTS.length > pb.config.cluster.fatal_error_count) {
             DISCONNECTS.splice(0, 1);
         }
 
         //check for unacceptable failures in specified time frame
-        if (DISCONNECTS.length >= pb.config.fatal_error_count) {
-            var range = DISCONNECTS[DISCONNECTS.length - 1] - DISCONNECTS[DISCONNECTS.length - config.fatal_error_count];
-            if (range <= config.cluster.fatal_error_timeout) {
+        if (DISCONNECTS.length >= pb.config.cluster.fatal_error_count) {
+            var range = DISCONNECTS[DISCONNECTS.length - 1] - DISCONNECTS[DISCONNECTS.length - pb.config.cluster.fatal_error_count];
+            if (range <= pb.config.cluster.fatal_error_timeout) {
                 okToFork = false;
             }
             else {
-                pb.log.silly("System[%s]: Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]", this.getWorkerId(), disconnectCnt, pb.config.fatal_error_count, range);
+                pb.log.silly("System[%s]: Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]", this.getWorkerId(), DISCONNECTS_CNT, pb.config.cluster.fatal_error_count, range);
             }
         }
 
         if (okToFork && !this.isShuttingDown()) {
-            var worker = cluster.fork();
+            worker = cluster.fork();
             pb.log.silly("System[%s] Forked worker [%d]", this.getWorkerId(), worker ? worker.id : 'FAILED');
         }
         else if (!this.isShuttingDown()){
-           pb.log.error("System[%s]: %d failures have occurred within %sms.  Bailing out.", this.getWorkerId(), pb.config.fatal_error_count, pb.config.fatal_error_timeout);
+            pb.log.error("System[%s]: %d failures have occurred within %sms.  Bailing out.", this.getWorkerId(), pb.config.cluster.fatal_error_count, pb.config.fatal_error_timeout);
             process.kill();
         }
     };

@@ -39,7 +39,7 @@ describe('Localization', function() {
             it('should return null when provided '+locale, function() {
 
                 var pkg = Localization.getLocalizationPackage(locale);
-                should(pkg === null).be.ok;
+                should(pkg === null).be.ok();
             });
         });
 
@@ -72,7 +72,7 @@ describe('Localization', function() {
             it('should return false when provided '+locale, function() {
 
                 var supported = Localization.isSupported(locale);
-                supported.should.not.be.ok;
+                supported.should.not.be.ok();
             });
         });
     });
@@ -133,7 +133,7 @@ describe('Localization', function() {
             };
 
             var registrationResult = Localization.registerLocalization(dummyLocale, 'generic.about.pencilblue', val, opts);
-            registrationResult.should.be.ok;
+            registrationResult.should.be.ok();
 
             var loc = new Localization(dummyLocale);
             var result = loc.g(key, opts);

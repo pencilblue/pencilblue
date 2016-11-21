@@ -152,7 +152,7 @@ module.exports = function ImageMediaRendererModule(pb) {
      */
     ImageMediaRenderer.getType = function(urlStr) {
         return ImageMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    }
+    };
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
