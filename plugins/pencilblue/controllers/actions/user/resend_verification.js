@@ -78,7 +78,7 @@ module.exports = function ResendVerificationModule(pb) {
                     return self.formError(self.ls.g('users.NOT_REGISTERED'), '/user/sign_up', cb);
                 }
 
-                user.verification_code = util.uniqueId();
+                user.verificationCode = util.uniqueId();
 
                 self.dao.save(user, function(err, result) {
                     if(util.isError(result)) {

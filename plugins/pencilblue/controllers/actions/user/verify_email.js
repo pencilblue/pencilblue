@@ -49,7 +49,7 @@ module.exports = function VerifyEmailModule(pb) {
                     return;
                 }
 
-                if(unverifiedUser.verification_code !== get.code) {
+                if(unverifiedUser.verificationCode !== get.code) {
                     self.formError(self.ls.g('users.INVALID_VERIFICATION'), '/user/resend_verification', cb);
                     return;
                 }
