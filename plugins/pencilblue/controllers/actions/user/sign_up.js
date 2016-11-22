@@ -104,6 +104,8 @@ module.exports = function (pb) {
                 post.verification_code = util.uniqueId();
             }
 
+            // This is the reason why usernames are tranformed to lowercase when signing up
+            // TODO: Change sign-up behaviour in 1.0
             var user = pb.DocumentCreator.create(collection, post);
 
             self.validateUniques(user, function(err, results) {
