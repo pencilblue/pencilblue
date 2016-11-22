@@ -49,7 +49,7 @@ module.exports = function(pb) {
              * @property dao
              * @type {DAO}
              */
-            self.dao = new DAO();
+            self.dao = new pb.SiteQueryService(self.getServiceContext());
 
             cb(err, true);
         };
@@ -79,10 +79,13 @@ module.exports = function(pb) {
                 }
 
                 if(!passwordReset) {
-                    passwordReset = pb.DocumentCreator.create('password_reset', {user_id: user[pb.DAO.getIdField()].toString()});
+                    passwordReset = {
+                        userId: user[pb.DAO.getIdField()].toString(),
+                        object_type: 'password_reset'
+                    };
                 }
 
-                passwordReset.verification_code = util.uniqueId();
+                passwordReset.verificationCode = util.uniqueId();
 
                 self.dao.save(passwordReset, function(err, result) {
                     if(util.isError(err)) {

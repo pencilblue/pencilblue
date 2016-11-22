@@ -302,7 +302,7 @@ module.exports = function(pb) {
                 var options = {
                     to: user.email,
                     replacements: {
-                        'verification_url': pb.SiteService.getHostWithProtocol(siteInfo.hostname) + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verification_code,
+                        'verification_url': pb.SiteService.getHostWithProtocol(siteInfo.hostname) + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verificationCode,
                         'first_name': user.first_name,
                         'last_name': user.last_name
                     }
@@ -334,10 +334,10 @@ module.exports = function(pb) {
         cb = cb || util.cb;
 
         pb.log.warn('UserService: sendPasswordResetEmail is deprecated. Use PasswordResetService.sendPasswordResetEmail');
-
         var ctx = {
             emailService: new pb.EmailService({site: self.context.site}),
-            siteService: new pb.SiteService()
+            siteService: new pb.SiteService(),
+            site: self.context.site
         };
         var passwordResetService = new pb.PasswordResetService(ctx);
         passwordResetService.sendPasswordResetEmail(user, passwordReset, cb);
