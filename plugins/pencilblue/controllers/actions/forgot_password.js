@@ -43,7 +43,9 @@ module.exports = function ForgotPasswordControllerModule(pb) {
         var ctx = this.getServiceContext();
         ctx.userService = this.userService;
         ctx.siteService = new SiteService(this.getServiceContext());
-        ctx.emailService = new EmailService(this.getServiceContext());
+        
+        // Use the global email settings in a multisite environment
+        ctx.emailService = new EmailService(util.union(this.getServiceContext(), {onlyThisSite: false}));
 
         /**
          * @property passwordResetService
