@@ -18,7 +18,8 @@
 
 //dependencies
 var path        = require('path');
-var HtmlEncoder = require('htmlencode');
+var HttpStatusCodes = require('http-status-codes');
+var XmlErrorFormatter = require('./xml_error_formatter');
 
 module.exports = function(pb) {
 
@@ -43,16 +44,6 @@ module.exports = function(pb) {
     var DEFAULT_MIME = 'text/html';
 
     /**
-     * Error code when a validation failure occurs
-     * @private
-     * @static
-     * @readonly
-     * @property BAD_REQUEST
-     * @type {Integer}
-     */
-    var BAD_REQUEST = 400;
-
-    /**
      * Converts an error to a plain object that can be serialized
      * @private
      * @static
@@ -68,7 +59,7 @@ module.exports = function(pb) {
         if (pb.config.logging.showErrors) {
             content.stack = params.error.stack;
         }
-        if (params.error.code === BAD_REQUEST) {
+        if (params.error.code === HttpStatusCodes.BAD_REQUEST) {
             delete content.stack;
             content.validationErrors = params.error.validationErrors;
         }
@@ -125,7 +116,7 @@ module.exports = function(pb) {
         }
 
         //let the default error controller handle it.
-        var code = params.error.code || 500;
+        var code = params.error.code || HttpStatusCodes.INTERNAL_SERVER_ERROR;
         var ErrorController  = null;
         var paths = [
             path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'),
@@ -173,46 +164,8 @@ module.exports = function(pb) {
      */
     ErrorFormatters.xml = function(params, cb) {
 
-        var xmlObj = function(key, obj) {
-            var xml = '<' + HtmlEncoder.htmlEncode(key) + '>';
-            util.forEach(obj, function(val, key) {
-
-                if (util.isArray(val)) {
-                    xml += xmlArray(key, val);
-                }
-                else if (util.isObject(val)) {
-                    xml += xmlObj(key, val);
-                }
-                else {
-                    xml += '<'+HtmlEncoder.htmlEncode(key)+'>' + HtmlEncoder.htmlEncode(val + '') + '</'+HtmlEncoder.htmlEncode(key)+'>';
-                }
-            });
-            xml += '</'+HtmlEncoder.htmlEncode(key)+'>';
-            return xml;
-        };
-        var xmlArray = function(key, obj) {
-            var xml = '';
-            util.forEach(obj, function(val, i) {
-
-                if (util.isArray(val)) {
-                    xml += xmlArray(key+'_'+i, val);
-                }
-                else if (util.isObject(val)) {
-                    xml += xmlObj(key, val);
-                }
-                else {
-                    xml += '<'+HtmlEncoder.htmlEncode(key)+'>' + HtmlEncoder.htmlEncode(val + '') + '</'+HtmlEncoder.htmlEncode(key)+'>';
-                }
-            });
-            return xml;
-        };
-        var xmlPrimitive = function(key, val) {
-            return '<'+HtmlEncoder.htmlEncode(key)+'>' + HtmlEncoder.htmlEncode(val + '') + '</'+HtmlEncoder.htmlEncode(key)+'>';
-        };
-        cb(
-            null,
-            xmlObj('error', convertToObject(params))
-        );
+        var objToSerialize = convertToObject(params);
+        cb(null, XmlErrorFormatter.serialize(objToSerialize));
     };
 
     /**
@@ -324,7 +277,7 @@ module.exports = function(pb) {
         'text/json': ErrorFormatters.json,
         'text/html': ErrorFormatters.html,
         'application/xml': ErrorFormatters.xml,
-        'text/xml': ErrorFormatters.xml,
+        'text/xml': ErrorFormatters.xml
     });
 
     /**

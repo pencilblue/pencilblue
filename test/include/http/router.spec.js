@@ -5,7 +5,7 @@ var should = require('should');
 var sinon = require('sinon');
 var TestHelpers = require('../../test_helpers.js');
 
-describe.only('Router', function() {
+describe('Router', function() {
 
     TestHelpers.registerReset();
 
