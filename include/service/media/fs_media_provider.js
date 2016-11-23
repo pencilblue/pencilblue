@@ -36,7 +36,7 @@ module.exports = function FsMediaProviderModule(pb) {
      */
     function FsMediaProvider(context) {
         this.parentDir = context.parentDir || pb.config.media.parent_dir;
-    };
+    }
 
     /**
      * Retrieves the item on the file system as a stream.

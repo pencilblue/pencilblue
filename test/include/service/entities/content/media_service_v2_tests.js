@@ -22,7 +22,7 @@ describe('MediaServiceV2', function() {
 
             it('should return null when passed non-string value '+val, function() {
                 var result = MediaServiceV2.parseMediaFlag(val);
-                (result === null).should.be.ok;
+                (result === null).should.be.ok();
             });
         });
 
@@ -104,7 +104,7 @@ describe('MediaServiceV2', function() {
                     return {
                         width: '100px',
                         height: '200px'
-                    }
+                    };
                 }
             };
 
@@ -218,12 +218,12 @@ describe('MediaServiceV2', function() {
 
         it('should return null when no media flag is present in the content', function() {
             var result = MediaServiceV2.extractNextMediaFlag('');
-            should(result).be.null;
+            should(result).be.null();
         });
 
         it('should return null when there is not an end to the media flag', function() {
             var result = MediaServiceV2.extractNextMediaFlag('^media_display_');
-            should(result).be.null;
+            should(result).be.null();
         });
 
         it('should extract the media flag from the string and parse it', function() {
@@ -251,12 +251,12 @@ describe('MediaServiceV2', function() {
     describe('MediaServiceV2.getRenderer', function() {
 
         it('should retrieve the renderer when provided a valid media URL', function() {
-            MediaServiceV2.getRenderer('//hello.world.jpg', false).should.not.be.null;
+            MediaServiceV2.getRenderer('//hello.world.jpg', false).should.not.be.null();
         });
 
         it('should return null when a media URL is provided that the registered renderers do not support', function() {
             var result = MediaServiceV2.getRenderer('//hello.world.abc', false);
-            should(result).be.null;
+            should(result).be.null();
         });
     });
 

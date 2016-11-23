@@ -55,7 +55,7 @@ module.exports = function(pb) {
         var pattern = new RegExp(patternStr, "i");
         var opts = {
             select: {
-                headline: 1,
+                headline: 1
             },
             where: {
                 $or: [
@@ -70,8 +70,7 @@ module.exports = function(pb) {
         var queryService = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
         queryService.q(type, opts, function(err, items) {
             if (util.isError(err)) {
-                var content = BaseController.apiResponse(BaseController.API_FAILURE, '', '');
-                return cb({content: content, code: 500});
+                return cb({content: BaseController.apiResponse(BaseController.API_FAILURE, '', ''), code: 500});
             }
 
             //change to display
@@ -80,8 +79,7 @@ module.exports = function(pb) {
                 delete items[i].headline;
             }
 
-            var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', items);
-            cb({content: content});
+            cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, '', items)});
         });
     };
 

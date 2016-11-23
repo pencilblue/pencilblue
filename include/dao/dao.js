@@ -460,7 +460,7 @@ module.exports = function DAOModule(pb) {
                 DAO.updateChangeHistory(item);
                 if (item._id) {
                     batch.find(DAO.getIdWhere(item._id)).updateOne({ $set: item });
-                    delete item._id;;
+                    delete item._id;
                 }
                 else {
                     batch.insert(item);
@@ -720,7 +720,7 @@ module.exports = function DAOModule(pb) {
             }
             db.listCollections(filter, options).toArray(function(err, results) {
                 if (util.isError(err)) {
-                    return cb(err)
+                    return cb(err);
                 }
                 cb(err, results);
             });
@@ -990,4 +990,4 @@ module.exports = function DAOModule(pb) {
 
     //exports
     return DAO;
-}
+};

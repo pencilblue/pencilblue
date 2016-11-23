@@ -144,7 +144,7 @@ module.exports = function(pb) {
      */
     PdfMediaRenderer.getType = function(urlStr) {
         return PdfMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    }
+    };
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type

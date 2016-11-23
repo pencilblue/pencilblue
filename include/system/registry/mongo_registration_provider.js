@@ -93,7 +93,7 @@ module.exports = function MongoRegistrationProviderModule(pb) {
             collection: pb.config.registry.key,
             spec: { last_modified: 1 },
             options: { expireAfterSeconds: expiry }
-        }
+        };
 
         //ensure an index exists.  According to the MongoDB documentation ensure
         //index cannot modify a TTL value once it is created.  Therefore, we have

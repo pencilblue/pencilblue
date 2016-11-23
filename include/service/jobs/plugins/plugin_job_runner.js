@@ -96,7 +96,7 @@ module.exports = function PluginJobRunnerModule(pb) {
             return;
         }
 
-        var firstErr = undefined;
+        var firstErr;
         var success  = true;
         for (var i = 0; i < results.length; i++) {
             if (!results[i]) {

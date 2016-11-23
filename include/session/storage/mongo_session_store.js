@@ -123,7 +123,7 @@ module.exports = function MongoSessionStoreModule(pb) {
             collection: SESSION_COLLECTION_NAME,
             spec: { timeout: 1 },
             options: { expireAfterSeconds: expiry }
-        }
+        };
 
         //ensure an index exists.  According to the MongoDB documentation ensure
         //index cannot modify a TTL value once it is created.  Therefore, we have

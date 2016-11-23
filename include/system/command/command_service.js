@@ -511,14 +511,15 @@ module.exports = function CommandServiceModule(pb) {
         //figure out which broker to use
         var CommandBroker = null;
         if (DEFAULT_BROKERS[pb.config.command.broker]) {
-            CommandBroker = DEFAULT_BROKERS[pb.config.command.broker]
+            CommandBroker = DEFAULT_BROKERS[pb.config.command.broker];
         }
         else {
             CommandBroker = require(pb.config.command.broker)(pb);
         }
 
         var broker = new CommandBroker();
-        return INSTANCE = new CommandService(broker);
+        INSTANCE = new CommandService(broker);
+        return INSTANCE;
     };
 
     return CommandService;

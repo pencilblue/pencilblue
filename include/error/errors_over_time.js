@@ -74,7 +74,7 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
          * @type {String}
          */
         this.prefix = prefix;
-    };
+    }
 
     /**
      * Adds an error into the calculation to determine if too many errors have

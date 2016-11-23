@@ -22,7 +22,7 @@ describe('AdminNavigation', function() {
         it('should add a node when the node does not already exist with no site provided', function() {
             var node = { id: getNextId() };
             var result = AdminNavigation.add(node);
-            result.should.be.ok;
+            result.should.be.ok();
             AdminNavigation.additions[SiteService.GLOBAL_SITE][0].should.eql(node);
         });
 
@@ -30,14 +30,14 @@ describe('AdminNavigation', function() {
             var node = { id: getNextId() };
             AdminNavigation.add(node);
             var result = AdminNavigation.add(node);
-            result.should.not.be.ok;
+            result.should.not.be.ok();
         });
 
         it('should add a node when the node does not already exist with a non-global site provided', function() {
             var node = { id: getNextId() };
             var nonGlobalSite = getNextId();
             var result = AdminNavigation.add(node, nonGlobalSite);
-            result.should.be.ok;
+            result.should.be.ok();
             AdminNavigation.additions[nonGlobalSite][0].should.eql(node);
         });
 
@@ -46,7 +46,7 @@ describe('AdminNavigation', function() {
             var nonGlobalSite = getNextId();
             AdminNavigation.add(node, nonGlobalSite);
             var result = AdminNavigation.add(node, nonGlobalSite);
-            result.should.not.be.ok;
+            result.should.not.be.ok();
         });
     });
 
@@ -56,7 +56,7 @@ describe('AdminNavigation', function() {
             AdminNavigation.additions = {};
             var node = { id: getNextId() };
             var result = AdminNavigation.addToSite(node);
-            result.should.be.ok;
+            result.should.be.ok();
             AdminNavigation.additions[SiteService.GLOBAL_SITE][0].should.eql(node);
         });
 
@@ -64,14 +64,14 @@ describe('AdminNavigation', function() {
             var node = { id: getNextId() };
             AdminNavigation.addToSite(node);
             var result = AdminNavigation.addToSite(node);
-            result.should.not.be.ok;
+            result.should.not.be.ok();
         });
 
         it('should add a node when the node does not already exist with a non-global site provided', function() {
             var node = { id: getNextId() };
             var nonGlobalSite = getNextId();
             var result = AdminNavigation.addToSite(node, nonGlobalSite);
-            result.should.be.ok;
+            result.should.be.ok();
             AdminNavigation.additions[nonGlobalSite][0].should.eql(node);
         });
 
@@ -80,7 +80,7 @@ describe('AdminNavigation', function() {
             var nonGlobalSite = getNextId();
             AdminNavigation.addToSite(node, nonGlobalSite);
             var result = AdminNavigation.addToSite(node, nonGlobalSite);
-            result.should.not.be.ok;
+            result.should.not.be.ok();
         });
     });
 });

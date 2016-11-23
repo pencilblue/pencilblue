@@ -145,7 +145,7 @@ module.exports = function StorifyMediaRendererModule(pb) {
      */
     StorifyMediaRenderer.getType = function(urlStr) {
         return StorifyMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    }
+    };
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type

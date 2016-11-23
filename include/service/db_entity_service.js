@@ -86,7 +86,7 @@ module.exports = function DbEntityServiceModule(pb) {
             }
 
             //get setting
-            var val = self.valueField == null ? entity : entity[self.valueField];
+            var val = self.valueField === null ? entity : entity[self.valueField];
 
             //callback with the result
             cb(null, val);
@@ -114,7 +114,7 @@ module.exports = function DbEntityServiceModule(pb) {
 
             //value doesn't exist in cache
             var val = null;
-            if (self.valueField == null) {
+            if (self.valueField === null) {
                 val = value;
             }
             else{

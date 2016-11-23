@@ -40,7 +40,7 @@ module.exports = function SessionModule(pb) {
 
         //ensure a session store was started
         this.sessionStore = sessionStore;
-    };
+    }
 
     /**
      *
@@ -246,7 +246,7 @@ module.exports = function SessionModule(pb) {
         }
 
         //ensure session store was loaded
-        if (SessionStoreModule == null){
+        if (SessionStoreModule === null){
             throw new Error("Failed to initialize a session store. Exhausted posibilities: "+JSON.stringify(possibleStores));
         }
         return SessionStoreModule(pb);

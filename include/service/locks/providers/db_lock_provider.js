@@ -60,7 +60,7 @@ module.exports = function(pb) {
     DbLockProvider.prototype.acquire = function(name, options, cb) {
         if (util.isFunction(options)) {
             cb = options;
-            options = {}
+            options = {};
         }
 
         //calculate the lock expiration

@@ -91,8 +91,7 @@ module.exports = function(pb) {
         var themes  = UrlService.exists(this.query.url);
 
         //now build response
-        var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', themes);
-        cb({content: content});
+        cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, '', themes)});
     };
 
     /**

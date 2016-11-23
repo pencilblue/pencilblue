@@ -37,7 +37,7 @@ module.exports = function (pb) {
         if(!self.session.importedUsers || !post) {
             return cb({
                 code: 400,
-                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.NO') + ' ' + self.ls.g('admin.USERS'))
             });
         }
 

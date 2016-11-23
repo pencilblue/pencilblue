@@ -40,10 +40,10 @@ describe('ErrorFormatters', function() {
         
         it('should return true when a mime and formatter is provided', function() {
             var mime = 'application/junk';
-            var formatter = function(){}
+            var formatter = function(){};
             var result = ErrorFormatters.register(mime, function(){});
             var formatterResult = ErrorFormatters.get(mime);
-            result.should.be.ok;
+            result.should.be.ok();
             formatterResult.should.eql(formatter);
         });
     });
@@ -92,7 +92,7 @@ describe('ErrorFormatters', function() {
             };
             ErrorFormatters.html(params, function(err, result){});
             resultContext.initParams.error.should.eql(error);
-            resultContext.cInstance.should.not.be.null;
+            resultContext.cInstance.should.not.be.null();
         });
     });
     
@@ -111,7 +111,7 @@ describe('ErrorFormatters', function() {
                     field: 'id',
                     message: 'it should be there & be square',
                     code: 'V1002'
-                },
+                }
             ];
             var params = {
                 error: error
@@ -180,7 +180,7 @@ describe('ErrorFormatters', function() {
             };
             ErrorFormatters.formatForMime(params, function(err, result){});
             resultContext.initParams.error.should.eql(error);
-            resultContext.cInstance.should.not.be.null;
+            resultContext.cInstance.should.not.be.null();
                 
             var formatter = ErrorFormatters.get(params.mime);
             should.strictEqual(formatter, undefined);
