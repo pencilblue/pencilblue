@@ -723,7 +723,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {String} path URL path to a resource
      * @return {Boolean} TRUE if mapped to a public resource directory, FALSE if not
      */
-    RequestHandler.isPublicRoute = function(path){
+    RequestHandler.isPublicRoute = function(path) {
         for (var i = 0; i < PUBLIC_ROUTE_PREFIXES.length; i++) {
             if (path.indexOf(PUBLIC_ROUTE_PREFIXES[i]) === 0) {
                 return true;
