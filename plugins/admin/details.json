@@ -1,0 +1,46 @@
+{
+  "uid": "admin",
+  "name": "PencilBlue Admin",
+  "description": "The admin section for PencilBlue",
+  "version": "1.0.0",
+  "pb_version": ">=0.5.x",
+  "author": {
+    "name": "PencilBlue",
+    "email": "info@pencilblue.org",
+    "website": "http://pencilblue.org",
+    "contributors": [
+      {
+          "name": "Blake Callens",
+          "email": ""
+      },
+      {
+          "name": "Brian Hyder",
+          "email": ""
+      }
+    ]
+  },
+  "settings": [],
+  "permissions": {
+    "ACCESS_USER": [],
+    "ACCESS_WRITER": [],
+    "ACCESS_EDITOR": [],
+    "ACCESS_MANAGING_EDITOR": []
+  },
+  "main_module": {
+    "path": "admin.js"
+  },
+  "theme": {
+    "settings": [],
+    "content_templates": []
+  },
+  "dependencies": {
+    "gulp": "3.9.1",
+    "gulp-sass": "2.3.2"
+  },
+  "bowerDependencies": {
+    "babel": "5.8.38",
+    "bootstrap": "4.0.0-alpha.4",
+    "font-awesome": "4.7.0",
+    "react": "15.4.0"
+  }
+}

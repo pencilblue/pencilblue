@@ -1,0 +1,26 @@
+.btn {
+  border-radius: 0.125rem !important;
+  border: none;
+  padding: 0.5rem 0.75rem;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+}
+
+.btn-default {
+  background: $default-gray;
+  color: $darker-gray;
+}
+
+.btn-primary {
+  background: $lighter-blue;
+}
+
+.btn-danger {
+  background: $danger-red;
+}
+
+.action-buttons {
+  margin-bottom: 0.5rem;
+}

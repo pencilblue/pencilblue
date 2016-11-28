@@ -1,0 +1,14 @@
+.form-group {
+  margin-bottom: 0.5rem;
+
+  label {
+    margin-bottom: 0.25rem
+  }
+
+  .form-control {
+    border-radius: 0.125rem !important;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    color: $dark-gray;
+  }
+}

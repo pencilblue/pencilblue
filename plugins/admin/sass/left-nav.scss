@@ -1,0 +1,180 @@
+.left-nav {
+  position: fixed;
+  top: 0;
+  left: -14rem;
+  background: $dark-blue;
+  color: white;
+  width: 16rem;
+  height: 100%;
+  box-shadow: 1px 0px 1em $med-blue;
+  overflow: auto;
+
+  .items {
+    font-size: 1.125rem;
+
+    .item {
+      .logo {
+        height: 3.25rem;
+        padding: 0.5rem;
+        cursor: pointer;
+      }
+
+      .header {
+        padding: 0.5rem;
+        cursor: pointer;
+        color: white;
+
+        a {
+          color: white;
+          text-decoration: none;
+        }
+      }
+
+      .header:hover {
+        color: $light-blue;
+
+        a {
+          color: $light-blue;
+        }
+      }
+
+      .sub-items {
+        max-height: 0;
+        overflow: hidden;
+
+        .item {
+          padding-left: 1rem;
+          background: $darkest-blue;
+          cursor: pointer;
+        }
+
+        .item.active {
+          background: $dark-blue;
+          border-left: 0.25em solid $light-blue;
+          padding-left: 0.75rem;
+        }
+
+        .item:hover {
+          color: $light-blue;
+        }
+
+        .item:first-child {
+          border-top: 1px solid black;
+        }
+      }
+    }
+
+    .item.open {
+      .sub-items {
+        max-height: 2000px;
+        animation-name: open-nav-item;
+        animation-duration: 0.2s;
+        animation-timing-function: ease-in-out;
+      }
+    }
+
+    .item.closed {
+      .sub-items {
+        max-height: 0;
+        animation-name: close-nav-item;
+        animation-duration: 0.2s;
+        animation-timing-function: ease-in-out;
+      }
+    }
+  }
+
+  .quick-items {
+    width: 2rem;
+    position: absolute;
+    right: 0;
+    top: 0.375rem;
+    cursor: pointer;
+
+    .item {
+      padding: 0.125rem 0.125rem 0.5rem 0.125rem;
+      text-align: center;
+      font-size: 1.25rem;
+      line-height: 1rem;
+
+      a {
+        color: $light-blue;
+      }
+
+      .logo {
+        height: 2rem;
+      }
+    }
+
+    .item:hover {
+      a {
+        color: white;
+      }
+    }
+  }
+
+  .toggle-button {
+    width: 1.25rem;
+    height: 1.25rem;
+    position: absolute;
+    right: 1rem;
+    bottom: 0.75rem;
+    text-align: center;
+    font-size: 2rem;
+    line-height: 2rem;
+    color: $light-blue;
+  }
+
+  .toggle-button:hover {
+    color: white;
+  }
+}
+
+.left-nav.closed {
+  left: -14rem;
+  animation-name: close-left-nav;
+  animation-duration: 0.2s;
+  animation-timing-function: ease-in-out;
+}
+
+.left-nav.open {
+  left: 0;
+  animation-name: open-left-nav;
+  animation-duration: 0.2s;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes open-left-nav {
+  from {
+    left: -14rem;
+  };
+  to {
+    left: 0;
+  };
+}
+
+@keyframes close-left-nav {
+  from {
+    left: 0;
+  };
+  to {
+    left: -14rem;
+  };
+}
+
+@keyframes open-nav-item {
+  from {
+    max-height: 0;
+  };
+  to {
+    max-height: 2000px;
+  };
+}
+
+@keyframes close-nav-item {
+  from {
+    max-height: 2000px;
+  };
+  to {
+    max-height: 0;
+  };
+}

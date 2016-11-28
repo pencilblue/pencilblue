@@ -1,0 +1,19 @@
+.table-container {
+  background: white;
+  border-radius: 0.125rem;
+  color: $dark-gray;
+  margin-bottom: 0.5rem;
+
+  .table {
+    margin: 0;
+
+    th, td {
+      padding: 0.25rem 0.75rem;
+    }
+  }
+
+  .table-inverse {
+    background: $darkest-blue;
+    color: white;
+  }
+}

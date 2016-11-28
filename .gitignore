@@ -9,6 +9,10 @@ log/
 coverage/
 out
 plugins/*
+!plugins/admin
+!plugins/admin/**
+plugins/admin/node_modules
+plugins/admin/public/bower_components
 !plugins/pencilblue
 !plugins/pencilblue/**
 !plugins/ga

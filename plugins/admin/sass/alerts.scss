@@ -1,0 +1,27 @@
+.alert {
+  border-radius: 0.125rem !important;
+  border: none;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  color: white;
+
+  .close {
+    margin-top: -0.25rem;
+
+    .fa-sm {
+      font-size: 1rem;
+    }
+  }
+}
+
+.alert-success {
+  background: $success-green;
+}
+
+.alert-danger {
+  background: $danger-red;
+}
+
+.alert-warning {
+  background: $warning-yellow;
+}

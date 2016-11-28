@@ -1,0 +1,10 @@
+.context-box {
+  background: $med-blue;
+  color: white;
+  padding: 0.5rem;
+  border-radius: 0.125rem;
+
+  div:last-child {
+    margin-bottom: 0;
+  }
+}
