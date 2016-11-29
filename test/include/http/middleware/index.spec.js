@@ -263,8 +263,67 @@ describe('Middleware', function() {
 
     describe('deriveRouteTheme', function() {
 
-        it('', function(done) {
-            done();
+        beforeEach(function() {
+            req.activeTheme = 'some-active-theme';
+            req.route = {
+                themes: {
+                    global: {
+                        pencilblue: {
+                            'get': {
+                                hello: 'world'
+                            }
+                        }
+                    }
+                }
+            };
+        });
+
+        [
+            {
+                theme: null,
+                method: 'get',
+                site: 'global'
+            },
+            {
+                theme: 'pencilblue',
+                method: null,
+                site: 'global'
+            },
+            {
+            theme: 'pencilblue',
+            method: 'get',
+            site: null
+            }
+        ].forEach(function(routeTheme) {
+            it('should call back with a not found error when the route theme returns with: ' + JSON.stringify(routeTheme), function(done) {
+                sandbox.stub(req.handler, 'getRouteTheme')
+                    .withArgs(req.activeTheme, req.route)
+                    .returns(routeTheme);
+                this.pb.Middleware.deriveRouteTheme(req, res, function(err) {
+                    err.code.should.eql(HttpStatusCodes.NOT_FOUND);
+                    should(req.themeRoute).eql(undefined);
+                    should(req.handler.themeRoute).eql(undefined);
+
+                    done();
+                });
+            });
+        });
+
+        it('should derive the themed route from the route definition', function(done) {
+            var routeTheme = {
+                theme: 'pencilblue',
+                method: 'get',
+                site: 'global'
+            };
+            sandbox.stub(req.handler, 'getRouteTheme')
+                .withArgs(req.activeTheme, req.route)
+                .returns(routeTheme);
+            this.pb.Middleware.deriveRouteTheme(req, res, function(err) {
+                should(err).eql(undefined);
+                req.themeRoute.should.eql(req.route.themes.global.pencilblue.get);
+                req.handler.themeRoute.should.eql(req.route.themes.global.pencilblue.get);
+                done();
+            });
         });
     });
 

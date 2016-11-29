@@ -219,14 +219,14 @@ module.exports = function(pb) {
          */
         static deriveRouteTheme (req, res, next) {
 
-            //routeTheme describes the site/theme/method combo
+            // routeTheme describes the site/theme/method combo
             var rt = req.handler.routeTheme = req.routeTheme = req.handler.getRouteTheme(req.activeTheme, req.route);
             if (rt.theme === null || rt.method === null || rt.site === null) {
                 return next(ErrorUtils.notFound());
             }
 
-            //while themeRoute describes the specific route definition based on the theme
-            //TODO [1.0] super confusing and should be changed
+            // themeRoute describes the specific route definition based on the theme
+            // TODO [1.0] super confusing and should be changed
             req.handler.themeRoute = req.themeRoute = req.route.themes[rt.site][rt.theme][rt.method];
             if (pb.log.isSilly()) {
                 pb.log.silly("RequestHandler: Settling on theme [%s] and method [%s] for URL=[%s:%s]", rt.theme, rt.method, req.method, req.handler.url.href);
