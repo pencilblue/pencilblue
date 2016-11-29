@@ -196,8 +196,68 @@ describe('Middleware', function() {
 
     describe('deriveActiveTheme', function() {
 
-        it('', function(done) {
-            done();
+        var settingServiceCbIndex = 1;
+        var settingService = { 'get': function(){} };
+
+        it('should call back with an error when the setting service asynchronously calls back with an error', function(done) {
+            var error = new Error('expected');
+            req.siteObj = {
+                uid: 'abc'
+            };
+
+            var mockSettingService = sandbox.mock(settingService);
+            mockSettingService.expects('get').once().callsArgWith(settingServiceCbIndex, error, null);
+            sandbox.stub(this.pb.SettingServiceFactory, 'getService')
+                .withArgs(this.pb.config.settings.use_memory, this.pb.config.settings.use_cache, req.siteObj.uid)
+                .returns(settingService);
+
+            this.pb.Middleware.deriveActiveTheme(req, res, function(err) {
+                err.should.eql(err);
+                should(req.activeTheme).eql(undefined);
+                should(req.handler.activeTheme).eql(null);
+                mockSettingService.verify();
+                done();
+            });
+        });
+
+        it('should default to the theme specified in the configuration when an active theme is not set', function(done) {
+            req.siteObj = {
+                uid: 'abc'
+            };
+            var mockSettingService = sandbox.mock(settingService);
+            mockSettingService.expects('get').once().callsArgWith(settingServiceCbIndex, null, null);
+            sandbox.stub(this.pb.SettingServiceFactory, 'getService')
+                .withArgs(this.pb.config.settings.use_memory, this.pb.config.settings.use_cache, req.siteObj.uid)
+                .returns(settingService);
+
+            var self = this;
+            this.pb.Middleware.deriveActiveTheme(req, res, function(err) {
+                should(err).eql(undefined);
+                req.activeTheme.should.eql(self.pb.config.plugins.default);
+                req.handler.activeTheme.should.eql(self.pb.config.plugins.default);
+                mockSettingService.verify();
+                done();
+            });
+        });
+
+        it('should set the retrieved active theme as a property on the request and handler', function(done) {
+            var expectedTheme = 'expected-theme';
+            req.siteObj = {
+                uid: 'abc'
+            };
+            var mockSettingService = sandbox.mock(settingService);
+            mockSettingService.expects('get').once().callsArgWith(settingServiceCbIndex, null, expectedTheme);
+            sandbox.stub(this.pb.SettingServiceFactory, 'getService')
+                .withArgs(this.pb.config.settings.use_memory, this.pb.config.settings.use_cache, req.siteObj.uid)
+                .returns(settingService);
+
+            this.pb.Middleware.deriveActiveTheme(req, res, function(err) {
+                should(err).eql(undefined);
+                req.activeTheme.should.eql(expectedTheme);
+                req.handler.activeTheme.should.eql(expectedTheme);
+                mockSettingService.verify();
+                done();
+            });
         });
     });
 

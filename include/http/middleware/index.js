@@ -195,6 +195,9 @@ module.exports = function(pb) {
         static deriveActiveTheme (req, res, next) {
             var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, req.siteObj.uid);
             settings.get('active_theme', function (err, activeTheme) {
+                if (util.isError(err)) {
+                    return next(err);
+                }
                 if (!activeTheme) {
                     pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", pb.config.plugins.default);
                     activeTheme = pb.config.plugins.default;
