@@ -265,5 +265,44 @@ describe('Router', function() {
                 done();
             });
         });
+
+        var expectedError = new Error('expected');
+        [
+            {
+                name: 'thrown synchronously',
+                action: function() {
+                    throw expectedError;
+                }
+            },
+            {
+                name: 'thrown asynchronously',
+                action: function() {
+                    process.nextTick(function() {
+                        throw expectedError;
+                    });
+                }
+            }
+        ].forEach(function(middleware) {
+            it('should catch and handle an error that is ' + middleware.name + ' from middleware', function(done) {
+                this.pb.Router.addMiddlewareBeforeAll(middleware).should.eql(true);
+
+                var req = {
+                    url: 'https://pencilblue.org',
+                    headers: {
+                        host: 'pencilblue.org'
+                    }
+                };
+                var res = {};
+                var router = new this.pb.Router(req, res);
+                router.handle(req, res)
+                    .then(function() {
+                        done.fail();
+                    },
+                    function(err) {
+                        err.should.eql(expectedError);
+                        done();
+                    });
+            });
+        });
     });
 });

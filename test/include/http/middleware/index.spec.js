@@ -329,8 +329,23 @@ describe('Middleware', function() {
 
     describe('emitRouteThemeRetrieved', function() {
 
-        it('', function(done) {
-            done();
+        it('should call back with an error when one is created by the middleware', function(done) {
+            var expectedError = new Error('expected');
+            sandbox.stub(req.handler, 'emitThemeRouteRetrieved').callsArgWith(0, expectedError);
+            this.pb.Middleware.emitRouteThemeRetrieved(req, res, function(err) {
+                err.should.eql(expectedError);
+                req.handler.emitThemeRouteRetrieved.calledOnce.should.eql(true);
+                done();
+            });
+        });
+
+        it('should callback without error when the event is emitted without an error', function(done) {
+            sandbox.stub(req.handler, 'emitThemeRouteRetrieved').callsArgWith(0);
+            this.pb.Middleware.emitRouteThemeRetrieved(req, res, function (err) {
+                should(err).eql(undefined);
+                req.handler.emitThemeRouteRetrieved.calledOnce.should.eql(true);
+                done();
+            });
         });
     });
 

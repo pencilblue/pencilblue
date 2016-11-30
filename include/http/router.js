@@ -3,6 +3,7 @@
 //dependencies
 var url = require('url');
 var util = require('util');
+var domain = require('domain');
 
 module.exports = function (pb) {
 
@@ -104,7 +105,15 @@ module.exports = function (pb) {
                 });
                 sync = false;
             };
-            execute();
+
+            domain.create()
+                .once('error', function(err) {
+                    pb.log.error('Router: An unhandled error occurred after calling middleware "%s": %s', Router.middleware[self.index].name, err.stack);
+                    reject(err);
+                })
+                .run(function() {
+                    process.nextTick(execute);
+                });
             return promise;
         }
 
@@ -112,7 +121,6 @@ module.exports = function (pb) {
          * Instructs the router to continue pipeline execution after the specified middleware.
          * @method continueAfter
          * @param {string} middlewareName
-         * @param {function} [cb]
          */
         continueAfter (middlewareName) {
             var index = Router.indexOfMiddleware(middlewareName);
