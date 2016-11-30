@@ -349,11 +349,60 @@ describe('Middleware', function() {
         });
     });
 
-    describe('inactiveAccessCheck', function() {
+    describe.only('inactiveAccessCheck', function() {
 
-        it('', function(done) {
+        beforeEach(function() {
+            req.themeRoute = {};
+            req.siteObj = {};
+            req.router = {}
+        });
+
+        it('should redirect to the admin home page when: the site is inactive, inactive access is not allowed for the route, and the site is global', function(done) {
+            req.siteObj.active = false;
+            req.themeRoute.inactive_site_access = false;
+            req.siteObj.uid = this.pb.SiteService.GLOBAL_SITE;
+
+            req.router.redirect = sandbox.stub().withArgs('/admin');
+            this.pb.Middleware.inactiveAccessCheck(req, res, null);
+            req.router.redirect.calledOnce.should.eql(true);
+
             done();
         });
+
+        it('should call back with a not found error when: the site is inactive, inactive access is not allowed for the route, and the site is not global', function(done) {
+            req.siteObj.active = false;
+            req.themeRoute.inactive_site_access = false;
+            req.siteObj.uid = 'abcd';
+
+            this.pb.Middleware.inactiveAccessCheck(req, res, function(err) {
+
+                err.code.should.eql(HttpStatusCodes.NOT_FOUND);
+                done();
+            });
+        });
+
+        it('should pass the check if the site is inactive but the route allows for inactive access', function(done) {
+            req.siteObj.active = false;
+            req.themeRoute.inactive_site_access = true;
+
+            this.pb.Middleware.inactiveAccessCheck(req, res, function(err) {
+
+                should(err).eql(undefined);
+                done();
+            });
+        });
+
+        it('should pass the check if the site is active', function(done) {
+            req.siteObj.active = true;
+            
+            this.pb.Middleware.inactiveAccessCheck(req, res, function(err) {
+
+                should(err).eql(undefined);
+                done();
+            });
+        });
+
+
     });
 
     describe('systemSetupCheck', function() {

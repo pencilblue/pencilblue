@@ -263,9 +263,7 @@ module.exports = function(pb) {
                 if (req.siteObj.uid === pb.SiteService.GLOBAL_SITE) {
                     return req.router.redirect('/admin');
                 }
-                else {
-                    return next(ErrorUtils.notFound());
-                }
+                return next(ErrorUtils.notFound());
             }
 
             next();
