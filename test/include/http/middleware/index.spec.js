@@ -394,21 +394,56 @@ describe('Middleware', function() {
 
         it('should pass the check if the site is active', function(done) {
             req.siteObj.active = true;
-            
+
             this.pb.Middleware.inactiveAccessCheck(req, res, function(err) {
 
                 should(err).eql(undefined);
                 done();
             });
         });
-
-
     });
 
-    describe('systemSetupCheck', function() {
+    describe.only('systemSetupCheck', function() {
 
-        it('', function(done) {
+        it('should call back with an error when the system setup check fails', function(done) {
+            var expectedError = new Error('expected')
+            req.themeRoute = { hello: 'world' };
+            sandbox.stub(req.handler, 'checkSystemSetup').callsArgWith(1, expectedError);
+
+            this.pb.Middleware.systemSetupCheck(req, res, function(err) {
+                err.should.eql(expectedError);
+                done();
+            });
+        });
+
+        it('should redirect to the specified location when the check is not successful', function(done) {
+            var expectedResult = {
+                success: false,
+                redirect: '/hello/world'
+            };
+            req.themeRoute = { hello: 'world' };
+            req.router = { redirect: function(){}};
+            sandbox.stub(req.handler, 'checkSystemSetup').callsArgWith(1, null, expectedResult);
+            sandbox.stub(req.router, 'redirect').withArgs(expectedResult.redirect);
+
+            this.pb.Middleware.systemSetupCheck(req, res, null);
+            req.router.redirect.calledOnce.should.eql(true);
+
             done();
+        });
+
+        it('should pass the check when the check passes', function(done) {
+            var expectedResult = {
+                success: true
+            };
+            req.themeRoute = { hello: 'world' };
+            sandbox.stub(req.handler, 'checkSystemSetup').callsArgWith(1, null, expectedResult);
+
+            this.pb.Middleware.systemSetupCheck(req, res, function(err) {
+                should(err).eql(undefined);
+                req.handler.checkSystemSetup.calledOnce.should.eql(true);
+                done();
+            })
         });
     });
 
