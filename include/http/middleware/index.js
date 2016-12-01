@@ -368,13 +368,13 @@ module.exports = function(pb) {
         static localizedRouteCheck (req, res, next) {
             var pathVars = req.pathVars;
             if (typeof pathVars.locale !== 'undefined') {
-                if (!this.siteObj.supportedLocales[pathVars.locale]) {
+                if (!req.siteObj.supportedLocales[pathVars.locale]) {
                     return next(ErrorUtils.notFound());
                 }
 
                 //update the localization
                 req.handler.localizationService = req.localizationService = req.handler.deriveLocalization({
-                    session: this.session,
+                    session: req.session,
                     routeLocalization: pathVars.locale
                 });
             }

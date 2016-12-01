@@ -349,7 +349,7 @@ describe('Middleware', function() {
         });
     });
 
-    describe.only('inactiveAccessCheck', function() {
+    describe('inactiveAccessCheck', function() {
 
         beforeEach(function() {
             req.themeRoute = {};
@@ -518,15 +518,63 @@ describe('Middleware', function() {
 
     describe('derivePathVariables', function() {
 
-        it('', function(done) {
-            done();
+        it('should set the pathVars property on the request', function(done) {
+            var expected = { hello: 'world' };
+            sandbox.stub(req.handler, 'getPathVariables').returns(expected);
+            this.pb.Middleware.derivePathVariables(req, res, function(err) {
+                should(err).eql(undefined);
+                req.pathVars.should.eql(expected);
+                done();
+            });
         });
     });
 
     describe('localizedRouteCheck', function() {
 
-        it('', function(done) {
-            done();
+        it('should call back with a NOT FOUND error when the route supports localization but the site does not support the locale', function(done) {
+            req.pathVars = {
+                locale: 'en-US'
+            };
+            req.siteObj = {
+                supportedLocales: {}
+            };
+            this.pb.Middleware.localizedRouteCheck(req, res, function(err) {
+                err.code.should.eql(HttpStatusCodes.NOT_FOUND);
+                done();
+            });
+        });
+
+        it('should update the localization service when the route is localized and the intended locale is supported by the site', function(done) {
+            req.pathVars = {
+                locale: 'en-US'
+            };
+            req.siteObj = {
+                supportedLocales: {
+                    'en-US': true
+                }
+            };
+            req.session = { hello: 'world' };
+            var localizationService = {};
+            sandbox.stub(req.handler, 'deriveLocalization')
+                .withArgs({session: req.session, routeLocalization: 'en-US'})
+                .returns(localizationService);
+
+            this.pb.Middleware.localizedRouteCheck(req, res, function(err) {
+                should(err).eql(undefined);
+                req.localizationService.should.eql(localizationService);
+                req.handler.localizationService.should.eql(localizationService);
+                req.handler.deriveLocalization.calledOnce.should.eql(true);
+                done();
+            });
+        });
+
+        it('should skip the localization check when the route does not support localization', function(done) {
+            req.pathVars = {};
+            this.pb.Middleware.localizedRouteCheck(req, res, function(err) {
+                should(err).eql(undefined);
+                should(req.handler.localizationService).eql(undefined);
+                done();
+            });
         });
     });
 
