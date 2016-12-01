@@ -403,7 +403,7 @@ describe('Middleware', function() {
         });
     });
 
-    describe.only('systemSetupCheck', function() {
+    describe('systemSetupCheck', function() {
 
         it('should call back with an error when the system setup check fails', function(done) {
             var expectedError = new Error('expected')
@@ -449,15 +449,70 @@ describe('Middleware', function() {
 
     describe('requiresAuthenticationCheck', function() {
 
-        it('', function(done) {
-            done();
+        it('should call back with a NOT AUTHORIZED error when a redirect is detected', function(done) {
+            var authCheckResult = {
+                redirect: true
+            };
+            sandbox.stub(this.pb.RequestHandler, 'checkRequiresAuth').returns(authCheckResult);
+            this.pb.Middleware.requiresAuthenticationCheck(req, res, function(err) {
+                err.code.should.eql(HttpStatusCodes.UNAUTHORIZED);
+                done();
+            });
+        });
+
+        it('should pass the authentication check when no redirect property is set on the result', function(done) {
+            var authCheckResult = {
+                redirect: false
+            };
+            sandbox.stub(this.pb.RequestHandler, 'checkRequiresAuth').returns(authCheckResult);
+            this.pb.Middleware.requiresAuthenticationCheck(req, res, function(err) {
+                should(err).eql(null);
+                done();
+            });
         });
     });
 
     describe('authorizationCheck', function() {
 
-        it('', function(done) {
-            done();
+        it('should call back with a FORBIDDEN error when role check fails', function(done) {
+            var roleCheckResult = {
+                success: false
+            };
+            sandbox.stub(this.pb.RequestHandler, 'checkAdminLevel').returns(roleCheckResult);
+            this.pb.Middleware.authorizationCheck(req, res, function(err) {
+                err.code.should.eql(HttpStatusCodes.FORBIDDEN);
+                done();
+            });
+        });
+
+        it('should call back with a FORBIDDEN error when permission check fails', function(done) {
+            var roleCheckResult = {
+                success: true
+            };
+            var permCheckResult = {
+                success: false
+            };
+            sandbox.stub(this.pb.RequestHandler, 'checkAdminLevel').returns(roleCheckResult);
+            sandbox.stub(this.pb.RequestHandler, 'checkPermissions').returns(permCheckResult);
+            this.pb.Middleware.authorizationCheck(req, res, function(err) {
+                err.code.should.eql(HttpStatusCodes.FORBIDDEN);
+                done();
+            });
+        });
+
+        it('should pass the check when the role and permissions are good', function(done) {
+            var roleCheckResult = {
+                success: true
+            };
+            var permCheckResult = {
+                success: true
+            };
+            sandbox.stub(this.pb.RequestHandler, 'checkAdminLevel').returns(roleCheckResult);
+            sandbox.stub(this.pb.RequestHandler, 'checkPermissions').returns(permCheckResult);
+            this.pb.Middleware.authorizationCheck(req, res, function(err) {
+                should(err).eql(null);
+                done();
+            });
         });
     });
 
