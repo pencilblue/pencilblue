@@ -28,3 +28,13 @@ h4 {
 h5, h6 {
   font-size: 1rem;
 }
+
+a {
+  color: $light-blue;
+  text-decoration: none;
+}
+
+a:hover {
+  color: $lighter-blue;
+  text-decoration: none !important;
+}

@@ -15,8 +15,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-'use strict';
-
 /* PLACEHOLDER UNTIL SERVICE EXISTS */
 let quickItems = [{
   type: 'IMAGE',
@@ -65,6 +63,8 @@ class LeftNav extends React.Component {
       navOpen: null,
       navItems: []
     };
+
+    this.toggleNav = this.toggleNav.bind(this);
   }
 
   toggleNav() {
@@ -135,7 +135,7 @@ class LeftNav extends React.Component {
               return <LeftNavQuickItem key={item.href} item={item} />
             })}
           </div>
-          <div className="toggle-button" onClick={this.toggleNav.bind(this)}>
+          <div className="toggle-button" onClick={this.toggleNav}>
             <i className={toggleClasses}></i>
           </div>
         </div>
@@ -161,6 +161,8 @@ class LeftNavItem extends React.Component {
     this.state = {
       item: props.item
     };
+
+    this.toggleItem = this.toggleItem.bind(this);
   }
 
   toggleItem() {
@@ -195,7 +197,7 @@ class LeftNavItem extends React.Component {
 
       template = (
         <div className={itemClasses}>
-          <div className="header" onClick={this.toggleItem.bind(this)}>
+          <div className="header" onClick={this.toggleItem}>
             <i className={iconClasses} />
             {this.state.item.title}
           </div>

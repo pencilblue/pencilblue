@@ -4,7 +4,21 @@
   padding: 0.5rem;
   border-radius: 0.125rem;
 
-  div:last-child {
+  a {
+    color: $lighter-blue;
+  }
+
+  a:hover {
+    color: white;
+  }
+
+  h2, h3 {
+    a {
+      color: white;
+    }
+  }
+
+  *:last-child {
     margin-bottom: 0;
   }
 }
