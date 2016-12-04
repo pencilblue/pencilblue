@@ -410,7 +410,7 @@ module.exports = function(pb) {
         static parseRequestBody (req, res, next) {
             req.handler.parseBody(req.themeRoute.request_body, function (err, body) {
                 if (util.isError(err)) {
-                    err.code = 400;
+                    err.code = HttpStatus.BAD_REQUEST;
                 }
                 req.body = body;
                 next(err);
@@ -440,7 +440,7 @@ module.exports = function(pb) {
          * @param {Response} res The response object that compliments the current request
          * @param {function} next (Error) Callback function that takes a single parameter, an error if it occurred
          */
-        static render (req, res, next) {console.log(req.themeRoute.handler ? req.themeRoute.handler : 'render');
+        static render (req, res, next) {
             req.controllerInstance[req.themeRoute.handler ? req.themeRoute.handler : 'render'](function (result) {
                 if (util.isError(result)) {
                     return next(result);
@@ -464,7 +464,7 @@ module.exports = function(pb) {
                 try {
                     cookies.set(pb.SessionHandler.COOKIE_NAME, req.session.uid, pb.SessionHandler.getSessionCookie(req.session));
                 }
-                catch (e) {
+                catch (e) {console.log(e);
                     pb.log.error('RequestHandler: Failed to set cookie: %s', e.stack);
                 }
             }

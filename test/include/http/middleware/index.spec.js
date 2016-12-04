@@ -4,6 +4,7 @@
 var Url = require('url');
 var should = require('should');
 var sinon = require('sinon');
+var Cookies = require('cookies');
 var HttpStatusCodes = require('http-status-codes');
 var TestHelpers = require('../../../test_helpers.js');
 
@@ -580,36 +581,207 @@ describe('Middleware', function() {
 
     describe('instantiateController', function() {
 
-        it('', function(done) {
-            done();
+        it('should create a new instance of the controller from the route theme properties: site, theme, HTTP method', function(done) {
+            function ControllerSample(){}
+            req.routeTheme = {
+                site: 'global',
+                theme: 'pencilblue',
+                method: 'get'
+            };
+            req.route = {
+                themes: {
+                    global: {
+                        pencilblue: {
+                            'get': {
+                                controller: ControllerSample
+                            }
+                        }
+                    }
+                }
+            };
+            this.pb.Middleware.instantiateController(req, res, function(err) {
+                should(err).eql(undefined);
+                (req.controllerInstance instanceof ControllerSample).should.eql(true);
+                done();
+            });
         });
     });
 
     describe('parseRequestBody', function() {
 
-        it('', function(done) {
-            done();
+        it('should call back with a bad request error when the request body fails to parse', function(done) {
+            var expectedError = new Error('expected');
+            req.themeRoute = {
+                request_body: 'application/json'
+            };
+            sandbox.stub(req.handler, 'parseBody')
+                .withArgs(req.themeRoute.request_body, sinon.match.func)
+                .callsArgWith(1, expectedError);
+            this.pb.Middleware.parseRequestBody(req, res, function(err) {
+                err.code.should.eql(HttpStatusCodes.BAD_REQUEST);
+                should(req.body).eql(undefined);
+                req.handler.parseBody.calledOnce.should.eql(true);
+                done();
+            });
+        });
+
+        it('should set the parsed body object on the request when the body is valid', function(done) {
+            var expectedBody = { hello: 'world' };
+            req.themeRoute = {
+                request_body: 'application/json'
+            };
+            sandbox.stub(req.handler, 'parseBody')
+                .withArgs(req.themeRoute.request_body, sinon.match.func)
+                .callsArgWith(1, null, expectedBody);
+            this.pb.Middleware.parseRequestBody(req, res, function(err) {
+                should(err).eql(null);
+                req.body.should.eql(expectedBody);
+                req.handler.parseBody.calledOnce.should.eql(true);
+                done();
+            });
         });
     });
 
     describe('initializeController', function() {
 
-        it('', function(done) {
-            done();
+        it('should call back with an error when the controller fails to initialize', function(done) {
+            var expectedError = new Error('expected');
+            var expectedContext = { hello: 'world' };
+            req.controllerInstance = {
+                init: function(){}
+            };
+            sandbox.stub(this.pb.RequestHandler, 'buildControllerContext')
+                .withArgs(req, res)
+                .returns(expectedContext);
+            sandbox.stub(req.controllerInstance, 'init')
+                .withArgs(expectedContext, sinon.match.func)
+                .callsArgWith(1, expectedError);
+            var self = this;
+            this.pb.Middleware.initializeController(req, res, function(err) {
+                err.should.eql(expectedError);
+                self.pb.RequestHandler.buildControllerContext.calledOnce.should.eql(true);
+                req.controllerInstance.init.calledOnce.should.eql(true);
+                done();
+            });
+        });
+
+        it('should build the controller context and initialize the controller', function(done) {
+            var expectedContext = { hello: 'world' };
+            req.controllerInstance = {
+                init: function(){}
+            };
+            sandbox.stub(this.pb.RequestHandler, 'buildControllerContext')
+                .withArgs(req, res)
+                .returns(expectedContext);
+            sandbox.stub(req.controllerInstance, 'init')
+                .withArgs(expectedContext, sinon.match.func)
+                .callsArgWith(1, null);
+            var self = this;
+            this.pb.Middleware.initializeController(req, res, function(err) {
+                should(err).eql(null);
+                self.pb.RequestHandler.buildControllerContext.calledOnce.should.eql(true);
+                req.controllerInstance.init.calledOnce.should.eql(true);
+                done();
+            });
         });
     });
 
     describe('render', function() {
 
-        it('', function(done) {
-            done();
+        it('should call back with an error when the controller result is an error', function(done) {
+            var expectedError = new Error('expected');
+            req.controllerInstance = {
+                render: function(){}
+            };
+            req.themeRoute = { handler: 'render' };
+            sandbox.stub(req.controllerInstance, 'render')
+                .withArgs(sinon.match.any)
+                .callsArgWith(0, expectedError);
+            this.pb.Middleware.render(req, res, function(err) {
+                err.should.eql(expectedError);
+                done();
+            });
+        });
+
+        it('should default to "render" when the handler name is not specified', function(done) {
+            var expectedResult = '<html><body>Hello World!</body></html>';
+            req.controllerInstance = {
+                render: function(){}
+            };
+            req.themeRoute = {};
+            sandbox.stub(req.controllerInstance, 'render')
+                .withArgs(sinon.match.any)
+                .callsArgWith(0, expectedResult);
+            this.pb.Middleware.render(req, res, function(err) {
+                should(err).eql(undefined);
+                req.controllerResult.should.eql(expectedResult);
+                req.controllerInstance.render.calledOnce.should.eql(true);
+                done();
+            });
+        });
+
+        it('should execute the controller with the specified handler name', function(done) {
+            var expectedResult = '<html><body>Hello World!</body></html>';
+            req.controllerInstance = {
+                doSomething: function(){}
+            };
+            req.themeRoute = { handler: 'doSomething' };
+            sandbox.stub(req.controllerInstance, 'doSomething')
+                .withArgs(sinon.match.any)
+                .callsArgWith(0, expectedResult);
+            this.pb.Middleware.render(req, res, function(err) {
+                should(err).eql(undefined);
+                req.controllerResult.should.eql(expectedResult);
+                req.controllerInstance.doSomething.calledOnce.should.eql(true);
+                done();
+            });
         });
     });
 
     describe('writeSessionCookie', function() {
 
-        it('', function(done) {
-            done();
+        it('should catch the synchronous error that is thrown when the attempt to write the session cookie fails', function(done) {
+            var expectedError = new Error('expected');
+            req.setSessionCookie = true;
+            req.session = { hello: 'world' };
+            sandbox.stub(this.pb.SessionHandler, 'getSessionCookie')
+                .withArgs(req.session).throws(expectedError);
+            sandbox.stub(this.pb.log, 'error').withArgs(sinon.match.string, sinon.match.string);
+            var self = this;
+            this.pb.Middleware.writeSessionCookie(req, res, function(err) {
+                should(err).eql(undefined);
+                self.pb.SessionHandler.getSessionCookie.calledOnce.should.eql(true);
+                self.pb.log.error.calledOnce.should.eql(true);
+                done();
+            });
+        });
+
+        it('should skip writting the session cookie if the flag setSessionCookie is not set on the request object', function(done) {
+            req.setSessionCookie = false;
+            sandbox.stub(this.pb.SessionHandler, 'getSessionCookie');
+            var self = this;
+            this.pb.Middleware.writeSessionCookie(req, res, function(err) {
+                should(err).eql(undefined);
+                self.pb.SessionHandler.getSessionCookie.called.should.eql(false);
+                done();
+            });
+        });
+
+        it('should set the cookie when the flag setSessionCookie is set on the request object', function(done) {
+            req.setSessionCookie = true;
+            req.session = { uid: 'abc123' };
+            sandbox.stub(this.pb.SessionHandler, 'getSessionCookie')
+                .withArgs(req.session).returns();
+            sandbox.stub(this.pb.log, 'error');
+            sandbox.stub(Cookies.prototype, 'set')
+                .withArgs(this.pb.SessionHandler.COOKIE_NAME, req.session.uid, sinon.match.any);
+            var self = this;
+            this.pb.Middleware.writeSessionCookie(req, res, function(err) {
+                should(err).eql(undefined);
+                self.pb.SessionHandler.getSessionCookie.calledOnce.should.eql(true);
+                self.pb.log.error.called.should.eql(false);
+                done();
+            });
         });
     });
 
