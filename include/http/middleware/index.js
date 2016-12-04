@@ -482,7 +482,7 @@ module.exports = function(pb) {
          */
         static writeResponse (req, res, next) {
             var data = req.controllerResult;
-            var doRedirect = typeof data.redirect !== 'undefined';
+            var doRedirect = typeof data.redirect === 'string';
             if (doRedirect) {
                 req.didRedirect = true;
                 req.handler.doRedirect(data.redirect, data.code);
