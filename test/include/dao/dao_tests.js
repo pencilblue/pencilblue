@@ -76,4 +76,16 @@ describe('DAO', function() {
             DAO.areIdsEqual(id1, id2).should.be.ok();
         });
     });
+    
+    describe('DAO.getObjectId', function() {
+
+        it('should return object id', function() {
+            var id = pb.util.uniqueId();
+            DAO.getObjectId(id).should.be.String().and.equal(id);
+            DAO.getObjectId('').should.not.be.instanceOf(ObjectID);
+            
+            id = new ObjectID();
+            DAO.getObjectId(id).should.be.instanceOf(ObjectID);
+        });
+    });
 });

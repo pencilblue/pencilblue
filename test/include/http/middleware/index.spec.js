@@ -168,8 +168,58 @@ describe('Middleware', function() {
 
     describe('deriveSite', function() {
 
-        it('', function(done) {
-            done();
+        afterEach(function() {
+            this.pb.RequestHandler.sites = {};
+            this.pb.RequestHandler.redirectHosts = {};
+        });
+
+        it('should redirect when an outdated hostname is used for a site', function() {
+            this.pb.RequestHandler.sites = {
+                'test2.localhost:8080': {}
+            };
+            this.pb.RequestHandler.redirectHosts = {
+                'test1.localhost:8080': 'test2.localhost:8080'
+            };
+            req.router = {
+                redirect: function(){}
+            };
+            sandbox.stub(req.router, 'redirect').withArgs(sinon.match.string, HttpStatusCodes.MOVED_PERMANENTLY);
+            this.pb.Middleware.deriveSite(req, res, function() {});
+            req.router.redirect.calledOnce.should.eql(true);
+        });
+
+        it('should call back with an error when the site is not available as a redirect host', function(done) {
+            this.pb.RequestHandler.sites = {};
+            this.pb.RequestHandler.redirectHosts = {
+                'test1.localhost:8080': 'test2.localhost:8080'
+            };
+            this.pb.Middleware.deriveSite(req, res, function(err) {
+                should(err instanceof Error).eql(true);
+                done();
+            });
+        });
+
+        it('should derive the site', function(done) {
+            var siteObj = {
+                uid: 'abcdefg',
+                displayName: 'Hello World',
+                supportedLocales: {}
+            };
+            this.pb.RequestHandler.sites = {
+                'test1.localhost:8080': siteObj
+            };
+            var self = this;
+            this.pb.Middleware.deriveSite(req, res, function(err) {
+                should(err).eql(undefined);
+                req.handler.siteObj.should.eql(siteObj);
+                req.siteObj.should.eql(siteObj);
+                should(req.localizationService instanceof self.pb.Localization).eql(true);
+                req.site.should.eql(siteObj.uid);
+                req.handler.site.should.eql(siteObj.uid);
+                req.siteName.should.eql(siteObj.displayName);
+                req.handler.siteName.should.eql(siteObj.displayName);
+                done();
+            });
         });
     });
 
@@ -787,29 +837,103 @@ describe('Middleware', function() {
 
     describe('writeResponse', function() {
 
-        it('', function(done) {
-            done();
+        it('should do a redirect when the controller result contains a string typed redirect property', function(done) {
+            req.controllerResult = { redirect: '/', code: HttpStatusCodes.MOVED_PERMANENTLY };
+            sandbox.stub(req.handler, 'doRedirect').withArgs(req.controllerResult.redirect, req.controllerResult.code);
+
+            this.pb.Middleware.writeResponse(req, res, function(err) {
+                should(err).eql(undefined);
+                req.didRedirect.should.eql(true);
+                req.handler.doRedirect.calledOnce.should.eql(true);
+                done();
+            });
+        });
+
+        it('should write the response when the result does not contain a string redirect property', function(done) {
+            req.controllerResult = { hello: 'world' };
+            sandbox.stub(req.handler, 'doRedirect');
+            sandbox.stub(req.handler, 'writeResponse').withArgs(req.controllerResult);
+
+            this.pb.Middleware.writeResponse(req, res, function(err) {
+                should(err).eql(undefined);
+                req.handler.doRedirect.called.should.eql(false);
+                req.handler.writeResponse.calledOnce.should.eql(true);
+                done();
+            });
         });
     });
 
     describe('responseTime', function() {
 
-        it('', function(done) {
-            done();
+        it('should set the end time on the request and log the interaction when: log level is debug, no redirect, and no status code', function(done) {
+            req.didRedirect = false;
+            req.url = '/admin/hello';
+            req.controllerResult = {};
+            sandbox.stub(this.pb.log, 'isDebug').returns(true);
+            sandbox.stub(this.pb.log, 'debug').withArgs(sinon.match.string, sinon.match.number, req.url, '', '');
+
+            var self = this;
+            this.pb.Middleware.responseTime(req, res, function(err) {
+                should(err).eql(undefined);
+                self.pb.log.isDebug.calledOnce.should.eql(true);
+                self.pb.log.debug.calledOnce.should.eql(true);
+                done();
+            });
+        });
+
+        it('should set the end time on the request and log the interaction when: log level is debug, a redirect, and a status code', function(done) {
+            req.didRedirect = true;
+            req.url = '/admin/hello';
+            req.controllerResult = { redirect: '/somewhere/else', code: HttpStatusCodes.MOVED_TEMPORARILY };
+            sandbox.stub(this.pb.log, 'isDebug').returns(true);
+            sandbox.stub(this.pb.log, 'debug')
+                .withArgs(sinon.match.string, sinon.match.number, req.url, ' REDIRECT=/somewhere/else', ' CODE='+HttpStatusCodes.MOVED_TEMPORARILY);
+
+            var self = this;
+            this.pb.Middleware.responseTime(req, res, function(err) {
+                should(err).eql(undefined);
+                self.pb.log.isDebug.calledOnce.should.eql(true);
+                self.pb.log.debug.calledOnce.should.eql(true);
+                done();
+            });
         });
     });
 
     describe('principalClose', function() {
 
-        it('', function(done) {
-            done();
+        it('should not attempt to close the session if no session is available on the request', function(done) {
+            delete req.session;
+
+            sandbox.stub(this.pb.session, 'close');
+            var self = this;
+            this.pb.Middleware.principalClose(req, res, function(err) {
+                should(err).eql(undefined);
+                self.pb.session.close.called.should.eql(false);
+                done();
+            });
+        });
+
+        it('should attempt to close the session and log the error when one is provided as an argument to the call back', function(done) {
+            req.session = { hello: 'world', uid: 'abc' };
+            var expectedError = new Error('expected');
+            sandbox.stub(this.pb.session, 'close')
+                .withArgs(req.session, sinon.match.func)
+                .callsArgWith(1, expectedError);
+            sandbox.stub(this.pb.log, 'warn').withArgs(sinon.match.string, req.session.uid);
+            var self = this;
+            this.pb.Middleware.principalClose(req, res, function(err) {
+                should(err).eql(undefined);
+                self.pb.session.close.calledOnce.should.eql(true);
+                self.pb.log.warn.calledOnce.should.eql(true);
+                done();
+            });
         });
     });
 
     describe('getAll', function() {
 
-        it('', function(done) {
-            done();
+        it('should return all default middleware', function() {
+            this.pb.Middleware.getAll().length.should.be.greaterThan(0);
         });
     });
 });
