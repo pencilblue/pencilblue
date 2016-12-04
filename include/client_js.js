@@ -45,12 +45,12 @@ module.exports = function ClientJsModule(pb) {
 
         var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ')';
         if(!util.isNullOrUndefined(directiveJS)) {
-            angularController += '.directive("onFinishRender", function($timeout){return {restrict: "A",link: function(scope, element, attr){if (scope.$last === true){$timeout(function(){' + directiveJS + '})}}}})';
+            angularController += '.directive("onFinishRender", function($timeout) {return {restrict: "A", link: function(scope, element, attr) {if (scope.$last === true){$timeout(function() {' + directiveJS + '})}}}})';
         }
 
         var scopeString = ClientJs.getAngularObjects(objects);
         angularController = angularController.concat('.controller("PencilBlueController", function($scope, $sce) {' + scopeString + "});\n");
-        angularController = angularController.concat('pencilblueApp.config(["$compileProvider",function(e){e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/)}]);');
+        angularController = angularController.concat('pencilblueApp.config(["$compileProvider",function(e) {e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/)}]);');
         return ClientJs.getJSTag(angularController);
     };
 
@@ -68,7 +68,7 @@ module.exports = function ClientJsModule(pb) {
                 scopeString = scopeString.concat('$scope.' + key + ' = ' + objects[key] + ";\n");
                 return;
             }
-            scopeString = scopeString.concat('$scope.' + key + '=' + JSON.stringify(objects[key], null, pb.log.isSilly() ? ' ' : undefined) + ";\n");
+            scopeString = scopeString.concat('$scope.' + key + ' = ' + JSON.stringify(objects[key], null, pb.log.isSilly() ? ' ' : undefined) + ";\n");
         });
 
         return scopeString;

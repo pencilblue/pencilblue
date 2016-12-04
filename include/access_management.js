@@ -295,7 +295,7 @@ module.exports = function(pb) {
     SecurityService.generatePassword = function(length) {
 
         //ensure a length
-        if (pb.validation.isInt(length, true, true)) {
+        if (!pb.validation.isInt(length, true, true) || length < 8) {
             length = 8;
         }
 
