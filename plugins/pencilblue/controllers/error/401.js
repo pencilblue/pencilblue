@@ -40,7 +40,7 @@ module.exports = function (pb) {
      * @param {Object} context
      */
     NotAuthorizedController.prototype.initSync = function(/*context*/) {
-            this.setPageName(this.ls.g('error.NOT_AUTHORIZED'));
+        this.setPageName(this.ls.g('error.NOT_AUTHORIZED'));
     };
 
     /**
@@ -49,11 +49,11 @@ module.exports = function (pb) {
      */
     NotAuthorizedController.prototype.render = function(cb) {
 
-        var href = this.reqHandler.url.href;
-        this.session.on_login = this.req.method.toLowerCase() === 'get' ? href :
+        var urlObj = this.reqHandler.url;
+        this.session.on_login = this.req.method.toLowerCase() === 'get' ? urlObj.href :
             pb.UrlService.createSystemUrl('/admin', { hostname: this.hostname });
 
-        var location = RequestHandler.isAdminURL(href) ? '/admin/login' : '/user/login';
+        var location = RequestHandler.isAdminURL(urlObj.pathname) ? '/admin/login' : '/user/login';
         this.redirect(location, cb);
     };
 

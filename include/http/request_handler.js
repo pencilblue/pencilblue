@@ -25,6 +25,7 @@ var domain  = require('domain');
 var Cookies = require('cookies');
 var util    = require('../util.js');
 var _       = require('lodash');
+var HttpStatusCodes = require('http-status-codes');
 
 module.exports = function RequestHandlerModule(pb) {
 
@@ -1530,20 +1531,21 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     *
+     * Determines if the provided URL pathname "/admin/content/articles" is a valid admin URL.
      * @static
      * @method isAdminURL
-     * @param {String} url
+     * @param {String} urlPath
+     * @return {boolean} 
      */
-    RequestHandler.isAdminURL = function(url) {
-        if (url !== null) {
+    RequestHandler.isAdminURL = function(urlPath) {
+        if (urlPath !== null) {
 
-            var index = url.indexOf('/');
-            if (index === 0 && url.length > 0) {
-                url = url.substring(1);
+            var index = urlPath.indexOf('/');
+            if (index === 0 && urlPath.length > 0) {
+                urlPath = urlPath.substring(1);
             }
-
-            var pieces = url.split('/');
+            console.log(urlPath);
+            var pieces = urlPath.split('/');
             return pieces.length > 0 && pieces[0].indexOf('admin') === 0;
         }
         return false;
@@ -1564,8 +1566,7 @@ module.exports = function RequestHandlerModule(pb) {
             site = undefined;
         }
         if (url === null || RequestHandler.isAdminURL(url)) {
-            cb(null, false);
-            return;
+            return cb(null, false);
         }
         RequestHandler.urlExists(url, id, site, function(err, exists){
             cb(err, !exists);
@@ -1600,6 +1601,18 @@ module.exports = function RequestHandlerModule(pb) {
         return util.merge(BODY_PARSER_MAP, {});
     };
 
+    /**
+     * @static
+     * @method checkPermissions
+     * @param {object} context
+     * @param {object} context.themeRoute
+     * @param {Array} context.themeRoute.permissions
+     * @param {object} context.session
+     * @param {object} context.session.authentication
+     * @param {object} context.session.authentication.user
+     * @param {object} context.session.authentication.user.permissions
+     * @returns {{success: boolean}}
+     */
     RequestHandler.checkPermissions = function(context) {
 
         var result   = {success: true};
@@ -1607,16 +1620,16 @@ module.exports = function RequestHandlerModule(pb) {
         var auth     = context.session.authentication;
         if (auth && auth.user &&
             auth.access_level !== pb.SecurityService.ACCESS_ADMINISTRATOR &&
-            auth.user.permissisions &&
+            auth.user.permissions &&
             util.isArray(reqPerms)) {
 
-            var permMap = context.session.authentication.user.permissions;
+            var permMap = auth.user.permissions;
             for(var i = 0; i < reqPerms.length; i++) {
 
                 if (!permMap[reqPerms[i]]) {
                     result.success = false;
                     result.content = '403 Forbidden';
-                    result.code    = 403;
+                    result.code    = HttpStatusCodes.FORBIDDEN;
                     break;
                 }
             }
@@ -1624,10 +1637,21 @@ module.exports = function RequestHandlerModule(pb) {
         return result;
     };
 
+    /**
+     * @static
+     * @method checkAdminLevel
+     * @param {object} context
+     * @param {object} context.themeRoute
+     * @param {number} context.themeRoute.access_level
+     * @param {object} context.session
+     * @param {object} context.session.authentication
+     * @param {number} context.session.authentication.admin_level
+     * @returns {{success: boolean}}
+     */
     RequestHandler.checkAdminLevel = function(context) {
 
         var result = {success: true};
-        if (context.themeRoute.access_level !== undefined) {
+        if (typeof context.themeRoute.access_level !== 'undefined') {
 
             if (context.session.authentication.admin_level < context.themeRoute.access_level) {
                 result.success = false;
@@ -1638,6 +1662,21 @@ module.exports = function RequestHandlerModule(pb) {
         return result;
     };
 
+    /**
+     * @static
+     * @method checkRequiresAuth
+     * @param {object} context
+     * @param {object} context.themeRoute
+     * @param {boolean} context.themeRotue.auth_required
+     * @param {object} context.session
+     * @param {object} context.session.authentication
+     * @param {number} context.session.authentication.user_id
+     * @param {Request} context.req
+     * @param {string} context.hostname
+     * @param {object} context.url
+     * @param {string} context.url.href
+     * @returns {{success: boolean}}
+     */
     RequestHandler.checkRequiresAuth = function(context) {
 
         var result = {success: true};
@@ -1645,7 +1684,7 @@ module.exports = function RequestHandlerModule(pb) {
 
             if (context.session.authentication.user_id === null || context.session.authentication.user_id === undefined) {
                 result.success  = false;
-                result.redirect = RequestHandler.isAdminURL(context.url.href) ? '/admin/login' : '/user/login';
+                result.redirect = RequestHandler.isAdminURL(context.url.pathname) ? '/admin/login' : '/user/login';
                 context.session.on_login = context.req.method.toLowerCase() === 'get' ? context.url.href :
                     pb.UrlService.createSystemUrl('/admin', { hostname: context.hostname });
             }
@@ -1653,6 +1692,15 @@ module.exports = function RequestHandlerModule(pb) {
         return result;
     };
 
+    /**
+     * Builds out the context that is passed to a controller
+     * @static
+     * @method buildControllerContext
+     * @param {Request} req
+     * @param {Response} res
+     * @param {object} extraData
+     * @returns {Object}
+     */
     RequestHandler.buildControllerContext = function(req, res, extraData) {
         return util.merge(extraData || {}, {
             request_handler: req.handler,
