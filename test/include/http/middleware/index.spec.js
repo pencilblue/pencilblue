@@ -13,9 +13,9 @@ describe('Middleware', function() {
     TestHelpers.registerReset();
 
     //setup
-    var sandbox, req, res;
+    var req, res;
+    var sandbox = TestHelpers.registerSandbox();
     beforeEach(function() {
-        sandbox = sinon.sandbox.create();
         req = {
             connection: {
                 remoteAddress: '192.168.1.1'
@@ -28,11 +28,6 @@ describe('Middleware', function() {
         };
         res = {};
         req.handler = new this.pb.RequestHandler(null, req, res);
-    });
-
-    //tear down
-    afterEach(function () {
-        sandbox.restore();
     });
 
     describe('startTime', function() {

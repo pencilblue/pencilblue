@@ -1,26 +1,16 @@
 
 //dependencies
-var should        = require('should');
-var Configuration = require('../../../include/config.js');
-var Lib           = require('../../../lib');
+var should      = require('should');
+var TestHelpers = require('../../test_helpers');
 
-describe('RequestHandler', function(){
+describe('RequestHandler', function() {
 
-    var pb = null;
-    var RequestHandler = null;
-    before('Initialize the Environment with the default configuration', function() {
-
-        //travis gets slow so we bump the timeout just a little here to get around the BS
-        this.timeout(10000);
-
-        pb = new Lib(Configuration.getBaseConfig());
-        RequestHandler = pb.RequestHandler;
-    });
+    TestHelpers.registerReset();
 
     describe('RequestHandler.getBodyParsers', function() {
 
         it('should return the default list of body parsers', function() {
-           var result = RequestHandler.getBodyParsers();
+           var result = this.pb.RequestHandler.getBodyParsers();
             result.should.be.type('object');
             result['application/json'].should.be.type('function');
             result['application/x-www-form-urlencoded'].should.be.type('function');
@@ -34,7 +24,7 @@ describe('RequestHandler', function(){
         [null, undefined, ''].forEach(function(mime){
 
             it('should return false when an invalid mime '+mime+' is provided', function(){
-                var result = RequestHandler.registerBodyParser(mime, function(){});
+                var result = this.pb.RequestHandler.registerBodyParser(mime, function(){});
                 result.should.be.false();
             });
         });
@@ -42,22 +32,22 @@ describe('RequestHandler', function(){
         [null, undefined, '', false, true, 1, 10.0, {}].forEach(function(parser){
 
             it('should return false when an invalid parser '+parser+' is provided', function(){
-                var result = RequestHandler.registerBodyParser('application/xml', parser);
+                var result = this.pb.RequestHandler.registerBodyParser('application/xml', parser);
                 result.should.be.false();
             });
         });
 
         it('should replace the default parser when supplied with a mime that is already registered', function(){
 
-            var parsers = RequestHandler.getBodyParsers();
+            var parsers = this.pb.RequestHandler.getBodyParsers();
             var originalJsonParser = parsers['application/json'];
             originalJsonParser.should.be.type('function');
 
             var newParser = function(){};
-            var result = RequestHandler.registerBodyParser('application/json', newParser);
+            var result = this.pb.RequestHandler.registerBodyParser('application/json', newParser);
             result.should.be.true();
 
-            parsers = RequestHandler.getBodyParsers();
+            parsers = this.pb.RequestHandler.getBodyParsers();
             parsers['application/json'].should.not.eql(originalJsonParser);
             parsers['application/json'].should.eql(newParser);
         });
@@ -69,11 +59,11 @@ describe('RequestHandler', function(){
 
             var themeRoute = {a: '1', b: 2};
             var site = 'abc123';
-            var reqHandler = new RequestHandler(null, {url: '/hello/world', headers: {}});
+            var reqHandler = new this.pb.RequestHandler(null, {url: '/hello/world', headers: {}});
             reqHandler.routeTheme = themeRoute;
             reqHandler.site = site;
             var cnt = 0;
-            RequestHandler.on(RequestHandler.THEME_ROUTE_RETIEVED, function(ctx, cb) {
+            this.pb.RequestHandler.on(this.pb.RequestHandler.THEME_ROUTE_RETIEVED, function(ctx, cb) {
                 cnt++;
                 ctx.themeRoute.should.eql(themeRoute);
                 ctx.requestHandler.should.eql(reqHandler);
@@ -85,6 +75,15 @@ describe('RequestHandler', function(){
                 cnt.should.eql(1);
                 done();
             });
+        });
+    });
+
+    describe('buildControllerContext', function() {
+
+        it('should build out the controller context and merge in any extra properties', function() {
+            var expected = {
+
+            };
         });
     });
 });
