@@ -464,7 +464,7 @@ module.exports = function(pb) {
                 try {
                     cookies.set(pb.SessionHandler.COOKIE_NAME, req.session.uid, pb.SessionHandler.getSessionCookie(req.session));
                 }
-                catch (e) {console.log(e);
+                catch (e) {
                     pb.log.error('RequestHandler: Failed to set cookie: %s', e.stack);
                 }
             }

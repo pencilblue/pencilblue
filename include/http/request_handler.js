@@ -1535,7 +1535,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @static
      * @method isAdminURL
      * @param {String} urlPath
-     * @return {boolean} 
+     * @return {boolean}
      */
     RequestHandler.isAdminURL = function(urlPath) {
         if (urlPath !== null) {
@@ -1544,7 +1544,7 @@ module.exports = function RequestHandlerModule(pb) {
             if (index === 0 && urlPath.length > 0) {
                 urlPath = urlPath.substring(1);
             }
-            console.log(urlPath);
+
             var pieces = urlPath.split('/');
             return pieces.length > 0 && pieces[0].indexOf('admin') === 0;
         }
