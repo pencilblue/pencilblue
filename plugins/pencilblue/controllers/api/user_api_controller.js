@@ -89,10 +89,12 @@ module.exports = function(pb) {
             var tokens = search.split(' ');
             var first = tokens.shift();
             var second = tokens.length > 0 ? tokens.join(' ') : first;
+            var searchRegexp = new RegExp(util.escapeRegExp(search) + ANY_CHARS, IGNORE_CASE);
             where.$or = [
                 {first_name: new RegExp(util.escapeRegExp(first) + ANY_CHARS, IGNORE_CASE)},
                 {last_name: new RegExp(util.escapeRegExp(second) + ANY_CHARS, IGNORE_CASE)},
-                {email: new RegExp(util.escapeRegExp(search) + ANY_CHARS, IGNORE_CASE)}
+                {email: searchRegexp},
+                {username: searchRegexp}
             ];
         }
 

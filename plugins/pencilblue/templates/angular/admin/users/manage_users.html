@@ -35,16 +35,16 @@
 		}];
 
 		$scope.search = function() {
-			searchService.search($scope.searchText, $scope.users, ['username'], function(users) {
+			searchService.search($scope.searchText, $scope.users, ['username', 'email'], function(users) {
 				$scope.users = users;
 				$scope.paginate(0);
 			});
-		}
+		};
 
 		$scope.clearSearch = function() {
 			$scope.searchText = '';
 			$scope.search();
-		}
+		};
 
 		$scope.paginate = function(paginationIndex) {
 			$scope.paginationIndex = paginationIndex;
@@ -53,7 +53,7 @@
 				$scope.users = users;
 				$scope.paginationPages = paginationPages;
 			})
-		}
+		};
 
 		$scope.pageButtonVisible = function(testIndex) {
 			return paginationService.pageButtonVisible(testIndex, $scope.paginationIndex, $scope.paginationLimit);

@@ -64,6 +64,7 @@ module.exports = function VerifyEmailModule(pb) {
                     //convert to user
                     var user = unverifiedUser;
                     delete user[pb.DAO.getIdField()];
+                    delete user.id;
                     user.object_type = 'user';
 
                     dao.save(user, function(err, result) {

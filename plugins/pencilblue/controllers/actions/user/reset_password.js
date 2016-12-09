@@ -63,23 +63,23 @@ module.exports = function (pb) {
 
     ResetPassword.prototype.render = function(cb) {
         var self = this;
-        var get  = this.query;
+        var queryStr  = this.query;
 
         //ensure we were passed the correct parameters
-        if(this.hasRequiredParams(get, ['email', 'code'])) {
+        if(this.hasRequiredParams(queryStr, ['email', 'code'])) {
             return this.formError(self.ls.g('users.INVALID_VERIFICATION'), '/user/login', cb);
         }
 
         //retrieve the user
         var tasks = {
-            user: util.wrapTask(this.userService, this.userService.getSingle, [{where: {email: this.query.email}}]),
+            user: util.wrapTask(this.userService, this.userService.getSingle, [{where: {email: queryStr.email}}]),
             passwordReset: ['user', function(callback, data) {
 
                 //when no reset is found short circuit the whole thing
                 if (!data.user) {
-                    self.formError(self.ls.g('users.INVALID_VERIFICATION'), '/user/login', cb);
+                    return self.formError(self.ls.g('users.INVALID_VERIFICATION'), '/user/login', cb);
                 }
-                self.passwordResetService.getSingle({where: {userId: data.user[pb.DAO.getIdField()].toString(), verificationCode: self.query.code}}, callback);
+                self.passwordResetService.getSingle({where: {userId: data.user[pb.DAO.getIdField()].toString(), verificationCode: queryStr.code}}, callback);
             }],
             deletePasswordReset: ['user', 'passwordReset', function(callback, data) {
 
@@ -91,6 +91,9 @@ module.exports = function (pb) {
             }]
         };
         async.auto(tasks, function(err, data) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
 
             //log the user in
             self.session.authentication.user        = data.user;
