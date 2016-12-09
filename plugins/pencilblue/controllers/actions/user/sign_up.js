@@ -14,6 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var async = require('async');
@@ -101,9 +102,11 @@ module.exports = function (pb) {
                 collection      = 'unverified_user';
                 successRedirect = '/user/verification_sent';
                 successMsg      = self.ls.g('users.VERIFICATION_SENT') + post.email;
-                post.verification_code = util.uniqueId();
+                post.verificationCode = util.uniqueId();
             }
 
+            // This is the reason why emails are transformed to lowercase when signing up
+            // TODO: Change sign-up behaviour in 1.0
             var user = pb.DocumentCreator.create(collection, post);
 
             self.validateUniques(user, function(err, results) {

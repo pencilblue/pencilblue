@@ -24,6 +24,7 @@ var extend = require('node.extend');
 var fs     = require('fs');
 var path   = require('path');
 var uuid   = require('node-uuid');
+var RegExpUtils = require('./utils/reg_exp_utils');
 
 /**
  * Provides a set of utility functions used throughout the code base
@@ -97,16 +98,14 @@ Util.initArray = function(cnt, val) {
 
 /**
  * Escapes a regular expression.
+ * @deprecated since 0.7.1 Will be removed in 1.0.  Use RegExpUtils
  * @static
  * @method escapeRegExp
  * @param {String} The expression to escape
  * @return {String} Escaped regular expression.
  */
 Util.escapeRegExp = function(str) {
-	if (!Util.isString(str)) {
-		return null;
-	}
-	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+	return RegExpUtils.escape(str);
 };
 
 /**
