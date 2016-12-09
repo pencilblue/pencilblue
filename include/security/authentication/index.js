@@ -92,9 +92,10 @@ module.exports = function AuthenticationModule(pb) {
             return cb(new Error("FormAuthentication: The postObj parameter must be an object: "+postObj), null);
         }
 
-        //call the parent function
-        var userDocument = pb.DocumentCreator.create('user', postObj);
-        FormAuthentication.super_.prototype.authenticate.apply(this, [userDocument, cb]);
+        if (postObj.password) {
+            postObj.password = pb.security.encrypt(postObj.password);
+        }
+        FormAuthentication.super_.prototype.authenticate.apply(this, [postObj, cb]);
     };
 
     /**

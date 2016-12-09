@@ -46,6 +46,12 @@ module.exports = function WPXMLParseServiceModule(pb) {
          * @type {SiteQueryService}
          */
         this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
+        
+        /**
+         * @property service
+         * @type {UserService}
+         */
+        this.service = new pb.UserService({site: this.site, onlyThisSite: true});
     }
 
     /**
@@ -198,8 +204,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     users[index].admin = pb.SecurityService.ACCESS_WRITER;
                     users[index].password = generatedPassword;
 
-                    var newUser = pb.DocumentCreator.create('user', users[index]);
-                    self.siteQueryService.save(newUser, function(err, result) {
+                    self.service.add(users[index], function(err, result) {
                         if (util.isError(err)) {
                             return callback(err);
                         }
@@ -208,7 +213,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                         delete users[index].password;
                         users[index].generatedPassword = generatedPassword;
                         users[index][pb.DAO.getIdField()] = result[pb.DAO.getIdField()];
-                        callback(null, newUser);
+                        callback(null, users[index]);
                     });
                 });
             };
