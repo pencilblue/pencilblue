@@ -14,9 +14,11 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var util = require('../../util.js');
+var RegExpUtils = require('../../utils/reg_exp_utils');
 
 module.exports = function AuthenticationModule(pb) {
 
@@ -41,14 +43,15 @@ module.exports = function AuthenticationModule(pb) {
         }
 
         //build query
+        var usernameSearchExp = RegExpUtils.getCaseInsensitiveExact(credentials.username);
         var query = {
             object_type : 'user',
             '$or' : [
                 {
-                    username : credentials.username
+                    username : usernameSearchExp
                 },
                 {
-                    email : credentials.username
+                    email : usernameSearchExp
                 }
             ],
             password : credentials.password
@@ -92,9 +95,10 @@ module.exports = function AuthenticationModule(pb) {
             return cb(new Error("FormAuthentication: The postObj parameter must be an object: "+postObj), null);
         }
 
-        //call the parent function
-        var userDocument = pb.DocumentCreator.create('user', postObj);
-        FormAuthentication.super_.prototype.authenticate.apply(this, [userDocument, cb]);
+        if (postObj.password) {
+            postObj.password = pb.security.encrypt(postObj.password);
+        }
+        FormAuthentication.super_.prototype.authenticate.apply(this, [postObj, cb]);
     };
 
     /**

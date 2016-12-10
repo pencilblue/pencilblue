@@ -49,7 +49,7 @@ module.exports = function VerifyEmailModule(pb) {
                     return;
                 }
 
-                if(unverifiedUser.verification_code !== get.code) {
+                if(unverifiedUser.verificationCode !== get.code) {
                     self.formError(self.ls.g('users.INVALID_VERIFICATION'), '/user/resend_verification', cb);
                     return;
                 }
@@ -64,6 +64,7 @@ module.exports = function VerifyEmailModule(pb) {
                     //convert to user
                     var user = unverifiedUser;
                     delete user[pb.DAO.getIdField()];
+                    delete user.id;
                     user.object_type = 'user';
 
                     dao.save(user, function(err, result) {

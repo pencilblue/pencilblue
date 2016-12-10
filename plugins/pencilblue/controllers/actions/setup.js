@@ -111,6 +111,7 @@ module.exports = function SetupActionControllerModule(pb) {
 
         //set the access level (role)
         post.admin = pb.SecurityService.ACCESS_ADMINISTRATOR;
+        post.locale = self.ls.language;
 
         //get call home allowance
         var callHome = 1 == post.call_home;
@@ -119,10 +120,8 @@ module.exports = function SetupActionControllerModule(pb) {
         //do setup events
         var tasks = [
             function(callback) {
-                var userDocument = pb.DocumentCreator.create('user', post);
-
-                var dao = new pb.SiteQueryService({site: pb.SiteService.GLOBAL_SITE});
-                dao.save(userDocument, callback);
+                var userService = new pb.UserService({site: pb.SiteService.GLOBAL_SITE});
+                userService.add(post, callback);
             },
             function(callback) {
                 pb.settings.set('active_theme',
