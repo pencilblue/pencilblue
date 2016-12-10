@@ -96,7 +96,7 @@ module.exports = function(pb) {
             }
 
             //attempt to retrieve any existing reset
-            self.getSingle({where: {userId: userObj.id}}, function(err, passwordResetObj) {
+            self.getSingle({where: {userId: userObj[pb.DAO.getIdField()].toString()}}, function(err, passwordResetObj) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
@@ -104,7 +104,7 @@ module.exports = function(pb) {
                 //need to know if we should create the DTO or not
                 var created = !passwordResetObj;
                 if (created) {
-                    passwordResetObj = {userId: userObj.id};
+                    passwordResetObj = {userId: userObj[pb.DAO.getIdField()].toString()};
                 }
 
                 //now persist it back
