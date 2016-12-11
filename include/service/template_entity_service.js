@@ -60,7 +60,7 @@ module.exports = function TemplateEntityService(pb) {
 
             //compile the content
             var structure = null;
-            if (pb.validation.validateNonEmptyStr(content, true)) {
+            if (pb.validation.isNonEmptyStr(content, true)) {
                 structure = {
                     key: key,
                     parts: pb.TemplateService.compile(content, self.startMarker, self.endMarker)

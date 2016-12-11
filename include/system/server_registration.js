@@ -202,7 +202,7 @@ module.exports = function ServerRegistrationModule(pb) {
      * @return {Boolean} TRUE if the function is successfully registered, FALSE if not.
      */
     ServerRegistration.addItem = function(name, itemValueFunction) {
-         if (!pb.validation.validateNonEmptyStr(name, true) || !util.isFunction(itemValueFunction)) {
+         if (!pb.validation.isNonEmptyStr(name, true) || !util.isFunction(itemValueFunction)) {
              return false;
          }
 
