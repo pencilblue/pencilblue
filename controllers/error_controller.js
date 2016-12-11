@@ -47,7 +47,7 @@ module.exports = function(pb) {
              * @property error
              * @type {Error}
              */
-            self.error = context.error;
+            self.error = context.error || self.error;
 
             /**
              *

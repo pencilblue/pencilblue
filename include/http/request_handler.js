@@ -771,8 +771,8 @@ module.exports = function RequestHandlerModule(pb) {
             self.siteObj = self.siteObj || pb.SiteService.getGlobalSiteContext();
             var settingsService = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, self.siteObj.uid);
             settingsService.get('active_theme', function(err, activeTheme){
-                self.activeTheme = activeTheme;
-                cb(null, activeTheme);
+                self.activeTheme = activeTheme || pb.config.plugins.default;
+                cb(null, self.activeTheme);
             });
         };
 

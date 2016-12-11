@@ -427,7 +427,7 @@ module.exports = function(pb) {
          * @param {function} next (Error) Callback function that takes a single parameter, an error if it occurred
          */
         static initializeController (req, res, next) {
-            var props = RequestHandler.buildControllerContext(req, res);
+            var props = RequestHandler.buildControllerContext(req, res, {});
             req.controllerInstance.init(props, next);
         }
 

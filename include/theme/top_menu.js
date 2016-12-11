@@ -84,7 +84,14 @@ module.exports = function TopMenuServiceModule(pb) {
                 }
             };
             async.parallel(tasks, function(err, result) {
-                cb(result.themeSettings, result.formattedSections, result.accountButtons);
+                if (util.isError(err)) {
+                    pb.log.error('TopMenuService: Ignored error occurred: %s', err);
+                }
+
+                // the default for account buttons was added as part of #970.
+                // It allows for error page to be shown when something goes wrong with setup page.
+                // Will be fixed and corrected in [1.0] where errors will not be ignored
+                cb(result.themeSettings, result.formattedSections, result.accountButtons || []);
             });
         };
         getTopMenu(session, localizationService, options, cb);
