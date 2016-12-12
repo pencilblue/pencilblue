@@ -296,4 +296,32 @@ describe('RequestHandler', function() {
             this.pb.RequestHandler.checkPermissions(ctx).should.eql(expected);
         });
     });
+
+    describe('getMimeFromPath', function() {
+
+        var mimeMap = {
+            js: 'application/javascript',
+            css: 'text/css',
+            png: 'image/png',
+            svg: 'image/svg+xml',
+            jpg: 'image/jpeg',
+            gif: 'image/gif',
+            webp: 'image/webp',
+            ico: 'image/x-icon',
+            tff: 'application/octet-stream',
+            eot: 'application/vnd.ms-fontobject',
+            woff: 'application/font-woff',
+            otf: 'font/opentype',
+            ttf: 'application/x-font-ttf',
+            pdf: 'application/pdf',
+            html: 'text/html',
+            notanext: 'application/octet-stream'
+        };
+        Object.keys(mimeMap).forEach(function(ext) {
+
+            it('should map the extension '+ext+' to mime type '+mimeMap[ext], function() {
+                this.pb.RequestHandler.getMimeFromPath('/file.'+ext).should.eql(mimeMap[ext]);
+            });
+        });
+    });
 });
