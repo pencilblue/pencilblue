@@ -18,7 +18,7 @@
     "website",
     "platform"
   ],
-  "version": "0.7.0",
+  "version": "0.8.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/pencilblue/pencilblue.git"
@@ -67,5 +67,5 @@
   "bugs": {
     "url": "https://github.com/pencilblue/pencilblue/issues"
   },
-  "_id": "pencilblue@0.7.0"
+  "_id": "pencilblue@0.8.0"
 }
