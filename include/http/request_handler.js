@@ -25,6 +25,7 @@ var domain  = require('domain');
 var Cookies = require('cookies');
 var util    = require('../util.js');
 var _       = require('lodash');
+var mime    = require('mime');
 var HttpStatusCodes = require('http-status-codes');
 
 module.exports = function RequestHandlerModule(pb) {
@@ -674,9 +675,9 @@ module.exports = function RequestHandlerModule(pb) {
             };
 
             //guess at content-type
-            var mime = RequestHandler.getMimeFromPath(absolutePath);
-            if (mime) {
-                data.content_type = mime;
+            var mimeType = mime.lookup(absolutePath);
+            if (mimeType) {
+                data.content_type = mimeType;
             }
 
             //send response
@@ -687,34 +688,14 @@ module.exports = function RequestHandlerModule(pb) {
     /**
      * Attempts to derive the MIME type for a resource path based on the extension
      * of the path.
+     * @deprecated since 0.8.0 Use mime.lookup instead
      * @static
      * @method getMimeFromPath
      * @param {string} resourcePath The file path to a resource
      * @return {String|undefined} The MIME type or NULL if could not be derived.
      */
     RequestHandler.getMimeFromPath = function(resourcePath) {
-        var map = {
-            js: 'text/javascript',
-            css: 'text/css',
-            png: 'image/png',
-            svg: 'image/svg+xml',
-            jpg: 'image/jpeg',
-            gif: 'image/gif',
-            webp: 'image/webp',
-            ico: 'image/vnd.microsoft.icon',
-            tff: 'application/octet-stream',
-            eot: 'application/vnd.ms-fontobject',
-            woff: 'application/x-font-woff',
-            otf: 'font/opentype',
-            ttf: 'font/truetype',
-            pdf: 'application/pdf',
-            html: 'text/html'
-        };
-        var index = resourcePath.lastIndexOf('.');
-        if (index >= 0) {
-            return map[resourcePath.substring(index + 1)];
-        }
-        return undefined;
+        return mime.lookup(resourcePath);
     };
 
     /**

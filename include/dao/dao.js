@@ -946,6 +946,7 @@ module.exports = function DAOModule(pb) {
         }
 
         delete obj._id;
+        delete obj.id;
         delete obj.created;
         delete obj.last_modified;
         obj.object_type = to;
