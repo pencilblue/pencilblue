@@ -4978,7 +4978,7 @@ a:hover {
     margin: 0.5rem 0 0.5rem 2rem; } }
 
 .btn {
-  border-radius: 0.125rem !important;
+  border-radius: 0.125rem;
   border: none;
   padding: 0.5rem 0.75rem; }
 
@@ -4992,11 +4992,18 @@ a:hover {
 .btn-primary {
   background: #0E9DBF; }
 
+.btn-primary:hover, .btn-primary:focus {
+  background: #02809E; }
+
 .btn-danger {
   background: #FF270B; }
 
 .action-buttons {
   margin-bottom: 0.5rem; }
+
+.btn-sm-padding {
+  padding-left: .25rem;
+  padding-right: .25rem; }
 
 .alert {
   border-radius: 0.125rem !important;

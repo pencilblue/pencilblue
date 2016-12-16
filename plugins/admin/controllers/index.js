@@ -30,7 +30,7 @@ module.exports = function(pb) {
       var self = this;
 
       self.setPageName(self.ls.g('admin.DASHBOARD'));
-      self.ts.registerLocal('active_nav_items', 'content,topics');
+      self.ts.registerLocal('active_nav_items', '');
       self.ts.load('admin-new/index', function(err, result) {
         cb({content: result});
       });
@@ -38,15 +38,13 @@ module.exports = function(pb) {
   }
 
   AdminIndexController.getRoutes = function(cb) {
-    var routes = [
-      {
-        method: 'GET',
-        path: '/admin-new',
-        auth_required: true,
-        access_level: pb.SecurityService.ACCESS_USER,
-        localization: true
-      }
-    ];
+    var routes = [{
+      method: 'GET',
+      path: '/admin-new',
+      auth_required: true,
+      access_level: pb.SecurityService.ACCESS_USER,
+      localization: true
+    }];
 
     cb(null, routes);
   };
