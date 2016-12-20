@@ -340,6 +340,9 @@ module.exports = function(pb) {
 
             //check permissions
             result = RequestHandler.checkPermissions(ctx);
+            if (!result.success && pb.log.isDebug()) {
+                pb.log.debug('AuthCheck: %s', result.message);
+            }
             next(result.success ? null : ErrorUtils.forbidden());
         }
 

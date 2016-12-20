@@ -29,9 +29,15 @@
 		$scope.jobAction = function(actionType, identifier, data, cb) {
 			$http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
 			.success(function(result) {
+                if (result.data.status === 'ERRORED') {
+                    var error = {
+                        message: result.data.error
+                    };
+                    return $scope.onActionFailure(error);
+                }
 				cb(result);
 			})
-			.error(function(error, status) {
+			.error(function(error) {
 				$scope.onActionFailure(error);
 			});
 		};
@@ -111,25 +117,21 @@
 					isInstalled = true;
 				}
 			});
-			if (isInstalled === true) {
-				return true;
-			} else {
-				return false;
-			}
-		}
+            return isInstalled === true;
+		};
 
 		$scope.onActionSuccess = function() {
 			$scope.actionIsComplete = true;
 			$scope.refreshPage();
-		}
+		};
 
 		$scope.onActionFailure = function(error) {
 			$scope.actionIsComplete = true;
 			$scope.actionError = error.message;
-		}
+		};
 
 		$scope.refreshPage = function() {
 			$window.location.reload();
-		}
+		};
 	});
 </script>
