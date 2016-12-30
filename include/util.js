@@ -14,17 +14,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-"use strict";
-
-//dependencies
-var os     = require('os');
-var util   = require('util');
-var async  = require('async');
-var extend = require('node.extend');
-var fs     = require('fs');
-var path   = require('path');
-var uuid   = require('uuid');
-var RegExpUtils = require('./utils/reg_exp_utils');
+// dependencies
+const os = require('os');
+const util = require('util');
+const async = require('async');
+const extend = require('node.extend');
+const fs = require('fs');
+const path = require('path');
+const uuid = require('uuid');
+const RegExpUtils = require('./utils/reg_exp_utils');
 
 /**
  * Provides a set of utility functions used throughout the code base
@@ -33,7 +31,7 @@ var RegExpUtils = require('./utils/reg_exp_utils');
  * @class Util
  * @constructor
  */
-function Util(){}
+function Util() { }
 
 /**
  * Clones an object by serializing it and then re-parsing it.
@@ -43,9 +41,7 @@ function Util(){}
  * @param {Object} object The object to clone
  * @return {Object|Array} Cloned object
  */
-Util.clone = function(object){
-    return JSON.parse(JSON.stringify(object));
-};
+Util.clone = object => JSON.parse(JSON.stringify(object));
 
 /**
  * Performs a deep merge and returns the result.  <b>NOTE:</b> DO NOT ATTEMPT
@@ -57,9 +53,7 @@ Util.clone = function(object){
  * @param {Object} to
  * @return {Object}
  */
-Util.deepMerge = function(from, to) {
-    return extend(true, to, from);
-};
+Util.deepMerge = (from, to) => extend(true, to, from);
 
 /**
  * Checks if the supplied object is an errof. If the object is an error the
@@ -68,10 +62,10 @@ Util.deepMerge = function(from, to) {
  * @method ane
  * @param {Object} obj The object to check
  */
-Util.ane = function(obj){
-	if (util.isError(obj)) {
-		throw obj;
-	}
+Util.ane = (obj) => {
+  if (util.isError(obj)) {
+    throw obj;
+  }
 };
 
 /**
@@ -87,13 +81,13 @@ Util.ane = function(obj){
  * the array
  * @return {Array} The initialized array
  */
-Util.initArray = function(cnt, val) {
-    var v = [];
-    var isFunc = Util.isFunction(val);
-    for(var i = 0; i < cnt; i++) {
-        v.push(isFunc ? val(i) : val);
-    }
-    return v;
+Util.initArray = (cnt, val) => {
+  const v = [];
+  const isFunc = Util.isFunction(val);
+  for (let i = 0; i < cnt; i += 1) {
+    v.push(isFunc ? val(i) : val);
+  }
+  return v;
 };
 
 /**
@@ -104,9 +98,7 @@ Util.initArray = function(cnt, val) {
  * @param {String} The expression to escape
  * @return {String} Escaped regular expression.
  */
-Util.escapeRegExp = function(str) {
-	return RegExpUtils.escape(str);
-};
+Util.escapeRegExp = str => RegExpUtils.escape(str);
 
 /**
  * Merges the properties from the first parameter into the second. This modifies
@@ -117,11 +109,11 @@ Util.escapeRegExp = function(str) {
  * @param {Object} to
  * @return {Object} The 'to' variable
  */
-Util.merge = function(from, to) {
-    Util.forEach(from, function(val, propName) {
-        to[propName] = val;
-    });
-    return to;
+Util.merge = (from, to) => {
+  Util.forEach(from, (val, propName) => {
+    to[propName] = val; // eslint-disable-line no-param-reassign
+  });
+  return to;
 };
 
 /**
@@ -131,11 +123,11 @@ Util.merge = function(from, to) {
  * @method union
  * @return {Object} The union of properties from both a and b.
  */
-Util.union = function(a, b) {
-	var union = {};
-	Util.merge(a, union);
-	Util.merge(b, union);
-	return union;
+Util.union = (a, b) => {
+  const union = {};
+  Util.merge(a, union);
+  Util.merge(b, union);
+  return union;
 };
 
 /**
@@ -157,12 +149,12 @@ Util.union = function(a, b) {
  * async.series(tasks, util.cb);
  * <code>
  */
-Util.getTasks = function (iterable, getTaskFunction) {
-	var tasks = [];
-	for (var i = 0; i < iterable.length; i++) {
-		tasks.push(getTaskFunction(iterable, i));
-	}
-	return tasks;
+Util.getTasks = (iterable, getTaskFunction) => {
+  const tasks = [];
+  for (let i = 0; i < iterable.length; i += 1) {
+    tasks.push(getTaskFunction(iterable, i));
+  }
+  return tasks;
 };
 
 /**
@@ -178,14 +170,14 @@ Util.getTasks = function (iterable, getTaskFunction) {
  * when executed.
  * @return {Function}
  */
-Util.wrapTask = function(context, func, argArray) {
-    if (!util.isArray(argArray)) {
-        argArray = [];
-    }
-    return function(callback) {
-        argArray.push(callback);
-        func.apply(context, argArray);
-    };
+Util.wrapTask = (context, func, argArray) => {
+  if (!util.isArray(argArray)) {
+    argArray = []; // eslint-disable-line no-param-reassign
+  }
+  return function (callback) {
+    argArray.push(callback);
+    func.apply(context, argArray);
+  };
 };
 
 /**
@@ -201,23 +193,23 @@ Util.wrapTask = function(context, func, argArray) {
  * when executed.
  * @return {Function}
  */
-Util.wrapTimedTask = function(context, func, name, argArray) {
-    if (Util.isString(argArray)) {
-        name = argArray;
-        argArray = [];
-    }
-    var task = Util.wrapTask(context, func, argArray);
-    return function(callback) {
-        var start = Date.now();
-        task(function(err, result) {
-            callback(err, {
-                result: result,
-                time: Date.now() - start,
-                start: start,
-                name: name
-            });
-        });
-    };
+Util.wrapTimedTask = (context, func, name, argArray) => {
+  if (Util.isString(argArray)) {
+    name = argArray; // eslint-disable-line no-param-reassign
+    argArray = []; // eslint-disable-line no-param-reassign
+  }
+  const task = Util.wrapTask(context, func, argArray);
+  return (callback) => {
+    const start = Date.now();
+    task((err, result) => {
+      callback(err, {
+        result,
+        time: Date.now() - start,
+        start,
+        name,
+      });
+    });
+  };
 };
 
 /**
@@ -229,27 +221,23 @@ Util.wrapTimedTask = function(context, func, name, argArray) {
  * of the current property or index.  The current index (property name if object).  The iterable.
  * Finally, the numerical index if the iterable is an object.
  */
-Util.forEach = function(iterable, handler) {
+Util.forEach = (iterable, handler) => {
+  let internalHandler;
+  let internalIterable;
+  if (util.isArray(iterable)) {
+    internalHandler = handler;
+    internalIterable = iterable;
+  } else if (Util.isObject(iterable)) {
+    internalIterable = Object.getOwnPropertyNames(iterable);
+    internalHandler = function (propName, i) {
+      handler(iterable[propName], propName, iterable, i);
+    };
+  } else {
+    return false;
+  }
 
-    var internalHandler;
-    var internalIterable;
-    if (util.isArray(iterable)) {
-        internalHandler = handler;
-        internalIterable = iterable;
-    }
-    else if (Util.isObject(iterable)) {
-
-        internalIterable = Object.getOwnPropertyNames(iterable);
-        internalHandler = function(propName, i) {
-            handler(iterable[propName], propName, iterable, i);
-        };
-    }
-    else {
-        return false;
-    }
-
-    //execute native foreach on interable
-    internalIterable.forEach(internalHandler);
+  // execute native foreach on interable
+  return internalIterable.forEach(internalHandler);
 };
 
 /**
@@ -260,25 +248,24 @@ Util.forEach = function(iterable, handler) {
  * @param {*} [defaultVal=true] Default value if the hashing fails
  * @return {Object} Hash
  */
-Util.arrayToHash = function(array, defaultVal) {
-	if (!util.isArray(array)) {
-		return null;
-	}
+Util.arrayToHash = (array, defaultVal) => {
+  if (!util.isArray(array)) {
+    return null;
+  }
 
-    //set the default value
-    if (Util.isNullOrUndefined(defaultVal)) {
-        defaultVal = true;
+  // set the default value
+  if (Util.isNullOrUndefined(defaultVal)) {
+    defaultVal = true; // eslint-disable-line no-param-reassign
+  }
+  const hash = {};
+  for (let i = 0; i < array.length; i += 1) {
+    if (Util.isFunction(defaultVal)) {
+      hash[defaultVal(array, i)] = array[i];
+    } else {
+      hash[array[i]] = defaultVal;
     }
-	var hash = {};
-	for(var i = 0; i < array.length; i++) {
-		if (Util.isFunction(defaultVal)) {
-			hash[defaultVal(array, i)] = array[i];
-		}
-		else {
-			hash[array[i]] = defaultVal;
-		}
-	}
-	return hash;
+  }
+  return hash;
 };
 
 /**
@@ -303,40 +290,37 @@ Util.arrayToHash = function(array, defaultVal) {
  * representing the value of the derived property for that item.
  * @return {Object} The converted array.
  */
-Util.arrayToObj = function(array, keyFieldOrTransform, valFieldOrTransform) {
-    if (!util.isArray(array)) {
-		return null;
-	}
+Util.arrayToObj = (array, keyFieldOrTransform, valFieldOrTransform) => {
+  if (!util.isArray(array)) {
+    return null;
+  }
 
-    var keyIsString = Util.isString(keyFieldOrTransform);
-    var keyIsFunc   = Util.isFunction(keyFieldOrTransform);
-    if (!keyIsString && !keyIsFunc) {
-        return null;
+  const keyIsString = Util.isString(keyFieldOrTransform);
+  const keyIsFunc = Util.isFunction(keyFieldOrTransform);
+  if (!keyIsString && !keyIsFunc) {
+    return null;
+  }
+
+  const valIsString = Util.isString(valFieldOrTransform);
+  const valIsFunc = Util.isFunction(valFieldOrTransform);
+  if (!valIsString && !valIsFunc) {
+    valFieldOrTransform = null; // eslint-disable-line no-param-reassign
+  }
+
+  const obj = {};
+  for (let i = 0; i < array.length; i += 1) {
+    const item = array[i];
+    const key = keyIsString ? item[keyFieldOrTransform] : keyFieldOrTransform(array, i);
+
+    if (valIsString) {
+      obj[key] = item[valFieldOrTransform];
+    } else if (valIsFunc) {
+      obj[key] = valFieldOrTransform(array, i);
+    } else {
+      obj[key] = item;
     }
-
-    var valIsString = Util.isString(valFieldOrTransform);
-    var valIsFunc   = Util.isFunction(valFieldOrTransform);
-    if (!valIsString && !valIsFunc) {
-        valFieldOrTransform = null;
-    }
-
-    var obj = {};
-    for (var i = 0; i < array.length; i++) {
-
-        var item = array[i];
-        var key  = keyIsString ? item[keyFieldOrTransform] : keyFieldOrTransform(array, i);
-
-        if (valIsString) {
-            obj[key] = item[valFieldOrTransform];
-        }
-        else if (valIsFunc) {
-            obj[key] = valFieldOrTransform(array, i);
-        }
-        else {
-            obj[key] = item;
-        }
-    }
-    return obj;
+  }
+  return obj;
 };
 
 /**
@@ -350,16 +334,16 @@ Util.arrayToObj = function(array, keyFieldOrTransform, valFieldOrTransform) {
  * for each object in the array.
  * @return {Object} A hash of the values in the array
  */
-Util.objArrayToHash = function(array, hashProp) {
-    if (!util.isArray(array)) {
-		return null;
-	}
+Util.objArrayToHash = (array, hashProp) => {
+  if (!util.isArray(array)) {
+    return null;
+  }
 
-    var hash = {};
-	for(var i = 0; i < array.length; i++) {
-        hash[array[i][hashProp]] = array[i];
-	}
-	return hash;
+  const hash = {};
+  for (let i = 0; i < array.length; i += 1) {
+    hash[array[i][hashProp]] = array[i];
+  }
+  return hash;
 };
 
 /**
@@ -371,19 +355,19 @@ Util.objArrayToHash = function(array, hashProp) {
  * @param {String} [hashKeyProp] The property name that will hold the hash key.
  * @return {Array} An array of each property value in the hash.
  */
-Util.hashToArray = function(obj, hashKeyProp) {
-	if (!Util.isObject(obj)) {
-		return null;
-	}
+Util.hashToArray = (obj, hashKeyProp) => {
+  if (!Util.isObject(obj)) {
+    return null;
+  }
 
-    var doHashKeyTransform = Util.isString(hashKeyProp);
-    return Object.keys(obj).reduce(function(prev, prop) {
-        prev.push(obj[prop]);
-        if (doHashKeyTransform) {
-            obj[prop][hashKeyProp] = prop;
-        }
-        return prev;
-    }, []);
+  const doHashKeyTransform = Util.isString(hashKeyProp);
+  return Object.keys(obj).reduce((prev, prop) => {
+    prev.push(obj[prop]);
+    if (doHashKeyTransform) {
+      obj[prop][hashKeyProp] = prop; // eslint-disable-line no-param-reassign
+    }
+    return prev;
+  }, []);
 };
 
 /**
@@ -393,18 +377,21 @@ Util.hashToArray = function(obj, hashKeyProp) {
  * @param {Object} obj Hash object
  * @return {Object} Inverted hash
  */
-Util.invertHash = function(obj) {
-	if (!Util.isObject(obj)) {
-		return null;
-	}
+Util.invertHash = (obj) => {
+  if (!Util.isObject(obj)) {
+    return null;
+  }
 
-	var new_obj = {};
-	for (var prop in obj) {
-		if (obj.hasOwnProperty(prop)) {
-			new_obj[obj[prop]] = prop;
-		}
-	}
-	return new_obj;
+  const newObj = {};
+  const has = Object.prototype.hasOwnProperty;
+
+  Object.keys(obj).forEach((prop) => {
+    if (has.call(obj, prop)) {
+      newObj[obj[prop]] = prop;
+    }
+  });
+
+  return newObj;
 };
 
 /**
@@ -414,21 +401,21 @@ Util.invertHash = function(obj) {
  * @param {Array} array
  * @return {Array} Cloned array
  */
-Util.copyArray = function(array) {
-	if (!util.isArray(array)) {
-		return null;
-	}
+Util.copyArray = (array) => {
+  if (!util.isArray(array)) {
+    return null;
+  }
 
-	var clone = [];
-	for (var i = 0; i < array.length; i++) {
-		clone.push(array[i]);
-	}
-	return clone;
+  const clone = [];
+  for (let i = 0; i < array.length; i += 1) {
+    clone.push(array[i]);
+  }
+  return clone;
 };
 
-Util.dedupeArray = function(array) {
-    var hash = Util.arrayToHash(array);
-    return Object.keys(hash);
+Util.dedupeArray = (array) => {
+  const hash = Util.arrayToHash(array);
+  return Object.keys(hash);
 };
 
 /**
@@ -439,14 +426,15 @@ Util.dedupeArray = function(array) {
  * @param {Array} to
  * @return {Boolean} FALSE when the parameters are not Arrays
  */
-Util.arrayPushAll = function(from, to) {
-	if (!util.isArray(from) || !util.isArray(to)) {
-		return false;
-	}
+Util.arrayPushAll = (from, to) => {
+  if (!util.isArray(from) || !util.isArray(to)) {
+    return false;
+  }
 
-	for (var i = 0; i < from.length; i++) {
-		to.push(from[i]);
-	}
+  for (let i = 0; i < from.length; i += 1) {
+    to.push(from[i]);
+  }
+  return true;
 };
 
 /**
@@ -455,8 +443,8 @@ Util.arrayPushAll = function(from, to) {
  * @static
  * @method cb
  */
-Util.cb = function(/*err, result*/){
-	//do nothing
+Util.cb = (/* err, result */) => {
+  // do nothing
 };
 
 /**
@@ -465,9 +453,7 @@ Util.cb = function(/*err, result*/){
  * @method uniqueId
  * @return {String} Unique Id Object
  */
-Util.uniqueId = function(){
-	return uuid.v4();
-};
+Util.uniqueId = () => uuid.v4();
 
 /**
  * Tests if a value is an object
@@ -476,9 +462,7 @@ Util.uniqueId = function(){
  * @param {*} value
  * @return {Boolean}
  */
-Util.isObject = function(value) {
-	return !Util.isNullOrUndefined(value) && typeof value === 'object';
-};
+Util.isObject = value => !Util.isNullOrUndefined(value) && typeof value === 'object';
 
 /**
  * Tests if a value is an string
@@ -487,9 +471,7 @@ Util.isObject = function(value) {
  * @param {*} value
  * @return {Boolean}
  */
-Util.isString = function(value) {
-	return !Util.isNullOrUndefined(value) && typeof value === 'string';
-};
+Util.isString = value => !Util.isNullOrUndefined(value) && typeof value === 'string';
 
 /**
  * Tests if a value is a function
@@ -498,9 +480,7 @@ Util.isString = function(value) {
  * @param {*} value
  * @return {Boolean}
  */
-Util.isFunction = function(value) {
-	return !Util.isNullOrUndefined(value) && typeof value === 'function';
-};
+Util.isFunction = value => !Util.isNullOrUndefined(value) && typeof value === 'function';
 
 /**
  * Tests if a value is NULL or undefined
@@ -509,10 +489,7 @@ Util.isFunction = function(value) {
  * @param {*} value
  * @return {Boolean}
  */
-Util.isNullOrUndefined = function(value) {
-    return value === null || typeof value === 'undefined';
-};
-
+Util.isNullOrUndefined = value => value === null || typeof value === 'undefined';
 /**
  * Tests if a value is a boolean
  * @static
@@ -520,9 +497,7 @@ Util.isNullOrUndefined = function(value) {
  * @param {*} value
  * @return {Boolean}
  */
-Util.isBoolean = function(value) {
-    return value === true || value === false;
-};
+Util.isBoolean = value => value === true || value === false;
 
 /**
  * Retrieves the subdirectories of a path
@@ -531,36 +506,32 @@ Util.isBoolean = function(value) {
  * @param {String}   dirPath The starting path
  * @param {Function} cb      Callback function
  */
-Util.getDirectories = function(dirPath, cb) {
+Util.getDirectories = (dirPath, cb) => {
+  const dirs = [];
+  fs.readdir(dirPath, (err, files) => {
+    if (util.isError(err)) {
+      return cb(err);
+    }
 
-	var dirs = [];
-	fs.readdir(dirPath, function(err, files) {
-		if (util.isError(err)) {
-			return cb(err);
-		}
-
-		var tasks = Util.getTasks(files, function(files, index) {
-			return function(callback) {
-
-				var fullPath = path.join(dirPath, files[index]);
-				fs.stat(fullPath, function(err, stat) {
-                    if (util.isError(err)) {
-                        return cb(err);
-                    }
-                    if (Util.isNullOrUndefined(stat)) {
-                        console.log('WARN: Util: unstatable file encountered: %s', fullPath);
-                    }
-					else if (stat.isDirectory()) {
-						dirs.push(fullPath);
-					}
-					callback(err);
-				});
-			};
-		});
-		async.parallel(tasks, function(err/*, results*/) {
-			cb(err, dirs);
-		});
-	});
+    const tasks = Util.getTasks(files, (eachFiles, index) =>
+      (callback) => {
+        const fullPath = path.join(dirPath, eachFiles[index]);
+        fs.stat(fullPath, (statErr, stat) => {
+          if (util.isError(statErr)) {
+            return cb(statErr);
+          }
+          if (Util.isNullOrUndefined(stat)) {
+            console.log('WARN: Util: unstatable file encountered: %s', fullPath);
+          } else if (stat.isDirectory()) {
+            dirs.push(fullPath);
+          }
+          return callback(statErr);
+        });
+      });
+    return async.parallel(tasks, (asyncErr /* , results */) => {
+      cb(asyncErr, dirs);
+    });
+  });
 };
 
 /**
@@ -580,72 +551,70 @@ Util.getDirectories = function(dirPath, cb) {
  * absolute paths for files that met the criteria specified by the filter
  * function.
  */
-Util.getFiles = function(dirPath, options, cb) {
-    if (Util.isFunction(options)) {
-        cb      = options;
-        options = {
-            recursive: false,
-            filter: function(/*fullPath, stat*/) { return true; }
-        };
+Util.getFiles = (dirPath, options, cb) => {
+  if (Util.isFunction(options)) {
+    cb = options;  // eslint-disable-line no-param-reassign
+    options = {  // eslint-disable-line no-param-reassign
+      recursive: false,
+      filter: (/* fullPath, stat */) => true,
+    };
+  }
+
+  // read files from dir
+  fs.readdir(dirPath, (err, q) => {
+    if (util.isError(err)) {
+      return cb(err);
     }
 
-    //read files from dir
-    fs.readdir(dirPath, function(err, q) {
-        if (util.isError(err)) {
-			return cb(err);
-		}
+    // seed the queue with the absolute paths not just the file names
+    for (let i = 0; i < q.length; i += 1) {
+      q[i] = path.join(dirPath, q[i]); // eslint-disable-line no-param-reassign
+    }
 
-        //seed the queue with the absolute paths not just the file names
-        for (var i = 0; i < q.length; i++) {
-            q[i] = path.join(dirPath, q[i]);
-        }
+    // process the q
+    const filePaths = [];
+    return async.whilst(
+      () => q.length > 0,
+      (callback) => {
+        const fullPath = q.shift();
+        fs.stat(fullPath, (statErr, stat) => {
+          if (util.isError(statErr)) {
+            return callback(statErr);
+          }
 
-        //process the q
-        var filePaths = [];
-        async.whilst(
-            function() { return q.length > 0; },
-            function(callback) {
+          // apply filter
+          let meetsCriteria = true;
+          if (Util.isFunction(options.filter)) {
+            meetsCriteria = options.filter(fullPath, stat);
+          }
 
-                var fullPath = q.shift();
-				fs.stat(fullPath, function(err, stat) {
-					if (util.isError(err)) {
-                        return callback(err);
-					}
+          // examine result and add it when criteria is met
+          if (meetsCriteria) {
+            filePaths.push(fullPath);
+          }
 
-                    //apply filter
-                    var meetsCriteria = true;
-                    if (Util.isFunction(options.filter)) {
-                        meetsCriteria = options.filter(fullPath, stat);
-                    }
+          // when recursive queue up directory's for processing
+          if (!options.recursive || !stat.isDirectory()) {
+            return callback(null);
+          }
 
-                    //examine result and add it when criteria is met
-                    if (meetsCriteria) {
-                        filePaths.push(fullPath);
-                    }
-
-                    //when recursive queue up directory's for processing
-                    if (!options.recursive || !stat.isDirectory()) {
-                        return callback(null);
-                    }
-
-                    //read the directory contents and append it to the queue
-                    fs.readdir(fullPath, function(err, childFiles) {
-                        if (util.isError(err)) {
-                            return callback(err);
-                        }
-
-                        childFiles.forEach(function(item) {
-                            q.push(path.join(fullPath, item));
-                        });
-                        callback(null);
-                    });
-				});
-            },
-            function(err) {
-                cb(err, filePaths);
+          // read the directory contents and append it to the queue
+          return fs.readdir(fullPath, (readDirErr, childFiles) => {
+            if (util.isError(readDirErr)) {
+              return callback(readDirErr);
             }
-        );
-    });
+
+            childFiles.forEach((item) => {
+              q.push(path.join(fullPath, item));
+            });
+            return callback(null);
+          });
+        });
+      },
+      (asyncErr) => {
+        cb(asyncErr, filePaths);
+      });
+  });
 };
 
 /* Asynchronously makes the specified directory structure.
@@ -658,43 +627,40 @@ Util.getFiles = function(dirPath, options, cb) {
  * will not be created.
  * @param {Function} cb A callback that provides an error, if occurred
  */
-Util.mkdirs = function(absoluteDirPath, isFileName, cb) {
-    if (Util.isFunction(isFileName)) {
-        cb = isFileName;
-        isFileName = false;
-    }
+Util.mkdirs = (absoluteDirPath, isFileName, cb) => {
+  if (Util.isFunction(isFileName)) {
+    cb = isFileName; // eslint-disable-line no-param-reassign
+    isFileName = false; // eslint-disable-line no-param-reassign
+  }
 
-    if (!Util.isString(absoluteDirPath)) {
-        return cb(new Error('absoluteDirPath must be a valid file path'));
-    }
+  if (!Util.isString(absoluteDirPath)) {
+    return cb(new Error('absoluteDirPath must be a valid file path'));
+  }
 
-    var pieces = absoluteDirPath.split(path.sep);
+  const piecesSplited = absoluteDirPath.split(path.sep);
+  let curr = '';
+  const isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
+  const tasks = Util.getTasks(piecesSplited, (pieces, i) =>
+    (callback) => {
+      // we need to skip the first one bc it will probably be empty and we
+      // want to skip the last one because it will probably be the file
+      // name not a directory.
+      const p = pieces[i];
+      if (p.length === 0 || (isFileName && i >= pieces.length - 1)) {
+        return callback();
+      }
 
-    var curr      = '';
-    var isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
-    var tasks     = Util.getTasks(pieces, function(pieces, i) {
-        return function(callback) {
-
-            //we need to skip the first one bc it will probably be empty and we
-            //want to skip the last one because it will probably be the file
-            //name not a directory.
-            var p = pieces[i];
-            if (p.length === 0 || (isFileName && i >= pieces.length - 1)) {
-                return callback();
-            }
-
-            curr += (isWindows && i === 0 ? '' : path.sep) + p;
-            fs.exists(curr, function(exists) {
-                if (exists) {
-                    return callback();
-                }
-                fs.mkdir(curr, callback);
-            });
-        };
+      curr += (isWindows && i === 0 ? '' : path.sep) + p;
+      return fs.exists(curr, (exists) => {
+        if (exists) {
+          return callback();
+        }
+        return fs.mkdir(curr, callback);
+      });
     });
-    async.series(tasks, function(err/*, results*/){
-        cb(err);
-    });
+  return async.series(tasks, (err /* , results */) => {
+    cb(err);
+  });
 };
 
 /**
@@ -707,28 +673,27 @@ Util.mkdirs = function(absoluteDirPath, isFileName, cb) {
  * separator is treated as a file.  This means that a directory with that value
  * will not be created.
  */
-Util.mkdirsSync = function(absoluteDirPath, isFileName) {
-    if (!Util.isString(absoluteDirPath)) {
-        throw new Error('absoluteDirPath must be a valid file path');
+Util.mkdirsSync = function (absoluteDirPath, isFileName) {
+  if (!Util.isString(absoluteDirPath)) {
+    throw new Error('absoluteDirPath must be a valid file path');
+  }
+
+  const pieces = absoluteDirPath.split(path.sep);
+  let curr = '';
+  const isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
+  pieces.forEach((p, i) => {
+    // we need to skip the first one bc it will probably be empty and we
+    // want to skip the last one because it will probably be the file
+    // name not a directory.
+    if (p.length === 0 || (isFileName && i >= pieces.length - 1)) {
+      return;
     }
 
-    var pieces    = absoluteDirPath.split(path.sep);
-    var curr      = '';
-    var isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
-    pieces.forEach(function(p, i) {
-
-        //we need to skip the first one bc it will probably be empty and we
-        //want to skip the last one because it will probably be the file
-        //name not a directory.
-        if (p.length === 0 || (isFileName && i >= pieces.length - 1)) {
-            return;
-        }
-
-        curr += (isWindows && i === 0 ? '' : path.sep) + p;
-        if (!fs.existsSync(curr)) {
-            fs.mkdirSync(curr);
-        }
-    });
+    curr += (isWindows && i === 0 ? '' : path.sep) + p;
+    if (!fs.existsSync(curr)) {
+      fs.mkdirSync(curr);
+    }
+  });
 };
 
 /**
@@ -739,52 +704,52 @@ Util.mkdirsSync = function(absoluteDirPath, isFileName) {
  * @param {String} filePath URI to the resource
  * @param {Object} [options]
  * @param {Boolean} [options.lower=false] When TRUE the extension will be returned as lower case
- * @param {String} [options.sep] The file path separator used in the path.  Defaults to the OS default.
+ * @param {String} [options.sep] The file path separator used in the path.
+ *  Defaults to the OS default.
  * @return {String} The value after the last '.' character
  */
-Util.getExtension = function(filePath, options) {
-    if (!Util.isString(filePath) || filePath.length <= 0) {
-        return null;
-    }
-    if (!Util.isObject(options)) {
-        options = {};
-    }
+Util.getExtension = (filePath, options) => {
+  if (!Util.isString(filePath) || filePath.length <= 0) {
+    return null;
+  }
+  if (!Util.isObject(options)) {
+    options = {}; // eslint-disable-line no-param-reassign
+  }
 
-    //do to the end of the path
-    var pathPartIndex = filePath.lastIndexOf(options.sep || path.sep) || 0;
-    if (pathPartIndex > -1) {
-			filePath = filePath.substr(pathPartIndex);
-		}
+  // do to the end of the path
+  const pathPartIndex = filePath.lastIndexOf(options.sep || path.sep) || 0;
+  if (pathPartIndex > -1) {
+    filePath = filePath.substr(pathPartIndex); // eslint-disable-line no-param-reassign
+  }
 
-    var ext = null;
-    var index = filePath.lastIndexOf('.');
-    if (index >= 0) {
-        ext = filePath.substring(index + 1);
+  let ext = null;
+  const index = filePath.lastIndexOf('.');
+  if (index >= 0) {
+    ext = filePath.substring(index + 1);
 
-        //apply options
-        if (options.lower) {
-            ext = ext.toLowerCase();
-        }
+    // apply options
+    if (options.lower) {
+      ext = ext.toLowerCase();
     }
-    return ext;
+  }
+  return ext;
 };
 
 /**
- * Creates a filter function to be used with the getFiles function to skip files that are not of the specified type
+ * Creates a filter function to be used with the
+ *  getFiles function to skip files that are not of the specified type
  * @static
  * @method getFileExtensionFilter
  * @param extension
  * @return {Function}
  */
-Util.getFileExtensionFilter = function(extension) {
-    var ext = '.' + extension;
-    return function(fullPath) {
-        return fullPath.lastIndexOf(ext) === (fullPath.length - ext.length);
-    };
+Util.getFileExtensionFilter = (extension) => {
+  const ext = `.${extension}`;
+  return fullPath => fullPath.lastIndexOf(ext) === (fullPath.length - ext.length);
 };
 
-//inherit from node's version of 'util'.  We can't use node's "util.inherits"
-//function because util is an object and not a prototype.
+// inherit from node's version of 'util'.  We can't use node's "util.inherits"
+// function because util is an object and not a prototype.
 Util.merge(util, Util);
 
 /**
@@ -795,13 +760,13 @@ Util.merge(util, Util);
  * @param {Function} Type1
  * @param {Function} Type2
  */
-Util.inherits = function(Type1, Type2) {
-    if (Util.isNullOrUndefined(Type1) || Util.isNullOrUndefined(Type2)) {
-        throw new Error('The type parameters must be objects or prototypes');
-    }
+Util.inherits = (Type1, Type2) => {
+  if (Util.isNullOrUndefined(Type1) || Util.isNullOrUndefined(Type2)) {
+    throw new Error('The type parameters must be objects or prototypes');
+  }
 
-    util.inherits(Type1, Type2);
-    Util.merge(Type2, Type1);
+  util.inherits(Type1, Type2);
+  Util.merge(Type2, Type1);
 };
 
 /**
@@ -813,11 +778,11 @@ Util.inherits = function(Type1, Type2) {
  */
 Util.TIME = Object.freeze({
 
-	MILLIS_PER_SEC: 1000,
-	MILLIS_PER_MIN: 60000,
-	MILLIS_PER_HOUR: 3600000,
-	MILLIS_PER_DAY: 86400000
+  MILLIS_PER_SEC: 1000,
+  MILLIS_PER_MIN: 60000,
+  MILLIS_PER_HOUR: 3600000,
+  MILLIS_PER_DAY: 86400000,
 });
 
-//exports
+// exports
 module.exports = Util;
