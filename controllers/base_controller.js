@@ -14,79 +14,150 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-'use strict';
 
-//dependencies
-var url  = require('url');
-var util = require('../include/util.js');
+// dependencies
+const url = require('url');
+const util = require('../include/util.js');
 
 module.exports = function BaseControllerModule(pb) {
+  // pb dependancies
+  const SiteService = pb.SiteService;
+  /**
+   * The snippet of JS code that will ensure that a form is refilled with values
+   * from the post
+   * @static
+   * @private
+   * @property FORM_REFILL_PATTERN
+   * @type {String}
+   */
+  const FORM_REFILL_PATTERN = `if(typeof refillForm !== "undefined") {\n
+  $(document).ready(function(){\n
+  refillForm(%s)});}`;
 
-    // pb dependancies
-    var SiteService = pb.SiteService;
+  /**
+   * The snippet of HTML that will display an alert box
+   * @static
+   * @private
+   * @property ALERT_PATTERN
+   * @type {String}
+   */
+  const ALERT_PATTERN = '<div class="alert %s error_success">%s<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
 
-    /**
-     * The base controller provides functions for the majority of
-     * the heavy lifing for a controller. It accepts and provides access to
-     * extending controllers for items such as the request, response, session, etc.
-     * @class BaseController
-     * @constructor
-     */
-    function BaseController(){}
+  /**
+   * A mapping that converts the HTTP standard for content-type encoding and
+   * what the Buffer prototype expects
+   * @static
+   * @private
+   * @readonly
+   * @property ENCODING_MAPPING
+   * @type {Object}
+   */
+  const ENCODING_MAPPING = Object.freeze({
+    'UTF-8': 'utf8',
+    'US-ASCII': 'ascii',
+    'UTF-16LE': 'utf16le',
+  });
+  /**
+   * The base controller provides functions for the majority of
+   * the heavy lifing for a controller. It accepts and provides access to
+   * extending controllers for items such as the request, response, session, etc.
+   * @class BaseController
+   * @constructor
+   */
+  class BaseController {
+    constructor() {
+      /**
+       * Provides a synchronous function means to initialize a controller.  It is
+       * meant to be called from the "init" function called by the request handler.
+       * @method initSync
+       * @param {Object} context See "init" for more details on properties
+       */
+      this.initSync = (/* context */) => { };
+      /**
+       *
+       * @method requiresClientLocalization
+       * @return {Boolean}
+       */
+      this.requiresClientLocalization = () => true;
 
-    //constants
-    /**
-     * The code for a successful API call
-     * @static
-     * @property API_SUCCESS
-     * @type {Integer}
-     */
-    BaseController.API_SUCCESS = 0;
+      /**
+       *
+       * @method getSanitizationRules
+       * @return {Object}
+       */
+      this.getSanitizationRules = function getSanitizationRules() {
+        return {};
+      };
 
-    /**
-     * The code for a failed API call
-     * @static
-     * @property API_FAILURE
-     * @type {Integer}
-     */
-    BaseController.API_FAILURE = 1;
+      /**
+       * The sanitization rules that apply to Pages and Articles
+       * @deprecated Since 0.4.1
+       * @static
+       * @method getContentSanitizationRules
+       */
+      this.getContentSanitizationRules = () =>
+        pb.BaseObjectService.getContentSanitizationRules();
 
-    /**
-     * The snippet of JS code that will ensure that a form is refilled with values
-     * from the post
-     * @static
-     * @private
-     * @property FORM_REFILL_PATTERN
-     * @type {String}
-     */
-    var FORM_REFILL_PATTERN = 'if(typeof refillForm !== "undefined") {' + "\n" +
-        '$(document).ready(function(){'+ "\n" +
-            'refillForm(%s)});}';
+      /**
+       * @deprecated Since 0.4.1
+       * @static
+       * @method getDefaultSanitizationRules
+       */
+      this.getDefaultSanitizationRules = () =>
+        pb.BaseObjectService.getDefaultSanitizationRules();
 
-    /**
-     * The snippet of HTML that will display an alert box
-     * @static
-     * @private
-     * @property ALERT_PATTERN
-     * @type {String}
-     */
-    var ALERT_PATTERN = '<div class="alert %s error_success">%s<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button></div>';
+      /**
+       *
+       * @deprecated Since 0.4.1
+       * @static
+       * @method sanitize
+       * @param {String} value
+       * @param {Object} [config]
+       */
+      this.sanitize = (value, config) =>
+        pb.BaseObjectService.sanitize(value, config);
 
-    /**
-     * A mapping that converts the HTTP standard for content-type encoding and
-     * what the Buffer prototype expects
-     * @static
-     * @private
-     * @readonly
-     * @property ENCODING_MAPPING
-     * @type {Object}
-     */
-    var ENCODING_MAPPING = Object.freeze({
-        'UTF-8': 'utf8',
-        'US-ASCII': 'ascii',
-        'UTF-16LE': 'utf16le'
-    });
+      /**
+       * Redirects a request to a different location
+       * @method redirect
+       * @param {String} location
+       * @param {Function} cb
+       */
+      this.redirect = (location, cb) => {
+        cb(pb.RequestHandler.generateRedirect(location));
+      };
 
+      /**
+       * Generates an generic API response object
+       * @static
+       * @method apiResponse
+       * @return {String} JSON
+       */
+      this.apiResponse = (cd, msg, dta) => {
+        let message = msg;
+        let data = {};
+        if (typeof msg === 'undefined') {
+          switch (cd) {
+            case BaseController.API_FAILURE:
+              message = 'FAILURE';
+              break;
+            case BaseController.API_SUCCESS:
+              message = 'SUCCESS';
+              break;
+            default:
+              message = '';
+              break;
+          }
+        }
+        if (typeof dta === 'undefined') {
+          data = null;
+        } else {
+          Object.assign(data, dta);
+        }
+        const response = { code: cd, message, data };
+        return JSON.stringify(response);
+      };
+    }
     /**
      * Responsible for initializing a controller.  Properties from the
      * RequestHandler are passed down so that the controller has complete access to
@@ -109,267 +180,231 @@ module.exports = function BaseControllerModule(pb) {
      *  @param {Object} props.query The query string variables associated with the URL for the request
      *  @param {Function} cb A callback that takes a single optional argument: cb(Error)
      */
-    BaseController.prototype.init = function(props, cb) {
-        var self = this;
+    init(props, cb) {
+      /**
+       * The instance of the request handler that processed the request
+       * @property reqHandler
+       * @type {RequestHandler}
+       */
+      this.reqHandler = props.request_handler;
 
-        /**
-         * The instance of the request handler that processed the request
-         * @property reqHandler
-         * @type {RequestHandler}
-         */
-        this.reqHandler = props.request_handler;
+      /**
+       * The current request object
+       * @property req
+       * @type {Request}
+       */
+      this.req = props.request;
 
-        /**
-         * The current request object
-         * @property req
-         * @type {Request}
-         */
-        this.req = props.request;
+      /**
+       * The current response object
+       * @property res
+       * @type {Response}
+       */
+      this.res = props.response;
 
-        /**
-         * The current response object
-         * @property res
-         * @type {Response}
-         */
-        this.res = props.response;
+      /**
+       * The session object that represents the calling entity
+       * @property session
+       * @type {object}
+       */
+      this.session = props.session;
 
-        /**
-         * The session object that represents the calling entity
-         * @property session
-         * @type {object}
-         */
-        this.session = props.session;
+      /**
+       * The deserialized body of the request.  This field is only ever populted if the executing route specifies the
+       * "request_body" attribute and provides valid MIME types that map to a registered body parser
+       * @property body
+       * @type {object|null}
+       */
+      this.body = props.body;
 
-        /**
-         * The deserialized body of the request.  This field is only ever populted if the executing route specifies the
-         * "request_body" attribute and provides valid MIME types that map to a registered body parser
-         * @property body
-         * @type {object|null}
-         */
-        this.body = props.body;
+      /**
+       * @deprecated Use this.ls
+       * @property localizationService
+       * @type {Localization}
+       */
+      this.localizationService = props.localization_service;
 
-        /**
-         * @deprecated Use this.ls
-         * @property localizationService
-         * @type {Localization}
-         */
-        this.localizationService = props.localization_service;
+      /**
+       * @property ls
+       * @type {Localization}
+       */
+      this.ls = props.localization_service;
 
-        /**
-         * @property ls
-         * @type {Localization}
-         */
-        this.ls = props.localization_service;
+      /**
+       * The hash of key/value pairs that represent the variables passed in the route path
+       * @property pathVars
+       * @type {object}
+       */
+      this.pathVars = props.pathVars;
 
-        /**
-         * The hash of key/value pairs that represent the variables passed in the route path
-         * @property pathVars
-         * @type {object}
-         */
-        this.pathVars = props.pathVars;
+      /**
+       * The hash of key/value pairs that represent the variables passed as query string parameters
+       * @property query
+       * @type {object}
+       */
+      this.query = props.query;
 
-        /**
-         * The hash of key/value pairs that represent the variables passed as query string parameters
-         * @property query
-         * @type {object}
-         */
-        this.query = props.query;
+      /**
+       * The title of the view to be rendered, if there is a view
+       * @property pageName
+       * @type {string}
+       */
+      this.pageName = '';
+      this.siteObj = props.siteObj;
+      this.site = props.site;
+      this.siteName = props.siteName;
+      this.hostname = SiteService.getHostWithProtocol(this.siteObj.hostname) || pb.config.siteRoot;
 
-        /**
-         * The title of the view to be rendered, if there is a view
-         * @property pageName
-         * @type {string}
-         */
-        this.pageName            = '';
-        this.siteObj             = props.siteObj;
-        this.site                = props.site;
-        this.siteName            = props.siteName;
-        this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || pb.config.siteRoot;
+      /**
+       * The referring URL
+       * @deprecated
+       * @property referer
+       * @type {string}
+       */
+      this.referer = this.req.headers.referer;
 
-        /**
-         * The referring URL
-         * @deprecated
-         * @property referer
-         * @type {string}
-         */
-        this.referer = this.req.headers.referer;
+      /**
+       * @property ts
+       * @type {TemplateService}
+       */
+      this.ts = this.getTemplateServiceInstance(props);
 
-        /**
-         * @property ts
-         * @type {TemplateService}
-         */
-        this.ts = this.getTemplateServiceInstance(props);
+      /**
+       * @property activeTheme
+       * @type {String}
+       */
+      this.activeTheme = props.activeTheme;
 
-        /**
-         * @property activeTheme
-         * @type {String}
-         */
-        this.activeTheme = props.activeTheme;
+      // build out a base service context that can be cloned and passed to any
+      // service objects
+      /**
+       * @property context
+       * @type {{req: Request, session: object, ls: Localization, ts: TemplateService, site: string, hostname: string, activeTheme: string, onlyThisSite: boolean, siteObj: object}}
+       */
+      this.context = {
+        req: this.req,
+        session: this.session,
+        ls: this.ls,
+        ts: this.ts,
+        site: this.site,
+        hostname: this.hostname,
+        activeTheme: this.activeTheme,
+        onlyThisSite: true,
+        siteObj: this.siteObj,
+      };
 
-        //build out a base service context that can be cloned and passed to any
-        //service objects
-        /**
-         * @property context
-         * @type {{req: Request, session: object, ls: Localization, ts: TemplateService, site: string, hostname: string, activeTheme: string, onlyThisSite: boolean, siteObj: object}}
-         */
-        this.context = {
-            req: this.req,
-            session: this.session,
-            ls: this.ls,
-            ts: this.ts,
-            site: this.site,
-            hostname: this.hostname,
-            activeTheme: this.activeTheme,
-            onlyThisSite: true,
-            siteObj: this.siteObj
-        };
+      // call the initSync function
+      this.initSync(props);
 
-        //call the initSync function
-        this.initSync(props);
-
-        cb();
-    };
-
-    /**
-     * Provides a synchronous function means to initialize a controller.  It is
-     * meant to be called from the "init" function called by the request handler.
-     * @method initSync
-     * @param {Object} context See "init" for more details on properties
-     */
-    BaseController.prototype.initSync = function(/*context*/) {};
-
+      cb();
+    }
     /**
      * Creates a TemplateService instance
      * @method getTemplateServiceInstance
      * @param {Object} props
      * @return {TemplateService}
      */
-    BaseController.prototype.getTemplateServiceInstance = function(props) {
-        var self = this;
+    getTemplateServiceInstance(props) {
+      // create options
+      const tsOpts = {
+        ls: this.ls,
+        activeTheme: props.activeTheme,
+        site: this.site,
+      };
 
-        //create options
-        var tsOpts = {
-            ls: this.ls,
-            activeTheme: props.activeTheme,
-            site: this.site
-        };
+      // create instance
+      const ts = new pb.TemplateService(tsOpts);
 
-        //create instance
-        var ts = new pb.TemplateService(tsOpts);
+      // configure for common flags
+      const model = {
+        meta_lang: this.ls.language,
+        error_success: (flag, cb) => {
+          this.displayErrorOrSuccessCallback(flag, cb);
+        },
+        page_name: (flag, cb) => {
+          cb(null, this.getPageName());
+        },
+        localization_script: (flag, cb) => {
+          this.requiresClientLocalizationCallback(flag, cb);
+        },
+        analytics: (flag, cb) => {
+          pb.AnalyticsManager.onPageRender(this.req, this.session, this.ls, cb);
+        },
+        wysiwyg: (flag, cb) => {
+          const wysiwygId = util.uniqueId();
 
-        //configure for common flags
-        var model = {
-
-            meta_lang: this.ls.language,
-
-            error_success: function(flag, cb) {
-                self.displayErrorOrSuccessCallback(flag, cb);
-            },
-
-            page_name: function(flag, cb) {
-                cb(null, self.getPageName());
-            },
-
-            localization_script: function(flag, cb) {
-                self.requiresClientLocalizationCallback(flag, cb);
-            },
-
-            analytics: function(flag, cb) {
-                pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
-            },
-
-            wysiwyg: function(flag, cb) {
-                var wysiwygId = util.uniqueId();
-
-                self.ts.registerLocal('wys_id', wysiwygId);
-                self.ts.load('admin/elements/wysiwyg', function(err, data) {
-                    cb(err, new pb.TemplateValue(data, false));
-                });
-            },
-
-            site_root: self.hostname,
-            site_name: self.siteName,
-
-            localized_alternate: function(flag, cb) {
-                self.onLocalizedAlternateFlagFound(props.routeLocalized, cb);
-            }
-        };
-        ts.registerModel(model);
-        return ts;
-    };
-
+          this.ts.registerLocal('wys_id', wysiwygId);
+          this.ts.load('admin/elements/wysiwyg', (err, data) => {
+            cb(err, new pb.TemplateValue(data, false));
+          });
+        },
+        site_root: this.hostname,
+        site_name: this.siteName,
+        localized_alternate: (flag, cb) => {
+          this.onLocalizedAlternateFlagFound(props.routeLocalized, cb);
+        },
+      };
+      ts.registerModel(model);
+      return ts;
+    }
     /**
      * @method onLocalizedAlternateFlagFound
      * @param {Boolean} routeLocalized
      * @param {Function} cb
      */
-    BaseController.prototype.onLocalizedAlternateFlagFound = function(routeLocalized, cb) {
-        if (!routeLocalized) {
-            return cb(null, '');
+    onLocalizedAlternateFlagFound(routeLocalized, cb) {
+      if (!routeLocalized) {
+        return cb(null, '');
+      }
+
+      let val = '';
+      Object.keys(this.siteObj.supportedLocales).forEach((locale) => {
+        let path = this.req.url;
+        const isLocalizedPath = !!this.pathVars.locale && path.indexOf(this.pathVars.locale) >= 0;
+        if (this.ls.language === locale && !isLocalizedPath) {
+          // skip current language.  We don't need to list it as an alternate
+          return;
         }
+        const relationship = this.ls.language === locale ? 'canonical' : 'alternate';
 
-        var val = '';
-        var self = this;
-        Object.keys(this.siteObj.supportedLocales).forEach(function(locale) {
-            var path = self.req.url;
-            var isLocalizedPath = !!self.pathVars.locale && path.indexOf(self.pathVars.locale) >= 0;
-            if (self.ls.language === locale && !isLocalizedPath) {
-                //skip current language.  We don't need to list it as an alternate
-                return;
-            }
-            var relationship = self.ls.language === locale ? 'canonical' : 'alternate';
-
-            var urlOpts = {
-                hostname: self.hostname,
-                locale: undefined
-            };
-            if (self.ls.language === locale) {
-                path = path.replace(locale + '/', '').replace(locale, '');
-            }
-            else if (isLocalizedPath) {
-                path = path.replace(self.pathVars.locale, locale);
-            }
-            else {
-                urlOpts.locale = locale;
-            }
-            var url = pb.UrlService.createSystemUrl(path, urlOpts);
-            val += '<link rel="' + relationship + '" hreflang="' + locale + '" href="' + url + '" />\n';
-        });
-        cb(null, new pb.TemplateValue(val, false));
-    };
-
+        const urlOpts = {
+          hostname: this.hostname,
+          locale: undefined,
+        };
+        if (this.ls.language === locale) {
+          path = path.replace(`${locale}/`, '').replace(locale, '');
+        } else if (isLocalizedPath) {
+          path = path.replace(this.pathVars.locale, locale);
+        } else {
+          urlOpts.locale = locale;
+        }
+        const serviceUrl = pb.UrlService.createSystemUrl(path, urlOpts);
+        val += `<link rel="${relationship}" hreflang="'${locale}" href="${serviceUrl}" />\n`;
+      });
+      return cb(null, new pb.TemplateValue(val, false));
+    }
     /**
      * Retrieves a context object that contains the necessary information for
      * service prototypes
      * @method getServiceContext
      * @return {Object}
      */
-    BaseController.prototype.getServiceContext = function(){
-        return util.merge(this.context, {});
-    };
-
-    /**
-     *
-     * @method requiresClientLocalization
-     * @return {Boolean}
-     */
-    BaseController.prototype.requiresClientLocalization = function() {
-        return true;
-    };
-
+    getServiceContext() {
+      return util.merge(this.context, {});
+    }
     /**
      *
      * @method requiresClientLocalizationCallback
      * @param {String} flag
      * @param {Function} cb
      */
-    BaseController.prototype.requiresClientLocalizationCallback = function(flag, cb) {
-        var val = '';
-        if (this.requiresClientLocalization()) {
-            val = pb.ClientJs.includeJS('/api/localization/script');
-        }
-        cb(null, new pb.TemplateValue(val, false));
-    };
+    requiresClientLocalizationCallback(flag, cb) {
+      let val = '';
+      if (this.requiresClientLocalization()) {
+        val = pb.ClientJs.includeJS('/api/localization/script');
+      }
+      cb(null, new pb.TemplateValue(val, false));
+    }
 
     /**
      *
@@ -378,12 +413,11 @@ module.exports = function BaseControllerModule(pb) {
      * @param {String} redirectLocation
      * @param {Function} cb
      */
-    BaseController.prototype.formError = function(message, redirectLocation, cb) {
-
-        this.session.error = message;
-        var uri = pb.UrlService.createSystemUrl(redirectLocation, { hostname: this.hostname });
-        cb(pb.RequestHandler.generateRedirect(uri));
-    };
+    formError(message, redirectLocation, cb) {
+      this.session.error = message;
+      const uri = pb.UrlService.createSystemUrl(redirectLocation, { hostname: this.hostname });
+      cb(pb.RequestHandler.generateRedirect(uri));
+    }
 
     /**
      *
@@ -391,21 +425,19 @@ module.exports = function BaseControllerModule(pb) {
      * @param {String} flag
      * @param {Function} cb
      */
-    BaseController.prototype.displayErrorOrSuccessCallback = function(flag, cb) {
-        if(this.session.error) {
-            var error = this.session.error;
-            delete this.session.error;
-            cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-danger', this.ls.get(error)), false));
-        }
-        else if(this.session.success) {
-            var success = this.session.success;
-            delete this.session.success;
-            cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-success', this.ls.get(success)), false));
-        }
-        else {
-            cb(null, '');
-        }
-    };
+    displayErrorOrSuccessCallback(flag, cb) {
+      if (this.session.error) {
+        const error = this.session.error;
+        delete this.session.error;
+        cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-danger', this.ls.get(error)), false));
+      } else if (this.session.success) {
+        const success = this.session.success;
+        delete this.session.success;
+        cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-success', this.ls.get(success)), false));
+      } else {
+        cb(null, '');
+      }
+    }
 
     /**
      * Provides a page title.  This is picked up by the template engine when the
@@ -413,49 +445,47 @@ module.exports = function BaseControllerModule(pb) {
      * @method getPageName
      * @return {String} The page title
      */
-    BaseController.prototype.getPageName = function() {
-        return this.pageName;
-    };
+    getPageName() {
+      return this.pageName;
+    }
 
     /**
      * Sets the page title
      * @method setPageName
      * @param {String} pageName The desired page title
      */
-    BaseController.prototype.setPageName = function(pageName) {
-        this.pageName = pageName;
-    };
+    setPageName(pageName) {
+      this.pageName = pageName;
+    }
 
     /**
      *
      * @method getPostParams
      * @param {Function} cb
      */
-    BaseController.prototype.getPostParams = function(cb) {
-        var self = this;
+    getPostParams(cb) {
+      this.getPostData((err, raw) => {
+        // Handle error
+        if (util.isError(err)) {
+          pb.log.error('BaseController.getPostParams encountered an error. ERROR[%s]', err.stack);
+          return cb(err, null);
+        }
 
-        this.getPostData(function(err, raw){
-            //Handle error
-            if (util.isError(err)) {
-                pb.log.error("BaseController.getPostParams encountered an error. ERROR[%s]", err.stack);
-                return cb(err, null);
-            }
+        // lookup encoding
+        let encoding = pb.BaseBodyParser.getContentEncoding(this.req);
+        encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
 
-            //lookup encoding
-            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
-            encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
+        // convert to string
+        const postParams = url.parse(`?${raw.toString(encoding)}`, true).query;
 
-            //convert to string
-            var postParams = url.parse('?' + raw.toString(encoding), true).query;
+        // In Node v6 a breaking change was introduced into the "querystring" module to prevent reserved words from
+        // being passed in as query string parameters and overriding prototype functions.
+        // This fix allows for users to continue on with V6 until another viable option comes along
+        postParams.hawOwnProperty = Object.prototype.hasOwnProperty;
 
-            //In Node v6 a breaking change was introduced into the "querystring" module to prevent reserved words from
-            // being passed in as query string parameters and overriding prototype functions.
-            // This fix allows for users to continue on with V6 until another viable option comes along
-            postParams.hawOwnProperty = Object.prototype.hasOwnProperty;
-
-            cb(null, postParams);
-        });
-    };
+        return cb(null, postParams);
+      });
+    }
 
     /**
      * Parses the incoming payload of a request as JSON formatted data.
@@ -463,60 +493,56 @@ module.exports = function BaseControllerModule(pb) {
      * @method getJSONPostParams
      * @param {Function} cb
      */
-    BaseController.prototype.getJSONPostParams = function(cb) {
-        var self = this;
+    getJSONPostParams(cb) {
+      this.getPostData((err, raw) => {
+        // Handle error
+        if (util.isError(err)) {
+          pb.log.error('BaseController.getJSONPostParams encountered an error. ERROR[%s]', err.stack);
+          return cb(err, null);
+        }
 
-        this.getPostData(function(err, raw){
-            //Handle error
-            if (util.isError(err)) {
-                pb.log.error("BaseController.getJSONPostParams encountered an error. ERROR[%s]", err.stack);
-                return cb(err, null);
-            }
+        // lookup encoding
+        let encoding = pb.BaseBodyParser.getContentEncoding(this.req);
+        encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
 
-            //lookup encoding
-            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
-            encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
-
-            var error      = null;
-            var postParams = null;
-            try {
-                postParams = JSON.parse(raw.toString(encoding));
-            }
-            catch(err) {
-                error = err;
-            }
-            cb(error, postParams);
-        });
-    };
+        let error = null;
+        let postParams = null;
+        try {
+          postParams = JSON.parse(raw.toString(encoding));
+        } catch (parseError) {
+          error = parseError;
+        }
+        return cb(error, postParams);
+      });
+    }
 
     /**
      *
      * @method getPostData
      * @param {Function} cb
      */
-    BaseController.prototype.getPostData = function(cb) {
-        var buffers     = [];
-        var totalLength = 0;
+    getPostData(cb) {
+      const buffers = [];
+      let totalLength = 0;
 
-        this.req.on('data', function (data) {
-            buffers.push(data);
-            totalLength += data.length;
+      this.req.on('data', (data) => {
+        buffers.push(data);
+        totalLength += data.length;
 
-            // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
-            if (totalLength > 1e6) {
-                // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
-                var err = new Error("POST limit reached! Maximum of 1MB.");
-                err.code = 400;
-                cb(err, null);
-            }
-        });
-        this.req.on('end', function () {
-
-            //create one big buffer.
-            var body = Buffer.concat (buffers, totalLength);
-            cb(null, body);
-        });
-    };
+        // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
+        if (totalLength > 1e6) {
+          // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
+          const err = new Error('POST limit reached! Maximum of 1MB.');
+          err.code = 400;
+          cb(err, null);
+        }
+      });
+      this.req.on('end', () => {
+        // create one big buffer.
+        const body = Buffer.concat(buffers, totalLength);
+        cb(null, body);
+      });
+    }
 
     /**
      *
@@ -524,33 +550,31 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Object} queryObject
      * @param {Array} requiredParameters
      */
-    BaseController.prototype.hasRequiredParams = function(queryObject, requiredParameters) {
-
-        for (var i = 0; i < requiredParameters.length; i++) {
-
-            if (typeof queryObject[requiredParameters[i]] === 'undefined' || queryObject[requiredParameters[i]].length === 0) {
-                return this.ls.g('generic.FORM_INCOMPLETE');
-            }
+    hasRequiredParams(queryObject, requiredParameters) {
+      for (let i = 0; i < requiredParameters.length; i += 1) {
+        if (typeof queryObject[requiredParameters[i]] === 'undefined' || queryObject[requiredParameters[i]].length === 0) {
+          return this.ls.g('generic.FORM_INCOMPLETE');
         }
+      }
 
-        if(queryObject.password && queryObject.confirm_password) {
-            if(queryObject.password !== queryObject.confirm_password) {
-                return this.ls.g('users.PASSWORD_MISMATCH');
-            }
+      if (queryObject.password && queryObject.confirm_password) {
+        if (queryObject.password !== queryObject.confirm_password) {
+          return this.ls.g('users.PASSWORD_MISMATCH');
         }
+      }
 
-        return null;
-    };
+      return null;
+    }
 
     /**
      *
      * @method setFormFieldValues
      * @param {Object} post
      */
-    BaseController.prototype.setFormFieldValues = function(post) {
-        this.session.fieldValues = post;
-        return this.session;
-    };
+    setFormFieldValues(post) {
+      this.session.fieldValues = post;
+      return this.session;
+    }
 
     /**
      *
@@ -558,17 +582,17 @@ module.exports = function BaseControllerModule(pb) {
      * @param {String} result
      * @param {Function} cb
      */
-    BaseController.prototype.checkForFormRefill = function(result, cb) {
-        if(this.session.fieldValues) {
-            var content    = util.format(FORM_REFILL_PATTERN, JSON.stringify(this.session.fieldValues));
-            var formScript = pb.ClientJs.getJSTag(content);
-            result         = result.concat(formScript);
+    checkForFormRefill(result, cb) {
+      if (this.session.fieldValues) {
+        const content = util.format(FORM_REFILL_PATTERN, JSON.stringify(this.session.fieldValues));
+        const formScript = pb.ClientJs.getJSTag(content);
+        result = result.concat(formScript); // eslint-disable-line no-param-reassign
 
-            delete this.session.fieldValues;
-        }
+        delete this.session.fieldValues;
+      }
 
-        cb(null, result);
-    };
+      cb(null, result);
+    }
 
     /**
      * Sanitizes an object.  This function is handy for incoming post objects.  It
@@ -579,97 +603,39 @@ module.exports = function BaseControllerModule(pb) {
      * @method sanitizeObject
      * @param {Object} obj
      */
-    BaseController.prototype.sanitizeObject = function(obj) {
-        if (!util.isObject(obj)) {
-            pb.log.warn("BaseController.sanitizeObject was not passed an object.");
-            return;
+    sanitizeObject(obj) {
+      if (!util.isObject(obj)) {
+        pb.log.warn('BaseController.sanitizeObject was not passed an object.');
+        return;
+      }
+
+      const rules = this.getSanitizationRules();
+      Object.keys(obj).forEach((prop) => {
+        if (util.isString(obj[prop])) {
+          const config = rules[prop];
+          obj[prop] = // eslint-disable-line no-param-reassign
+            pb.BaseObjectService.sanitize(obj[prop], config);
         }
+      });
+    }
+  }
 
-        var rules = this.getSanitizationRules();
-        Object.keys(obj).forEach(function(prop) {
-            if (util.isString(obj[prop])) {
+  // constants
+  /**
+   * The code for a successful API call
+   * @static
+   * @property API_SUCCESS
+   * @type {Integer}
+   */
+  BaseController.API_SUCCESS = 0;
 
-                var config = rules[prop];
-                obj[prop] = pb.BaseObjectService.sanitize(obj[prop], config);
-            }
-        });
-    };
+  /**
+   * The code for a failed API call
+   * @static
+   * @property API_FAILURE
+   * @type {Integer}
+   */
+  BaseController.API_FAILURE = 1;
 
-    /**
-     *
-     * @method getSanitizationRules
-     * @return {Object}
-     */
-    BaseController.prototype.getSanitizationRules = function() {
-        return {};
-    };
-
-    /**
-     * The sanitization rules that apply to Pages and Articles
-     * @deprecated Since 0.4.1
-     * @static
-     * @method getContentSanitizationRules
-     */
-    BaseController.getContentSanitizationRules = function() {
-        return pb.BaseObjectService.getContentSanitizationRules();
-    };
-
-    /**
-     * @deprecated Since 0.4.1
-     * @static
-     * @method getDefaultSanitizationRules
-     */
-    BaseController.getDefaultSanitizationRules = function() {
-        return pb.BaseObjectService.getDefaultSanitizationRules();
-    };
-
-    /**
-     *
-     * @deprecated Since 0.4.1
-     * @static
-     * @method sanitize
-     * @param {String} value
-     * @param {Object} [config]
-     */
-    BaseController.sanitize = function(value, config) {
-        return pb.BaseObjectService.sanitize(value, config);
-    };
-
-    /**
-     * Redirects a request to a different location
-     * @method redirect
-     * @param {String} location
-     * @param {Function} cb
-     */
-    BaseController.prototype.redirect = function(location, cb){
-        cb(pb.RequestHandler.generateRedirect(location));
-    };
-
-    /**
-     * Generates an generic API response object
-     * @static
-     * @method apiResponse
-     * @return {String} JSON
-     */
-    BaseController.apiResponse = function(cd, msg, dta) {
-        if(typeof msg === 'undefined') {
-            switch(cd) {
-                case BaseController.API_FAILURE:
-                    msg = 'FAILURE';
-                    break;
-                case BaseController.API_SUCCESS:
-                    msg = 'SUCCESS';
-                    break;
-                default:
-                    msg = '';
-                    break;
-            }
-        }
-        if(typeof dta === 'undefined') {
-            dta = null;
-        }
-        var response = {code: cd, message: msg, data: dta};
-        return JSON.stringify(response);
-    };
-    return BaseController;
+  return BaseController;
 };
