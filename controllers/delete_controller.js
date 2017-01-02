@@ -15,122 +15,132 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//dependencies
-var async = require('async');
-var util  = require('../include/util.js');
+// dependencies
+const async = require('async');
+const util = require('../include/util.js');
 
-module.exports = function(pb) {
+module.exports = function DeleteControllerModule(pb) {
+  /**
+   * Deletes objects from the database
+   * @class DeleteController
+   * @constructor
+   * @extends FormController
+   */
+  class DeleteController extends pb.BaseController {
 
-    /**
-     * Deletes objects from the database
-     * @class DeleteController
-     * @constructor
-     * @extends FormController
-     */
-    function DeleteController(){}
-    util.inherits(DeleteController, pb.FormController);
+    constructor() {
+      super();
+      /**
+       *
+       * @method getRequiredFields
+       * @param {Function} cb
+       */
+      this.getRequiredFields = () => ['id'];
 
+      /**
+       *
+       * @method canDelete
+       * @param {Function} cb
+       */
+      this.canDelete = (cb) => {
+        cb(null, true);
+      };
+
+      /**
+       *
+       * @method onBeforeDelete
+       * @param {Function} cb
+       */
+      this.onBeforeDelete = (cb) => {
+        cb(null, true);
+      };
+
+      /**
+       *
+       * @method onAfterDelete
+       * @param {Function} cb
+       */
+      this.onAfterDelete = (cb) => {
+        cb(null, true);
+      };
+
+
+      /**
+       *
+       * @method getFormErrorRedirect
+       * @param {Error} err
+       * @param {String} message
+       * @return
+       */
+      this.getFormErrorRedirect = (/* err, message */) => '/';
+
+      /**
+       *
+       * @method getDeleteCollection
+       * @return {String}
+       */
+      this.getDeleteCollection = () => 'IS NOT IMPLEMENTED';
+    }
     /**
      *
      * @method onPostParamsRetrieved
      * @param {Function} cb
      */
-    DeleteController.prototype.onPostParamsRetrieved = function(post, cb) {
-        var self = this;
-        var get  = this.query;
+    onPostParamsRetrieved(post, cb) {
+      const get = this.query;
 
-        //merge get and post in case ID was a query string param
-        util.merge(get, post);
+      // merge get and post in case ID was a query string param
+      util.merge(get, post);
 
-        //check for the required parameters
-        var message = this.hasRequiredParams(post, this.getRequiredFields());
-        if(message) {
-            this.formError(message, this.getFormErrorRedirect(null, message), cb);
-            return;
+      // check for the required parameters
+      const message = this.hasRequiredParams(post, this.getRequiredFields());
+      if (message) {
+        this.formError(message, this.getFormErrorRedirect(null, message), cb);
+        return;
+      }
+
+      // create the tasks & execute in order
+      const tasks = [
+        (callback) => {
+          this.canDelete((err, canDelete) => {
+            let error = null;
+            if (util.isError(err)) {
+              error = err;
+            } else if (!canDelete) {
+              error = canDelete;
+            }
+            callback(error, canDelete);
+          });
+        },
+        (callback) => {
+          this.onBeforeDelete(callback);
+        },
+        (callback) => {
+          const dao = new pb.DAO();
+          dao.delete(this.getDeleteQuery(), this.getDeleteCollection(), callback);
+        },
+        (callback) => {
+          this.onAfterDelete(callback);
+        },
+      ];
+      async.series(tasks, (err, results) => {
+        // process the results
+        if (err) {
+          this.onError(err, null, cb);
+        } else {
+          cb(this.getDataOnSuccess(results));
         }
-
-        //create the tasks & execute in order
-        var tasks = [
-             function(callback){
-                 self.canDelete(function(err, canDelete){
-
-                     var error = null;
-                     if (util.isError(err)) {
-                         error = err;
-                     }
-                     else if (!canDelete) {
-                         error = canDelete;
-                     }
-                     callback(error, canDelete);
-                 });
-             },
-             function(callback){
-                 self.onBeforeDelete(callback);
-             },
-             function(callback){
-                 var dao = new pb.DAO();
-                 dao.delete(self.getDeleteQuery(), self.getDeleteCollection(), callback);
-             },
-             function(callback){
-                 self.onAfterDelete(callback);
-             },
-        ];
-        async.series(tasks, function(err, results){
-
-            //process the results
-            if (err) {
-                self.onError(err, null, cb);
-            }
-            else {
-                cb(self.getDataOnSuccess(results));
-            }
-        });
-    };
-
-    /**
-     *
-     * @method getRequiredFields
-     * @param {Function} cb
-     */
-    DeleteController.prototype.getRequiredFields = function () {
-        return ['id'];
-    };
-
-    /**
-     *
-     * @method canDelete
-     * @param {Function} cb
-     */
-    DeleteController.prototype.canDelete = function(cb) {
-        cb(null, true);
-    };
-
-    /**
-     *
-     * @method onBeforeDelete
-     * @param {Function} cb
-     */
-    DeleteController.prototype.onBeforeDelete = function(cb) {
-        cb(null, true);
-    };
-
-    /**
-     *
-     * @method onAfterDelete
-     * @param {Function} cb
-     */
-    DeleteController.prototype.onAfterDelete = function(cb) {
-        cb(null, true);
-    };
+      });
+    }
 
     /**
      *
      * @method getDeleteQuery
      * @return {Object}
      */
-    DeleteController.prototype.getDeleteQuery = function() {
-        return pb.DAO.getIdWhere(this.query.id);
-    };
+    getDeleteQuery() {
+      return pb.DAO.getIdWhere(this.query.id);
+    }
 
     /**
      *
@@ -139,41 +149,22 @@ module.exports = function(pb) {
      * @param {String} message
      * @param {Function} cb
      */
-    DeleteController.prototype.onError = function(err, message, cb) {
-        if (util.isNullOrUndefined(message)) {
-            message = this.getDefaultErrorMessage();
-        }
-        this.formError(message, this.getFormErrorRedirect(err, message), cb);
-    };
-
-    /**
-     *
-     * @method getFormErrorRedirect
-     * @param {Error} err
-     * @param {String} message
-     * @return
-     */
-    DeleteController.prototype.getFormErrorRedirect = function(/*err, message*/) {
-        return '/';
-    };
-
-    /**
-     *
-     * @method getDeleteCollection
-     * @return {String}
-     */
-    DeleteController.prototype.getDeleteCollection = function() {
-        return 'IS NOT IMPLEMENTED';
-    };
+    onError(err, message, cb) {
+      let msg = message;
+      if (util.isNullOrUndefined(msg)) {
+        msg = this.getDefaultErrorMessage();
+      }
+      this.formError(msg, this.getFormErrorRedirect(err, msg), cb);
+    }
 
     /**
      *
      * @method getSuccessRedirect
      * @return {String}
      */
-    DeleteController.prototype.getSuccessRedirect = function() {
-        return pb.UrlService.createSystemUrl('/', { hostname: this.hostname });
-    };
+    getSuccessRedirect() {
+      return pb.UrlService.createSystemUrl('/', { hostname: this.hostname });
+    }
 
     /**
      *
@@ -181,18 +172,18 @@ module.exports = function(pb) {
      * @param {Array} results
      * @return {object}
      */
-    DeleteController.prototype.getDataOnSuccess = function(/*results*/) {
-        return pb.RequestHandler.generateRedirect(this.getSuccessRedirect());
-    };
+    getDataOnSuccess(/* results */) {
+      return pb.RequestHandler.generateRedirect(this.getSuccessRedirect());
+    }
 
     /**
      *
      * @method getDefaultErrorMessage
      * @return {String}
      */
-    DeleteController.prototype.getDefaultErrorMessage = function() {
-        return this.ls.g('generic.ERROR_SAVING');
-    };
-
-    return DeleteController;
+    getDefaultErrorMessage() {
+      return this.ls.g('generic.ERROR_SAVING');
+    }
+  }
+  return DeleteController;
 };

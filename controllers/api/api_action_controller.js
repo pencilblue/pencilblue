@@ -15,34 +15,70 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//dependencies
-var async = require('async');
-var util  = require('../../include/util.js');
+// dependencies
+const async = require('async');
+const util = require('../../include/util.js');
 
 module.exports = function ApiActionControllerModule(pb) {
+  // pb dependencies
+  const BaseController = pb.BaseController;
 
-    //pb dependencies
-    var BaseController = pb.BaseController;
+  /**
+   * Controller interface used to map simple actions to handlers and provide
+   * a flow for validation and error handling.
+   * @deprecated Since 0.4.1
+   * @class ApiActionController
+   * @constructor
+   * @extends BaseController
+   */
+  class ApiActionController extends BaseController {
 
-    /**
-     * Controller interface used to map simple actions to handlers and provide
-     * a flow for validation and error handling.
-     * @deprecated Since 0.4.1
-     * @class ApiActionController
-     * @constructor
-     * @extends BaseController
-     */
-    function ApiActionController(){}
-    util.inherits(ApiActionController, BaseController);
+    constructor() {
+      super();
+      /**
+       * Flag to indicate if the form should automatically sanitize the incoming
+       * values.  In this case sanitize means it will attempt to strip away any
+       * HTML tags to prevent HTML injection and XSS.
+       * @property autoSanitize
+       * @type {Boolean}
+       */
+      this.autoSanitize = true;
 
-    /**
-     * Flag to indicate if the form should automatically sanitize the incoming
-     * values.  In this case sanitize means it will attempt to strip away any
-     * HTML tags to prevent HTML injection and XSS.
-     * @property autoSanitize
-     * @type {Boolean}
-     */
-    ApiActionController.prototype.autoSanitize = true;
+      /**
+       * Provides the hash of all actions supported by this controller
+       * @method getActions
+       * @return {Object} An empty hash of actions since this is meant to be
+       * overriden.
+       */
+      this.getActions = () => {};
+
+      /**
+       * Validates any query parameters for the specified action.  The callback will
+       * provide an array of validation errors. When the array is empty it is safe to
+       * assume that validation succeeded. The default implementation passes an empty
+       * error array.
+       * @method validateQueryParameters
+       * @param {String} action
+       * @param {Function} cb
+       */
+      this.validateQueryParameters = (action, cb) => {
+        cb(null, []);
+      };
+
+      /**
+       * Validates any post parameters for the specified action.  The callback will
+       * provide an array of validation errors. When the array is empty it is safe to
+       * assume that validation succeeded. The default implementation passes an empty
+       * error array.
+       * @method validatePostParameters
+       * @param {String} action
+       * @param {Object} post
+       * @param {Function} cb
+       */
+      this.validatePostParameters = (action, post, cb) => {
+        cb(null, []);
+      };
+    }
 
     /**
      * The entry point called by the RequestHandler.  Executes the calls to the
@@ -50,34 +86,22 @@ module.exports = function ApiActionControllerModule(pb) {
      * @method render
      * @param {Function} cb
      */
-    ApiActionController.prototype.render = function(cb) {
+    render(cb) {
+      // validate action
+      const action = this.pathVars.action;
+      this.validateParameters(action, (err, errors) => {
+        const isError = util.isError(err);
+        // check for errors
+        if (isError || errors.length > 0) {
+          const content = BaseController.apiResponse(BaseController.API_FAILURE, '', errors);
+          cb({ content, code: isError ? 500 : 400 });
+          return;
+        }
 
-        //validate action
-        var self   = this;
-        var action = this.pathVars.action;
-        this.validateParameters(action, function(err, errors) {
-            var isError = util.isError(err);
-            //check for errors
-            if (isError || errors.length > 0) {
-                var content = BaseController.apiResponse(BaseController.API_FAILURE, '', errors);
-                cb({content: content, code: isError ? 500 : 400});
-                return;
-            }
-
-            //route to handler
-            self[action](cb);
-        });
-    };
-
-    /**
-     * Provides the hash of all actions supported by this controller
-     * @method getActions
-     * @return {Object} An empty hash of actions since this is meant to be
-     * overriden.
-     */
-    ApiActionController.prototype.getActions = function() {
-        return {};
-    };
+        // route to handler
+        this[action](cb);
+      });
+    }
 
     /**
      * Validates the query, path, and post parameters in parallel and calls back
@@ -86,68 +110,65 @@ module.exports = function ApiActionControllerModule(pb) {
      * @param {String} action
      * @param {Function} cb
      */
-    ApiActionController.prototype.validateParameters = function(action, cb) {
+    validateParameters(action, cb) {
+      const actions = this.getActions();
+      if (!pb.validation.validateNonEmptyStr(action, true) || actions[action] === undefined) {
+        return cb(null, [this.ls.g('generic.VALID_ACTION_REQUIRED')]);
+      }
 
-        var actions = this.getActions();
-        if (!pb.validation.validateNonEmptyStr(action, true) || actions[action] === undefined) {
-            return cb(null, [this.ls.g('generic.VALID_ACTION_REQUIRED')]);
-        }
-
-        var self = this;
-        var tasks = [
-            function(callback) {
-                self.validatePathParameters(action, callback);
-            },
-            function(callback) {
-                self.validateQueryParameters(action, callback);
-            },
-            function(callback) {
-                if (self.req.method.toUpperCase() !== 'POST') {
-                    return callback(null, []);
-                }
-                self.getPostParams(function(err, post) {
-                    if (util.isError(err)) {
-                        return callback(err, []);
-                    }
-
-                    if (self.getAutoSanitize()) {
-                        self.sanitizeObject(post);
-                    }
-
-                    self.post = post;
-                    self.validatePostParameters(action, post, callback);
-                });
-            },
-        ];
-        async.parallel(tasks, function(err, results) {
-
-            var errors = [];
-            if (util.isArray(results)) {
-                for (var i = 0; i < results.length; i++) {
-                    if (util.isArray(results[i])) {
-                        util.arrayPushAll(results[i], errors);
-                    }
-                }
+      const tasks = [
+        (callback) => {
+          this.validatePathParameters(action, callback);
+        },
+        (callback) => {
+          this.validateQueryParameters(action, callback);
+        },
+        (callback) => {
+          if (this.req.method.toUpperCase() !== 'POST') {
+            return callback(null, []);
+          }
+          return this.getPostParams((err, post) => {
+            if (util.isError(err)) {
+              return callback(err, []);
             }
-            cb(err, errors);
-        });
-    };
+
+            if (this.getAutoSanitize()) {
+              this.sanitizeObject(post);
+            }
+
+            this.post = post;
+            return this.validatePostParameters(action, post, callback);
+          });
+        },
+      ];
+      return async.parallel(tasks, (err, results) => {
+        const errors = [];
+        if (util.isArray(results)) {
+          for (let i = 0; i < results.length; i += 1) {
+            if (util.isArray(results[i])) {
+              util.arrayPushAll(results[i], errors);
+            }
+          }
+        }
+        cb(err, errors);
+      });
+    }
 
     /**
      * @method getAutoSanitize
      * @return {Boolean
      */
-    ApiActionController.prototype.getAutoSanitize = function() {
-        return this.autoSanitize;
-    };
+    getAutoSanitize() {
+      return this.autoSanitize;
+    }
 
     /**
      * @method setAutoSanitize
      * @param {Boolean} val
      */
-    ApiActionController.prototype.setAutoSanitize = function(val) {
-        this.autoSanitize = val ? true : false;
-    };
+    setAutoSanitize(val) {
+      this.autoSanitize = !!val;
+    }
 
     /**
      * Validates any path parameters for the specified action.  The callback will
@@ -160,42 +181,16 @@ module.exports = function ApiActionControllerModule(pb) {
      * @param {String} action
      * @param {Function} cb
      */
-    ApiActionController.prototype.validatePathParameters = function(action, cb) {
-        //validate identifier
-        var errors  = [];
-        var actions = this.getActions();
-        if (actions[action] && !pb.validation.validateNonEmptyStr(this.pathVars.id, true)) {
-            errors.push(this.ls.g('generic.VALID_IDENTIFIER_REQUIRED'));
-        }
-        cb(null, errors);
-    };
+    validatePathParameters(action, cb) {
+      // validate identifier
+      const errors = [];
+      const actions = this.getActions();
+      if (actions[action] && !pb.validation.validateNonEmptyStr(this.pathVars.id, true)) {
+        errors.push(this.ls.g('generic.VALID_IDENTIFIER_REQUIRED'));
+      }
+      cb(null, errors);
+    }
 
-    /**
-     * Validates any query parameters for the specified action.  The callback will
-     * provide an array of validation errors. When the array is empty it is safe to
-     * assume that validation succeeded. The default implementation passes an empty
-     * error array.
-     * @method validateQueryParameters
-     * @param {String} action
-     * @param {Function} cb
-     */
-    ApiActionController.prototype.validateQueryParameters = function(action, cb) {
-        cb(null, []);
-    };
-
-    /**
-     * Validates any post parameters for the specified action.  The callback will
-     * provide an array of validation errors. When the array is empty it is safe to
-     * assume that validation succeeded. The default implementation passes an empty
-     * error array.
-     * @method validatePostParameters
-     * @param {String} action
-     * @param {Object} post
-     * @param {Function} cb
-     */
-    ApiActionController.prototype.validatePostParameters = function(action, post, cb) {
-        cb(null, []);
-    };
-
-    return ApiActionController;
+  }
+  return ApiActionController;
 };

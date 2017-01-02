@@ -14,21 +14,18 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-'use strict';
-
-//dependencies
-var util = require('./util.js');
+// dependencies
+const util = require('./util.js');
 
 module.exports = function ClientJsModule(pb) {
-
-    /**
-     * Service for creating JavaScript tags
-     *
-     * @module Services
-     * @class ClientJs
-     * @constructor
-     */
-    function ClientJs(){}
+  /**
+   * Service for creating JavaScript tags
+   *
+   * @module Services
+   * @class ClientJs
+   * @constructor
+   */
+  class ClientJs {
 
     /**
      * Creates a basic AngularJS controller with a repeat directive for templatizing
@@ -38,21 +35,21 @@ module.exports = function ClientJsModule(pb) {
      * @param {Array}  modules     Array of AngularJS module names
      * @param {String} [directiveJS] JavaScript to run after on-finish-render directive
      */
-    ClientJs.getAngularController = function(objects, modules, directiveJS) {
-        if(!util.isArray(modules) || modules.length === 0) {
-            modules = ['ngRoute'];
-        }
+    static getAngularController(objects, modules, directiveJS) {
+      if (!util.isArray(modules) || modules.length === 0) {
+        modules = ['ngRoute']; // eslint-disable-line
+      }
 
-        var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ')';
-        if(!util.isNullOrUndefined(directiveJS)) {
-            angularController += '.directive("onFinishRender", function($timeout) {return {restrict: "A", link: function(scope, element, attr) {if (scope.$last === true){$timeout(function() {' + directiveJS + '})}}}})';
-        }
+      let angularController = `var pencilblueApp = angular.module("pencilblueApp", ${JSON.stringify(modules)})`;
+      if (!util.isNullOrUndefined(directiveJS)) {
+        angularController += `.directive("onFinishRender", function($timeout) {return {restrict: "A", link: function(scope, element, attr) {if (scope.$last === true){$timeout(function() {${directiveJS}})}}}})`;
+      }
 
-        var scopeString = ClientJs.getAngularObjects(objects);
-        angularController = angularController.concat('.controller("PencilBlueController", function($scope, $sce) {' + scopeString + "});\n");
-        angularController = angularController.concat('pencilblueApp.config(["$compileProvider",function(e) {e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/)}]);');
-        return ClientJs.getJSTag(angularController);
-    };
+      const scopeString = ClientJs.getAngularObjects(objects);
+      angularController = angularController.concat(`.controller("PencilBlueController", function($scope, $sce) {${scopeString}});\n`);
+      angularController = angularController.concat('pencilblueApp.config(["$compileProvider",function(e) {e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/)}]);'); // eslint-disable-line
+      return ClientJs.getJSTag(angularController);
+    }
 
     /**
      *
@@ -61,18 +58,18 @@ module.exports = function ClientJsModule(pb) {
      * @param {Object} objects
      * @return {String}
      */
-    ClientJs.getAngularObjects = function(objects) {
-        var scopeString = '';
-        Object.keys(objects).forEach(function(key) {
-            if(util.isString(objects[key]) && objects[key].indexOf('function(') === 0) {
-                scopeString = scopeString.concat('$scope.' + key + ' = ' + objects[key] + ";\n");
-                return;
-            }
-            scopeString = scopeString.concat('$scope.' + key + ' = ' + JSON.stringify(objects[key], null, pb.log.isSilly() ? ' ' : undefined) + ";\n");
-        });
+    static getAngularObjects(objects) {
+      let scopeString = '';
+      Object.keys(objects).forEach((key) => {
+        if (util.isString(objects[key]) && objects[key].indexOf('function(') === 0) {
+          scopeString = scopeString.concat(`$scope.${key} = ${objects[key]};\n`);
+          return;
+        }
+        scopeString = scopeString.concat(`$scope.${key} = ${JSON.stringify(objects[key], null, pb.log.isSilly() ? ' ' : undefined)};\n`);
+      });
 
-        return scopeString;
-    };
+      return scopeString;
+    }
 
     /**
      * Creates a JS tag that loads the specified url
@@ -81,9 +78,9 @@ module.exports = function ClientJsModule(pb) {
      * @method includeJS
      * @param {String} url
      */
-    ClientJs.includeJS = function(url) {
-        return new pb.TemplateValue('<script type="text/javascript" src="' + url + '"></script>', false);
-    };
+    static includeJS(url) {
+      return new pb.TemplateValue(`<script type="text/javascript" src="${url}"></script>`, false);
+    }
 
     /**
      * Puts the supplied JS code string into a script tag
@@ -92,10 +89,10 @@ module.exports = function ClientJsModule(pb) {
      * @method getJSTag
      * @param {String} jsCode
      */
-    ClientJs.getJSTag = function(jsCode) {
-        return new pb.TemplateValue('<script type="text/javascript">\n' + jsCode + '\n</script>', false);
-    };
-
-    //exports
-    return ClientJs;
+    static getJSTag(jsCode) {
+      return new pb.TemplateValue(`<script type="text/javascript">\n${jsCode}\n</script>`, false);
+    }
+  }
+  // exports
+  return ClientJs;
 };
