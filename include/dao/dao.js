@@ -17,8 +17,9 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var util = require('util');
 var ObjectID = require('mongodb').ObjectID;
-var util     = require('../util.js');
 
 module.exports = function DAOModule(pb) {
 
@@ -41,7 +42,7 @@ module.exports = function DAOModule(pb) {
          * @property dbName
          * @type {String}
          */
-        this.dbName = util.isNullOrUndefined(dbName) ? pb.config.db.name : dbName;
+        this.dbName = _.isNil(dbName) ? pb.config.db.name : dbName;
     }
 
     /**
@@ -125,12 +126,12 @@ module.exports = function DAOModule(pb) {
      * @param {Function} cb         Callback function
      */
     DAO.prototype.loadByValues = function(where, collection, opts, cb) {
-        if (util.isFunction(opts)) {
+        if (typeof opts === 'function') {
             cb = opts;
             opts = null;
         }
-        if (!util.isObject(opts)) {
-            opts = { };
+        if (typeof opts !== 'object') {
+            opts = {};
         }
 
         var options = {
@@ -141,7 +142,7 @@ module.exports = function DAOModule(pb) {
         };
 
         this.q(collection, options, function(err, result){
-           cb(err, util.isArray(result) && result.length > 0 ? result[0] : null);
+           cb(err, Array.isArray(result) && result.length > 0 ? result[0] : null);
         });
     };
 
@@ -160,7 +161,7 @@ module.exports = function DAOModule(pb) {
             where: where
         };
         this._doQuery(options, function(err, cursor) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             cursor.count(cb);
@@ -191,13 +192,13 @@ module.exports = function DAOModule(pb) {
      * @param  {Function} cb            Callback function
      */
     DAO.prototype.unique = function(collection, where, exclusionId, cb) {
-        if (util.isFunction(exclusionId)) {
+        if (typeof exclusionId === 'function') {
             cb          = exclusionId;
             exclusionId = null;
         }
 
         //validate parameters
-        if (!util.isObject(where) || !util.isString(collection)) {
+        if (typeof where !== 'object' || typeof collection !== 'string') {
             return cb(new Error("The collection and where parameters are required"));
         }
 
@@ -234,11 +235,11 @@ module.exports = function DAOModule(pb) {
      * items returned by the query.
      */
     DAO.prototype.q = function(collection, options, cb) {
-        if (util.isFunction(options)) {
+        if (typeof options === 'function') {
             cb      = options;
             options = {};
         }
-        else if (!util.isObject(options)) {
+        else if (!_.isObject(options)) {
             return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
         }
 
@@ -253,17 +254,17 @@ module.exports = function DAOModule(pb) {
             offset: options.offset
         };
         this._doQuery(opts, function(err, cursor) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
             //handle cursor
-            var handler = util.isFunction(options.handler) ? options.handler : self.toArrayCursorHandler;
+            var handler = _.isFunction(options.handler) ? options.handler : self.toArrayCursorHandler;
             handler(cursor, function(err, docs) {
 
                 //close the cursor
                 cursor.close(function(err){
-                    if (util.isError(err)) {
+                    if (_.isError(err)) {
                         pb.log.error("DAO: An error occurred while attempting to close the cursor. %s", err.stack);
                     }
                 });
@@ -302,7 +303,7 @@ module.exports = function DAOModule(pb) {
      * @return {Cursor} The MongoDB cursor that provides the results of the query
      */
     DAO.prototype._doQuery = function(options, cb) {
-        if (!util.isString(options.entityType)) {
+        if (!_.isString(options.entityType)) {
             return cb(Error('An entity type must be specified!'));
         }
 
@@ -315,7 +316,7 @@ module.exports = function DAOModule(pb) {
         //get reference to the db
         var self = this;
         this.getDb(function(err, db) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
@@ -379,14 +380,14 @@ module.exports = function DAOModule(pb) {
      * error, if occurred.  The second is the object that was persisted
      */
     DAO.prototype.save = function(dbObj, options, cb) {
-        if (util.isFunction(options)) {
+        if (_.isFunction(options)) {
             cb      = options;
             options = {};
         }
-        else if (!util.isObject(options)) {
+        else if (!_.isObject(options)) {
             return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
         }
-        if (!util.isObject(dbObj)) {
+        if (!_.isObject(dbObj)) {
             return cb(new Error('The dbObj parameter must be an object'));
         }
 
@@ -408,7 +409,7 @@ module.exports = function DAOModule(pb) {
 
         //retrieve db reference
         this.getDb(function(err, db) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
@@ -433,19 +434,19 @@ module.exports = function DAOModule(pb) {
      * described here: http://mongodb.github.io/node-mongodb-native/api-generated/unordered.html#execute
      */
     DAO.prototype.saveBatch = function(objArray, collection, options, cb) {
-        if (util.isFunction(options)) {
+        if (_.isFunction(options)) {
             cb      = options;
         }
-        if (!util.isArray(objArray)) {
+        if (!Array.isArray(objArray)) {
             return cb(new Error('The objArray parameter must be an Array'));
         }
-        else if (!util.isString(collection)) {
+        else if (!_.isString(collection)) {
             return cb(new Error('COLLECTION_MUST_BE_STR'));
         }
 
         //retrieve db reference
         this.getDb(function(err, db) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
@@ -483,7 +484,7 @@ module.exports = function DAOModule(pb) {
      * @param {Function} cb
      */
     DAO.prototype.updateFields = function(collection, query, updates, options, cb) {
-        if (util.isFunction(options)) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
@@ -492,7 +493,7 @@ module.exports = function DAOModule(pb) {
             pb.log.info('UPDATE %s.%s %s WHERE %s WITH OPTIONS %s', this.dbName, collection, JSON.stringify(updates), JSON.stringify(query), JSON.stringify(options));
         }
         this.getDb(function(err, db) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
@@ -533,19 +534,19 @@ module.exports = function DAOModule(pb) {
      * from persistence.
      */
     DAO.prototype.delete = function(where, collection, options, cb) {
-        if (util.isFunction(options)) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
-        else if (!util.isObject(options)) {
+        else if (!_.isObject(options)) {
             return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
         }
 
         //require param error checking
-        if (!util.isObject(where)) {
+        if (!_.isObject(where)) {
             return cb(new Error('WHERE_CLAUSE_MUST_BE_OBJECT'));
         }
-        else if (!util.isString(collection)) {
+        else if (!_.isString(collection)) {
             return cb(new Error('COLLECTION_MUST_BE_STR'));
         }
 
@@ -556,7 +557,7 @@ module.exports = function DAOModule(pb) {
 
         //execute delete command
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             db.collection(collection).remove(where, options, cb);
@@ -567,55 +568,21 @@ module.exports = function DAOModule(pb) {
      * Sends a command to the DB.
      * http://mongodb.github.io/node-mongodb-native/api-generated/db.html#command
      * @method command
-     * @param {Object} The command to execute
+     * @param {Object} command The command to execute
      * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
      */
     DAO.prototype.command = function(command, cb) {
-        if (!util.isObject(command)) {
+        if (!_.isObject(command)) {
             cb(new Error('COMMAND_MUST_BE_OBJECT'));
             return;
         }
 
         //execute command
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             db.command(command, cb);
-        });
-    };
-
-    /**
-     * Attempts to create an index.  If the collection already exists then the
-     * operation is skipped.
-     * http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#ensureindex
-     * @method ensureIndex
-     * @param {Object} procedure The objects containing the necessary parameters
-     * and options to create the index.
-     *  @param {String} procedure.collection The collection to build an index for
-     *  @param {Object} procedure.spec An object that specifies one or more fields
-     * and sort direction for the index.
-     *  @param {Object} [procedure.options={}] An optional parameter that can
-     * specify the options for the index.
-     * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
-     */
-    DAO.prototype.ensureIndex = function(procedure, cb) {
-        if (!util.isObject(procedure)) {
-            cb(new Error('PROCEDURE_MUST_BE_OBJECT'));
-            return;
-        }
-
-        //extract needed values
-        var collection = procedure.collection;
-        var spec       = procedure.spec;
-        var options    = procedure.options || {};
-
-        //execute command
-        pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            db.collection(collection).ensureIndex(spec, options, cb);
         });
     };
 
@@ -627,38 +594,16 @@ module.exports = function DAOModule(pb) {
      * @param {Function} cb
      */
     DAO.prototype.indexInfo = function(collection, options, cb) {
-        if (util.isFunction(options)) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
             db.indexInformation(collection, options, cb);
-        });
-    };
-
-    /**
-     * Drops the specified index from the given collection
-     * @method dropIndex
-     * @param {String} collection
-     * @param {String} indexName
-     * @param {Object} [options={}]
-     * @param {Function} cb
-     */
-    DAO.prototype.dropIndex = function(collection, indexName, options, cb) {
-        if (util.isFunction(options)) {
-            cb = options;
-            options = {};
-        }
-
-        pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            db.collection(collection).dropIndex(indexName, options, cb);
         });
     };
 
@@ -672,7 +617,7 @@ module.exports = function DAOModule(pb) {
      */
     DAO.prototype.entityExists = function(entity, cb) {
         this.listCollections({name: entity}, function(err, results) {
-            cb(err, util.isArray(results) && results.length === 1);
+            cb(err, Array.isArray(results) && results.length === 1);
         });
     };
 
@@ -686,16 +631,16 @@ module.exports = function DAOModule(pb) {
      * Error, if occurred. The second is the result of the creation command.
      */
     DAO.prototype.createEntity = function(entityName, options, cb) {
-        if (util.isFunction(options)) {
+        if (_.isFunction(options)) {
             cb      = options;
             options = {};
         }
-        else if (!util.isObject(options)) {
+        else if (!_.isObject(options)) {
             return cb(new Error('OPTIONS_PARAM_MUST_BE_OBJECT'));
         }
 
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             db.createCollection(entityName, options, cb);
@@ -715,11 +660,11 @@ module.exports = function DAOModule(pb) {
         };
 
         pb.dbm.getDb(this.dbName, function(err, db) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             db.listCollections(filter, options).toArray(function(err, results) {
-                if (util.isError(err)) {
+                if (_.isError(err)) {
                     return cb(err);
                 }
                 cb(err, results);
@@ -912,12 +857,12 @@ module.exports = function DAOModule(pb) {
      * @param {Object} dbObject Object to update
      */
     DAO.updateChangeHistory = function(dbObject){
-        if (util.isNullOrUndefined(dbObject)) {
+        if (_.isNil(dbObject)) {
             throw new Error("The dbObject parameter is required");
         }
 
         var now = new Date();
-        if (util.isNullOrUndefined(dbObject._id)) {
+        if (_.isNil(dbObject._id)) {
             dbObject.created = now;
         }
 
@@ -941,7 +886,7 @@ module.exports = function DAOModule(pb) {
      * @param {String} to The type to convert it to
      */
     DAO.transfer = function(obj, to) {
-        if (!util.isObject(obj) || !util.isString(to)) {
+        if (!_.isObject(obj) || !_.isString(to)) {
             throw new Error('OBJ_TO_PARAMS_MUST_BE');
         }
 

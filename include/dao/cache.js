@@ -17,86 +17,83 @@
 'use strict';
 
 //dependencies
-var util = require('../util.js');
+var _ = require('lodash');
+var Q = require('q');
+var System = require('../system/system');
+var Configuration = require('../config');
 
-module.exports = function CacheModule(pb){
+/**
+ * Creates the cache
+ *
+ * @module dao
+ * @class CacheFactory
+ * @constructor
+ */
+var CacheFactory = function(){};
 
-    /**
-     * Creates the cache
-     *
-     * @module dao
-     * @class CacheFactory
-     * @constructor
-     */
-    var CacheFactory = function(){};
+/**
+ *
+ * @private
+ * @static
+ * @property CLIENT
+ * @type {RedisClient}
+ */
+var CLIENT = null;
 
-    /**
-     *
-     * @private
-     * @static
-     * @property CLIENT
-     * @type {RedisClient}
-     */
-    var CLIENT = null;
-
-    /**
-     * Retrieves the instance of Redis or FakeRedis
-     *
-     * @method getInstance
-     * @return {Object} client
-     */
-    CacheFactory.getInstance = function() {
-        if (CLIENT !== null) {
-            return CLIENT;
-        }
-
-        //create instance
-        CLIENT = CacheFactory.createInstance();
-
-        //register for shutdown so we can clean up after ourselves
-        pb.system.registerShutdownHook('CacheFactory', CacheFactory.shutdown);
+/**
+ * Retrieves the instance of Redis or FakeRedis
+ *
+ * @method getInstance
+ * @return {Object} client
+ */
+CacheFactory.getInstance = function() {
+    if (CLIENT !== null) {
         return CLIENT;
-    };
+    }
 
-    /**
-     *
-     * @method createInstance
-     * @param {Object} [config] The Redis configuration.  When not provided the
-     * configuration for this instance of PencilBlue is used.
-     * return {RedisClient}
-     */
-    CacheFactory.createInstance = function(config) {
-        if (!util.isObject(config)) {
-            config = pb.config.cache;
-        }
+    //create instance
+    CLIENT = CacheFactory.createInstance();
 
-        var moduleAtPlay = config.fake ? "fakeredis" : "redis";
-        var Redis        = require(moduleAtPlay);
-        return Redis.createClient(config.port, config.host, config);
-    };
-
-    /**
-     * Shuts down the Redis or FakeRedis instance
-     *
-     * @method shutdown
-     * @param  {Function} cb Callback function
-     */
-    CacheFactory.shutdown = function(cb) {
-        cb = cb || util.cb;
-
-        if (CLIENT !== null) {
-            try {
-                CLIENT.quit();
-            }
-            catch(err) {
-                return cb(err);
-            }
-        }
-        cb();
-    };
-
-    //return inner export
-    return {
-        CacheFactory: CacheFactory
-    };
+    //register for shutdown so we can clean up after ourselves
+    System.registerShutdownHook('CacheFactory', CacheFactory.shutdown);
+    return CLIENT;
 };
+
+/**
+ *
+ * @method createInstance
+ * @param {Object} [config] The Redis configuration.  When not provided the
+ * configuration for this instance of PencilBlue is used.
+ * return {RedisClient}
+ */
+CacheFactory.createInstance = function(config) {
+    if (!_.isObject(config)) {
+        config = Configuration.activeConfiguration.cache;
+    }
+
+    var moduleAtPlay = config.fake ? "fakeredis" : "redis";
+    var Redis        = require(moduleAtPlay);
+    return Redis.createClient(config.port, config.host, config);
+};
+
+/**
+ * Shuts down the Redis or FakeRedis instance
+ *
+ * @method shutdown
+ * @param  {Function} cb Callback function
+ */
+CacheFactory.shutdown = function(cb) {
+//TODO [1.0] does quit return a promise
+    if (CLIENT !== null) {
+        try {
+            CLIENT.quit();
+        }
+        catch(err) {
+            return cb(err);
+        }
+    }
+    return Q.resolve();
+};
+
+//return inner export
+module.exports = CacheFactory;

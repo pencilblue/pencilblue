@@ -18,6 +18,7 @@
 
 //dependencies
 var path = require('path');
+var Configuration = require('./config');
 
 /**
  * Requirements - Responsible for declaring all of the system types and modules
@@ -26,46 +27,36 @@ var path = require('path');
  * @param {Object} config
  * @return {Object} The pb namespace
  */
-module.exports = function PB(config) {
-
-    //older versions of node did not have process as a core module.  We ensure that we have access to it here and ensure
-    // it is set as a global variable
-    if (!global.process) {
-        console.log('Process module imported as require');
-        global.process = require('process');
-    }
-
+module.exports = function PB() {
+    var config = Configuration.activeConfiguration;
     //define what will become the global entry point into the server api.
-    var pb = {};
+    var pb = {
 
-    //make the configuration available
-    pb.config = config;
+        //make the configuration available
+        config: config,
 
-    //setup utils
-    pb.util    = require(path.join(config.docRoot, '/include/util.js'));
-    Object.defineProperty(pb, 'utils', {
+        //initialize logging
+        LogFactory: require(config.docRoot + '/include/utils/logging.js'),
+        log: require(config.docRoot + '/include/utils/logging.js').newInstance('Default'),
+    };
+
+    Object.defineProperty(pb, 'util', {
         get: function() {
-            pb.log.warn('PencilBlue: pb.utils is deprecated.  Use pb.util instead');
-            return pb.util;
+            throw new Error('Util has been removed from the framework');
         }
     });
 
-    //initialize logging
-    pb.log    = require(path.join(config.docRoot, '/include/utils/logging.js'))(config);
     pb.AsyncEventEmitter = require(path.join(config.docRoot, '/include/utils/async_event_emitter.js'))(pb);
 
     //setup the System instance
     pb.System = require(path.join(config.docRoot, 'include/system/system.js'));
-    pb.system = new pb.System(pb);
 
     //configure cache
-    var CacheModule = require(path.join(config.docRoot, '/include/dao/cache.js'));
-    pb.CacheFactory = CacheModule(pb).CacheFactory;
+    pb.CacheFactory = require(path.join(config.docRoot, '/include/dao/cache.js'));
     pb.cache        = pb.CacheFactory.getInstance();
 
     //configure the DB manager
-    pb.DBManager = require(config.docRoot+'/include/dao/db_manager')(pb);
-    pb.dbm       = new pb.DBManager();
+    pb.DBManager = pb.dbm = require(config.docRoot+'/include/dao/db_manager');
 
     //setup system class types
     pb.DAO = require(config.docRoot+'/include/dao/dao')(pb);

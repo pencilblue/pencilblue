@@ -29,6 +29,10 @@ class TestHelpers {
         });
         return sandbox;
     }
+
+    static get ERR () {
+        return new Error('expected');
+    }
 }
 
 module.exports = TestHelpers;

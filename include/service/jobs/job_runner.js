@@ -193,7 +193,7 @@ module.exports = function JobRunnerModule(pb) {
             var statement = {
                 object_type: JOB_LOG_STORE_NAME,
                 job_id: this.id,
-                worker_id: pb.system.getWorkerId(),
+                worker_id: pb.System.getWorkerId(),
                 name: this.name,
                 message: message,
                 metadata: meta

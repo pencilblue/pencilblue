@@ -342,7 +342,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
         if (REAPER_HANDLE === null) {
             REAPER_HANDLE = setInterval(MemoryEntityService.reap, DEFAULT_REAPER_INTERVAL);
 
-            pb.system.registerShutdownHook('MemoryEntityService', MemoryEntityService.dispose);
+            pb.System.registerShutdownHook('MemoryEntityService', MemoryEntityService.dispose);
 
             pb.log.silly('MemoryEntityService: Reaper started');
             return true;

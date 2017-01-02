@@ -4,4 +4,3 @@ instrumentation:
 reporting:
     - lcov
     - html
-    

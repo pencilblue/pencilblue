@@ -17,65 +17,79 @@
 'use strict';
 
 //dependencies
-var path    = require('path');
 var cluster = require('cluster');
 var winston = require('winston');
-var util    = require('../util.js');
+var FsExtra = require('fs-extra');
+var Configuration = require('../config');
 
-module.exports = function LogFactory(config){
+class LogFactory {
 
-    //verify that we have a valid logging configuration provided
-    if (!util.isObject(config.logging)) {
-        config.logging = {};
+    static createWorkerLabel (label) {
+        var workerId = cluster.worker ? cluster.worker.id : 'M';
+        return workerId + ':' + (!!label ? label : '');
     }
-    if (!util.isString(config.logging.level)) {
-        config.logging.level = "info";
-    }
-    if (!util.isArray(config.logging.transports)) {
 
+    static getTransports (label, level, filePath) {
         //initialize transports with console by default
-        config.logging.transports = [
-            new (winston.transports.Console)({ level: config.logging.level, timestamp: true, label: cluster.worker ? cluster.worker.id : 'M'}),
+        label = LogFactory.createWorkerLabel(label);
+        var consoleOpts = { level: level, timestamp: true, label: label };
+        var transports = [
+            new winston.transports.Console(consoleOpts)
         ];
 
         //when a log file path is provided log to a file
-        if (util.isString(config.logging.file)) {
+        if (typeof filePath === 'string') {
 
             //ensure the directory structure exists
-            util.mkdirsSync(config.logging.file, true, util.cb);
+            FsExtra.ensureFileSync(filePath);
 
             //add the transport
-            var fileTransport = new (winston.transports.File)({ filename: config.logging.file, level: config.logging.level, timestamp: true });
-            config.logging.transports.push(fileTransport);
+            var fileOpts = { filename: filePath, level: level, timestamp: true, label: label };
+            var fileTransport = new winston.transports.File(fileOpts);
+            transports.push(fileTransport);
         }
+        return transports;
     }
 
-    //configure winston
-	var logger =  new (winston.Logger)({
-	    transports: config.logging.transports,
-	    level: config.logging.level,
-        padLevels: false
-   });
+    static newInstance (label, options) {
 
-    /**
-     * Determines if the root log level is set to debug or silly
-     * @method isDebug
-     * @return {Boolean}
-     */
-	logger.isDebug = function(){
-		return logger.levels[logger.level] >= logger.levels.debug;
-	};
+        //ensure we have defaults
+        options = options || Configuration.activeConfiguration.logging;
+        options.level = options.level || 'info';
 
-    /**
-     * Determines if the root log level is set to silly
-     * @method isSilly
-     * @return {Boolean}
-     */
-	logger.isSilly = function(){
-		return logger.levels[logger.level] >= logger.levels.silly;
-	};
+        if (!Array.isArray(options.transports)) {
 
-    //return the conifgured logger instance
-	logger.info('SystemStartup: Log Level is: '+config.logging.level);
-	return logger;
-};
+            //initialize transports with console by default
+            options.transports = LogFactory.getTransports(label, options.level, options.file);
+        }
+
+        //configure winston
+        var logger =  new winston.Logger({
+            transports: options.transports,
+            level: options.level,
+            padLevels: false
+        });
+
+        /**
+         * Determines if the root log level is set to debug or silly
+         * @method isDebug
+         * @return {Boolean}
+         */
+        logger.isDebug = function(){
+            return logger.levels[logger.level] >= logger.levels.debug;
+        };
+
+        /**
+         * Determines if the root log level is set to silly
+         * @method isSilly
+         * @return {Boolean}
+         */
+        logger.isSilly = function(){
+            return logger.levels[logger.level] >= logger.levels.silly;
+        };
+
+        return logger;
+    }
+}
+
+module.exports = LogFactory;

@@ -125,7 +125,7 @@ module.exports = function CommandServiceModule(pb) {
         });
 
         //register for events
-        pb.system.registerShutdownHook('CommandService', util.wrapTask(this, this.shutdown));
+        pb.System.registerShutdownHook('CommandService', util.wrapTask(this, this.shutdown));
     };
 
     /**

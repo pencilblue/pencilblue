@@ -20,7 +20,6 @@
 var _        = require('lodash');
 var semver   = require('semver');
 var ObjectID = require('mongodb').ObjectID;
-var util     = require('../util.js');
 
 module.exports = function ValidationModule(pb) {
 
@@ -91,7 +90,7 @@ module.exports = function ValidationModule(pb) {
         if (!required && (val === null || val === undefined)) {
             return true;
         }
-        else if (!util.isString(val)) {
+        else if (!_.isString(val)) {
             return false;
         }
         return ValidationService.isId(val, required);
@@ -138,7 +137,7 @@ module.exports = function ValidationModule(pb) {
             return true;
         }
 
-        return util.isString(value) && value.search(EMAIL_REGEX) !== -1;
+        return _.isString(value) && value.search(EMAIL_REGEX) !== -1;
     };
 
     /**
@@ -164,7 +163,7 @@ module.exports = function ValidationModule(pb) {
             return true;
         }
 
-        return util.isString(value) && value.search(VERSION_REGEX) !== -1;
+        return _.isString(value) && value.search(VERSION_REGEX) !== -1;
     };
 
     /**
@@ -204,7 +203,7 @@ module.exports = function ValidationModule(pb) {
             return true;
         }
 
-        return util.isString(value) && (value.search(URL_REGEX) !== -1 || value.search(URL_REGEX_NO_HOST) !== -1);
+        return _.isString(value) && (value.search(URL_REGEX) !== -1 || value.search(URL_REGEX_NO_HOST) !== -1);
     };
 
     /**
@@ -230,7 +229,7 @@ module.exports = function ValidationModule(pb) {
             return true;
         }
 
-        return util.isString(value) && value.search(FILE_NAME_SAFE_REGEX) !== -1;
+        return _.isString(value) && value.search(FILE_NAME_SAFE_REGEX) !== -1;
     };
 
     /**
@@ -255,7 +254,7 @@ module.exports = function ValidationModule(pb) {
         if (!value && !required) {
             return true;
         }
-        return util.isString(value);
+        return _.isString(value);
     };
 
     /**
@@ -280,7 +279,7 @@ module.exports = function ValidationModule(pb) {
         if (!value && !required) {
             return true;
         }
-        return util.isString(value) && value.length > 0;
+        return _.isString(value) && value.length > 0;
     };
 
     /**
@@ -305,7 +304,7 @@ module.exports = function ValidationModule(pb) {
         if (!value && !required) {
             return true;
         }
-        return util.isArray(value);
+        return Array.isArray(value);
     };
 
     /**
@@ -330,7 +329,7 @@ module.exports = function ValidationModule(pb) {
         if (!value && !required) {
             return true;
         }
-        return util.isObject(value);
+        return _.isObject(value);
     };
 
     /**
@@ -402,7 +401,7 @@ module.exports = function ValidationModule(pb) {
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
     ValidationService.isBool = function(val) {
-        return util.isBoolean(val);
+        return _.isBoolean(val);
     };
 
     /**
@@ -429,7 +428,7 @@ module.exports = function ValidationModule(pb) {
         if (!required && (val === null || val === undefined)) {
             return true;
         }
-        return util.isDate(val) && !isNaN(val.getTime());
+        return _.isDate(val) && !isNaN(val.getTime());
     };
 
     return ValidationService;

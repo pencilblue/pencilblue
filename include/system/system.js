@@ -17,99 +17,87 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var Q = require('q');
 var os      = require('os');
 var cluster = require('cluster');
 var async   = require('async');
 var domain  = require('domain');
-var util    = require('../util.js');
+var log = require('../utils/logging').newInstance('System');
+var config = require('../config').activeConfiguration;
+
 
 /**
  *
- * @class System
- * @constructor
- * @param {Object} pb The PencilBlue namespace
+ * @private
+ * @static
+ * @property
+ * @type {Object}
  */
-module.exports = function System(pb){
+var SHUTDOWN_HOOKS = {};
 
-    //pb dependencies
-    var log = pb.log;
+/**
+ *
+ * @private
+ * @property SHUTDOWN_PRIORITY
+ * @type {Array}
+ */
+var SHUTDOWN_PRIORITY = [];
 
-    /**
-     *
-     * @private
-     * @static
-     * @property
-     * @type {Object}
-     */
-    var SHUTDOWN_HOOKS = {};
+/**
+ *
+ * @private
+ * @property IS_SHUTTING_DOWN
+ * @type {Boolean}
+ */
+var IS_SHUTTING_DOWN = false;
 
-    /**
-     *
-     * @private
-     * @property SHUTDOWN_PRIORITY
-     * @type {Array}
-     */
-    var SHUTDOWN_PRIORITY = [];
+/**
+ *
+ * @private
+ * @property DISCONNECTS_CNT
+ * @type {Integer}
+ */
+var DISCONNECTS_CNT = 0;
 
-    /**
-     *
-     * @private
-     * @property IS_SHUTTING_DOWN
-     * @type {Boolean}
-     */
-    var IS_SHUTTING_DOWN = false;
+/**
+ *
+ * @private
+ * @property DISCONNECTS
+ * @type {Array}
+ */
+var DISCONNECTS = [];
 
-    /**
-     *
-     * @private
-     * @property DISCONNECTS_CNT
-     * @type {Integer}
-     */
-    var DISCONNECTS_CNT = 0;
-
-    /**
-     *
-     * @private
-     * @property DISCONNECTS
-     * @type {Array}
-     */
-    var DISCONNECTS = [];
+/**
+ * Controls the process the handling and startup procedure
+ */
+class System {
 
     /**
-     *
-     * @private
-     * @readonly
-     * @property FORCE_PROCESS_EXIT_TIMEOUT
-     * @type {Array}
+     * Called during system startup.  It inspects the configuration and the process type to determine how the platform
+     * should initialize
+     * @param {function} onChildRunning
      */
-    var FORCE_PROCESS_EXIT_TIMEOUT = 5*1000;
-
-    /**
-     *
-     * @method onStart
-     * @param {Function} onChildRunning
-     */
-    this.onStart = function(onChildRunning) {
-        if (pb.config.cluster.self_managed && cluster.isMaster) {
-            this.onMasterRunning();
+    static onStart (onChildRunning) {
+        if (config.cluster.self_managed && cluster.isMaster) {
+            System.onMasterRunning();
         }
         else {
-            if (!pb.config.cluster.self_managed) {
-                pb.log.debug('System: Running in managed mode');
+            if (!config.cluster.self_managed) {
+                log.debug('Running in managed mode');
             }
             onChildRunning();
         }
-    };
+    }
 
     /**
-     *
-     * @method
+     * Called once when the process is the master process in self managed mode. Responsible for spawning child processes
      */
-    this.onMasterRunning = function() {
+    static onMasterRunning () {
 
         var workerCnt = os.cpus().length;
-        if (pb.config.cluster.workers && pb.config.cluster.workers !== 'auto') {
-            workerCnt = pb.config.cluster.workers;
+        if (config.cluster.workers && config.cluster.workers !== 'auto') {
+            workerCnt = config.cluster.workers;
         }
 
         //spawn workers
@@ -117,20 +105,16 @@ module.exports = function System(pb){
             cluster.fork();
         }
 
-        var self = this;
-        cluster.on('disconnect', function(worker) {
-            self.onWorkerDisconnect(worker);
-        });
+        cluster.on('disconnect', System.onWorkerDisconnect);
 
-        pb.log.info('System[%s]: %d workers spawned. Listening for disconnects.', this.getWorkerId(), workerCnt);
-    };
+        log.info('%d workers spawned. Listening for disconnects.', System.getWorkerId(), workerCnt);
+    }
 
     /**
-     *
-     * @method
+     * @param {Worker} worker
      */
-    this.onWorkerDisconnect = function(worker) {
-        pb.log.debug('System[%s]: Worker [%d] disconnected', this.getWorkerId(), worker.id);
+    static onWorkerDisconnect (worker) {
+        log.debug('Worker [%d] disconnected', System.getWorkerId(), worker.id);
 
         var okToFork = true;
         var currTime = new Date().getTime();
@@ -139,167 +123,121 @@ module.exports = function System(pb){
         DISCONNECTS.push(currTime);
 
         //splice it down if needed.  Remove first element (FIFO)
-        if (DISCONNECTS.length > pb.config.cluster.fatal_error_count) {
+        if (DISCONNECTS.length > config.cluster.fatal_error_count) {
             DISCONNECTS.splice(0, 1);
         }
 
         //check for unacceptable failures in specified time frame
-        if (DISCONNECTS.length >= pb.config.cluster.fatal_error_count) {
-            var range = DISCONNECTS[DISCONNECTS.length - 1] - DISCONNECTS[DISCONNECTS.length - pb.config.cluster.fatal_error_count];
-            if (range <= pb.config.cluster.fatal_error_timeout) {
+        if (DISCONNECTS.length >= config.cluster.fatal_error_count) {
+            var range = DISCONNECTS[DISCONNECTS.length - 1] - DISCONNECTS[DISCONNECTS.length - config.cluster.fatal_error_count];
+            if (range <= config.cluster.fatal_error_timeout) {
                 okToFork = false;
             }
             else {
-                pb.log.silly("System[%s]: Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]", this.getWorkerId(), DISCONNECTS_CNT, pb.config.cluster.fatal_error_count, range);
+                log.silly('Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]', System.getWorkerId(), DISCONNECTS_CNT, config.cluster.fatal_error_count, range);
             }
         }
 
-        if (okToFork && !this.isShuttingDown()) {
+        if (okToFork && !System.isShuttingDown()) {
             worker = cluster.fork();
-            pb.log.silly("System[%s] Forked worker [%d]", this.getWorkerId(), worker ? worker.id : 'FAILED');
+            log.silly('Forked worker [%d]', System.getWorkerId(), worker ? worker.id : 'FAILED');
         }
-        else if (!this.isShuttingDown()){
-            pb.log.error("System[%s]: %d failures have occurred within %sms.  Bailing out.", this.getWorkerId(), pb.config.cluster.fatal_error_count, pb.config.fatal_error_timeout);
+        else if (!System.isShuttingDown()){
+            log.error('%d failures have occurred within %sms.  Bailing out.', System.getWorkerId(), config.cluster.fatal_error_count, config.fatal_error_timeout);
             process.kill();
         }
-    };
+    }
 
     /**
-     *
-     * @method
+     * @return {boolean}
      */
-    this.isShuttingDown = function() {
+    static isShuttingDown () {
         return IS_SHUTTING_DOWN;
-    };
+    }
 
     /**
-     *
-     * @method
+     * @return {string}
      */
-    this.getWorkerId = function() {
+    static getWorkerId () {
         return cluster.worker ? cluster.worker.id : 'M';
-    };
+    }
 
     /**
-     *
-     * @method
+     * @param {string} name
+     * @param {function} shutdownHook
+     * @return {boolean}
      */
-    this.registerShutdownHook = function(name, shutdownHook) {
-        if (typeof name !== 'string') {
-            throw new Error('A name must be provided for every shutdown hook');
+    static registerShutdownHook (name, shutdownHook) {
+        if (typeof name !== 'string' || typeof shutdownHook !== 'function') {
+            return false;
         }
         SHUTDOWN_HOOKS[name] = shutdownHook;
         SHUTDOWN_PRIORITY.push(name);
-    };
+        return true;
+    }
 
     /**
      * Calls shutdown on all registered system services and kills the process
-     * @method shutdown
-     * @param {Boolean} [killProcess=true]
+     * @param {boolean} [killProcess=true]
      */
-    this.shutdown = function(killProcess, cb) {
-        if (util.isFunction(killProcess)) {
-            cb = killProcess;
+    static shutdown (killProcess) {
+        if (typeof killProcess !== 'boolean') {
             killProcess = true;
-        }
-        if (!util.isFunction(cb)) {
-            cb = util.cb;
         }
 
         //notify of shutdown
-        var self = this;
-        pb.log.debug('System[%s]: Shutting down...', this.getWorkerId());
+        log.debug('Shutting down...');
 
-        //create tasks to shutdown registered services in parallel
-        var toh   = null;
-        var tasks = util.getTasks(SHUTDOWN_PRIORITY, function(keys, i) {
-            return function(callback) {
-
-                var timeoutHandle = setTimeout(function() {
-                    timeoutHandle = null;
-                    //TODO log & make timeout configurable
-                    callback(null, false);
-                }, 100);
-
-                var d = domain.create();
-                d.run(function() {
-                    pb.log.debug('System[%s]: Calling [%s] shutdown hook', self.getWorkerId(), keys[i]);
-                    SHUTDOWN_HOOKS[keys[i]](function(err, result) {
-                        if (timeoutHandle) {
-                            clearTimeout(timeoutHandle);
-                            timeoutHandle = null;
-                            callback(null, result);
-                        }
-                    });
-                });
-                d.on('error', function(err) {
-                    if (timeoutHandle) {
-                        clearTimeout(timeoutHandle);
-                        timeoutHandle = null;
-                    }
-                    //TODO log
-                    callback(null, false);
-                });
-            };
-        });
-        async.parallel(tasks.reverse(), function(err, results) {
-            pb.log.info('System[%s]: Shutdown complete', self.getWorkerId());
-            if (toh) {
-                clearTimeout(toh);
-                toh = null;
-            }
+        //call shutdown hooks
+        return SHUTDOWN_PRIORITY.reverse().reduce(function(chain, key) {
+            return chain.then(function() {
+                return Q.timeout(SHUTDOWN_HOOKS[key](), 100);
+            });
+        }, Q()).then(function() {
+            log.info('Shutdown Complete');
 
             //kill off the process when instructed
             if (killProcess) {
                 process.exit();
             }
         });
-
-        //create fallback so that when services do not shutdown within 5 seconds the process is forced to terminate
-        if (killProcess) {
-            toh = setTimeout(function() {
-               log.info("System[%s]: Shutdown completed but was forced", self.getWorkerId());
-                process.exit();
-            }, FORCE_PROCESS_EXIT_TIMEOUT);
-        }
-
-    };
+    }
 
     /**
      * Registers signal handlers (SIGTERM, SIGINT) that will call shutdown when
      * triggered
-     * @method registerSignalHandlers
-     * @param {Boolean} [killProcess] When TRUE or not provided the variable
+     * @param {boolean} [killProcess] When TRUE or not provided the variable
      * instructs the handlers to kill off the process in addition to shutting
      * down PencilBlue services
      */
-    this.registerSignalHandlers = function(killProcess) {
-        var self = this;
+    static registerSignalHandlers (killProcess) {
 
         //determine if th process should be killed off
-        killProcess = killProcess || util.isNullOrUndefined(killProcess);
+        killProcess = killProcess || _.isNil(killProcess);
 
         // listen for TERM signal .e.g. kill
         process.on ('SIGTERM', function() {
-            log.debug('System[%s]: SIGTERM detected %s', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
+            log.debug('SIGTERM detected %s', System.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
             if (!IS_SHUTTING_DOWN) {
-                self.shutdown(killProcess);
+                System.shutdown(killProcess);
             }
         });
 
         // listen for INT signal e.g. Ctrl-C
         process.on ('SIGINT', function() {
-            log.debug('System[%s]: SIGINT detected %s', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
+            log.debug('SIGINT detected %s', System.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
             if (!IS_SHUTTING_DOWN) {
-                self.shutdown(killProcess);
+                System.shutdown(killProcess);
             }
         });
 
         process.on ('uncaughtException', function(err) {
-            log.error('System[%s]: uncaught Exception detected %s: %s', self.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '', err.stack);
+            log.error('Uncaught Exception detected %s: %s', System.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '', err.stack);
             if (!IS_SHUTTING_DOWN) {
-                self.shutdown(killProcess);
+                System.shutdown(killProcess);
             }
         });
-    };
-};
+    }
+}
+
+module.exports = System;

@@ -18,7 +18,8 @@
 
 //dependencies
 var url  = require('url');
-var util = require('../../util.js');
+var _ = require('lodash');
+var RegExpUtils = require('../../utils/reg_exp_utils');
 
 module.exports = function UrlServiceModule(pb) {
 
@@ -56,7 +57,7 @@ module.exports = function UrlServiceModule(pb) {
             var curr   = RequestHandler.storage[i];
             var result = curr.expression.test(url);
             if (result) {
-                themes = util.clone(curr.themes);
+                themes = _.clone(curr.themes);
                 break;
             }
         }
@@ -90,7 +91,7 @@ module.exports = function UrlServiceModule(pb) {
         if (url.charAt(url.length - 1) === '/') {
             url = url.substring(0, url.length - 1);
         }
-        var pattern = "^\\/{0,1}" + util.escapeRegExp(url) + "\\/{0,1}$";
+        var pattern = "^\\/{0,1}" + RegExpUtils.escapeRegExp(url) + "\\/{0,1}$";
         var where = {
             url: new RegExp(pattern, "i")
         };
@@ -101,115 +102,6 @@ module.exports = function UrlServiceModule(pb) {
             cb(err, !isUnique);
         });
     };
-
-    /**
-     * Takes a variable set of arguments and joins them together to form a URL path.
-     * @method urlJoin
-     * @return {string} a URL path
-     */
-    UrlService.urlJoin = function() {
-        var parts = [];
-        for (var i = 0; i < arguments.length; i++) {
-            var segment = ('' + arguments[i]).replace(/\\/g, '/');
-            parts.push(segment.replace(/^\/|\/$/g, ''));
-        }
-        var url = parts.join('/');
-        if (arguments.length > 0 && (arguments[0].charAt(0) === '/' || arguments[0].charAt(0) == '\\') && url.charAt(0) !== '/') {
-            url = '/'+url;
-        }
-        return url;
-    };
-
-    /**
-     * Takes a url and extracts the wild card part.
-     * @method getCustomUrl
-     * @param {string} prefix
-     * @param {string} url
-     * @return {string}The custom part of the URL
-     */
-    UrlService.getCustomUrl = function(prefix, url) {
-        var index = prefix.lastIndexOf('/');
-        if (index != prefix.length - 1) {
-            prefix += '/';
-        }
-
-        index = url.lastIndexOf(prefix);
-        if (index < 0) {
-            return null;
-        }
-
-        //check for prefix at the end
-        if (index == url.length - 1) {
-            return '';
-        }
-        return url.substring(index + 1);
-    };
-
-    /**
-     * Determines whether a URL is external to the system by parsing the URL and
-     * then looking to see if the host matches that of the provided request.
-     * @method isExternalUrl
-     * @param {string} urlStr
-     * @param {Request} request
-     * @return {Boolean} TRUE if the link is external to the system, FALSE if not.
-     */
-    UrlService.isExternalUrl = function(urlStr, request) {
-        var obj    = url.parse(urlStr);
-        if(!obj.host) {
-            return false;
-        }
-
-        var reqUrl = url.parse(request ? request.url : pb.config.siteRoot);
-        return reqUrl.host !== obj.host;
-    };
-
-    /**
-     * Indicates if the URL is fully qualified, meaning that the URL provides the
-     * 'http' protocol at the beginning of the URL.
-     * @method isFullyQualifiedUrl
-     * @param {string} urlStr The URL to inspect
-     * @return {Boolean} TRUE if fully qualified, FALSE if not
-     */
-    UrlService.isFullyQualifiedUrl = function(urlStr) {
-        return util.isString(urlStr) && urlStr.indexOf('http') === 0;
-    };
-
-    /**
-     * Creates a fully qualified URL to the system.
-     * @static
-     * @method createSystemUrl
-     * @param {String} path
-     * @param {Object} [options]
-     * @param {String} [options.locale]
-     * @param {String} [options.hostname]
-     * @return {String}
-     */
-     UrlService.createSystemUrl = function(path, options) {
-         if (!util.isObject(options)) {
-             options = {};
-         }
-
-         var hostname = options.hostname;
-         if (!hostname) {
-
-             //we are in multi-site mode so just ensure we have a root so we
-             //can at least stay on the same domain.  We can also safely assume
-             //a standard site root.
-             if (pb.config.multisite.enabled) {
-                 hostname = '';
-             }
-             else {
-                 var siteRootPath = url.parse(pb.config.siteRoot).path;
-                 if (!path || path === '/') {
-                     return siteRootPath;
-                 }
-                 hostname = pb.config.siteRoot;
-             }
-         }
-         return options.locale ? UrlService.urlJoin(hostname, options.locale, path) :
-            UrlService.urlJoin(hostname, path);
-     };
-
 
     //exports
     return UrlService;

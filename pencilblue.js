@@ -16,15 +16,23 @@
 */
 'use strict';
 
+//TODO [1.0] Hook-up monitoring solution
+
 //dependencies
+var _ = require('lodash');
 var fs          = require('fs');
 var http        = require('http');
 var https       = require('https');
 var async       = require('async');
 var npm         = require('npm');
-var util        = require('./include/util.js');
+var uuid = require('uuid');
+var Q = require('q');
+var Configuration = require('./include/config.js');
+var System = require('./include/system/system');
+var LogFactory = require('./include/utils/logging');
 var ServerInitializer = require('./include/http/server_initializer.js');
 var Lib = require('./lib');
+var TaskUtils = require('./lib/utils/taskUtils');
 var HtmlEncoder = require('htmlencode');
 
 
@@ -37,13 +45,13 @@ var HtmlEncoder = require('htmlencode');
  * @constructor
  */
 class PencilBlue {
-    constructor (config) {
+    constructor () {
 
         /**
          * @property pb
          * @type {Object}
          */
-        this.pb = Lib(config);
+        this.pb = Lib();
 
         /**
          * The number of requests served by this instance
@@ -51,6 +59,11 @@ class PencilBlue {
          * @type {Integer}
          */
         this.requestsServed = 0;
+
+        /**
+         *
+         */
+        this.log = LogFactory.newInstance('PencilBlue');
     }
 
     /**
@@ -61,36 +74,36 @@ class PencilBlue {
      */
     init (){
         var tasks = [
-            util.wrapTimedTask(this, this.initModules, 'initModules'),
-            util.wrapTimedTask(this, this.initRequestHandler, 'initRequestHandler'),
-            util.wrapTimedTask(this, this.initDBConnections, 'initDBConnections'),
-            util.wrapTimedTask(this, this.initDBIndices, 'initDBIndices'),
-            util.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
-            util.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
-            util.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
-            util.wrapTimedTask(this, this.initSessions, 'initSessions'),
-            util.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
-            util.wrapTimedTask(this, this.initSites, 'initSites'),
-            util.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
-            util.wrapTimedTask(this, this.registerMetrics, 'registerMetrics'),
-            util.wrapTimedTask(this, this.initServer, 'initServer')
+            TaskUtils.wrapTimedTask(this, this.initModules, 'initModules'),
+            TaskUtils.wrapTimedTask(this, this.initRequestHandler, 'initRequestHandler'),
+            TaskUtils.wrapTimedPromiseTask(this, this.initDBConnections, 'initDBConnections'),
+            TaskUtils.wrapTimedTask(this, this.initDBIndices, 'initDBIndices'),
+            TaskUtils.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
+            TaskUtils.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
+            TaskUtils.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
+            TaskUtils.wrapTimedTask(this, this.initSessions, 'initSessions'),
+            TaskUtils.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
+            TaskUtils.wrapTimedTask(this, this.initSites, 'initSites'),
+            TaskUtils.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
+            TaskUtils.wrapTimedTask(this, this.registerMetrics, 'registerMetrics'),
+            TaskUtils.wrapTimedTask(this, this.initServer, 'initServer')
         ];
 
         var self = this;
         async.series(tasks, function(err, results) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 throw err;
             }
-            self.pb.log.info('PencilBlue: Ready to run!');
+            self.log.info('Ready to run!');
 
             //print out stats
-            if (self.pb.log.isDebug()) {
+            if (self.log.isDebug()) {
                 var stats = results.reduce(function (obj, result) {
                     obj[result.name] = result.time;
                     obj.total += result.time;
                     return obj;
                 }, {total: 0});
-                self.pb.log.debug('Startup Stats (ms):\n%s', JSON.stringify(stats, null, 2));
+                self.log.debug('Startup Stats (ms):\n%s', JSON.stringify(stats, null, 2));
             }
         });
     }
@@ -103,8 +116,9 @@ class PencilBlue {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     initModules (cb) {
+        var self = this;
         npm.on('log', function(message) {
-            this.pb.log.info(message);
+            self.log.info(message);
         });
 
         HtmlEncoder.EncodeType = 'numerical';
@@ -177,20 +191,18 @@ class PencilBlue {
      * @method initDBConnections
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
-    initDBConnections (cb) {
+    initDBConnections () {
         var self = this;
 
         //setup database connection to core database
-        this.pb.dbm.getDb(this.pb.config.db.name, function(err, result){
-            if (util.isError(err)) {
-                return cb(err, false);
-            }
-            else if (!result.databaseName) {
-                return cb(new Error("Failed to establish a connection to: "+self.pb.config.db.name), false);
+        this.pb.dbm.init();
+        return this.pb.dbm.getDb(Configuration.activeConfiguration.db.name).then(function(result){
+            if (!result.databaseName) {
+                return Q.reject(new Error('Failed to establish a connection to: ' + Configuration.activeConfiguration.db.name), false);
             }
 
-            self.pb.log.debug('PencilBlue: Established connection to DB: %s', result.databaseName);
-            cb(null, true);
+            self.log.debug('PencilBlue: Established connection to DB: %s', result.databaseName);
+            return result;
         });
     }
 
@@ -202,14 +214,15 @@ class PencilBlue {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     initDBIndices (cb) {
-        if (this.pb.config.db.skip_index_check || !util.isArray(this.pb.config.db.indices)) {
-            this.pb.log.info('PencilBlue: Skipping ensurance of indices');
+        var config = Configuration.activeConfiguration;
+        if (config.db.skip_index_check || !Array.isArray(config.db.indices)) {
+            this.log.info('Skipping indices check');
             return cb(null, true);
         }
 
-        this.pb.log.info('PencilBlue: Ensuring indices...');
-        this.pb.dbm.processIndices(this.pb.config.db.indices, function(err/*, results*/) {
-            cb(err, !util.isError(err));
+        this.log.info('Verifying indices...');
+        this.pb.dbm.processIndices(config.db.indices, function(err/*, results*/) {
+            cb(err, !_.isError(err));
         });
     }
 
@@ -231,7 +244,7 @@ class PencilBlue {
         //build server setup
         var context = {
             config: this.pb.config,
-            log: this.pb.log,
+            log: this.log,
             onRequest: function(req, res) {
                 self.onHttpConnect(req, res);
             },
@@ -239,10 +252,10 @@ class PencilBlue {
                 self.onHttpConnectForHandoff(req, res);
             }
         };
-        var Initializer = this.pb.config.server.initializer || ServerInitializer;
+        var Initializer = Configuration.activeConfiguration.config.server.initializer || ServerInitializer;
         var initializer = new Initializer(this.pb);
         initializer.init(context, function(err, servers) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             self.pb.server = servers.server;
@@ -264,8 +277,8 @@ class PencilBlue {
      * @param {Response} res The outgoing response
      */
     onHttpConnect (req, res){
-        if (this.pb.log.isSilly()) {
-            this.pb.log.silly('New Request: %s', (req.uid = util.uniqueId()));
+        if (this.log.isSilly()) {
+            this.log.silly('New Request: %s', (req.uid = uuid.v4()));
         }
 
         //bump the counter for the instance
@@ -274,7 +287,7 @@ class PencilBlue {
         //check to see if we should inspect the x-forwarded-proto header for SSL
         //load balancers use this for SSL termination relieving the stress of SSL
         //computation on more powerful load balancers.
-        if (this.pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
+        if (Configuration.activeConfiguration.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
             return this.onHttpConnectForHandoff(req, res);
         }
 
@@ -285,8 +298,6 @@ class PencilBlue {
     /**
      * Handles traffic that comes in for HTTP when SSL is enabled.  The request is
      * redirected to the appropriately protected HTTPS url.
-     * @static
-     * @method onHttpConnectForHandoff
      * @param {Request} req The incoming request
      * @param {Response} res The outgoing response
      */
@@ -298,23 +309,23 @@ class PencilBlue {
                 host = host.substring(0, index);
             }
         }
-        if (this.pb.config.server.ssl.use_handoff_port_in_redirect) {
-            host += ':'+this.pb.config.sitePort;
+
+        var config = Configuration.activeConfiguration;
+        if (config.server.ssl.use_handoff_port_in_redirect) {
+            host += ':' + config.sitePort;
         }
 
-        res.writeHead(301, { "Location": "https://" + host + req.url });
+        res.writeHead(301, { Location: 'https://' + host + req.url });
         res.end();
     }
 
     /**
      * Initializes server registration.
-     * @static
-     * @method initServerRegistration
      * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
      */
     initServerRegistration (cb) {
         this.pb.ServerRegistration.getInstance().init(cb);
-    };
+    }
 
     /**
      * Initializes the command service by calling its "init" function.
@@ -334,7 +345,7 @@ class PencilBlue {
      */
     initLibraries (cb) {
         this.pb.LibrariesService.init(cb);
-    };
+    }
 
     /**
      * Initializes the metric registrations to measure request counts
@@ -369,8 +380,8 @@ class PencilBlue {
      */
     start () {
         var self = this;
-        this.pb.system.registerSignalHandlers(true);
-        this.pb.system.onStart(function(){
+        System.registerSignalHandlers(true);
+        System.onStart(function(){
             self.init();
         });
     }
@@ -382,9 +393,7 @@ class PencilBlue {
      * @return {PencilBlue}
      */
     static startInstance () {
-        var Configuration = require('./include/config.js');
-        var config        = Configuration.load();
-        var pb            = new PencilBlue(config);
+        var pb = new PencilBlue();
         pb.start();
         return pb;
     }

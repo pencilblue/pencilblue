@@ -194,78 +194,6 @@ describe('Util', function() {
         });
     });
 
-    describe('Util.getTasks', function() {
-
-        it('should return a set of async tasks do not cause concurrency issues', function(done) {
-
-            var items = [1, 2, 3];
-            var tasks = util.getTasks(items, function(items, i) {
-                return function(callback) {
-                    setTimeout(function() {
-                        callback(null, items[i]);
-                    }, 1);
-                };
-            });
-            async.parallel(tasks, function(err, results) {
-                results.should.eql(items);
-                done(err);
-            });
-        });
-    });
-
-    describe('Util.wrapTask', function() {
-
-        it('should wrap a task in an anonymous function and fire the function with the specified context', function(done) {
-
-            function SomePrototype(){
-
-                this.f1 = function(cb) {
-                    var tasks = [
-                        util.wrapTask(this, this.f2)
-                    ];
-                    async.parallel(tasks, cb);
-                };
-
-                this.f2 = function(cb) {
-                    cb(null, true);
-                };
-            }
-
-            var instance = new SomePrototype();
-            instance.f1(function(err, results) {
-                results.should.eql([true]);
-                done(err);
-            });
-        });
-    });
-
-    describe('Util.wrapTimedTask', function() {
-
-        it('should wrap a task and provide the execution time', function(done) {
-
-            function SomePrototype(){
-
-                this.f1 = function(cb) {
-                    var tasks = [
-                        util.wrapTimedTask(this, this.f2)
-                    ];
-                    async.parallel(tasks, cb);
-                };
-
-                this.f2 = function(cb) {
-                    setTimeout(cb, 100);
-                };
-            }
-
-            var instance = new SomePrototype();
-            instance.f1(function(err, results) {
-                var wrapper = results[0];
-                wrapper.time.should.not.be.below(100);
-                done(err);
-            });
-        });
-    });
-
     describe('Util.forEach', function() {
 
         it('should iterate over each item in the array', function() {
@@ -786,122 +714,6 @@ describe('Util', function() {
         });
     });
 
-    describe('Util.getDirectories', function() {
-
-        it('should throw an error when passed a null path', function() {
-
-            util.getDirectories.bind(null, function(err, results) {}).should.throwError();
-        });
-
-        it('should callback with an error when not passed a valid path', function(done) {
-
-            util.getDirectories('&!^!%@!', function(err, results) {
-
-                should.exist(err);
-                should.not.exist(results);
-                done();
-            });
-        });
-
-        it('should callback with an error when not passed an iteger as the path', function() {
-
-            util.getDirectories.bind(54, function(err, results) {}).should.throwError();
-        });
-
-        it('should callback with an array with 2 paths', function(done) {
-
-            util.getDirectories('./controllers', function(err, results) {
-
-                should.not.exist(err);
-                results.should.be.instanceof(Array).and.have.lengthOf(2);
-                results.should.containEql(path.join('controllers', 'admin'));
-                results.should.containEql(path.join('controllers', 'api'));
-                done();
-            });
-        });
-    });
-
-    describe('Util.getFiles', function() {
-
-        it('should throw an error when passed a null path', function() {
-
-            util.getFiles.bind(null, function(err, results) {}).should.throwError();
-        });
-
-        it('should callback with an error when not passed a valid path', function(done) {
-
-            util.getFiles('&!^!%@!', function(err, results) {
-
-                should.exist(err);
-                should.not.exist(results);
-                done();
-            });
-        });
-
-        it('should callback with an error when not passed a valid path to a file', function(done) {
-
-            util.getFiles('./controllers/base_controller.js', function(err, results) {
-
-                should.exist(err);
-                should.not.exist(results);
-                done();
-            });
-        });
-
-        it('should callback with an error when not passed a valid path to a file that does not exist', function(done) {
-
-            util.getFiles('./controllers/non_existing_controller.js', function(err, results) {
-
-                should.exist(err);
-                should.not.exist(results);
-                done();
-            });
-        });
-
-        it('should callback with an array of 4 files when called with no options and a valid path', function(done) {
-
-            util.getFiles('./controllers', function(err, results) {
-
-                should.not.exist(err);
-                results.should.be.instanceof(Array);
-                should(results.length >= 4).be.ok();
-
-                done();
-            });
-        });
-
-        it('should callback with an empty array of file paths', function(done) {
-
-            var options = {
-                filter: function(/*fullPath, stat*/) {
-                    return false;
-                }
-            };
-            util.getFiles('./controllers', options, function(err, results) {
-
-                should.not.exist(err);
-                results.should.be.instanceof(Array).and.have.lengthOf(0);
-
-                done();
-            });
-        });
-
-        it('should callback with an array containing at least 5 file paths', function(done) {
-
-            var options = {
-                recursive: true
-            };
-            util.getFiles('./controllers', options, function(err, results) {
-
-                should.not.exist(err);
-                results.should.be.instanceof(Array);
-                should(results.length >= 4).be.ok();
-
-                done();
-            });
-        });
-    });
-
     describe('Util.mkdirs', function() {
 
         it('should callback with an error when passed a null path', function(done) {
@@ -954,41 +766,7 @@ describe('Util', function() {
         });
     });
 
-    describe('Util.getExtension', function() {
 
-        it('should return null when passed a null path', function() {
-
-            var result = util.getExtension(null);
-            should.strictEqual(null, result);
-        });
-
-        it('should return null when passed an empty path', function() {
-
-            var result = util.getExtension('');
-            should.strictEqual(null, result);
-        });
-
-        it('should return "" when passed a path with no extension', function() {
-
-            var result = util.getExtension(path.join('.', 'controllers', 'config'));
-            should.strictEqual(null, result);
-        });
-
-        it('should return the "yml" extension when pass a path that is prefixed with a period but still provides extension', function() {
-
-            var result = util.getExtension('./controllers/.config.yml');
-            result.should.eql("yml");
-        });
-
-        it('should return "gif" when passed a path ending in .gif', function() {
-
-            var options = {
-                lower: true
-            };
-            var result = util.getExtension('/hello/world.GiF', options);
-            result.should.eql("gif");
-        });
-    });
 
     describe('Util.inherits', function() {
 
@@ -1106,23 +884,6 @@ describe('Util', function() {
                     should(Type3.prototype.getAll).eql(undefined);
                 });
             }
-        });
-    });
-
-    describe('Util.getFileExtensionFilter', function() {
-
-        [3, 2.1, false, undefined, null, {}].forEach(function(val) {
-            it('should throw when handled a non-string value '+util.inspect(val)+' as the filename', function() {
-                util.getFileExtensionFilter('js').bind(null, val).should.throwError();
-            });
-        });
-
-        it('should return true when passed a filename with a js extension', function() {
-            util.getFileExtensionFilter('js')('hello_world.js').should.eql(true);
-        });
-
-        it('should return false when passed a filename with a non-js extension', function() {
-            util.getFileExtensionFilter('js')('hello_world.json').should.eql(false);
         });
     });
 });

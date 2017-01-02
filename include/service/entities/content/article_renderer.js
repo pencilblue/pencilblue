@@ -14,10 +14,12 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
-var util  = require('../../../util.js');
+var _ = require('lodash');
 var async = require('async');
+var TaskUtils = require('../../../../lib/utils/taskUtils');
 
 module.exports = function(pb) {
 
@@ -105,16 +107,16 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ArticleRenderer.prototype.render = function(content, context, cb) {
-        if (!util.isObject(content)) {
+        if (typeof content !== 'object') {
             return cb(new Error('content parameter must be a valid object'));
         }
-        else if (!util.isObject(context)) {
+        else if (typeof context !== 'object') {
             return cb(new Error('context parameter must be a valid object'));
         }
-        else if (!util.isObject(context.authors) && context.renderBylines !== false) {
+        else if (typeof context.authors !== 'object' && context.renderBylines !== false) {
             return cb(new Error('context.authors parameter must be a valid hash of users when the bylines will be rendered'));
         }
-        else if (!util.isObject(context.contentSettings)) {
+        else if (typeof context.contentSettings !== 'object') {
             return cb(new Error('context.contentSettings parameter must be a valid hash of content settings'));
         }
         else if (isNaN(context.contentCount)) {
@@ -131,12 +133,12 @@ module.exports = function(pb) {
 
         //build out task list
         var tasks = [
-            util.wrapTask(this, this.formatMediaReferences, [content, context])
+            TaskUtils.wrapTask(this, this.formatMediaReferences, [content, context])
         ];
 
         //render comments unless explicitly asked not too
         if (context.renderComments !== false) {
-            tasks.push(util.wrapTask(this, this.formatComments, [content, context]));
+            tasks.push(TaskUtils.wrapTask(this, this.formatComments, [content, context]));
         }
 
         //run the tasks
@@ -153,7 +155,7 @@ module.exports = function(pb) {
     ArticleRenderer.prototype.formatBylines = function(content, context) {
 
         var author = context.authors[content.author];
-        if (util.isNullOrUndefined(author)) {
+        if (_.isNil(author)) {
             pb.log.warn('ArticleRenderer: Failed to find author [%s] for content [%s]', content.author, content[DAO.getIdField()]);
             return;
         }
@@ -238,7 +240,7 @@ module.exports = function(pb) {
             order: [['created', pb.DAO.ASC]]
         };
         this.commentService.getAll(opts, function(err, comments) {
-            if(util.isError(err) || comments.length === 0) {
+            if(_.isError(err) || comments.length === 0) {
                 return cb(err);
             }
 
@@ -278,7 +280,7 @@ module.exports = function(pb) {
 
         var processedComments = [];
         var users             = {};
-        var tasks             = util.getTasks(comments, function(comments, i) {
+        var tasks             = TaskUtils.getTasks(comments, function(comments, i) {
             return function(callback) {
 
                 var comment   = comments[i];
@@ -294,7 +296,7 @@ module.exports = function(pb) {
                 //user has not already commented so load
                 var dao = new pb.DAO();
                 dao.loadById(comment.commenter, 'user', function(err, commenter) {
-                    if(util.isError(err) || commenter === null) {
+                    if(_.isError(err) || commenter === null) {
                         callback(null, false);
                         return;
                     }
@@ -456,7 +458,7 @@ module.exports = function(pb) {
      * @return {Boolean}
      */
     ArticleRenderer.prototype.containsReadMoreFlag = function(content) {
-        if (!util.isObject(content)) {
+        if (typeof content !== 'object') {
             throw new Error('The content parameter must be an object');
         }
         return this.getLayout(content).indexOf(READ_MORE_FLAG) > -1;
