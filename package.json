@@ -47,9 +47,15 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.15",
+    "eslint": "^3.12.2",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.8.0",
     "istanbul": "0.4.5",
     "mocha": "^3.2.0",
     "mocha-lcov-reporter": "1.2.0",
+    "nodemon": "^1.11.0",
     "should": "^11.1.2",
     "sinon": "1.17.6"
   },
@@ -59,6 +65,9 @@
   },
   "scripts": {
     "start": "node pencilblue.js",
+    "lint": "eslint src test",
+    "dev": "nodemon --exec \"npm run lint && npm test\"",
+    "dev-nolint": "nodemon --exec \"npm test\"",
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec --recursive"
   },
   "license": "GPL-3.0",
