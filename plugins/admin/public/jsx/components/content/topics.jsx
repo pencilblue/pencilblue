@@ -67,10 +67,10 @@ class Topics extends React.Component {
 
             return (
               <div className="btn-group" key={uid} style={{marginRight: '.5rem', marginBottom: '.5rem'}}>
-                <button type="button" className="btn btn-sm btn-secondary">{topic.name}</button>
-                <a className="btn btn-sm btn-secondary btn-sm-padding" href={editHref}>
-                  <i className="fa fa-fw fa-edit"></i>
-                </a>
+                <a className="btn btn-sm btn-secondary" href={editHref}>{topic.name}</a>
+                <button type="button" className="btn btn-sm btn-secondary btn-sm-padding">
+                  <i className="fa fa-fw fa-info-circle"></i>
+                </button>
                 <button type="button" className="btn btn-sm btn-secondary btn-sm-padding">
                   <i className="fa fa-fw fa-trash"></i>
                 </button>
