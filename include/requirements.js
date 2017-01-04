@@ -46,7 +46,7 @@ module.exports = function PB() {
         }
     });
 
-    pb.AsyncEventEmitter = require(path.join(config.docRoot, '/include/utils/async_event_emitter.js'))(pb);
+    pb.AsyncEventEmitter = require(config.docRoot + '/include/utils/async_event_emitter.js');
 
     //setup the System instance
     pb.System = require(path.join(config.docRoot, 'include/system/system.js'));

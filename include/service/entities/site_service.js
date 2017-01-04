@@ -14,10 +14,17 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
+//dependencies
+var _ = require('lodash');
 var async = require('async');
+var Configuration = require('../../config');
+var log = require('../../utils/logging').newInstance('SiteService');
+var RegExpUtils = require('../../utils/reg_exp_utils');
 var url = require('url');
 var util  = require('../../util.js');
+var uuid = require('uuid');
 
 module.exports = function SiteServiceModule(pb) {
     /**
@@ -26,7 +33,7 @@ module.exports = function SiteServiceModule(pb) {
      * @constructor
      */
     function SiteService(context) {
-        if (!util.isObject(context)) {
+        if (!_.isObject(context)) {
             context = {};
         }
 
@@ -101,8 +108,8 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.getByUid = function(uid, cb) {
         if(!uid || uid === SiteService.GLOBAL_SITE) {
             cb(null, {
-                displayName:pb.config.siteName,
-                hostname: pb.config.siteRoot,
+                displayName:Configuration.activeConfiguration.siteName,
+                hostname: Configuration.activeConfiguration.siteRoot,
                 uid: SiteService.GLOBAL_SITE,
                 defaultLocale: pb.Localization.defaultLocale,
                 supportedLocales: {}
@@ -175,7 +182,7 @@ module.exports = function SiteServiceModule(pb) {
         dao.q(SITE_COLL, {select: pb.DAO.PROJECT_ALL, where: {uid: uid} }, function(err, result) {
             var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
 
-            if (pb.util.isError(err)) {
+            if (_.isError(err)) {
                 pb.log.error(err);
                 return cb(err);
             }
@@ -199,9 +206,9 @@ module.exports = function SiteServiceModule(pb) {
 
             var result = results === null;
             if (!result) {
-                util.forEach(results, function(value) {
-                    result |= value > 0;
-                });
+                result = results.reduce(function(reduction, value) {
+                    return reduction || (value > 0);
+                }, result);
             }
             cb(err, result);
         });
@@ -217,7 +224,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - Callback function
      */
     SiteService.prototype.getExistingDisplayNameHostnameCounts = function(displayName, hostname, id, cb) {
-        if (util.isFunction(id)) {
+        if (_.isFunction(id)) {
             cb = id;
             id = null;
         }
@@ -231,8 +238,8 @@ module.exports = function SiteServiceModule(pb) {
         var dao   = new pb.DAO();
         var tasks = {
             displayName: function(callback) {
-                var expStr = '^' + util.escapeRegExp(displayName.toLowerCase()) + '$';
-                dao.count('site', getWhere({displayName: new RegExp(expStr, 'i')}), callback);
+                var exp = RegExpUtils.getCaseInsensitiveExact(displayName);
+                dao.count('site', getWhere({ displayName: exp }), callback);
             },
             hostname: function(callback) {
                 dao.count('site', getWhere({hostname: hostname.toLowerCase()}), callback);
@@ -249,7 +256,7 @@ module.exports = function SiteServiceModule(pb) {
      * @return {String} the job id
      */
     SiteService.prototype.activateSite = function(siteUid, cb) {
-        cb = cb || util.cb;
+
         var name = util.format("ACTIVATE_SITE_%s", siteUid);
         var job = new pb.SiteActivateJob();
         job.setRunAsInitiator(true);
@@ -268,7 +275,7 @@ module.exports = function SiteServiceModule(pb) {
      * @return {String} the job id
      */
     SiteService.prototype.deactivateSite = function(siteUid, cb) {
-        cb = cb || util.cb;
+
         var name = util.format("DEACTIVATE_SITE_%s", siteUid);
         var job = new pb.SiteDeactivateJob();
         job.setRunAsInitiator(true);
@@ -289,7 +296,6 @@ module.exports = function SiteServiceModule(pb) {
      * @return {String} the job id
      */
     SiteService.prototype.editSite = function(options, cb) {
-        cb = cb || util.cb;
         var name = util.format("EDIT_SITE%s", options.uid);
         var job = new pb.SiteCreateEditJob();
         job.setRunAsInitiator(true);
@@ -308,9 +314,8 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - callback function
      */
     SiteService.prototype.createSite = function(options, cb) {
-        cb = cb || util.cb;
         options.active = false;
-        options.uid = util.uniqueId();
+        options.uid = uuid.v4();
         return this.editSite(options, cb);
     };
 
@@ -320,10 +325,10 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String} siteUid - site unique id
      * @param {Function} cb - callback function
      */
-    SiteService.prototype.startAcceptingSiteTraffic = function(siteUid, cb) {
+    SiteService.prototype.startAcceptingSiteTraffic = function (siteUid, cb) {
         var dao = new pb.DAO();
-        dao.loadByValue('uid', siteUid, 'site', function(err, site) {
-            if(util.isError(err)) {
+        dao.loadByValue('uid', siteUid, 'site', function (err, site) {
+            if(_.isError(err)) {
                 cb(err, null);
             }
             else if (!site) {
@@ -348,7 +353,7 @@ module.exports = function SiteServiceModule(pb) {
     SiteService.prototype.stopAcceptingSiteTraffic = function(siteUid, cb) {
         var dao = new pb.DAO();
         dao.loadByValue('uid', siteUid, 'site', function(err, site) {
-            if(util.isError(err)) {
+            if(_.isError(err)) {
                 cb(err, null);
             }
             else if (!site) {
@@ -370,7 +375,8 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb
      */
     SiteService.prototype.initSites = function(cb) {
-        if (pb.config.multisite.enabled && !pb.config.multisite.globalRoot) {
+        var config = Configuration.activeConfiguration;
+        if (config.multisite.enabled && !config.multisite.globalRoot) {
             return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
         }
         this.getAllSites(function (err, results) {
@@ -382,8 +388,8 @@ module.exports = function SiteServiceModule(pb) {
             var defaultSupportedLocales = {};
             defaultSupportedLocales[defaultLocale] = true;
             //only load the sites when we are in multi-site mode
-            if (pb.config.multisite.enabled) {
-                util.forEach(results, function (site) {
+            if (config.multisite.enabled) {
+                results.forEach(function (site) {
                     site.defaultLocale = site.defaultLocale || defaultLocale;
                     site.supportedLocales = site.supportedLocales || defaultSupportedLocales;
                     site.prevHostnames = site.prevHostnames || [];
@@ -407,8 +413,8 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Object} command - the command to react to.
      */
     SiteService.onActivateSiteCommandReceived = function(command) {
-        if (!util.isObject(command)) {
-            pb.log.error('SiteService: an invalid activate_site command object was passed. %s', util.inspect(command));
+        if (!_.isObject(command)) {
+            log.error('SiteService: an invalid activate_site command object was passed. %s', util.inspect(command));
             return;
         }
 
@@ -433,7 +439,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Object} command - the command to react to.
      */
     SiteService.onDeactivateSiteCommandReceived = function(command) {
-        if (!util.isObject(command)) {
+        if (!_.isObject(command)) {
             pb.log.error('SiteService: an invalid deactivate_site command object was passed. %s', util.inspect(command));
             return;
         }
@@ -459,7 +465,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Object} command - the command to react to.
      */
     SiteService.onCreateEditSiteCommandReceived = function(command) {
-        if (!util.isObject(command)) {
+        if (!_.isObject(command)) {
             pb.log.error('SiteService: an invalid create_edit_site command object was passed. %s', util.inspect(command));
             return;
         }
@@ -555,9 +561,9 @@ module.exports = function SiteServiceModule(pb) {
      * @return {String} hostname with protocol attached
      */
     SiteService.getHostWithProtocol = function(hostname) {
-        hostname = hostname.match(/^http/g) ? hostname : "//" + hostname;
+        hostname = hostname.match(/^http/g) ? hostname : '//' + hostname;
         var urlObject = url.parse(hostname, false, true);
-        urlObject.protocol = pb.config.server.ssl.enabled ? 'https' : 'http';
+        urlObject.protocol = Configuration.activeConfiguration.server.ssl.enabled ? 'https' : 'http';
         return url.format(urlObject).replace(/\/$/, '');
     };
 
@@ -571,23 +577,23 @@ module.exports = function SiteServiceModule(pb) {
         siteQueryService.getCollections(function(err, allCollections) {
             var dao = new pb.DAO();
 
-            var tasks = util.getTasks(allCollections, function (collections, i) {
+            var tasks = allCollections.map(function (collection) {
                 return function (taskCallback) {
-                    dao.delete({site: siteId}, collections[i].name, function (err, commandResult) {
-                        if (util.isError(err) || !commandResult) {
+                    dao.delete({site: siteId}, collection.name, function (err, commandResult) {
+                        if (_.isError(err) || !commandResult) {
                             return taskCallback(err);
                         }
 
-                        taskCallback(null, {collection: collections[i].name});
+                        taskCallback(null, {collection: collection.name});
                     });
                 };
             });
             async.parallel(tasks, function (err, results) {
-                if (pb.util.isError(err)) {
-                    pb.log.error(err);
+                if (_.isError(err)) {
+                    log.error(err);
                     return cb(err);
                 }
-                pb.log.silly("Successfully deleted site %s from database", siteId);
+                log.silly('Successfully deleted site %s from database', siteId);
                 cb(null, results);
             });
         });
@@ -600,11 +606,12 @@ module.exports = function SiteServiceModule(pb) {
      * @return {Object}
      */
     SiteService.getGlobalSiteContext = function() {
+        var config = Configuration.activeConfiguration;
         return {
-            displayName: pb.config.siteName,
+            displayName: config.siteName,
             uid: pb.SiteService.GLOBAL_SITE,
-            hostname: pb.config.multisite.enabled ? url.parse(pb.config.multisite.globalRoot).host : url.parse(pb.config.siteRoot).host,
-            active: !pb.config.multisite.enabled,
+            hostname: config.multisite.enabled ? url.parse(config.multisite.globalRoot).host : url.parse(config.siteRoot).host,
+            active: !config.multisite.enabled,
             defaultLocale: pb.Localization.getDefaultLocale(),
             supportedLocales: util.arrayToObj(pb.Localization.getSupported(), function(a, i) { return a[i]; }, function() { return true; }),
             prevHostnames: []
@@ -633,7 +640,7 @@ module.exports = function SiteServiceModule(pb) {
         }
         context.data = SiteService.buildPrevHostnames(context.data, context.object);
 
-        pb.util.merge(context.data, context.object);
+        Object.assign(context.object, context.data);
         cb(null);
     };
 
