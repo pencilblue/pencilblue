@@ -1,0 +1,52 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <form name="pluginForm" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <div class="tab-pane active" id="plugin_upload">
+                    <div class="progress progress-striped active" ng-if="uploading">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="{{uploadPercent}}" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+                    </div>
+                    <span class="btn btn-success fileinput-button" ng-disabled="uploading">
+                        <i class="fa" ng-class="{'fa-plus': !uploading, 'fa-circle-o-notch fa-spin': uploading}"></i>
+                        <span>^loc_generic.SELECT_FILE^...</span>
+                        <input type="file" ng-file-select="onFileSelect($files)" accept=".zip"/>
+                    </span>
+                    <div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="true" ng-file-drag-over-class="file_drop_hover" ng-show="!uploading">Drop the plugin archive here</div>
+                </div>
+                <div class="tab-pane" id="repo_clone">
+                    <div class="form-group">
+                        <label>^loc_plugins.REPOSITORY_URL^</label>
+                        <input type="url" name="url" class="form-control" ng-model="plugin.url"/>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_plugins.PRIVATE_REPOSITORY^</label><br/>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default" ng-class="{'active': plugin.private}" ng-click="setRepoPrivateState(true)">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !plugin.private}" ng-click="setRepoPrivateState(false)">^loc_generic.NO^</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_users.USERNAME^</label>
+                        <input type="text" name="username" class="form-control" ng-model="plugin.username" ng-disabled="!plugin.private"/>
+                    </div>
+                    <div class="form-group">
+                        <label>^loc_users.PASSWORD^</label>
+                        <input type="password" name="password" class="form-control" ng-model="plugin.password" ng-disabled="!plugin.private"/>
+                    </div>
+                    <a class="btn btn-default" href="/admin/plugins">
+                        <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
+                    </a>
+                    <button type="submit" class="btn btn-primary" ng-disabled="!plugin.url.length || (plugin.private && (!plugin.username || !plugin.password)) || cloning" ng-click="clonePlugin()">
+                        <i class="fa" ng-class="{'fa-files-o': !cloning, 'fa-circle-o-notch fa-spin': cloning}"></i>&nbsp;^loc_plugins.CLONE^
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+^tmp_angular=admin=plugins=add_plugin^
+^tmp_admin=footer^

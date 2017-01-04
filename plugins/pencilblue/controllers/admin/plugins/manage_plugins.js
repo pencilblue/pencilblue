@@ -101,6 +101,12 @@ module.exports = function(pb) {
                 title: ls.g('plugins.MANAGE_PLUGINS'),
                 icon: 'refresh',
                 href: '/admin/plugins'
+            },
+            {
+                name: 'add_plugin',
+                title: '',
+                icon: 'plus',
+                href: '/admin/plugins/add'
             }
         ];
     };

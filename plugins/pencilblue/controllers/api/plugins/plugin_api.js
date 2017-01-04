@@ -17,8 +17,9 @@
 'use strict';
 
 //dependencies
-var async          = require('async');
-
+var fs         = require('fs');
+var formidable = require('formidable');
+var async      = require('async');
 
 module.exports = function(pb) {
 
@@ -35,14 +36,7 @@ module.exports = function(pb) {
      * @constructor
      * @extends BaseController
      */
-    function PluginApiController(){
-
-        /**
-         *
-         * @property pluginService
-         * @type {PluginService}
-         */
-    }
+    function PluginApiController(){}
     util.inherits(PluginApiController, pb.BaseAdminController);
 
     //constants
@@ -56,11 +50,14 @@ module.exports = function(pb) {
      * @type {Object}
      */
     var VALID_ACTIONS = {
+        clone: false,
+        delete: true,
         install: true,
         uninstall: true,
         reset_settings: true,
         initialize: true,
-        set_theme: true
+        set_theme: true,
+        upload: false
     };
 
     /**
@@ -92,7 +89,11 @@ module.exports = function(pb) {
             return;
         }
         //route to handler
-        this[action](identifier, cb);
+        if (identifier) {
+            this[action](identifier, cb);
+        } else {
+            this[action](cb);
+        }
     };
 
     /**
@@ -246,6 +247,166 @@ module.exports = function(pb) {
                     code: util.isError(err) ? 500 : 200
                 });
             });
+        });
+    };
+    
+    /**
+     * Clones a git repository
+     * @method clone
+     * @param {Function} cb
+     */
+    PluginApiController.prototype.clone = function(cb) {
+        var self = this;
+
+        this.getJSONPostParams(function(err, post) {
+
+            var message = self.hasRequiredParams(post, ['url']);
+            if (message) {
+                return cb({
+                    code: 401,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, message)
+                });
+            }
+            
+            if (post.private && (!post.username || !post.password)) {
+                return cb({
+                    code: 401,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'Missing authentication')
+                });
+            }
+
+            self.pluginService.cloneFromRepository(post, function (err) {
+                if (util.isError(err)) {
+                    // Probably an auth issue
+                    if (err.message && err.message.indexOf('401') > -1) {
+                        err.message = 'Unable to clone the repository. Try again using authentication';
+                    }
+                    return cb({content: BaseController.apiResponse(BaseController.API_FAILURE, err.message), code: 500});
+                }
+                return cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, 'Successfully cloned: ' + post.url), code: 200});
+            });
+        });
+    };
+    
+    /**
+     * Deletes a plugin
+     * @method delete
+     * @param {String} uid The unique id of the plugin to be deleted
+     * @param {Function} cb
+     */
+    PluginApiController.prototype.delete = function(uid, cb) {
+        var self = this;
+        this.pluginService.purgePlugin(uid, function(err) {
+            if (util.isError(err)) {
+                return cb({content: BaseController.apiResponse(BaseController.API_FAILURE, util.format(self.ls.g('generic.ERROR_DELETING'), uid), [err.message]), code: 500});
+            }
+            return cb({content: BaseController.apiResponse(BaseController.API_SUCCESS, self.ls.g('generic.SUCCESS')), code: 200});
+        });
+    };
+    
+    /**
+     * Allows the user to upload an archive containing a plugin to the site
+     * @method upload
+     * @param {Function} cb
+     */
+    PluginApiController.prototype.upload = function(cb) {
+       var self  = this;
+
+        //set the limits on the file size
+        var form = new formidable.IncomingForm();
+        form.maxFieldSize = pb.config.plugins.max_archive_size;
+        form.on('progress', function(bytesReceived, bytesExpected) {
+            if (bytesReceived > pb.config.plugins.max_archive_size || bytesExpected > pb.config.plugins.max_archive_size) {
+                if (!self.errored) {
+                    this.emit('error', new Error(self.ls.g('media.FILE_TOO_BIG')));
+                }
+                self.errored++;
+            }
+        });
+
+        //parse the form out and let us know when its done
+        form.parse(this.req, function(err, fields, files) {
+            if (util.isError(err)) {
+                return self.onDone(err, null, files, cb);
+            }
+
+            var keys = Object.keys(files);
+            if (keys.length === 0) {
+                return self.onDone(new Error('No archive was submitted'), null, files, cb);
+            }
+            var archive = files[keys[0]];
+
+            if (archive.name.indexOf('.zip') === -1) {
+                return self.onDone(new Error('Invalid file type'), null, files, cb);
+            }
+            self.pluginService.unzipPlugin(archive, function(err, result) {
+                if (util.isError(err)) {
+                    return self.onDone(err, null, files, cb);
+                }
+
+                //write the response
+                var content = {
+                    code: 200,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS),
+                    content_type: 'application/json'
+                };
+                self.onDone(null, content, files, cb);
+            });
+        });
+    };
+        
+    /**
+    * Handles the cleanup after the incoming form data has been processed.  It
+    * attempts to remove uploaded files or file partials after a failure or
+    * completion.
+    * @method onDone
+    * @param {Error} err
+    * @param {Object} content
+    * @param {Object} [files={}]
+    * @param {Function} cb
+    */
+    PluginApiController.prototype.onDone = function(err, content, files, cb) {
+        if (util.isFunction(files)) {
+            cb = files;
+            files = null;
+        }
+        if (!util.isObject(files)) {
+            files = {};
+        }
+
+        //ensure all files are removed
+        var self = this;
+        var tasks = util.getTasks(Object.keys(files), function(fileFields, i) {
+            return function(callback) {
+                var fileDescriptor = files[fileFields[i]];
+
+                //ensure file has a path to delete
+                if (!fileDescriptor.path) {
+                    return callback();
+                }
+
+                //remove the file
+                fs.unlink(fileDescriptor.path, function(err) {
+                    pb.log.info('Removed temporary file: %s', fileDescriptor.path);
+                    callback();
+                });
+            };
+        });
+        async.parallel(tasks, function(error, results) {
+
+            //weird case where formidable continues to process content even after
+            //we cancel the stream with a 413.  This is a check to make sure we
+            //don't call back again
+            if (self.errored > 1) {
+                return;
+            }
+
+            //we only care about the passed in error
+            if (util.isError(err)) {
+                var code = err.message === self.ls.g('media.FILE_TOO_BIG') ? 413 : 500;
+                return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, err.message), code: code});
+            }
+            cb(content);
         });
     };
 
