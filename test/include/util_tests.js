@@ -163,7 +163,7 @@ describe('Util', function() {
                     a: true
                 },
                 d: 24.3
-            }
+            };
             b.should.eql(expected);
         });
     });
@@ -189,7 +189,7 @@ describe('Util', function() {
                 c: 1,
                 d: 25.2,
                 e: "hello world"
-            }
+            };
             result.should.eql(expected);
         });
     });
@@ -814,7 +814,7 @@ describe('Util', function() {
 
                 should.not.exist(err);
                 results.should.be.instanceof(Array).and.have.lengthOf(2);
-                results.should.containEql(path.join('controllers', 'admin'))
+                results.should.containEql(path.join('controllers', 'admin'));
                 results.should.containEql(path.join('controllers', 'api'));
                 done();
             });
@@ -864,7 +864,7 @@ describe('Util', function() {
 
                 should.not.exist(err);
                 results.should.be.instanceof(Array);
-                should(results.length >= 4).be.ok;
+                should(results.length >= 4).be.ok();
 
                 done();
             });
@@ -895,7 +895,7 @@ describe('Util', function() {
 
                 should.not.exist(err);
                 results.should.be.instanceof(Array);
-                should(results.length >= 4).be.ok;
+                should(results.length >= 4).be.ok();
 
                 done();
             });

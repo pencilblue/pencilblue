@@ -23,7 +23,7 @@ var async  = require('async');
 var extend = require('node.extend');
 var fs     = require('fs');
 var path   = require('path');
-var uuid   = require('node-uuid');
+var uuid   = require('uuid');
 var RegExpUtils = require('./utils/reg_exp_utils');
 
 /**

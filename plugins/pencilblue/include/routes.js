@@ -401,7 +401,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'navigation', 'new_nav_item.js'),
-            content_type: 'text/html'
+            content_type: 'application/json'
         },
         {
             method: 'post',
@@ -411,7 +411,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'navigation', 'new_nav_item.js'),
-            content_type: 'text/html'
+            content_type: 'application/json'
         },
         {
             method: 'delete',
@@ -420,7 +420,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'navigation', 'delete_nav_item.js'),
-            content_type: 'text/html'
+            content_type: 'application/json'
         },
 
         // TOPICS
@@ -616,7 +616,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'media', 'new_media.js'),
-            content_type: 'text/html'
+            content_type: 'application/json'
         },
         {
             method: 'post',
@@ -625,7 +625,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'media', 'edit_media.js'),
-            content_type: 'text/html',
+            content_type: 'application/json',
             request_body: ['application/json', 'application/x-www-form-urlencoded']
         },
         {
@@ -635,7 +635,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'media', 'delete_media.js'),
-            content_type: 'text/html'
+            content_type: 'application/json'
         },
         {
             method: 'post',

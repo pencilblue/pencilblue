@@ -116,7 +116,7 @@ module.exports = function BaseMediaRenderer(pb) {
         });
         styleStr += '" ';
         return styleStr;
-    }
+    };
 
     //exports
     return BaseMediaRenderer;

@@ -32,7 +32,6 @@ module.exports = function BaseAdminControllerModule(pb) {
 
   /**
    * Initializes the admin controller with site-related info
-   * @override
    * @method init
    * @param {Object} props
    * @param {Function} cb
@@ -46,7 +45,6 @@ module.exports = function BaseAdminControllerModule(pb) {
 
   /**
    * Initializes the admin controller with instance variables
-   * @override
    * @method extendedInit
    * @param {Function} cb
    */

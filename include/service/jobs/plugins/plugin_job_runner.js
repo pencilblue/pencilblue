@@ -92,11 +92,10 @@ module.exports = function PluginJobRunnerModule(pb) {
     PluginJobRunner.prototype.processClusterResults = function(err, results, cb) {
         if (util.isError(err)) {
             this.log(err.stack);
-            cb(err, results);
-            return;
+            return cb(err, results);
         }
 
-        var firstErr = undefined;
+        var firstErr;
         var success  = true;
         for (var i = 0; i < results.length; i++) {
             if (!results[i]) {

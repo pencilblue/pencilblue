@@ -1225,7 +1225,11 @@ module.exports = function PluginServiceModule(pb) {
                 mainModule = require(paths[i])(pb);
                 break;
             }
-            catch(e) {}
+            catch(e) {
+                if (pb.log.isDebug()) {
+                    pb.log.warn('PluginService: Failed to load main module at %s: %s', paths[i], e.stack);
+                }
+            }
         }
         return mainModule;
     };

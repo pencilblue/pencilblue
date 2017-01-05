@@ -60,7 +60,7 @@ module.exports = function DBManagerModule(pb) {
      * @class DBManager
      * @constructor
      */
-    function DBManager(){
+    function DBManager() {
 
         /**
          * Reference to the system instance of System
@@ -364,7 +364,7 @@ module.exports = function DBManagerModule(pb) {
         //constructor specific logic
         //register for shutdown
         system.registerShutdownHook('DBManager', this.shutdown);
-    };
+    }
 
     /**
      * The protocol prefix for connecting to a mongo cluster
@@ -407,7 +407,7 @@ module.exports = function DBManagerModule(pb) {
                 str += ',';
             }
             str += hostAndPort;
-        };
+        }
         return pb.UrlService.urlJoin(str, config.db.name) + options;
     };
 

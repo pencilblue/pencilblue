@@ -30,7 +30,7 @@ module.exports = function MongoMediaProviderModule(pb) {
      * @param {Object} context
      * @param {String} context.site
      */
-    function MongoMediaProvider(/*context*/) {};
+    function MongoMediaProvider(/*context*/) {}
 
     /**
      * Retrieves the item in GridFS as a stream.

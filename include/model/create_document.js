@@ -54,7 +54,7 @@ module.exports = function DocumentCreatorModule(pb) {
         DocumentCreator.emailFormatting(post);
         DocumentCreator.usernameFormatting(post);
         DocumentCreator.accessFormatting(post);
-        post['object_type'] = object_type;
+        post.object_type = object_type;
         return post;
     };
 
@@ -100,8 +100,8 @@ module.exports = function DocumentCreatorModule(pb) {
      * @param {Object} post Key value pair object
      */
     DocumentCreator.emailFormatting = function(post){
-        if(util.isString(post['email'])) {
-            post['email'] = post['email'].toLowerCase();
+        if(util.isString(post.email)) {
+            post.email = post.email.toLowerCase();
         }
     };
 
@@ -112,8 +112,8 @@ module.exports = function DocumentCreatorModule(pb) {
      * @param {Object} post Key value pair object
      */
     DocumentCreator.usernameFormatting = function(post){
-        if(util.isString(post['username'])) {
-            post['username'] = post['username'].toLowerCase();
+        if(util.isString(post.username)) {
+            post.username = post.username.toLowerCase();
         }
     };
 
@@ -124,8 +124,8 @@ module.exports = function DocumentCreatorModule(pb) {
      * @param {Object} post Key value pair object
      */
     DocumentCreator.accessFormatting = function(post){
-        if(post['admin']) {
-            post['admin'] = parseInt(post['admin']);
+        if(post.admin) {
+            post.admin = parseInt(post.admin);
         }
     };
 
@@ -163,7 +163,7 @@ module.exports = function DocumentCreatorModule(pb) {
         }
 
         nullIfEmptyItems.forEach(function(propertyName) {
-            if (!post[propertyName] || post[propertyName].length == 0) {
+            if (!post[propertyName] || post[propertyName].length === 0) {
                 post[propertyName] = null;
             }
         });

@@ -24,7 +24,7 @@ describe('MediaService', function() {
 
             it('should return null when passed non-string value '+val, function() {
                 var result = MediaService.parseMediaFlag(val);
-                (result === null).should.be.ok;
+                (result === null).should.be.ok();
             });
         });
 

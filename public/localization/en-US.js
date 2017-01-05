@@ -176,7 +176,8 @@ module.exports = {
     },
     error: {
     	ERROR: 'Error',
-        PAGE_NOT_FOUND: 'The page can not be found'
+        PAGE_NOT_FOUND: 'The page can not be found',
+        NOT_AUTHORIZED: 'Not Authorized'
     },
     timestamp: {
         JAN: 'January',

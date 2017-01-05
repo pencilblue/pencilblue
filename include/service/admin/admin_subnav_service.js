@@ -49,7 +49,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
      * @param {Function} getSubNavItems The callback function
      */
     AdminSubnavService.registerFor = function(key, getSubNavItems) {
-        if (!pb.validation.validateNonEmptyStr(key, true) || !util.isFunction(getSubNavItems)) {
+        if (!pb.validation.isNonEmptyStr(key, true) || !util.isFunction(getSubNavItems)) {
             return false;
         }
 
@@ -83,7 +83,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
      * @return {Boolean} TRUE if function was unregistered, FALSE if not
      */
     AdminSubnavService.unregisterFor = function(key, registeredFunc) {
-        if (!pb.validation.validateNonEmptyStr(key, true) || !util.isFunction(registeredFunc)) {
+        if (!pb.validation.isNonEmptyStr(key, true) || !util.isFunction(registeredFunc)) {
             return false;
         }
         else if (!util.isArray(CALLBACKS[key])) {

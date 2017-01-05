@@ -40,7 +40,7 @@ module.exports = function(pb) {
     CacheLockProvider.prototype.acquire = function(name, options, cb) {
         if (util.isFunction(options)) {
             cb = options;
-            options = {}
+            options = {};
         }
 
         //try and acquire the lock

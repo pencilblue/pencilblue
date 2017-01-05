@@ -219,6 +219,13 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     this.initServer = function(cb){
+
+        //register default middleware
+        pb.Middleware.getAll().forEach(function(middleware) {
+            pb.Router.addMiddlewareAfterAll(middleware);
+        });
+
+        //build server setup
         var self = this;
         var context = {
             config: pb.config,
@@ -270,8 +277,7 @@ function PencilBlue(config){
         }
 
         //route the request
-        var handler = new pb.RequestHandler(pb.server, req, res);
-        handler.handleRequest();
+        (new pb.Router(req, res)).handle(req, res);
     };
 
     /**

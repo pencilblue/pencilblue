@@ -160,7 +160,7 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      */
     YouTubeMediaRenderer.getType = function(urlStr) {
         return YouTubeMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    }
+    };
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type

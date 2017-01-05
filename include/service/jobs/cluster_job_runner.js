@@ -104,11 +104,6 @@ module.exports = function ClusterJobRunnerModule(pb) {
      * for more details.
      */
     ClusterJobRunner.prototype.processResults = function(err, results, cb) {
-        if (util.isError(err)) {
-            cb(err, results);
-            return;
-        }
-
         //create function to handle cleanup and cb
         var self = this;
         var finishUp = function(err, result) {
@@ -121,6 +116,12 @@ module.exports = function ClusterJobRunnerModule(pb) {
             cb(err, result);
         };
 
+        //handle any error
+        if (util.isError(err)) {
+            return finishUp(err, results);
+        }
+
+        // decide how to process the result
         if (this.isInitiator) {
             this.processClusterResults(err, results, finishUp);
         }
@@ -205,7 +206,7 @@ module.exports = function ClusterJobRunnerModule(pb) {
                 }
                 callback(null, true);
             });
-        }
+        };
     };
 
     //exports

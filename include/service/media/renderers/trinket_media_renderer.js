@@ -144,7 +144,7 @@ module.exports = function TrinketMediaRendererModule(pb) {
      */
     TrinketMediaRenderer.getType = function(urlStr) {
         return TrinketMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    }
+    };
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type

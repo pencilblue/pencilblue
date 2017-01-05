@@ -11,7 +11,7 @@
 
 module.exports = {
     "siteName": "My PencilBlue Site",
-    "siteRoot": "http://127.0.0.1:8080",
+    "siteRoot": "http://localhost:8080",
     "sitePort": 8080,
     "logging": {
         "level": "info"
@@ -45,7 +45,7 @@ module.exports = {
         }
     },
     "registry": {
-        "type": "mongo"
+        "type": "redis"
     },
     "session": {
         "storage": "mongo"
@@ -56,7 +56,7 @@ module.exports = {
     },
     "cluster": {
         "workers": 1,
-        "self_managed": true
+        "self_managed": false
     },
     multisite: {
         enabled: false,

@@ -41,11 +41,9 @@ module.exports = function PluginInstallJobModule(pb) {
      * @extends PluginJobRunner
      */
     function PluginInstallJob(options){
-        if(options){
-          this.site = options.site || pb.SiteService.GLOBAL_SITE;
-        } else {
-            this.site = pb.SiteService.GLOBAL_SITE;
-        }
+        options = options || {};
+
+        this.site = options.site || pb.SiteService.GLOBAL_SITE;
 
         PluginInstallJob.super_.call(this);
 
@@ -193,6 +191,9 @@ module.exports = function PluginInstallJobModule(pb) {
             function(callback) {
 
                 var mainModule = pb.PluginService.loadMainModule(pluginUid, details.main_module.path);
+                if (!mainModule) {
+                    return callback(new Error('Failed to load main module ' + pluginUid + ' at ' + details.main_module.path));
+                }
                 var hasBasicOnInstall = util.isFunction(mainModule.onInstall);
                 var hasContextOnInstall = util.isFunction(mainModule.onInstallWithContext);
                 if (!util.isNullOrUndefined(mainModule) && (hasBasicOnInstall || hasContextOnInstall)) {
@@ -211,11 +212,7 @@ module.exports = function PluginInstallJobModule(pb) {
             }
         ];
         async.series(tasks, function(err, results) {
-            if(util.isError(err)) {
-                cb(err);
-                return;
-            }
-            cb(null, true);
+            cb(err, !err);
         });
     };
 

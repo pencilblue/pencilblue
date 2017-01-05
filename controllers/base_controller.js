@@ -459,6 +459,7 @@ module.exports = function BaseControllerModule(pb) {
 
     /**
      * Parses the incoming payload of a request as JSON formatted data.
+     * @deprecated Since 0.8.0.  Will be removed in v1.0
      * @method getJSONPostParams
      * @param {Function} cb
      */

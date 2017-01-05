@@ -30,7 +30,7 @@ module.exports = function RedisSessionStoreModule(pb) {
      * @class RedisSessionStore
      * @constructor
      */
-    function RedisSessionStore(){};
+    function RedisSessionStore(){}
 
     /**
      * The prefix to prepend to the session ID in order to construct a cache key

@@ -55,7 +55,7 @@ module.exports = function(pb) {
         var options = PageApiController.super_.prototype.processQuery.apply(this);
         options.render = !!this.query.render; //pass 1 for true, 0 or nothing for false
         if (options.render) {
-            options.renderBylines = true
+            options.renderBylines = true;
         }
         return options;
     };

@@ -145,7 +145,7 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      */
     SlideShareMediaRenderer.getType = function(urlStr) {
         return SlideShareMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    }
+    };
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
