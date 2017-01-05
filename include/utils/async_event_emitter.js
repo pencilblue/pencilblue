@@ -18,21 +18,17 @@
 
 //dependencies
 var AsyncEventEmitterLib = require('async-eventemitter');
+var log = require('../utils/logging').newInstance('AsyncEventEmitter');
 
-module.exports = function(pb) {
-
-    /**
-     * @static
-     * @class AsyncEventEmitter
-     */
-    function AsyncEventEmitter(){}
+/**
+ *
+ */
+class AsyncEventEmitter {
 
     /**
-     * @static
-     * @method extend
      * @param {function} prototype
      */
-    AsyncEventEmitter.extend = function(prototype) {
+    static extend(prototype) {
         var events = new AsyncEventEmitterLib();
 
         /**
@@ -43,7 +39,7 @@ module.exports = function(pb) {
          * @param {Function} listener
          * @return {*}
          */
-        prototype.on = function(event, listener) {
+        prototype.on = function (event, listener) {
             return events.on(event, listener);
         };
 
@@ -55,7 +51,7 @@ module.exports = function(pb) {
          * @param {Function} listener
          * @return {*}
          */
-        prototype.once = function(event, listener) {
+        prototype.once = function (event, listener) {
             return events.once(event, listener);
         };
 
@@ -67,7 +63,7 @@ module.exports = function(pb) {
          * @param {Function} listener
          * @return {*}
          */
-        prototype.removeListener = function(event, listener) {
+        prototype.removeListener = function (event, listener) {
             return events.removeListener(event, listener);
         };
 
@@ -78,7 +74,7 @@ module.exports = function(pb) {
          * @param {String} event
          * @return {*}
          */
-        prototype.removeAllListeners = function(event) {
+        prototype.removeAllListeners = function (event) {
             return events.removeAllListeners(event);
         };
 
@@ -89,7 +85,7 @@ module.exports = function(pb) {
          * @param {Integer} n
          * @return {EventEmitter}
          */
-        prototype.setMaxListeners = function(n) {
+        prototype.setMaxListeners = function (n) {
             return events.setMaxListeners(n);
         };
 
@@ -100,7 +96,7 @@ module.exports = function(pb) {
          * @param {String} event
          * @return {Array}
          */
-        prototype.listeners = function(event) {
+        prototype.listeners = function (event) {
             return events.listeners(event);
         };
 
@@ -112,16 +108,16 @@ module.exports = function(pb) {
          * @param {Object} data
          * @param {Function} cb (Error)
          */
-        prototype.emit = function(event, data, cb) {
+        prototype.emit = function (event, data, cb) {
             var listeners = events.listeners(event);
             if (listeners.length === 0) {
                 return cb();
             }
 
-            pb.log.silly('AsyncEventEmitter: Emitting events: [%s] to %s listeners', event, listeners.length);
+            log.silly('AsyncEventEmitter: Emitting events: [%s] to %s listeners', event, listeners.length);
             events.emit(event, data, cb);
         };
-    };
+    }
+}
 
-    return AsyncEventEmitter;
-};
+module.exports = AsyncEventEmitter;
