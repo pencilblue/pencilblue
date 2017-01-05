@@ -9,7 +9,8 @@
         ^tmp_angular=admin=elements=error_success^
 
         $scope.urlAvailable = null;
-
+        $scope.patternSafeFileName = new RegExp('^[a-zA-Z0-9-_]+$');
+        
         $scope.setItem = function(item) {
             $scope.navItem.item = item;
             $scope.$apply();
@@ -79,19 +80,22 @@
 
             switch($scope.navItem.type) {
                 case 'container':
+                    saveObject.use_in_path = $scope.navItem.use_in_path === true;
+                    saveObject.path_name = $scope.navItem.path_name;
                     break;
                 case 'section':
-                    saveObject.parent = $scope.navItem.parent;
+                    saveObject.use_in_path = $scope.navItem.use_in_path === true;
                     saveObject.url = $scope.navItem.url;
                     saveObject.editor = $scope.navItem.editor;
+                    saveObject.path_name = $scope.navItem.path_name;
                     break;
                 case 'article':
                 case 'page':
-                    saveObject.parent = $scope.navItem.parent;
+                    saveObject.use_in_path = $scope.navItem.use_in_path === true;
                     saveObject.item = $scope.navItem.item;
+                    saveObject.path_name = $scope.navItem.path_name;
                     break;
                 case 'link':
-                    saveObject.parent = $scope.navItem.parent;
                     saveObject.link = $scope.navItem.link;
                     saveObject.new_tab = $scope.navItem.new_tab === true;
                     break;

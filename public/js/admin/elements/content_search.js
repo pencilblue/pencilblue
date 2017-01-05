@@ -19,8 +19,12 @@ $(document).ready(function() {
   var input = $('#content_search');
   input.autocomplete({
     source: function(request, response) {
+      var type = angular.element('#content_type').scope().navItem.type;
+      if (type === 'container'){
+        type = 'page';
+      }
       $.ajax({
-        url: '/api/content/' + angular.element('#content_type').scope().navItem.type + 's',
+        url: '/api/content/' + type + 's',
         dataType: 'json',
         data: {
           'q': $('#content_search').val(),

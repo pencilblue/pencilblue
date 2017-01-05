@@ -21,10 +21,6 @@
                         <label>^loc_generic.DESCRIPTION^</label>
                         <textarea class="form-control" ng-model="navItem.description"></textarea>
                     </div>
-                    <div class="form-group" ng-if="navItem.type !== 'container'">
-                        <label>^loc_generic.PARENT_NAV_ITEM^</label>
-                        <select class="form-control" ng-model="navItem.parent" ng-options="parent._id as parent.name for parent in parents"></select>
-                    </div>
                     <div ng-if="navItem.type === 'section'">
                         <div class="form-group" ng-class="{'has-error': !isFieldValid(navItemForm.url)}">
                             <label>^loc_admin.URL_KEY^</label>
@@ -72,6 +68,23 @@
                             </div>
                         </div>
                     </div>
+
+                    <div ng-if="navItem.type !== 'link'">
+                        <div class="form-group">
+                            <label>^loc_USE_IN_PATH^</label><br/>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default" ng-class="{'active': navItem.use_in_path}" ng-click="setNavItemValue('use_in_path', true)">^loc_YES^</button>
+                                <button type="button" class="btn btn-default" ng-class="{'active': !navItem.use_in_path}" ng-click="setNavItemValue('use_in_path', false)">^loc_NO^</button>
+                            </div>
+                        </div>
+                         <div ng-if="navItem.use_in_path" class="form-group" ng-class="{'has-error': !isSafeFileName(navItemForm.path_name)}">
+                            <label>^loc_PATH_NAME^</label>
+                            <input type="text" name="path_name" class="form-control" ng-model="navItem.path_name" ng-pattern="patternSafeFileName" required></input>
+                            <div class="form_error" ng-if="!isSafeFileName(navItemForm.path_name)">^loc_generic.INVALID_NAME^</div>
+                        </div>
+                    </div>
+
+
                 </div>
                 <a class="btn btn-default" href="/admin/content/navigation">
                     <i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^

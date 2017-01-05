@@ -80,33 +80,28 @@ module.exports = function(pb) {
 
     NavigationMap.getOrderedItems = function(sections, sectionMap) {
         var orderedSections = [];
+         var formatSection = function(parentSection){
+          var result = null;
+          for(var i = 0; i < sections.length; i++){
+
+            if(pb.DAO.areIdsEqual(parentSection.uid,sections[i][pb.DAO.getIdField()])){
+              result = sections[i];
+              result.children = []
+              sections.splice(i, 1);
+
+            if (parentSection.children) {
+              for(var j = 0; j < parentSection.children.length; j++){
+                 result.children.push(formatSection(parentSection.children[j]));
+              }  
+            }
+
+              break;
+            }
+          }
+          return result;
+        }
         for(var i = 0; i < sectionMap.length; i++) {
-
-            var parentSection = null;
-            for(var j = 0; j < sections.length; j++) {
-                if(sectionMap[i].uid == sections[j][pb.DAO.getIdField()]) {
-                    parentSection          = sections[j];
-                    parentSection.children = [];
-                    sections.splice(j, 1);
-                    break;
-                }
-            }
-
-            if(!parentSection) {
-                continue;
-            }
-
-            for(var o = 0; o < sectionMap[i].children.length; o++) {
-                for(j = 0; j < sections.length; j++) {
-                    if(pb.DAO.areIdsEqual(sections[j][pb.DAO.getIdField()], sectionMap[i].children[o].uid)) {
-                        parentSection.children.push(sections[j]);
-                        sections.splice(j, 1);
-                        break;
-                    }
-                }
-            }
-
-            orderedSections.push(parentSection);
+            orderedSections.push(formatSection(sectionMap[i]));
         }
 
         for(i = 0; i < sections.length; i++) {

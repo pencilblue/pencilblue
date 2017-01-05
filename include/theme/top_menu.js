@@ -189,61 +189,56 @@ module.exports = function TopMenuServiceModule(pb) {
         var ts = new pb.TemplateService(options);
         ts.load('elements/top_menu/link', function(err, linkTemplate) {
             ts.load('elements/top_menu/dropdown', function(err, dropdownTemplate) {
-                ts.load('elements/top_menu/account_button', function(err, accountButtonTemplate) {
+                ts.load('elements/top_menu/dropdown_sub_menu', function(err, dropdownSubMenuTemplate) {
+                    ts.load('elements/top_menu/account_button', function(err, accountButtonTemplate) {
 
-                    var bootstrapNav = ' ';
-                    for(var i = 0; i < navigation.length; i++)
-                    {
-                        if(navigation[i].dropdown)
-                        {
-                            var subNav = ' ';
-                            for(var j = 0; j < navigation[i].children.length; j++)
-                            {
-                                if(!navigation[i].children[j]) {
-                                    continue;
+                        var bootstrapNav = ' ';
+
+                        var getElement = function(navEl){
+                            if(navEl.dropdown){
+                                var subNav = '';
+                                for(var i = 0; i < navEl.children.length; i++){
+                                    if(!navEl.children[i]){
+                                        continue;
+                                    }
+                                    subNav = subNav.concat(getElement(navEl.children[i])); 
                                 }
+                                subNav=dropdownSubMenuTemplate.split('^navigation^').join(subNav);
+                                var dropdown = dropdownTemplate;
+                                dropdown = dropdown.split('^sub_navigation^').join(subNav);
+                                dropdown = dropdown.split('^active^').join((navEl.active) ? 'active' : '');
+                                dropdown = dropdown.split('^name^').join(navEl.name);
+                                dropdown = dropdown.split('^url^').join(navEl.url);
 
-                                var childItem = linkTemplate;
-                                childItem = childItem.split('^active^').join((navigation[i].children[j].active) ? 'active' : '');
-                                childItem = childItem.split('^url^').join(navigation[i].children[j].url);
-                                childItem = childItem.split('^new_tab^').join(navigation[i].children[j].new_tab ? '_blank' : '_self');
-                                childItem = childItem.split('^name^').join(navigation[i].children[j].name);
-
-                                subNav = subNav.concat(childItem);
+                                return dropdown;
+                            }else{
+                                var linkItem = linkTemplate;
+                                linkItem = linkItem.split('^active^').join((navEl.active) ? 'active' : '');
+                                linkItem = linkItem.split('^url^').join(navEl.url);
+                                linkItem = linkItem.split('^new_tab^').join(navEl.new_tab ? '_blank' : '');
+                                linkItem = linkItem.split('^name^').join(navEl.name);
+                                return linkItem;
                             }
-
-                            var dropdown = dropdownTemplate;
-                            dropdown = dropdown.split('^navigation^').join(subNav);
-                            dropdown = dropdown.split('^active^').join((navigation[i].active) ? 'active' : '');
-                            dropdown = dropdown.split('^name^').join(navigation[i].name);
-
-                            bootstrapNav = bootstrapNav.concat(dropdown);
                         }
-                        else
+                        for(var i = 0; i < navigation.length; i++)
                         {
-                            var linkItem = linkTemplate;
-                            linkItem = linkItem.split('^active^').join((navigation[i].active) ? 'active' : '');
-                            linkItem = linkItem.split('^url^').join(navigation[i].url);
-                            linkItem = linkItem.split('^new_tab^').join(navigation[i].new_tab ? '_blank' : '');
-                            linkItem = linkItem.split('^name^').join(navigation[i].name);
-
-                            bootstrapNav = bootstrapNav.concat(linkItem);
+                            bootstrapNav = bootstrapNav.concat(getElement(navigation[i]));
                         }
-                    }
 
-                    var buttons = ' ';
-                    for(i = 0; i < accountButtons.length; i++)
-                    {
-                        var button = accountButtonTemplate;
-                        button = button.split('^active^').join((accountButtons[i].active) ? 'active' : '');
-                        button = button.split('^url^').join(accountButtons[i].href);
-                        button = button.split('^title^').join(accountButtons[i].title);
-                        button = button.split('^icon^').join(accountButtons[i].icon);
+                        var buttons = ' ';
+                        for(i = 0; i < accountButtons.length; i++)
+                        {
+                            var button = accountButtonTemplate;
+                            button = button.split('^active^').join((accountButtons[i].active) ? 'active' : '');
+                            button = button.split('^url^').join(accountButtons[i].href);
+                            button = button.split('^title^').join(accountButtons[i].title);
+                            button = button.split('^icon^').join(accountButtons[i].icon);
 
-                        buttons = buttons.concat(button);
-                    }
+                            buttons = buttons.concat(button);
+                        }
 
-                    cb(bootstrapNav, buttons);
+                        cb(bootstrapNav, buttons);
+                    });
                 });
             });
         });

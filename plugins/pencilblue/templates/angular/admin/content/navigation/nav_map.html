@@ -7,13 +7,8 @@
         $scope.deleteNameKey = 'name';
 
         $scope.containerDragListeners = {
-            accept: function (sourceItemHandleScope, destSortableScope) {
-                if(sourceItemHandleScope.itemScope.child) {
-                    return sourceItemHandleScope.itemScope.child.type !== 'container';
-                }
-                else {
-                    return sourceItemHandleScope.itemScope.item.type !== 'container';
-                }
+            accept: function (event) {
+              return true;
             },
             itemMoved: function (event) {},
             orderChanged: function(event) {},
@@ -21,21 +16,21 @@
 
         $scope.saveNavMap = function() {
             var navMap = [];
-            for(var i = 0; i < $scope.navItems.length; i++) {
-                var navMapItem = {
-                    uid: $scope.navItems[i]._id.toString(),
-                    children: []
-                };
-
-                if($scope.navItems[i].type === 'container') {
-                    for(var j = 0; j < $scope.navItems[i].children.length; j++) {
-                        navMapItem.children.push({uid: $scope.navItems[i].children[j]._id.toString()});
-                    }
+            var initMapItem=function(navItem){
+            var navMapItem = {
+                uid: navItem._id.toString(),
+                children: []
+            };
+            if(navItem.type === 'container') {
+                for(var i = 0; i < navItem.children.length; i++) {
+                    navMapItem.children.push(initMapItem(navItem.children[i]));
                 }
-
-                navMap.push(navMapItem);
             }
-
+            return navMapItem;
+          }
+           for(var i = 0; i < $scope.navItems.length; i++) {
+               navMap.push(initMapItem($scope.navItems[i]));
+           }
             $scope.saving = true;
             $http.post('/actions/admin/content/navigation/map', {map: navMap})
             .success(function(result) {
