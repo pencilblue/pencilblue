@@ -18,9 +18,8 @@
 
 //dependencies
 var _ = require('lodash');
-var Q = require('q');
-
-module.exports = function(pb) {
+var DAO = require('../../../dao/dao');
+var log = require('../../../utils/logging').newInstance('DbLockProvider');
 
 /**
  * A lock provider that leverages the DB to create semaphores
@@ -53,7 +52,7 @@ class DbLockProvider {
      * @param {Integer} [options.timeout] Lock timeout in seconds
      * @param {Function} cb
      */
-    acquire(name, options, cb) {
+    acquire (name, options, cb) {
         if (_.isFunction(options)) {
             cb = options;
             options = {};
@@ -69,10 +68,10 @@ class DbLockProvider {
             payload: options.payload,
             timeout: timeout
         };
-        var dao = new pb.DAO();
+        var dao = new DAO();
         dao.save(lock, function (err, result) {
             if (_.isError(err)) {
-                pb.log.silly('DbLockProvider: Failed to insert lock document: CODE=%s\n%s', err.code, err.stack);
+                log.silly('DbLockProvider: Failed to insert lock document: CODE=%s\n%s', err.code, err.stack);
                 //when unique constraint error occurs send no error.  It means
                 //the lock exists
                 return cb(err.code === DbLockProvider.EXPECTED_ERROR_CODE ? null : err, false);
@@ -86,8 +85,8 @@ class DbLockProvider {
      * @param {String} name
      * @param {Function} cb
      */
-    get(name, cb) {
-        var dao = new pb.DAO();
+    get (name, cb) {
+        var dao = new DAO();
         dao.loadByValue('name', name, DbLockProvider.LOCK_COLLECTION, function (err, result) {
             if (_.isObject(result)) {
                 result = result.payload;
@@ -111,10 +110,9 @@ class DbLockProvider {
         var where = {
             name: name
         };
-        var dao = new pb.DAO();
+        var dao = new DAO();
         dao.delete(where, DbLockProvider.LOCK_COLLECTION, cb);
     }
 }
 
-    return DbLockProvider;
-};
+module.exports = DbLockProvider;

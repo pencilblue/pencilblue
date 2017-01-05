@@ -38,6 +38,32 @@ module.exports = function PB() {
         //initialize logging
         LogFactory: require(config.docRoot + '/include/utils/logging.js'),
         log: require(config.docRoot + '/include/utils/logging.js').newInstance('Default'),
+
+        AsyncEventEmitter: require(config.docRoot + '/include/utils/async_event_emitter.js'),
+
+        //setup the System instance
+        System: require(config.docRoot + 'include/system/system.js'),
+
+        //configure cache
+        CacheFactory: require(config.docRoot + '/include/dao/cache.js'),
+
+        //configure the DB manager
+        DbManager: require(config.docRoot + '/include/dao/db_manager'),
+
+        //setup system class types
+        DAO: require(config.docRoot + '/include/dao/dao'),
+
+        //setup validation services
+        ValidationService: require(config.docRoot + '/include/validation/validation_service.js'),
+
+        //lock services
+        locks: {
+            providers: {
+                CacheLockProvider: require(config.docRoot + '/include/service/locks/providers/cache_lock_provider.js'),
+                DbLockProvider: require(config.docRoot + '/include/service/locks/providers/db_lock_provider.js')
+            }
+        },
+        LockService: require(config.docRoot + '/include/service/locks/lock_service.js')(pb)
     };
 
     Object.defineProperty(pb, 'util', {
@@ -45,35 +71,6 @@ module.exports = function PB() {
             throw new Error('Util has been removed from the framework');
         }
     });
-
-    pb.AsyncEventEmitter = require(config.docRoot + '/include/utils/async_event_emitter.js');
-
-    //setup the System instance
-    pb.System = require(path.join(config.docRoot, 'include/system/system.js'));
-
-    //configure cache
-    pb.CacheFactory = require(path.join(config.docRoot, '/include/dao/cache.js'));
-    pb.cache        = pb.CacheFactory.getInstance();
-
-    //configure the DB manager
-    pb.DBManager = pb.dbm = require(config.docRoot+'/include/dao/db_manager');
-
-    //setup system class types
-    pb.DAO = require(config.docRoot+'/include/dao/dao')(pb);
-
-    //setup validation services
-    var ValidationModule = require(path.join(config.docRoot, '/include/validation/validation_service.js'));
-    pb.ValidationService = ValidationModule(pb);
-    pb.validation        = pb.ValidationService;
-
-    //lock services
-    pb.locks = {
-        providers: {
-            CacheLockProvider: require(path.join(config.docRoot, '/include/service/locks/providers/cache_lock_provider.js')),
-            DbLockProvider: require(path.join(config.docRoot, '/include/service/locks/providers/db_lock_provider.js'))(pb)
-        }
-    };
-    pb.LockService = require(path.join(config.docRoot, '/include/service/locks/lock_service.js'))(pb);
 
     //setup the session handler
     var SessionModule = require(path.join(config.docRoot, '/include/session/session.js'));

@@ -19,6 +19,7 @@
 //dependencies
 var _ = require('lodash');
 var Configuration = require('../../config');
+var log = require('../../utils/logging').newInstance('LockService');
 var path = require('path');
 
 module.exports = function(pb) {
@@ -112,12 +113,12 @@ module.exports = function(pb) {
             ];
             for (var i = 0; i < paths.length; i++) {
                 try {
-                    var ProviderType = require(paths[i])(pb);
+                    var ProviderType = require(paths[i]);
                     instance = new ProviderType();
                     break;
                 }
                 catch (e) {
-                    pb.log.silly(e.stack);
+                    log.silly(e.stack);
                 }
             }
             return instance;

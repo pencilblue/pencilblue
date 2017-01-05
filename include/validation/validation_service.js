@@ -19,74 +19,66 @@
 //dependencies
 var _        = require('lodash');
 var semver   = require('semver');
-var ObjectID = require('mongodb').ObjectID;
 
-module.exports = function ValidationModule(pb) {
-
-    /**
-     * Provides a set of functions for common validations.
-     *
-     * @class ValidationService
-     * @constructor
-     */
-    function ValidationService(){}
+/**
+ * Provides a set of functions for common validations.
+ */
+class ValidationService {
 
     //constants
     /**
      * Pattern to validate a file name
-     * @private
-     * @static
-     * @property
+     * @readonly
      * @type {RegExp}
      */
-    var FILE_NAME_SAFE_REGEX = /^[a-zA-Z0-9-_\.]+$/;
+    static get FILE_NAME_SAFE_REGEX() {
+        return /^[a-zA-Z0-9-_\.]+$/;
+    }
 
     /**
      * Pattern to validate a semantic package version
-     * @private
-     * @static
-     * @property
+     * @readonly
      * @type {RegExp}
      */
-    var VERSION_REGEX        = /^[0-9]+\.[0-9]+\.[0-9]+$/;
+    static get VERSION_REGEX() {
+        return /^[0-9]+\.[0-9]+\.[0-9]+$/;
+    }
 
     /**
      * A pattern to validate an email address
-     * @private
-     * @static
-     * @property
+     * @readonly
      * @type {RegExp}
      */
-    var EMAIL_REGEX          = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
+    static get EMAIL_REGEX() {
+        return /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i;
+    }
 
     /**
      * A pattern to validate a fully qualified URL
-     * @private
-     * @static
-     * @property
+     * @readonly
      * @type {RegExp}
      */
-    var URL_REGEX            = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/;
+    static get URL_REGEX() {
+        return /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/;
+    }
 
     /**
      * A pattern to validate a relative URL (no protocol, host, or port)
-     * @private
-     * @static
-     * @property
+     * @readonly
      * @type {RegExp}
      */
-    var URL_REGEX_NO_HOST    = /^\/.*\/{0,1}$/;
+    static get URL_REGEX_NO_HOST() {
+        return /^\/.*\/{0,1}$/;
+    }
 
     /**
      * Checks to see if the value is a valid ID string
-     * @static
-     * @method isIdStr
      * @param {String} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
-    ValidationService.isIdStr = function(val, required) {
+    static isIdStr(val, required) {
         if (!required && (val === null || val === undefined)) {
             return true;
         }
@@ -94,255 +86,129 @@ module.exports = function ValidationModule(pb) {
             return false;
         }
         return ValidationService.isId(val, required);
-    };
-
-    /**
-     * Checks to see if the value is a valid ID string or an instance of ObjectID.
-     * @static
-     * @method isId
-     * @param {String|ObjectID} val The value under test
-     * @param {Boolean} [required=false] Indicates if the value is required. When
-     * FALSE, null will be an acceptable value.
-     * @return {Boolean} TRUE if the value is valid, FALSE if not
-     */
-    ValidationService.isId = function(val, required) {
-        if (!required && (val === null || val === undefined)) {
-            return true;
-        }
-
-        var id = pb.DAO.getObjectId(val);
-        return id instanceof ObjectID;
-    };
+    }
 
     /**
      * Validates an email address
-     * @deprecated
-     * @method validateEmail
      * @param {String} value
      * @param {Boolean} [required=false]
      */
-    ValidationService.validateEmail = function(value, required) {
-        return ValidationService.isEmail(value, required);
-    };
-
-    /**
-     * Validates an email address
-     *
-     * @method isEmail
-     * @param {String} value
-     * @param {Boolean} [required=false]
-     */
-    ValidationService.isEmail = function(value, required) {
+    static isEmail(value, required) {
         if (!value && !required) {
             return true;
         }
 
-        return _.isString(value) && value.search(EMAIL_REGEX) !== -1;
-    };
+        return _.isString(value) && value.search(ValidationService.EMAIL_REGEX) !== -1;
+    }
 
     /**
      * Validates a version number
-     * @deprecated
-     * @method validateVersionNum
      * @param {String} value
      * @param {Boolean} [required=false]
      */
-    ValidationService.validateVersionNum = function(value, required) {
-        return ValidationService.isVersionNum(value, required);
-    };
-
-    /**
-     * Validates a version number
-     *
-     * @method isVersionNum
-     * @param {String} value
-     * @param {Boolean} [required=false]
-     */
-    ValidationService.isVersionNum = function(value, required) {
+    static isVersionNum(value, required) {
         if (!value && !required) {
             return true;
         }
 
-        return _.isString(value) && value.search(VERSION_REGEX) !== -1;
-    };
+        return _.isString(value) && value.search(ValidationService.VERSION_REGEX) !== -1;
+    }
 
     /**
      * Validates a version expression
-     *
-     * @method isVersionExpression
      * @param {String} expression
      * @param {Boolean} [required=false]
      */
-    ValidationService.isVersionExpression = function(expression, required) {
+    static isVersionExpression(expression, required) {
         if (!expression && !required) {
             return true;
         }
         return semver.validRange(expression) !== null;
-    };
+    }
 
     /**
      * Validates an URL
-     * @deprecated
-     * @method validateUrl
      * @param {String} value
      * @param {Boolean} [required=false]
      */
-    ValidationService.validateUrl = function(value, required) {
-        return ValidationService.isUrl(value, required);
-    };
-
-    /**
-     * Validates an URL
-     *
-     * @method isUrl
-     * @param {String} value
-     * @param {Boolean} [required=false]
-     */
-    ValidationService.isUrl = function(value, required) {
+    static isUrl(value, required) {
         if (!value && !required) {
             return true;
         }
 
-        return _.isString(value) && (value.search(URL_REGEX) !== -1 || value.search(URL_REGEX_NO_HOST) !== -1);
-    };
+        return _.isString(value) && (value.search(ValidationService.URL_REGEX) !== -1 || value.search(ValidationService.URL_REGEX_NO_HOST) !== -1);
+    }
 
     /**
      * Validates a file name
-     * @deprecated
-     * @method validateSafeFileName
      * @param {String} value
      * @param {Boolean} [required=false]
      */
-    ValidationService.validateSafeFileName = function(value, required) {
-        return ValidationService.isSafeFileName(value, required);
-    };
-
-    /**
-     * Validates a file name
-     *
-     * @method isSafeFileName
-     * @param {String} value
-     * @param {Boolean} [required=false]
-     */
-    ValidationService.isSafeFileName = function(value, required) {
+    static isSafeFileName(value, required) {
         if (!value && !required) {
             return true;
         }
 
-        return _.isString(value) && value.search(FILE_NAME_SAFE_REGEX) !== -1;
-    };
+        return _.isString(value) && value.search(ValidationService.FILE_NAME_SAFE_REGEX) !== -1;
+    }
 
     /**
      * Validates a string
-     * @deprecated
-     * @method validateStr
      * @param {String} value
      * @param {Boolean} [required=false]
      */
-    ValidationService.validateStr = function(value, required) {
-        return ValidationService.isStr(value, required);
-    };
-
-    /**
-     * Validates a string
-     *
-     * @method isStr
-     * @param {String} value
-     * @param {Boolean} [required=false]
-     */
-    ValidationService.isStr = function(value, required) {
+    static isStr(value, required) {
         if (!value && !required) {
             return true;
         }
         return _.isString(value);
-    };
+    }
 
     /**
      * Validates a string is not empty
-     * @deprecated
-     * @method validateNonEmptyStr
      * @param {String} value
      * @param {Boolean} [required=false]
      */
-    ValidationService.validateNonEmptyStr = function(value, required) {
-        return ValidationService.isNonEmptyStr(value, required);
-    };
-
-    /**
-     * Validates a string is not empty
-     *
-     * @method isNonEmptyStr
-     * @param {String} value
-     * @param {Boolean} [required=false]
-     */
-    ValidationService.isNonEmptyStr = function(value, required) {
+    static isNonEmptyStr(value, required) {
         if (!value && !required) {
             return true;
         }
         return _.isString(value) && value.length > 0;
-    };
+    }
 
     /**
      * Validates an array
-     * @deprecated
-     * @method validateArray
      * @param {Array} value
      * @param {Boolean} [required=false]
      */
-    ValidationService.validateArray = function(value, required) {
-        return ValidationService.isArray(value, required);
-    };
-
-    /**
-     * Validates an array
-     *
-     * @method isArray
-     * @param {Array} value
-     * @param {Boolean} [required=false]
-     */
-    ValidationService.isArray = function(value, required) {
+    static isArray(value, required) {
         if (!value && !required) {
             return true;
         }
         return Array.isArray(value);
-    };
+    }
 
     /**
      * Validates an object
-     * @deprecated
-     * @method validateObject
      * @param {Object} value
      * @param {Boolean} [required=false]
      */
-    ValidationService.validateObject = function(value, required) {
-        return ValidationService.isObj(value, required);
-    };
-
-    /**
-     * Validates an object
-     *
-     * @method isObject
-     * @param {Object} value
-     * @param {Boolean} [required=false]
-     */
-    ValidationService.isObj = function(value, required) {
+    static isObj(value, required) {
         if (!value && !required) {
             return true;
         }
         return _.isObject(value);
-    };
+    }
 
     /**
      * Validates that the value is an integer.
-     * @static
-     * @method isInt
      * @param {Integer} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
      * @param {Boolean} strict Indicates if the value must be a number rather than a string representing a number.
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
-    ValidationService.isInt = function(val, required, strict) {
+    static isInt(val, required, strict) {
         if (!required && (val === null || val === undefined)) {
             return true;
         }
@@ -351,20 +217,18 @@ module.exports = function ValidationModule(pb) {
         if (strict && val !== parsed) {
             return false;
         }
-        return val == parsed;
-    };
+        return val === parsed;
+    }
 
     /**
      * Validates that the value is a float.
-     * @static
-     * @method isFloat
      * @param {*} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
      * @param {Boolean} strict Indicates if the value must be a number rather than a string representing a number.
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
-    ValidationService.isFloat = function(val, required, strict) {
+    static isFloat(val, required, strict) {
         if (!required && (val === null || val === undefined)) {
             return true;
         }
@@ -373,63 +237,55 @@ module.exports = function ValidationModule(pb) {
         if ((Math.floor(parsed) === val) || (strict && val !== parsed)) {
             return false;
         }
-        return val == parsed;
-    };
+        return val === parsed;
+    }
 
     /**
      * Validates that the value is a number.
-     * @static
-     * @method isNum
      * @param {*} val The value under test
      * @param {Boolean} [required=false] Indicates if the value is required. When
      * FALSE, null will be an acceptable value.
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
-    ValidationService.isNum = function(val, required) {
+    static isNum(val, required) {
         if (!required && (val === null || val === undefined)) {
             return true;
         }
 
         return !isNaN(val);
-    };
+    }
 
     /**
      * Validates that the value is a boolean.
-     * @static
-     * @method isBool
      * @param {*} val The value under test
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
-    ValidationService.isBool = function(val) {
+    static isBool(val) {
         return _.isBoolean(val);
-    };
+    }
 
     /**
      * Validates that the value is null, defined, an empty object, and empty
      * array or an empty string.
-     * @static
-     * @method isEmpty
      * @param {*} val The value under test
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
-    ValidationService.isEmpty = function(val) {
+    static isEmpty(val) {
         return val === null || val === undefined || val === '' || _.isEqual(val, {}) || _.isEqual(val, []);
-    };
+    }
 
     /**
      * Validates that the value is a date object
-     * @static
-     * @method isDate
      * @param {*} val The value under test
      * @param {boolean} [required=false]
      * @return {Boolean} TRUE if the value is valid, FALSE if not
      */
-    ValidationService.isDate = function(val, required) {
+    static isDate(val, required) {
         if (!required && (val === null || val === undefined)) {
             return true;
         }
         return _.isDate(val) && !isNaN(val.getTime());
-    };
+    }
+}
 
-    return ValidationService;
-};
+    module.exports = ValidationService;
