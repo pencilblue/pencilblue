@@ -491,6 +491,7 @@ module.exports = function(pb) {
 
     /**
      * Validates that a headline is provided and is unique
+     * @method validateHeadline
      * @param {object} context
      * @param {object} context.data
      * @param {Array} context.validationErrors

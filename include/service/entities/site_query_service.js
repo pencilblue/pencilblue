@@ -227,7 +227,6 @@ module.exports = function SiteQueryServiceModule(pb) {
 
   /**
    * Overriding protected method of DAO to achieve site-aware query
-   * @override
    * @protected
    * @method _doQuery
    * @param {Object} options
