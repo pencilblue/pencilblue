@@ -17,48 +17,44 @@
 'use strict';
 
 //dependencies
-var util = require('../../../util.js');
+var _ = require('lodash');
+var Q = require('q');
 
 module.exports = function(pb) {
 
-    /**
-     * A lock provider that leverages the DB to create semaphores
-     * @class DbLockProvider
-     * @constructor
-     */
-    function DbLockProvider() {}
+/**
+ * A lock provider that leverages the DB to create semaphores
+ */
+class DbLockProvider {
 
     /**
      *
-     * @private
-     * @static
      * @readonly
-     * @property LOCK_COLLECTION
      * @type {String}
      */
-    var LOCK_COLLECTION = 'lock';
+    static get LOCK_COLLECTION() {
+        return 'lock';
+    }
 
     /**
      *
-     * @private
-     * @static
      * @readonly
-     * @property EXPECTED_ERROR_CODE
      * @type {Integer}
      */
-    var EXPECTED_ERROR_CODE = 11000;
+    static get EXPECTED_ERROR_CODE() {
+        return 11000;
+    }
 
     /**
      * Attempts to acquire the lock with the given name.
-     * @method acquire
      * @param {String} name
      * @param {Object} [options={}]
      * @param {Object} [options.payload]
      * @param {Integer} [options.timeout] Lock timeout in seconds
      * @param {Function} cb
      */
-    DbLockProvider.prototype.acquire = function(name, options, cb) {
-        if (util.isFunction(options)) {
+    acquire(name, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
@@ -68,48 +64,46 @@ module.exports = function(pb) {
 
         //try and acquire the lock
         var lock = {
-            object_type: LOCK_COLLECTION,
+            object_type: DbLockProvider.LOCK_COLLECTION,
             name: name,
             payload: options.payload,
             timeout: timeout
         };
         var dao = new pb.DAO();
-        dao.save(lock, function(err, result) {
-            if (util.isError(err)) {
+        dao.save(lock, function (err, result) {
+            if (_.isError(err)) {
                 pb.log.silly('DbLockProvider: Failed to insert lock document: CODE=%s\n%s', err.code, err.stack);
                 //when unique constraint error occurs send no error.  It means
                 //the lock exists
-                return cb(err.code === EXPECTED_ERROR_CODE ? null : err, false);
+                return cb(err.code === DbLockProvider.EXPECTED_ERROR_CODE ? null : err, false);
             }
             cb(null, true);
         });
-    };
+    }
 
     /**
      * Retrieves the payload for the lock
-     * @method get
      * @param {String} name
      * @param {Function} cb
      */
-    DbLockProvider.prototype.get = function(name, cb) {
+    get(name, cb) {
         var dao = new pb.DAO();
-        dao.loadByValue('name', name, LOCK_COLLECTION, function(err, result) {
-            if (util.isObject(result)) {
+        dao.loadByValue('name', name, DbLockProvider.LOCK_COLLECTION, function (err, result) {
+            if (_.isObject(result)) {
                 result = result.payload;
             }
             cb(err, result);
         });
-    };
+    }
 
     /**
      * Releases the lock
-     * @method release
      * @param {String} name
      * @param {Object} [options={}]
      * @param {Function} cb
      */
-    DbLockProvider.prototype.release = function(name, options, cb) {
-        if (util.isFunction(options)) {
+    release(name, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
@@ -118,8 +112,9 @@ module.exports = function(pb) {
             name: name
         };
         var dao = new pb.DAO();
-        dao.delete(where, LOCK_COLLECTION, cb);
-    };
+        dao.delete(where, DbLockProvider.LOCK_COLLECTION, cb);
+    }
+}
 
     return DbLockProvider;
 };

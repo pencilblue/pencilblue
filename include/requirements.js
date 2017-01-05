@@ -69,7 +69,7 @@ module.exports = function PB() {
     //lock services
     pb.locks = {
         providers: {
-            CacheLockProvider: require(path.join(config.docRoot, '/include/service/locks/providers/cache_lock_provider.js'))(pb),
+            CacheLockProvider: require(path.join(config.docRoot, '/include/service/locks/providers/cache_lock_provider.js')),
             DbLockProvider: require(path.join(config.docRoot, '/include/service/locks/providers/db_lock_provider.js'))(pb)
         }
     };

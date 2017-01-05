@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2016  PencilBlue, LLC
+    Copyright (C) 2017  PencilBlue, LLC
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,111 +17,112 @@
 'use strict';
 
 //dependencies
-var util = require('../../util.js');
+var _ = require('lodash');
+var Configuration = require('../../config');
 var path = require('path');
 
 module.exports = function(pb) {
 
     /**
-     *
-     * @class LockService
-     * @constructor
+     * Provides mechanisms for acquiring and managing distributed locks.  When a LockProvider is not provided then it is
+     * loaded based on the configuration
      * @param {LockProvider} [provider]
      */
-    function LockService(provider) {
-        if (util.isNullOrUndefined(provider)) {
-            provider = LockService.loadProvider();
-        }
-        if (!provider) {
-            throw new Error('A valid lock provider is required. Please check your configuration. Set logging level to "silly" for more info');
+    class LockService {
+        constructor(provider) {
+            if (_.isNil(provider)) {
+                provider = LockService.loadProvider();
+            }
+            if (!provider) {
+                throw new Error('A valid lock provider is required. Please check your configuration. Set logging level to "silly" for more info');
+            }
+
+            /**
+             *
+             * @type {LockProvider}
+             */
+            this.provider = provider;
         }
 
         /**
-         *
-         * @property provider
-         * @type {MediaProvider}
+         * Attempts to acquire a semaphore with the given name
+         * @param {String} name
+         * @param {Object} [options={}]
+         * @param {Object} [options.payload]
+         * @param {Integer} [options.timeout]
+         * @param {Function} cb
          */
-        this.provider = provider;
+        acquire (name, options, cb) {
+            if (_.isFunction(options)) {
+                cb = options;
+                options = {};
+            }
+
+            var opts = {
+                timeout: options.timeout || Configuration.activeConfiguration.locks.timeout,
+                payload: options.payload || {
+
+                    server: pb.ServerRegistration.generateServerKey(),
+                    instance: pb.ServerRegistration.generateKey(),
+                    date: new Date()
+                }
+            };
+            this.provider.acquire(name, opts, cb);
+        }
+
+        /**
+         * Retrieves the payload for the lock
+         * @param {String} name
+         * @param {Function} cb
+         */
+        get (name, cb) {
+            this.provider.get(name, cb);
+        }
+
+        /**
+         * Releases the lock
+         * @param {String} name
+         * @param {Object} [options={}]
+         * @param {Function} cb
+         */
+        release (name, options, cb) {
+            this.provider.release(name, options, cb);
+        }
+
+        /**
+         * Inspects the current PB configuration to determine what lock provider to
+         * instantiate and return
+         * @static
+         * @method loadProvider
+         * @return {LockProvider} An instance of a media provider or NULL when no
+         * provider can be loaded.
+         */
+        static loadProvider () {
+            if (Configuration.activeConfiguration.locks.provider === 'cache') {
+                return new pb.locks.providers.CacheLockProvider();
+            }
+            else if (Configuration.activeConfiguration.locks.provider === 'db') {
+                return new pb.locks.providers.DbLockProvider();
+            }
+
+            var instance = null;
+            var paths = [
+                path.join(Configuration.activeConfiguration.docRoot, Configuration.activeConfiguration.locks.provider),
+                Configuration.activeConfiguration.locks.provider
+            ];
+            for (var i = 0; i < paths.length; i++) {
+                try {
+                    var ProviderType = require(paths[i])(pb);
+                    instance = new ProviderType();
+                    break;
+                }
+                catch (e) {
+                    pb.log.silly(e.stack);
+                }
+            }
+            return instance;
+        }
     }
-
-    /**
-     * Attempts to acquire a semaphore with the given name
-     * @method acquire
-     * @param {String} name
-     * @param {Object} [options={}]
-     * @param {Object} [options.payload]
-     * @param {Integer} [options.timeout]
-     * @param {Function} cb
-     */
-    LockService.prototype.acquire = function(name, options, cb) {
-        if (util.isFunction(options)) {
-            cb = options;
-            options = {};
-        }
-
-        var opts = {
-            timeout: options.timeout || pb.config.locks.timeout,
-            payload: options.payload || {
-
-                server: pb.ServerRegistration.generateServerKey(),
-                instance: pb.ServerRegistration.generateKey(),
-                date: new Date()
-            }
-        };
-        this.provider.acquire(name, opts, cb);
-    };
-
-    /**
-     * Retrieves the payload for the lock
-     * @method get
-     * @param {String} name
-     * @param {Function} cb
-     */
-    LockService.prototype.get = function(name, cb) {
-        this.provider.get(name, cb);
-    };
-
-    /**
-     * Releases the lock
-     * @method release
-     * @param {String} name
-     * @param {Object} [options={}]
-     * @param {Function} cb
-     */
-    LockService.prototype.release = function(name, options, cb) {
-        this.provider.release(name, options, cb);
-    };
-
-    /**
-     * Inspects the current PB configuration to determine what lock provider to
-     * instantiate and return
-     * @static
-     * @method loadProvider
-     * @return {LockProvider} An instance of a media provider or NULL when no
-     * provider can be loaded.
-     */
-    LockService.loadProvider = function() {
-        if (pb.config.locks.provider === 'cache') {
-            return new pb.locks.providers.CacheLockProvider();
-        }
-        else if (pb.config.locks.provider === 'db') {
-            return new pb.locks.providers.DbLockProvider();
-        }
-
-        var instance = null;
-        var paths = [path.join(pb.config.docRoot, pb.config.locks.provider), pb.config.locks.provider];
-        for(var i = 0; i < paths.length; i++) {
-            try{
-                var ProviderType = require(paths[i])(pb);
-                instance = new ProviderType();
-                break;
-            }
-            catch(e){
-                pb.log.silly(e.stack);
-            }
-        }
-        return instance;
-    };
 
     return LockService;
 };

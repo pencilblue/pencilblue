@@ -17,49 +17,43 @@
 'use strict';
 
 //dependencies
-var util = require('../../util.js');
+var CacheFactory = require('../../dao/cache');
+var DateUtils = require('../../../lib/utils/dateUtils');
+var log = require('../../utils/logging').newInstance('RedisSesionStore');
+var Q = require('q');
 
 /**
- * @module Session
+ * Session storage backed by Redis
+ *
+ * @class RedisSessionStore
+ * @constructor
  */
-module.exports = function RedisSessionStoreModule(pb) {
-
-    /**
-     * Session storage backed by Redis
-     *
-     * @class RedisSessionStore
-     * @constructor
-     */
-    function RedisSessionStore(){}
+class RedisSessionStore {
 
     /**
      * The prefix to prepend to the session ID in order to construct a cache key
-     * @static
      * @readonly
-     * @property SESSION_KEY_PREFIX
      * @type {String}
      */
-    RedisSessionStore.SESSION_KEY_PREFIX = 'user-session-';
+    static get SESSION_KEY_PREFIX() {
+        return 'user-session-';
+    }
 
     /**
-     * Responsable for retrieving the session for persistent storage.
-     *
-     * @method get
+     * Responsible for retrieving the session for persistent storage.
      * @param {String} sessionId The identifier of the session to retrieve.
      * @param {Function} cb Callback of form cb(err, [Object])
      */
-    RedisSessionStore.prototype.get = function(sessionId, cb){
+    get (sessionId, cb) {
 
         var sid = RedisSessionStore.getSessionKey(sessionId);
-        pb.cache.get(sid, function(err, result){
+        CacheFactory.getInstance().get(sid, function (err, result) {
             cb(err, result ? JSON.parse(result) : null);
         });
-    };
+    }
 
     /**
      * Responsable for persisting the session object between user requests
-     *
-     * @method set
      * @param {Object} session The session object to store.  The session object must contain
      * the following in addition to other data:
      * <pre>
@@ -69,60 +63,54 @@ module.exports = function RedisSessionStoreModule(pb) {
      * </pre>
      * @param {Function} cb Callback of form cb(err, 'OK')
      */
-    RedisSessionStore.prototype.set = function(session, cb){
-        var sid  = RedisSessionStore.getSessionKey(session.uid);
+    set (session, cb) {
+        var sid = RedisSessionStore.getSessionKey(session.uid);
         var json = JSON.stringify(session);
 
         //in seconds
         var millisFromNow = session.timeout - new Date().getTime();
-        var timeout       = Math.floor(millisFromNow / util.TIME.MILLIS_PER_SEC);
-        pb.cache.setex(sid, timeout, json, cb);
-    };
+        var timeout = Math.floor(millisFromNow / DateUtils.MILLIS_PER_SEC);
+        CacheFactory.getInstance().setex(sid, timeout, json, cb);
+    }
 
     /**
      * Deletes a session if it exists.
-     *
-     * @method clear
      * @param {String} sessionId
      * @param {Function} cb Callback of form cb(err, [int SESSIONS_CLEARED])
      */
-    RedisSessionStore.prototype.clear = function(sessionId, cb){
+    clear (sessionId, cb) {
         var sid = RedisSessionStore.getSessionKey(sessionId);
-        pb.cache.del(sid, cb);
-    };
+        CacheFactory.getInstance().del(sid, cb);
+    }
 
     /**
      * Repsonsible for ensuring that the mechanism that expires sessions becomes
      * active.
-     * @method start
      * @param {Function} cb
      */
-    RedisSessionStore.prototype.start = function(cb){
-        pb.log.debug("RedisSessionStore: Initialized");
+    start (cb) {
+        log.debug('RedisSessionStore: Initialized');
         cb(null, true);
-    };
+    }
 
     /**
      * Responsable for shutting down the session store and any resources used for
      * reaping expired sessions.
-     * @method shutdown
      * @param {Function} cb
      */
-    RedisSessionStore.prototype.shutdown = function(cb){
-        pb.log.debug("RedisSessionStore: Shutting down...");
-        cb(null, true);
-    };
+    shutdown () {
+        log.debug('RedisSessionStore: Shutting down...');
+        return Q.resolve(true);
+    }
 
     /**
      * Constructs a session cache key provided a session id.
-     * @static
-     * @method getSessionKey
      * @param {String} sessionId
      * @return {String} [RedisSessionStore.SESSION_KEY_PREFIX][sessionId]
      */
-    RedisSessionStore.getSessionKey = function(sessionId){
+    static getSessionKey (sessionId) {
         return RedisSessionStore.SESSION_KEY_PREFIX + sessionId;
-    };
+    }
+}
 
-    return RedisSessionStore;
-};
+module.exports = RedisSessionStore;

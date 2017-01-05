@@ -17,82 +17,83 @@
 'use strict';
 
 //dependencies
-var util = require('../../../util.js');
+var _ = require('lodash');
+var cache = require('../../../dao/cache').getInstance();
+var log = require('../../../utils/logging').newInstance('CacheLockProvider');
+var PromiseUtils = require('../../../../lib/utils/promiseUtils');
+var Q = require('q');
 
-module.exports = function(pb) {
-
-    /**
-     * A lock provider that leverages the cache to create semaphores
-     * @class CacheLockProvider
-     * @constructor
-     */
-    function CacheLockProvider() {}
+/**
+ * A lock provider that leverages the cache to create semaphores
+ */
+class CacheLockProvider {
 
     /**
      * Attempts to acquire the lock with the given name.
-     * @method acquire
      * @param {String} name
      * @param {Object} [options={}]
      * @param {Object} [options.payload]
      * @param {Integer} [options.timeout]
-     * @param {Function} cb
+     * @return {Promise}
      */
-    CacheLockProvider.prototype.acquire = function(name, options, cb) {
-        if (util.isFunction(options)) {
-            cb = options;
-            options = {};
-        }
+    acquire (name, options) {
+        options = options || {};
 
         //try and acquire the lock
-        pb.cache.setnx(name, JSON.stringify(options.payload), function(err, reply) {
-            if (util.isError(err) || !reply) {
-                return cb(err, false);
+        var deferred = Q.defer();
+        cache.setnx(name, JSON.stringify(options.payload), function (err, reply) {
+            if (_.isError(err)) {
+                return deferred.reject(err);
+            }
+            if (!reply) {
+                return deferred.resolve(false);
             }
 
-            //lock was created not ensure it will expire
-            pb.cache.expire(name, options.timeout /*sec*/, function(err, result) {
-                cb(err, result ? true : false);
-            });
+            //lock was created now ensure it will expire
+            cache.expire(name, options.timeout /*sec*/, PromiseUtils.cbHandler(deferred));
         });
-    };
+        return deferred.promise;
+    }
 
     /**
      * Retrieves the payload for the lock
-     * @method get
      * @param {String} name
-     * @param {Function} cb
+     * @return {Promise}
      */
-    CacheLockProvider.prototype.get = function(name, cb) {
-        pb.cache.get(name, function(err, result) {
+    get (name) {
+        var deferred = Q.defer();
+        cache.get(name, function (err, result) {
+            if (_.isError(err)) {
+                return deferred.reject(err);
+            }
             if (result) {
-                try{
+                try {
                     result = JSON.parse(result);
                 }
-                catch(e) {
-                    pb.log.silly('CacheLockProvider: Failed to parse lock payload. ', e.stack);
+                catch (e) {
+                    log.silly('CacheLockProvider: Failed to parse lock payload. ', e.stack);
                 }
             }
-            cb(err, result);
+            deferred.resolve(result);
         });
-    };
+        return deferred.promise;
+    }
 
     /**
      * Releases the lock
-     * @method release
      * @param {String} name
      * @param {Object} [options={}]
-     * @param {Function} cb
+     * @return {Promise}
      */
-    CacheLockProvider.prototype.release = function(name, options, cb) {
-        if (util.isFunction(options)) {
-            cb = options;
-            options = {};
-        }
+    release (name, options) {
+        options = options || {};
 
-        pb.cache.del(name, function(err, result) {
-            cb(err, result ? true : false);
-        });
-    };
+        var deferred = Q.defer();
+        cache.del(name, PromiseUtils(deferred, function (result) {
+            return !!result;
+        }));
+        return deferred;
+    }
+}
 
-    return CacheLockProvider;
-};
+module.exports = CacheLockProvider;
