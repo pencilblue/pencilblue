@@ -20,6 +20,8 @@
 var _ = require('lodash');
 var async = require('async');
 var Configuration = require('../../config');
+var DAO = require('../../dao/dao');
+var Localization = require('../../localization');
 var log = require('../../utils/logging').newInstance('SiteService');
 var RegExpUtils = require('../../utils/reg_exp_utils');
 var url = require('url');
@@ -43,7 +45,7 @@ module.exports = function (pb) {
             super(context);
 
             //override DAO with non-site specific DAO
-            this.dao = new pb.DAO();
+            this.dao = new DAO();
         }
 
         /**
@@ -106,15 +108,15 @@ module.exports = function (pb) {
         getByUid(uid, cb) {
             if (!uid || uid === SiteService.GLOBAL_SITE) {
                 cb(null, {
-                    displayName: Configuration.activeConfiguration.siteName,
-                    hostname: Configuration.activeConfiguration.siteRoot,
+                    displayName: Configuration.active.siteName,
+                    hostname: Configuration.active.siteRoot,
                     uid: SiteService.GLOBAL_SITE,
-                    defaultLocale: pb.Localization.defaultLocale,
+                    defaultLocale: Localization.getDefaultLocale(),
                     supportedLocales: {}
                 });
             }
             else {
-                var dao = new pb.DAO();
+                var dao = new DAO();
                 var where = {uid: uid};
                 dao.loadByValues(where, SiteService.SITE_COLLECTION, cb);
             }
@@ -126,8 +128,8 @@ module.exports = function (pb) {
          * @param {Function} cb - the callback function
          */
         getAllSites(cb) {
-            var dao = new pb.DAO();
-            dao.q(SiteService.SITE_COLLECTION, {select: pb.DAO.PROJECT_ALL, where: {}}, cb);
+            var dao = new DAO();
+            dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {}}, cb);
         }
 
         /**
@@ -136,8 +138,8 @@ module.exports = function (pb) {
          * @param {Function} cb - the callback function
          */
         getActiveSites(cb) {
-            var dao = new pb.DAO();
-            dao.q(SiteService.SITE_COLLECTION, {select: pb.DAO.PROJECT_ALL, where: {active: true}}, cb);
+            var dao = new DAO();
+            dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {active: true}}, cb);
         }
 
         /**
@@ -146,7 +148,7 @@ module.exports = function (pb) {
          * @param {Function} cb - the callback function
          */
         getInactiveSites(cb) {
-            var dao = new pb.DAO();
+            var dao = new DAO();
             dao.q(SiteService.SITE_COLLECTION, {where: {active: false}}, cb);
         }
 
@@ -176,8 +178,8 @@ module.exports = function (pb) {
          * @param {Function} cb - the callback function
          */
         getSiteNameByUid(uid, cb) {
-            var dao = new pb.DAO();
-            dao.q(SiteService.SITE_COLLECTION, {select: pb.DAO.PROJECT_ALL, where: {uid: uid}}, function (err, result) {
+            var dao = new DAO();
+            dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {uid: uid}}, function (err, result) {
                 var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
 
                 if (_.isError(err)) {
@@ -229,11 +231,11 @@ module.exports = function (pb) {
 
             var getWhere = function (where) {
                 if (id) {
-                    where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(id);
+                    where[DAO.getIdField()] = DAO.getNotIdField(id);
                 }
                 return where;
             };
-            var dao = new pb.DAO();
+            var dao = new DAO();
             var tasks = {
                 displayName: function (callback) {
                     var exp = RegExpUtils.getCaseInsensitiveExact(displayName);
@@ -256,7 +258,7 @@ module.exports = function (pb) {
         activateSite(siteUid, cb) {
 
             var name = util.format("ACTIVATE_SITE_%s", siteUid);
-            var job = new pb.SiteActivateJob();
+            var job = new pb.SiteActivateJob({ siteService: this });
             job.setRunAsInitiator(true);
             job.init(name);
             job.setSite({uid: siteUid});
@@ -323,7 +325,7 @@ module.exports = function (pb) {
          * @param {Function} cb - callback function
          */
         startAcceptingSiteTraffic(siteUid, cb) {
-            var dao = new pb.DAO();
+            var dao = new DAO();
             dao.loadByValue('uid', siteUid, 'site', function (err, site) {
                 if (_.isError(err)) {
                     cb(err, null);
@@ -348,7 +350,7 @@ module.exports = function (pb) {
          * @param {Function} cb - callback function
          */
         stopAcceptingSiteTraffic(siteUid, cb) {
-            var dao = new pb.DAO();
+            var dao = new DAO();
             dao.loadByValue('uid', siteUid, 'site', function (err, site) {
                 if (_.isError(err)) {
                     cb(err, null);
@@ -372,7 +374,7 @@ module.exports = function (pb) {
          * @param {Function} cb
          */
         initSites(cb) {
-            var config = Configuration.activeConfiguration;
+            var config = Configuration.active;
             if (config.multisite.enabled && !config.multisite.globalRoot) {
                 return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
             }
@@ -560,7 +562,7 @@ module.exports = function (pb) {
         static getHostWithProtocol (hostname) {
             hostname = hostname.match(/^http/g) ? hostname : '//' + hostname;
             var urlObject = url.parse(hostname, false, true);
-            urlObject.protocol = Configuration.activeConfiguration.server.ssl.enabled ? 'https' : 'http';
+            urlObject.protocol = Configuration.active.server.ssl.enabled ? 'https' : 'http';
             return url.format(urlObject).replace(/\/$/, '');
         }
 
@@ -572,7 +574,7 @@ module.exports = function (pb) {
         deleteSiteSpecificContent (siteId, cb) {
             var siteQueryService = new pb.SiteQueryService();
             siteQueryService.getCollections(function (err, allCollections) {
-                var dao = new pb.DAO();
+                var dao = new DAO();
 
                 var tasks = allCollections.map(function (collection) {
                     return function (taskCallback) {
@@ -603,7 +605,7 @@ module.exports = function (pb) {
          * @return {Object}
          */
         static getGlobalSiteContext () {
-            var config = Configuration.activeConfiguration;
+            var config = Configuration.active;
 
             var supportedLocales = pb.Localization.getSupported().reduce(function (map, supportedLocale) {
                 map[supportedLocale] = true;

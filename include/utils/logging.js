@@ -54,7 +54,7 @@ class LogFactory {
     static newInstance (label, options) {
 
         //ensure we have defaults
-        options = options || Configuration.activeConfiguration.logging;
+        options = options || Configuration.active.logging;
         options.level = options.level || 'info';
 
         if (!Array.isArray(options.transports)) {

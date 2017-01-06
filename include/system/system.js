@@ -24,7 +24,7 @@ var cluster = require('cluster');
 var async   = require('async');
 var domain  = require('domain');
 var log = require('../utils/logging').newInstance('System');
-var config = require('../config').activeConfiguration;
+var config = require('../config').active;
 
 
 /**

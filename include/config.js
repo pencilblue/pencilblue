@@ -96,7 +96,7 @@ class Configuration {
      * Retrieves the active configuration for the process.  Null if the configuration has not yet been set.
      * @returns {object}
      */
-    static get activeConfiguration () {
+    static get active () {
         return activeConfiguration || (activeConfiguration = Configuration.load());
     }
 

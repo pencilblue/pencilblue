@@ -196,9 +196,9 @@ class PencilBlue {
 
         //setup database connection to core database
         this.pb.dbm.init();
-        return this.pb.dbm.getDb(Configuration.activeConfiguration.db.name).then(function(result){
+        return this.pb.dbm.getDb(Configuration.active.db.name).then(function(result){
             if (!result.databaseName) {
-                return Q.reject(new Error('Failed to establish a connection to: ' + Configuration.activeConfiguration.db.name), false);
+                return Q.reject(new Error('Failed to establish a connection to: ' + Configuration.active.db.name), false);
             }
 
             self.log.debug('PencilBlue: Established connection to DB: %s', result.databaseName);
@@ -214,7 +214,7 @@ class PencilBlue {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     initDBIndices (cb) {
-        var config = Configuration.activeConfiguration;
+        var config = Configuration.active;
         if (config.db.skip_index_check || !Array.isArray(config.db.indices)) {
             this.log.info('Skipping indices check');
             return cb(null, true);
@@ -252,7 +252,7 @@ class PencilBlue {
                 self.onHttpConnectForHandoff(req, res);
             }
         };
-        var Initializer = Configuration.activeConfiguration.config.server.initializer || ServerInitializer;
+        var Initializer = Configuration.active.config.server.initializer || ServerInitializer;
         var initializer = new Initializer(this.pb);
         initializer.init(context, function(err, servers) {
             if (_.isError(err)) {
@@ -287,7 +287,7 @@ class PencilBlue {
         //check to see if we should inspect the x-forwarded-proto header for SSL
         //load balancers use this for SSL termination relieving the stress of SSL
         //computation on more powerful load balancers.
-        if (Configuration.activeConfiguration.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
+        if (Configuration.active.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
             return this.onHttpConnectForHandoff(req, res);
         }
 
@@ -310,7 +310,7 @@ class PencilBlue {
             }
         }
 
-        var config = Configuration.activeConfiguration;
+        var config = Configuration.active;
         if (config.server.ssl.use_handoff_port_in_redirect) {
             host += ':' + config.sitePort;
         }

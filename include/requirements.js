@@ -28,7 +28,7 @@ var Configuration = require('./config');
  * @return {Object} The pb namespace
  */
 module.exports = function PB() {
-    var config = Configuration.activeConfiguration;
+    var config = Configuration.active;
     //define what will become the global entry point into the server api.
     var pb = {
 

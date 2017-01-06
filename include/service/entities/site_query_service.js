@@ -17,13 +17,15 @@
 
 //dependencies
 var _ = require('lodash');
+var Configuration = require('../../config');
+var DAO = require('./../../dao/dao.js');
+var log = require('../../utils/logging').newInstance('SiteQueryService');
 
 module.exports = function SiteQueryServiceModule(pb) {
     "use strict";
 
     //pb dependencies
     var util = pb.util;
-    var DAO = pb.DAO;
 
     /**
      * @private
@@ -54,29 +56,78 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @param {String} [options.site=GLOBAL_SITE] UID of site, should already be sanitized by SiteService
    * @param {Boolean} [options.onlyThisSite=false] onlyThisSite for q, return results specific to this site instead of also looking in global
    */
-    function SiteQueryService(options) {
-        if(!util.isObject(options)) {
-            options = {
-                site: GLOBAL_SITE,
-                onlyThisSite: false
-            };
-        }
+    class SiteQueryService extends DAO {
+      constructor(options) {
+          if (!_.isObject(options)) {
+              options = {
+                  site: GLOBAL_SITE,
+                  onlyThisSite: false
+              };
+          }
 
-        /**
-         * @property siteUid
-         * @type {String}
-         */
-        this.siteUid = options.site;
+          /**
+           * @property siteUid
+           * @type {String}
+           */
+          this.siteUid = options.site;
 
-        /**
-         * @property onlyThisSite
-         * @type {Boolean}
-         */
-        this.onlyThisSite = options.onlyThisSite;
+          /**
+           * @property onlyThisSite
+           * @type {Boolean}
+           */
+          this.onlyThisSite = options.onlyThisSite;
 
-        DAO.call(this);
-    }
-    util.inherits(SiteQueryService, DAO);
+          super();
+      }
+
+      /**
+       * Overriding protected method of DAO to achieve site-aware query
+       * @override
+       * @protected
+       * @method _doQuery
+       * @param {Object} options
+       * @param {Function} callback
+       */
+      _doQuery(options, callback) {
+          var self = this;
+          applySiteOperation(self, callback, function (site, opCallback) {
+              var moddedOptions = modifyLoadOptions(site, options);
+              DAO.prototype._doQuery.call(self, moddedOptions, opCallback);
+          });
+      }
+
+      /**
+       * Wrapper for site-aware DAO.save.  Saves object to database
+       * @method save
+       * @param {Object} dbObj
+       * @param {Object} [options]
+       * @param {Function} callback
+       */
+      save(dbObj, options, callback) {
+          dbObj = modifySave(this.siteUid, dbObj);
+          DAO.prototype.save.call(this, dbObj, options, callback);
+      }
+
+      /**
+       * Gets all collection names
+       * @method getCollections
+       * @param {Function} cb
+       */
+      getCollections(cb) {
+          this.listCollections({}, function (err, items) {
+              if (_.isError(err)) {
+                  log.error(err);
+                  return cb(err);
+              }
+
+              items = items.filter(function (item) {
+                  return item.name.indexOf('system.indexes') === -1 && item.name.indexOf('system.namespaces') === -1;
+              });
+
+              cb(err, items);
+          });
+      }
+  }
 
     /**
      * @private
@@ -87,7 +138,7 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @return {Object}
      */
   function modifyLoadWhere(site, where) {
-    if (pb.config.multisite.enabled) {
+    if (Configuration.active.multisite.enabled) {
       where = _.clone(where);
       if (site === GLOBAL_SITE) {
         var siteDoesNotExist = {}, siteEqualToSpecified = {};
@@ -112,7 +163,7 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @return {Object}
      */
   function modifyLoadOptions(site, options) {
-    if (pb.config.multisite.enabled) {
+    if (Configuration.active.multisite.enabled) {
       var target = _.clone(options);
 
       target.where = target.where || {};
@@ -172,12 +223,12 @@ module.exports = function SiteQueryServiceModule(pb) {
         }
 
         delegate(self.siteUid, function (err, cursor) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return callback(err, cursor);
             }
 
             cursor.count(function (countError, count) {
-                if (util.isError(countError)) {
+                if (_.isError(countError)) {
                     callback(countError);
                 }
                 else if (count) {
@@ -218,60 +269,12 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @return {Object} The object to save
      */
     function modifySave(site, objectToSave) {
-        if (pb.config.multisite.enabled && !(SITE_FIELD in objectToSave)) {
+        if (Configuration.active.multisite.enabled && !(SITE_FIELD in objectToSave)) {
             objectToSave[SITE_FIELD] = site;
         }
         // else do nothing
         return objectToSave;
     }
-
-  /**
-   * Overriding protected method of DAO to achieve site-aware query
-   * @override
-   * @protected
-   * @method _doQuery
-   * @param {Object} options
-   * @param {Function} callback
-   */
-  SiteQueryService.prototype._doQuery = function (options, callback) {
-    var self = this;
-    applySiteOperation(self, callback, function (site, opCallback) {
-      var moddedOptions = modifyLoadOptions(site, options);
-      DAO.prototype._doQuery.call(self, moddedOptions, opCallback);
-    });
-  };
-
-  /**
-   * Wrapper for site-aware DAO.save.  Saves object to database
-   * @method save
-   * @param {Object} dbObj
-   * @param {Object} [options]
-   * @param {Function} callback
-   */
-  SiteQueryService.prototype.save = function (dbObj, options, callback) {
-    dbObj = modifySave(this.siteUid, dbObj);
-    DAO.prototype.save.call(this, dbObj, options, callback);
-  };
-
-  /**
-   * Gets all collection names
-   * @method getCollections
-   * @param {Function} cb
-   */
-  SiteQueryService.prototype.getCollections = function (cb) {
-    this.listCollections({}, function(err, items) {
-      if(pb.util.isError(err)) {
-        pb.log.error(err);
-        return cb(err);
-      }
-
-      items = items.filter(function(item) {
-        return item.name.indexOf('system.indexes') === -1 && item.name.indexOf('system.namespaces') === -1;
-      });
-
-      cb(err, items);
-    });
-  };
-
+    
   return SiteQueryService;
 };

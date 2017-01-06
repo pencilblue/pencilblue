@@ -47,7 +47,7 @@ module.exports = function SessionModule(pb) {//TODO [1.0] make consistent with .
          * @type {String}
          */
         static get HANDLER_PATH() {
-            return path.join(Configuration.activeConfiguration.docRoot, 'include', 'session', 'storage', path.sep);
+            return path.join(Configuration.active.docRoot, 'include', 'session', 'storage', path.sep);
         }
 
         /**
@@ -154,7 +154,7 @@ module.exports = function SessionModule(pb) {//TODO [1.0] make consistent with .
             }
 
             //update timeout
-            session[SessionHandler.TIMEOUT_KEY] = new Date().getTime() + Configuration.activeConfiguration.session.timeout;
+            session[SessionHandler.TIMEOUT_KEY] = new Date().getTime() + Configuration.active.session.timeout;
 
             //last active request using this session, persist it back to storage
             if (session.end) {
@@ -227,8 +227,8 @@ module.exports = function SessionModule(pb) {//TODO [1.0] make consistent with .
          */
         static getSessionStore() {
             var possibleStores = [
-                SessionHandler.HANDLER_PATH + Configuration.activeConfiguration.session.storage + SessionHandler.HANDLER_SUFFIX,
-                Configuration.activeConfiguration.session.storage
+                SessionHandler.HANDLER_PATH + Configuration.active.session.storage + SessionHandler.HANDLER_SUFFIX,
+                Configuration.active.session.storage
             ];
 
             var SessionStoreModule = null;

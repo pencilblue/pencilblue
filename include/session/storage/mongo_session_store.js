@@ -124,7 +124,7 @@ module.exports = function MongoSessionStoreModule(pb) {
             var self = this;
 
             //prepare index values
-            var expiry = Math.floor(Configuration.activeConfiguration.session.timeout / DateUtils.MILLIS_PER_SEC);
+            var expiry = Math.floor(Configuration.active.session.timeout / DateUtils.MILLIS_PER_SEC);
             var procedure = {
                 collection: SESSION_COLLECTION_NAME,
                 spec: {timeout: 1},

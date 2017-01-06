@@ -39,7 +39,7 @@ class DAO {
          * @property dbName
          * @type {String}
          */
-        this.dbName = dbName || Configuration.activeConfiguration.db.name;
+        this.dbName = dbName || Configuration.active.db.name;
     }
 
     /**
@@ -329,7 +329,7 @@ class DAO {
             }
 
             //log the result
-            if (Configuration.activeConfiguration.db.query_logging) {
+            if (Configuration.active.db.query_logging) {
                 var query = "%s %j FROM %s.%s WHERE %s";
                 var args = [options.count ? 'COUNT' : 'SELECT', select, self.dbName, entityType, util.inspect(where, {breakLength: Infinity})];
                 if (typeof orderBy !== 'undefined') {
@@ -381,7 +381,7 @@ class DAO {
         DAO.updateChangeHistory(dbObj);
 
         //log interaction
-        if (Configuration.activeConfiguration.db.query_logging) {
+        if (Configuration.active.db.query_logging) {
             var msg;
             if (dbObj._id) {
                 msg = util.format('UPDATE %s WHERE ID=%s', dbObj.object_type, dbObj._id);
@@ -472,7 +472,7 @@ class DAO {
             options = {};
         }
 
-        if (Configuration.activeConfiguration.db.query_logging) {
+        if (Configuration.active.db.query_logging) {
             log.info('UPDATE %s.%s %s WHERE %s WITH OPTIONS %s', this.dbName, collection, JSON.stringify(updates), JSON.stringify(query), JSON.stringify(options));
         }
         this.getDb(function (err, db) {
@@ -530,7 +530,7 @@ class DAO {
         }
 
         //log interaction
-        if (Configuration.activeConfiguration.db.query_logging) {
+        if (Configuration.active.db.query_logging) {
             log.info('DELETE FROM %s.%s WHERE %s', this.dbName, collection, JSON.stringify(where));
         }
 

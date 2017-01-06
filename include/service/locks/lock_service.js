@@ -60,7 +60,7 @@ module.exports = function(pb) {
             }
 
             var opts = {
-                timeout: options.timeout || Configuration.activeConfiguration.locks.timeout,
+                timeout: options.timeout || Configuration.active.locks.timeout,
                 payload: options.payload || {
 
                     server: pb.ServerRegistration.generateServerKey(),
@@ -99,17 +99,17 @@ module.exports = function(pb) {
          * provider can be loaded.
          */
         static loadProvider () {
-            if (Configuration.activeConfiguration.locks.provider === 'cache') {
+            if (Configuration.active.locks.provider === 'cache') {
                 return new pb.locks.providers.CacheLockProvider();
             }
-            else if (Configuration.activeConfiguration.locks.provider === 'db') {
+            else if (Configuration.active.locks.provider === 'db') {
                 return new pb.locks.providers.DbLockProvider();
             }
 
             var instance = null;
             var paths = [
-                path.join(Configuration.activeConfiguration.docRoot, Configuration.activeConfiguration.locks.provider),
-                Configuration.activeConfiguration.locks.provider
+                path.join(Configuration.active.docRoot, Configuration.active.locks.provider),
+                Configuration.active.locks.provider
             ];
             for (var i = 0; i < paths.length; i++) {
                 try {

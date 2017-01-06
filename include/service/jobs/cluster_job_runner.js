@@ -17,30 +17,27 @@
 'use strict';
 
 //dependencies
-var util = require('../../util.js');
+var _ = require('lodash');
+var AsyncJobRunner = require('./async_job_runner');
+var CommandService = require('../../system/command/command_service');
 
-module.exports = function ClusterJobRunnerModule(pb) {
+/**
+ * Abstract prototype used to run a job against an entire cluster by running in
+ * one of two modes:  initiator and worker.
+ * @extends AsyncJobRunner
+ */
+class ClusterJobRunner extends AsyncJobRunner {
+    constructor () {
+        super();
 
-    /**
-     * Abstract prototype used to run a job against an entire cluster by running in
-     * one of two modes:  initiator and worker.
-     * @class ClusterJobRunner
-     * @constructor
-     * @extends AsyncJobRunner
-     */
-    function ClusterJobRunner(){
-        ClusterJobRunner.super_.call(this);
+        /**
+         * Indicates if the job is to run as the initiator or a worker.  When TRUE, the
+         * job sends commands to all processes in the cluster to perform the
+         * job.  When FALSE, the actual job is performed.
+         * @type {Boolean}
+         */
+        this.isInitiator = true;
     }
-    util.inherits(ClusterJobRunner, pb.AsyncJobRunner);
-
-    /**
-     * Indicates if the job is to run as the initiator or a worker.  When TRUE, the
-     * job sends commands to all processes in the cluster to perform the
-     * job.  When FALSE, the actual job is performed.
-     * @property isInitiator
-     * @type {Boolean}
-     */
-    ClusterJobRunner.prototype.isInitiator = true;
 
     /**
      * Indicates if the job is to run as the initiator or a worker.  When TRUE, the
@@ -50,10 +47,10 @@ module.exports = function ClusterJobRunnerModule(pb) {
      * @param {Boolean} isInitiator
      * @return {ClusterJobRunner} This instance
      */
-    ClusterJobRunner.prototype.setRunAsInitiator = function(isInitiator) {
+    setRunAsInitiator (isInitiator) {
         this.isInitiator = isInitiator ? true : false;
         return this;
-    };
+    }
 
     /**
      * Retrieves the tasks to be executed by this job.  The tasks provided to the
@@ -62,14 +59,14 @@ module.exports = function ClusterJobRunnerModule(pb) {
      * @method getTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    ClusterJobRunner.prototype.getTasks = function(cb) {
+    getTasks (cb) {
         if (this.isInitiator) {
             this.getInitiatorTasks(cb);
         }
         else {
             this.getWorkerTasks(cb);
         }
-    };
+    }
 
     /**
      * Retrieves the tasks needed to contact each process in the cluster to
@@ -77,18 +74,18 @@ module.exports = function ClusterJobRunnerModule(pb) {
      * @method getInitiatorTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    ClusterJobRunner.prototype.getInitiatorTasks = function(cb) {
+    getInitiatorTasks (cb) {
         throw new Error('ClusterJobRunner.getInitiatorTasks must be overriden by the extending implementation');
-    };
+    }
 
     /**
      * Retrieves the tasks needed to perform the job on this process.
      * @method getWorkerTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    ClusterJobRunner.prototype.getWorkerTasks = function(cb) {
+    getWorkerTasks (cb) {
         throw new Error('ClusterJobRunner.getWorkerTasks must be overriden by the extending implementation');
-    };
+    }
 
     /**
      * Called when the job has completed its assigned set of tasks.  The function
@@ -103,10 +100,11 @@ module.exports = function ClusterJobRunnerModule(pb) {
      * isInitiator property.  See processClusterResults and processWorkerResults
      * for more details.
      */
-    ClusterJobRunner.prototype.processResults = function(err, results, cb) {
+    processResults (err, results, cb) {
         //create function to handle cleanup and cb
         var self = this;
-        var finishUp = function(err, result) {
+        var finishUp = function (err, result)
+        {
 
             //only set done if we were the process that organized this job.
             //The second condition ensures we aren't a sub-job
@@ -117,7 +115,7 @@ module.exports = function ClusterJobRunnerModule(pb) {
         };
 
         //handle any error
-        if (util.isError(err)) {
+        if (_.isError(err)) {
             return finishUp(err, results);
         }
 
@@ -128,7 +126,7 @@ module.exports = function ClusterJobRunnerModule(pb) {
         else {
             this.processWorkerResults(err, results, finishUp);
         }
-    };
+    }
 
     /**
      * Called when the tasks have completed execution and isInitiator = FALSE.  The
@@ -143,9 +141,9 @@ module.exports = function ClusterJobRunnerModule(pb) {
      * any error that occurred (if exists) and the second is an object that encloses
      * the properties that describe the job as well as the raw results.
      */
-    ClusterJobRunner.prototype.processClusterResults = function(err, results, cb) {
+    processClusterResults (err, results, cb) {
         throw new Error('ClusterJobRunner.processClusterResults must be overriden by the extending implementation');
-    };
+    }
 
     /**
      * Called when the tasks have completed execution and isInitiator = FALSE. The
@@ -157,9 +155,9 @@ module.exports = function ClusterJobRunnerModule(pb) {
      * any error that occurred (if exists) and the second is an array of Boolean
      * values that indicate the success or failure of each task.
      */
-    ClusterJobRunner.prototype.processWorkerResults = function(err, results, cb) {
+    processWorkerResults (err, results, cb) {
         cb(err, results);
-    };
+    }
 
     /**
      * Called before the start of task execution.  When the property isInitiator =
@@ -172,12 +170,12 @@ module.exports = function ClusterJobRunnerModule(pb) {
      * function successfully completed any pre-requsite operations before task
      * execution begins.
      */
-    ClusterJobRunner.prototype.onBeforeFirstTask = function(cb) {
+    onBeforeFirstTask (cb) {
         if (this.isInitiator && this.getChunkOfWorkPercentage() === 1) {
             this.onStart();
         }
         cb(null, true);
-    };
+    }
 
     /**
      * Creates a simple task that sends a command to the entire cluster then waits
@@ -188,10 +186,10 @@ module.exports = function ClusterJobRunnerModule(pb) {
      * @param {String} type The command type
      * @param {Object} command The command to broadcast to the cluster.
      */
-    ClusterJobRunner.prototype.createCommandTask = function(type, command) {
-        return function(callback) {
-            pb.CommandService.getInstance().sendCommandToAllGetResponses(type, command, function(err, results) {
-                if (util.isError(err)) {
+    createCommandTask (type, command) {
+        return function (callback) {
+            CommandService.getInstance().sendCommandToAllGetResponses(type, command, function (err, results) {
+                if (_.isError(err)) {
                     callback(err);
                     return;
                 }
@@ -200,15 +198,15 @@ module.exports = function ClusterJobRunnerModule(pb) {
                 for (var i = 0; i < results.length; i++) {
 
                     if (results[i].err) {
-                        callback(new Error('A failure occurred while performing tasks across remote processes.  Check the job log for more details: '+results[i].err));
+                        callback(new Error('A failure occurred while performing tasks across remote processes.  Check the job log for more details: ' + results[i].err));
                         return;
                     }
                 }
                 callback(null, true);
             });
         };
-    };
-
-    //exports
-    return ClusterJobRunner;
-};
+    }
+}
+    
+//exports
+module.exports = ClusterJobRunner;

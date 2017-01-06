@@ -16,26 +16,25 @@
 */
 'use strict';
 
-module.exports = function ErrorsOverTimeModule(/*pb*/) {
-
-    /**
-     * Wraps up code that allows developers the ability to time box errors.  In
-     * some instances errors will occur.  It is only when a certain number of those
-     * errors occur within a given time span that it is recognized that recovery is
-     * improbable.  When the threshold is broken the code allows you to throw an
-     * error that represents all others that contributed to the threshold breach.
-     * @class ErrorsOverTime
-     * @constructor
-     * @param {Integer} errorSpan The upper bound on the number of errors that can
-     * occur within the provided time frame before it is determined that recovery
-     * is not possible.
-     * @param {Integer} errorThreshold The upper bound on the amount of time, in
-     * milliseconds, that errors can occur in before it is determined that recovery
-     * is not possible.
-     * @param {String} [prefix] The prefix to any error message that is generated
-     * by the instance
-     */
-    function ErrorsOverTime(errorSpan, errorThreshold, prefix) {
+/**
+ * Wraps up code that allows developers the ability to time box errors.  In
+ * some instances errors will occur.  It is only when a certain number of those
+ * errors occur within a given time span that it is recognized that recovery is
+ * improbable.  When the threshold is broken the code allows you to throw an
+ * error that represents all others that contributed to the threshold breach.
+ * @class ErrorsOverTime
+ * @constructor
+ * @param {Integer} errorSpan The upper bound on the number of errors that can
+ * occur within the provided time frame before it is determined that recovery
+ * is not possible.
+ * @param {Integer} errorThreshold The upper bound on the amount of time, in
+ * milliseconds, that errors can occur in before it is determined that recovery
+ * is not possible.
+ * @param {String} [prefix] The prefix to any error message that is generated
+ * by the instance
+ */
+class ErrorsOverTime {
+    constructor(errorSpan, errorThreshold, prefix) {
 
         /**
          * The upper bound on the number of errors that can occur within the provided
@@ -85,7 +84,7 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
      * @param {String} prefix The error message text that will come first
      * @return {Boolean} TRUE if threshold is in tact, FALSE if not
      */
-    ErrorsOverTime.prototype.throwIfOutOfBounds = function(err, prefix) {
+    throwIfOutOfBounds(err, prefix) {
         if (!this.errorOccurred(err)) {
             ErrorsOverTime.generateError(this.errors, prefix || this.prefix);
         }
@@ -99,7 +98,7 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
      * @param {Error} The error that occurred
      * @return {Boolean} TRUE if threshold is in tact, FALSE if not
      */
-    ErrorsOverTime.prototype.errorOccurred = function(err) {
+    errorOccurred(err) {
 
         //add the error
         this.totalErrorCnt++;
@@ -110,21 +109,21 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
             this.errors.splice(0, 1);
         }
         return this.isWithinLimits();
-    };
+    }
 
     /**
      * Determines if the errors that have occurred are within the acceptable tolerance.
      * @method isWithinLimits
      * @return {Boolean} TRUE if threshold in tact, FALSE if not
      */
-    ErrorsOverTime.prototype.isWithinLimits = function() {
+    isWithinLimits() {
 
         var withinLimits = true;
         if (this.errors.length >= this.errorSpan) {
             withinLimits = this.getRange() > this.errorThreshold;
         }
         return withinLimits;
-    };
+    }
 
     /**
      * Gets the time span over which the current set of errors has occurred
@@ -133,9 +132,9 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
      * of errors have occurred where "n" is the value is between 0 and the value of
      * the errorSpan property inclusive.
      */
-    ErrorsOverTime.prototype.getRange = function() {
+    getRange() {
         return this.errors[this.errors.length - 1] - this.errors[this.errors.length - this.errorSpan];
-    };
+    }
 
     /**
      * Generates and throws an Error that represents all of the errors that
@@ -146,9 +145,9 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
      * wrapper error
      * @param {String} prefix The error message text that will come first
      */
-    ErrorsOverTime.generateError = function(errors, prefix) {
+    static generateError(errors, prefix) {
         throw ErrorsOverTime.createError(errors, prefix);
-    };
+    }
 
     /**
      * Creates an Error that represents all of the errors that triggered the
@@ -160,19 +159,19 @@ module.exports = function ErrorsOverTimeModule(/*pb*/) {
      * @param {String} prefix The error message text that will come first
      * @return {Error}
      */
-    ErrorsOverTime.createError = function(errors, prefix) {
+    static createError(errors, prefix) {
         if (!prefix) {
             prefix = '';
         }
 
         var pattern = prefix + 'Threshold breached by:';
-        errors.forEach(function(errItem) {
+        errors.forEach(function (errItem) {
             pattern += '\n' + errItem.stack;
         });
         pattern += '\n----------------------------------------';
 
         return new Error(pattern);
-    };
+    }
+}
 
-    return ErrorsOverTime;
-};
+module.exports = ErrorsOverTime;

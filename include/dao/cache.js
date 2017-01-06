@@ -68,7 +68,7 @@ CacheFactory.getInstance = function() {
  */
 CacheFactory.createInstance = function(config) {
     if (!_.isObject(config)) {
-        config = Configuration.activeConfiguration.cache;
+        config = Configuration.active.cache;
     }
 
     var moduleAtPlay = config.fake ? "fakeredis" : "redis";

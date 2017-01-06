@@ -20,10 +20,12 @@
 var _ = require('lodash');
 var async = require('async');
 var AsyncEventEmitter = require('async-eventemitter');
-var Sanitizer = require('sanitize-html');
+var DAO = require('../dao/dao');
 var ErrorUtils = require('../error/error_utils');
-var TaskUtils = require('../../lib/utils/taskUtils');
 var log = require('../utils/logging').newInstance('BaseObjectService');
+var Sanitizer = require('sanitize-html');
+var TaskUtils = require('../../lib/utils/taskUtils');
+
 
 module.exports = function(pb) {
 
@@ -490,7 +492,7 @@ module.exports = function(pb) {
             //do any object formatting that should be done before validation
             var self = this;
             var context = this.getContext(dto);
-            context.isCreate = _.isBoolean(options.isCreate) ? options.isCreate : _.isNil(dto[pb.DAO.getIdField() || dto.id]);
+            context.isCreate = _.isBoolean(options.isCreate) ? options.isCreate : _.isNil(dto[DAO.getIdField() || dto.id]);
             context.isUpdate = !context.isCreate;
             self._emit(BaseObjectService.FORMAT, context, function (err) {
                 if (_.isError(err)) {
@@ -605,12 +607,12 @@ module.exports = function(pb) {
          * @return {Object}
          */
         getIdWhere(dto) {
-            var idField = pb.DAO.getIdField();
+            var idField = DAO.getIdField();
             if (dto.id) {
-                return pb.DAO.getIdWhere(dto.id);
+                return DAO.getIdWhere(dto.id);
             }
             else if (dto[idField]) {
-                return pb.DAO.getIdWhere(dto[idField]);
+                return DAO.getIdWhere(dto[idField]);
             }
             return null;
         }
@@ -626,7 +628,7 @@ module.exports = function(pb) {
                 cb = options;
                 options = {};
             }
-            options.where = pb.DAO.getIdWhere(id);
+            options.where = DAO.getIdWhere(id);
 
             this.deleteSingle(options, cb);
         }

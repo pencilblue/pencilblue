@@ -1,26 +1,48 @@
-var util = require('../../../util.js');
+/*
+ Copyright (C) 2016  PencilBlue, LLC
 
-module.exports = function SiteJobRunnerModule(pb) {
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    /**
-     * Setup for running site activation job.
-     * @class SiteJobRunner
-     * @extends ClusterJobRunner
-     * @constructor
-     */
-    function SiteJobRunner() {
-        SiteJobRunner.super_.call(this);
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-        this.siteService = new pb.SiteService();
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+'use strict';
+
+//dependencies
+var _ = require('lodash');
+var ClusterJobRunner = require('../cluster_job_runner');
+var util = require('util');
+
+/**
+ * Setup for running site activation job.
+ * @param {object} context
+ * @param {object} [context.site]
+ * @param {SiteService} context.siteService
+ * @extends ClusterJobRunner
+ */
+class SiteJobRunner extends ClusterJobRunner {
+    constructor (context) {
+        super();
+
+        /**
+         * @type {SiteService}
+         */
+        this.siteService = context.siteService;
+
+        /**
+         * The site for this instance of SiteJobRunner
+         * @type {string} - default to null
+         */
+        this.site = context.site || null;
     }
-    util.inherits(SiteJobRunner, pb.ClusterJobRunner);
-
-    /**
-     * The site for this instance of SiteJobRunner
-     * @property site
-     * @type {string} - default to empty string
-     */
-    SiteJobRunner.prototype.site = '';
 
     /**
      * Set the site for an instance of SiteJobRunner.
@@ -31,19 +53,19 @@ module.exports = function SiteJobRunnerModule(pb) {
      * @param {String} options.displayName - result of site display name edit/create
      * @return {Object} the instance in which the site was set.
      */
-    SiteJobRunner.prototype.setSite = function(options) {
+    setSite (options) {
         this.site = options;
         return this;
-    };
+    }
 
     /**
      * Get the current site of this instance of SiteJobRunner.
      * @method getSite
      * @return {Object} the site object
      */
-    SiteJobRunner.prototype.getSite = function() {
+    getSite () {
         return this.site;
-    };
+    }
 
     /**
      *  Called when the tasks have completed execution and isInitiator = FALSE.  The
@@ -57,8 +79,8 @@ module.exports = function SiteJobRunnerModule(pb) {
      * @param {Array} results - array of results from the tasks run
      * @param {Function} cb - callback function
      */
-    SiteJobRunner.prototype.processClusterResults = function(err, results, cb) {
-        if (util.isError(err)) {
+    processClusterResults (err, results, cb) {
+        if (_.isError(err)) {
             this.log(err.stack);
             return cb(err, results);
         }
@@ -87,8 +109,7 @@ module.exports = function SiteJobRunnerModule(pb) {
             results: results
         };
         cb(err, result);
-    };
+    }
+}
 
-    //exports
-    return SiteJobRunner;
-};
+module.exports = SiteJobRunner;
