@@ -17,10 +17,12 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
 var crypto = require('crypto');
-var util   = require('./util.js');
-
-module.exports = function(pb) {
+var DAO = require('./dao/dao');
+var PluginService = require('./service/entities/plugin_service');
+var util   = require('util');
+var ValidationService = require('./validation/validation_service');
 
     /**
      * Service for managing user access
@@ -162,7 +164,7 @@ module.exports = function(pb) {
      */
     SecurityService.getRoleNames = function(ls) {
         var map = SecurityService.getRoleToDisplayNameMap(ls);
-        return util.hashToArray(map);
+        return _.values(map);
     };
 
     /**
@@ -173,7 +175,7 @@ module.exports = function(pb) {
      * @return {Object}
      */
     SecurityService.getRoleToDisplayNameMap = function(ls) {
-        if (util.isNullOrUndefined(ls)) {
+        if (_.isNil(ls)) {
             throw new Error('The localization parameter cannot be null');
         }
 
@@ -209,7 +211,7 @@ module.exports = function(pb) {
     SecurityService.authenticateSession = function(session, options, authenticator, cb){
         var doAuthentication = function(session, options, authenticator, cb) {
             authenticator.authenticate(options, function(err, user) {
-                if (util.isError(err) || !util.isObject(user)) {
+                if (_.isError(err) || !_.isObject(user)) {
                     return cb(err, user);
                 }
 
@@ -217,9 +219,9 @@ module.exports = function(pb) {
                 delete user.password;
 
                 //build out session object
-                user.permissions                   = pb.PluginService.getPermissionsForRole(user.admin);
+                user.permissions                   = PluginService.getPermissionsForRole(user.admin);
                 session.authentication.user        = user;
-                session.authentication.user_id     = user[pb.DAO.getIdField()].toString();
+                session.authentication.user_id     = user[DAO.getIdField()].toString();
                 session.authentication.admin_level = user.admin;
 
                 //set locale if no preference already indicated for the session
@@ -295,7 +297,7 @@ module.exports = function(pb) {
     SecurityService.generatePassword = function(length) {
 
         //ensure a length
-        if (!pb.validation.isInt(length, true, true) || length < 8) {
+        if (!ValidationService.isInt(length, true, true) || length < 8) {
             length = 8;
         }
 
@@ -314,11 +316,10 @@ module.exports = function(pb) {
      * @return {Object} The authenticated user principal or NULL if not authenticated
      */
     SecurityService.getPrincipal = function(session) {
-        if (util.isObject(session) && util.isObject(session.authentication)) {
+        if (_.isObject(session) && _.isObject(session.authentication)) {
             return session.authentication.user;
         }
         return null;
     };
 
-    return SecurityService;
-};
+    module.exports = SecurityService;

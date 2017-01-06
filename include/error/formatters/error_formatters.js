@@ -17,14 +17,12 @@
 'use strict';
 
 //dependencies
-var path        = require('path');
+var _ = require('lodash');
+var Configuration = require('../../config');
 var HttpStatusCodes = require('http-status-codes');
+var path = require('path');
+var SiteService = require('../../service/entities/site_service');
 var XmlErrorFormatter = require('./xml_error_formatter');
-
-module.exports = function(pb) {
-
-    //pb dependencies
-    var util = pb.util;
 
     /**
      * Provides functions and mechanisms to serialize errors
@@ -56,7 +54,7 @@ module.exports = function(pb) {
             code: params.error.code,
             message: params.error.message
         };
-        if (pb.config.logging.showErrors) {
+        if (Configuration.active.logging.showErrors) {
             content.stack = params.error.stack;
         }
         if (params.error.code === HttpStatusCodes.BAD_REQUEST) {
@@ -119,13 +117,13 @@ module.exports = function(pb) {
         var code = params.error.code || HttpStatusCodes.INTERNAL_SERVER_ERROR;
         var ErrorController  = null;
         var paths = [
-            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'),
-            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error/index.js')
+            path.join(Configuration.active.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'),
+            path.join(Configuration.active.docRoot, 'plugins', params.activeTheme, 'controllers/error/index.js')
         ];
-        if (params.activeTheme !== pb.config.plugins.default) {
-            paths.push(path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'));
+        if (params.activeTheme !== Configuration.active.plugins.default) {
+            paths.push(path.join(Configuration.active.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'));
         }
-        paths.push(path.join(pb.config.docRoot, 'controllers/error_controller.js'));
+        paths.push(path.join(Configuration.active.docRoot, 'controllers/error_controller.js'));
 
         //iterate over paths until you find a good one
         for (var i = 0; i < paths.length; i++) {
@@ -149,7 +147,7 @@ module.exports = function(pb) {
         params.request.controllerInstance.error = params.error;
         params.request.themeRoute = params.request.themeRoute || {};
         params.request.routeTheme = params.request.routeTheme || {};
-        params.request.siteObj = params.request.siteObj || pb.SiteService.getGlobalSiteContext();
+        params.request.siteObj = params.request.siteObj || SiteService.getGlobalSiteContext();
         params.request.themeRoute.handler = 'render';
         params.request.router.continueAfter('parseRequestBody');
     };
@@ -183,7 +181,7 @@ module.exports = function(pb) {
      * @return {Boolean} TRUE when the provider was registered, FALSE if not
      */
     ErrorFormatters.register = function(mime, formatterFunction) {
-        if (!util.isString(mime) || !util.isFunction(formatterFunction)) {
+        if (!_.isString(mime) || !_.isFunction(formatterFunction)) {
             return false;
         }
         MIME_MAP[mime] = formatterFunction;
@@ -201,11 +199,11 @@ module.exports = function(pb) {
      * FALSE if not
      */
     ErrorFormatters.unregister = function(mime) {
-        if (util.isFunction(MIME_MAP[mime])) {
+        if (_.isFunction(MIME_MAP[mime])) {
             delete MIME_MAP[mime];
 
             //set the defaults back if we have them
-            if (util.isFunction(DEFAULTS[mime])) {
+            if (_.isFunction(DEFAULTS[mime])) {
                 MIME_MAP[mime] = DEFAULTS[mime];
             }
             return true;
@@ -225,20 +223,20 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     ErrorFormatters.formatForMime = function(params, cb) {
-        if (!util.isObject(params)) {
+        if (!_.isObject(params)) {
             return cb(new Error('The params parameter must be an object'));
         }
-        else if (!util.isString(params.mime)) {
+        else if (!_.isString(params.mime)) {
             return cb(new Error('The params.mime parameter must be a string'));
         }
-        else if (!util.isError(params.error)) {
+        else if (!_.isError(params.error)) {
             return cb(new Error('The params.error parameter must be an Error'));
         }
 
         //find the formatter, fall back to HTML if not provided
         var mime      = params.mime;
         var formatter = MIME_MAP[mime];
-        if (util.isNullOrUndefined(formatter)) {
+        if (_.isNil(formatter)) {
             mime      = DEFAULT_MIME;
             formatter = MIME_MAP[mime];
         }
@@ -291,7 +289,6 @@ module.exports = function(pb) {
      * @property MIME_MAP
      * @type {Object}
      */
-    var MIME_MAP = util.merge(DEFAULTS, {});
+    var MIME_MAP = Object.assign({}, DEFAULTS);
 
-    return ErrorFormatters;
-};
+    module.exports = ErrorFormatters;

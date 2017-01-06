@@ -22,15 +22,22 @@ var async   = require('async');
 var AsyncEventEmitter = require('../utils/async_event_emitter');
 var Configuration = require('../config');
 var Cookies = require('cookies');
+var DAO = require('../dao/dao');
 var domain  = require('domain');
+var ErrorFormatters = require('../error/formatters/error_formatters');
+var FormBodyParser = require('../http/parsers').FormBodyParser;
 var fs      = require('fs');
 var HttpStatusCodes = require('http-status-codes');
+var JsonBodyParser = require('../http/parsers').JsonBodyParser;
+var Localization = require('../localization');
 var log = require('../utils/logging');
 var mime = require('mime');
 var path = require('path');
+var SecurityService = require('../access_management');
 var SiteService = require('../service/entities/site_service');
 var url     = require('url');
-
+var UrlUtils = require('../../lib/utils/urlUtils');
+var ValidationService = require('../validation/validation_service');
 
 
 module.exports = function RequestHandlerModule(pb) {
@@ -117,9 +124,9 @@ module.exports = function RequestHandlerModule(pb) {
      * @type {Object}
      */
     var BODY_PARSER_MAP = {
-        'application/json': pb.JsonBodyParser,
-        'application/x-www-form-urlencoded': pb.FormBodyParser,
-        'multipart/form-data': pb.FormBodyParser
+        'application/json': JsonBodyParser,
+        'application/x-www-form-urlencoded': FormBodyParser,
+        'multipart/form-data': FormBodyParser
     };
 
     /**
@@ -423,7 +430,7 @@ module.exports = function RequestHandlerModule(pb) {
         if (descriptor.localization) {
 
             var localizedDescriptor = _.clone(descriptor);
-            localizedDescriptor.path = pb.UrlService.urlJoin('/:locale', descriptor.path);
+            localizedDescriptor.path = UrlUtils.urlJoin('/:locale', descriptor.path);
             result = result && _registerRoute(localizedDescriptor, theme, site, Controller);
         }
         return result;
@@ -640,7 +647,7 @@ module.exports = function RequestHandlerModule(pb) {
         if (context.session) {
             sources.push(context.session.locale);
         }
-        sources.push(this.req.headers[pb.Localization.ACCEPT_LANG_HEADER]);
+        sources.push(this.req.headers[Localization.ACCEPT_LANG_HEADER]);
         if (this.siteObj) {
             opts.supported = Object.keys(this.siteObj.supportedLocales);
             sources.push(this.siteObj.defaultLocale);
@@ -650,7 +657,7 @@ module.exports = function RequestHandlerModule(pb) {
         }, '');
 
         //get locale preference
-        return new pb.Localization(localePrefStr, opts);
+        return new Localization(localePrefStr, opts);
     };
 
     /**
@@ -778,7 +785,7 @@ module.exports = function RequestHandlerModule(pb) {
             var handler = options.handler || function(data) {
                 self.onRenderComplete(data);
             };
-            pb.ErrorFormatters.formatForMime(params, function(error, result) {
+            ErrorFormatters.formatForMime(params, function(error, result) {
                 if (_.isError(error)) {
                     log.error('RequestHandler: An error occurred attempting to render an error: %s', error.stack);
                 }
@@ -818,7 +825,7 @@ module.exports = function RequestHandlerModule(pb) {
 
         // If we need to redirect to a different host
         if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
-            return this.doRedirect(SiteService.getHostWithProtocol(redirectHost), pb.HttpStatus.MOVED_PERMANENTLY);
+            return this.doRedirect(SiteService.getHostWithProtocol(redirectHost), HttpStatusCodes.MOVED_PERMANENTLY);
         }
         this.siteObj = siteObj;
 
@@ -1438,7 +1445,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Integer} [statusCode=302]
      */
     RequestHandler.prototype.doRedirect = function(location, statusCode) {
-        this.resp.statusCode = statusCode || pb.HttpStatus.MOVED_TEMPORARILY;
+        this.resp.statusCode = statusCode || HttpStatusCodes.MOVED_TEMPORARILY;
         this.resp.setHeader("Location", location);
         this.resp.end();
     };
@@ -1484,7 +1491,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {function} cb (Error, boolean)
      */
     RequestHandler.urlExists = function(url, id, site, cb) {
-        var dao = new pb.DAO();
+        var dao = new DAO();
         if(typeof site === 'function') {
             cb = site;
             site = undefined;
@@ -1496,7 +1503,7 @@ module.exports = function RequestHandlerModule(pb) {
                     where.site = site;
                 }
                 if (id) {
-                    where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(id);
+                    where[DAO.getIdField()] = DAO.getNotIdField(id);
                 }
                 dao.count(collection, where, function(err, count) {
                     if(_.isError(err) || count > 0) {
@@ -1565,7 +1572,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Boolean} TRUE if the body parser was registered, FALSE if not
      */
     RequestHandler.registerBodyParser = function(mime, prototype) {
-        if (!pb.validation.isNonEmptyStr(mime, true) || !_.isFunction(prototype)) {
+        if (!ValidationService.isNonEmptyStr(mime, true) || !_.isFunction(prototype)) {
             return false;
         }
 
@@ -1602,7 +1609,7 @@ module.exports = function RequestHandlerModule(pb) {
         var reqPerms = context.themeRoute.permissions;
         var auth     = context.session.authentication;console.log('PermCheck: ', auth);
         if (auth && auth.user &&
-            auth.admin_level !== pb.SecurityService.ACCESS_ADMINISTRATOR &&
+            auth.admin_level !== SecurityService.ACCESS_ADMINISTRATOR &&
             auth.user.permissions &&
             Array.isArray(reqPerms)) {
 
@@ -1669,7 +1676,7 @@ module.exports = function RequestHandlerModule(pb) {
                 result.success  = false;
                 result.redirect = RequestHandler.isAdminURL(context.url.pathname) ? '/admin/login' : '/user/login';
                 context.session.on_login = context.req.method.toLowerCase() === 'get' ? context.url.href :
-                    pb.UrlService.createSystemUrl('/admin', { hostname: context.hostname });
+                    UrlUtils.createSystemUrl('/admin', { hostname: context.hostname });
             }
         }
         return result;

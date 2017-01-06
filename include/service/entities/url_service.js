@@ -17,11 +17,12 @@
 'use strict';
 
 //dependencies
-var url  = require('url');
 var _ = require('lodash');
 var RegExpUtils = require('../../utils/reg_exp_utils');
-
-module.exports = function UrlServiceModule(pb) {
+var RequestHandler = require('../../http/request_handler');
+var SiteQueryService = require('./site_query_service');
+var SiteService = require('./site_service');
+var url  = require('url');
 
     /**
      * A service that provides insight into the system's routes (URLs) along with
@@ -34,13 +35,10 @@ module.exports = function UrlServiceModule(pb) {
      * @submodule Entities
      */
     function UrlService(site, onlyThisSite) {
-        this.site = pb.SiteService.getCurrentSite(site);
+        this.site = SiteService.getCurrentSite(site);
         this.onlyThisSite = onlyThisSite;
-        this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
+        this.siteQueryService = new SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
     }
-
-    //dependencies
-    var RequestHandler = pb.RequestHandler;
 
     /**
      * Takes the URL path and tests it against registered routes.
@@ -96,7 +94,7 @@ module.exports = function UrlServiceModule(pb) {
             url: new RegExp(pattern, "i")
         };
         if (site !== undefined) {
-            where[pb.SiteService.SITE_FIELD] = site;
+            where[SiteService.SITE_FIELD] = site;
         }
         this.siteQueryService.unique(type, where, id, function(err, isUnique) {
             cb(err, !isUnique);
@@ -104,5 +102,4 @@ module.exports = function UrlServiceModule(pb) {
     };
 
     //exports
-    return UrlService;
-};
+    module.exports = UrlService;
