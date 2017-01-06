@@ -1598,7 +1598,7 @@ module.exports = function RequestHandlerModule(pb) {
 
         var result   = {success: true};
         var reqPerms = context.themeRoute.permissions;
-        var auth     = context.session.authentication;console.log('PermCheck: ', auth);
+        var auth     = context.session.authentication;
         if (auth && auth.user &&
             auth.admin_level !== pb.SecurityService.ACCESS_ADMINISTRATOR &&
             auth.user.permissions &&
