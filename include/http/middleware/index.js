@@ -278,7 +278,7 @@ module.exports = function(pb) {
          * @param {Response} res The response object that compliments the current request
          * @param {function} next (Error) Callback function that takes a single parameter, an error if it occurred
          */
-        static systemSetupCheck (req, res, next) {
+        static systemSetupCheck (req, res, next) {//TODO [1.0] cache result once true, no need to go get this every time
             var ctx = {
                 themeRoute: req.themeRoute
             };

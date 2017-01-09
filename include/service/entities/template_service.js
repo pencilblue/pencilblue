@@ -17,12 +17,21 @@
 'use strict';
 
 //dependencies
-var path        = require('path');
+var _ = require('lodash');
 var async       = require('async');
+var CacheEntityService = require('../cache_entity_service');
+var Configuration = require('../../config');
 var HtmlEncoder = require('htmlencode');
-var util        = require('../../util.js');
-
-module.exports = function(pb) {
+var log = require('../../utils/logging').newInstance('TemplateService');
+var MemoryEntityService = require('../memory_entity_service');
+var path = require('path');
+var PluginService = require('./plugin_service');
+var SettingServiceFactory = require('../../system/settings');
+var SimpleLayeredService = require('../simple_layered_service');
+var SiteService = require('./site_service');
+var TemplateEntityService = require('../template_entity_service');
+var util = require('util');
+var ValidationService = require('../../validation/validation_service');
 
     /**
      * A templating engine that provides the ability to read in file snippets and
@@ -41,14 +50,6 @@ module.exports = function(pb) {
      * @param {string} opts.site
      */
     function TemplateService(opts){
-        var localizationService;
-        if (!opts || (opts instanceof pb.Localization)) {
-            localizationService = opts;
-            opts = {};
-        }
-        else {
-            localizationService = opts.ls;
-        }
 
         /**
          * @property localCallbacks
@@ -62,10 +63,7 @@ module.exports = function(pb) {
          * @property localizationService
          * @type {Localization}
          */
-        this.localizationService = null;
-        if (localizationService) {
-            this.localizationService = localizationService;
-        }
+        this.localizationService = opts.ls || null;
 
         /**
          * @property activeTheme
@@ -86,23 +84,23 @@ module.exports = function(pb) {
 
             var options = {
                 objType: objType,
-                timeout: pb.config.templates.memory_timeout
+                timeout: Configuration.active.templates.memory_timeout
             };
 
             //add in-memory service
-            if (pb.config.templates.use_memory){
-                services.push(new pb.MemoryEntityService(options));
+            if (Configuration.active.templates.use_memory){
+                services.push(new MemoryEntityService(options));
             }
 
             //add cache service
-            if (pb.config.templates.use_cache) {
-                services.push(new pb.CacheEntityService(options));
+            if (Configuration.active.templates.use_cache) {
+                services.push(new CacheEntityService(options));
             }
 
             //always add fs service
-            services.push(new pb.TemplateEntityService());
+            services.push(new TemplateEntityService());
 
-            TEMPLATE_LOADER = new pb.SimpleLayeredService(services, 'TemplateService');
+            TEMPLATE_LOADER = new SimpleLayeredService(services, 'TemplateService');
         }
 
         /**
@@ -123,19 +121,19 @@ module.exports = function(pb) {
          * @property siteUid
          * @type {String}
          */
-        this.siteUid = pb.SiteService.getCurrentSite(opts.site);
+        this.siteUid = SiteService.getCurrentSite(opts.site);
 
         /**
          * @property settingService
          * @type {SimpleLayeredService}
          */
-        this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid);
+        this.settingService = SettingServiceFactory.getServiceBySite(this.siteUid);
 
         /**
          * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new pb.PluginService({site: this.siteUid});
+        this.pluginService = new PluginService({site: this.siteUid});
 
         this.init();
     }
@@ -168,7 +166,7 @@ module.exports = function(pb) {
      * @property CUSTOM_PATH_PREFIX
      * @type {String}
      */
-    var CUSTOM_PATH_PREFIX = path.join(pb.config.docRoot, 'plugins') + path.sep;
+    var CUSTOM_PATH_PREFIX = path.join(Configuration.active.docRoot, 'plugins') + path.sep;
 
     /**
      * A container that provides the mapping for global call backs.  These should
@@ -178,10 +176,10 @@ module.exports = function(pb) {
      * @property
      */
     var GLOBAL_CALLBACKS = {
-        site_root: pb.config.siteRoot,
-        site_name: pb.config.siteName,
+        site_root: Configuration.active.siteRoot,
+        site_name: Configuration.active.siteName,
         site_menu_logo: '/img/logo_menu.png',
-        version: pb.config.version
+        version: Configuration.active.version
     };
 
     /**
@@ -258,7 +256,7 @@ module.exports = function(pb) {
      * @return {Boolean} TRUE when the handler was set, FALSE if not
      */
     TemplateService.prototype.setUnregisteredFlagHandler = function(unregisteredFlagHandler) {
-        if (!util.isFunction(unregisteredFlagHandler)) {
+        if (!_.isFunction(unregisteredFlagHandler)) {
             return false;
         }
 
@@ -276,7 +274,7 @@ module.exports = function(pb) {
      * @return {Boolean} TRUE when the handler was set, FALSE if not
      */
     TemplateService.setGlobalUnregisteredFlagHandler = function(unregisteredFlagHandler) {
-        if (!util.isFunction(unregisteredFlagHandler)) {
+        if (!_.isFunction(unregisteredFlagHandler)) {
             return false;
         }
 
@@ -349,7 +347,7 @@ module.exports = function(pb) {
             var activePlugins = self.pluginService.getActivePluginNames();
             for (var i = 0; i < activePlugins.length; i++) {
                 if (!TemplateService.isTemplateBlacklisted(activePlugins[i], relativePath) &&
-                    hintedTheme !== activePlugins[i] && pb.config.plugins.default !== activePlugins[i]) {
+                    hintedTheme !== activePlugins[i] && Configuration.active.plugins.default !== activePlugins[i]) {
 
                     paths.push({
                         plugin: activePlugins[i],
@@ -359,9 +357,9 @@ module.exports = function(pb) {
             }
 
             //now add the default if appropriate
-            if (!TemplateService.isTemplateBlacklisted(pb.config.plugins.default, relativePath)) {
+            if (!TemplateService.isTemplateBlacklisted(Configuration.active.plugins.default, relativePath)) {
                 paths.push({
-                    plugin: pb.config.plugins.default,
+                    plugin: Configuration.active.plugins.default,
                     path: TemplateService.getDefaultPath(relativePath)
                 });
             }
@@ -377,7 +375,7 @@ module.exports = function(pb) {
                     //attempt to load template
                     TEMPLATE_LOADER.get(paths[j].path, function(err, templateData) {
                         template = templateData;
-                        doLoop   = util.isError(err) || !util.isObject(template);
+                        doLoop   = _.isError(err) || !_.isObject(template);
                         if (doLoop) {
                             TemplateService.blacklistTemplate(paths[j].plugin, relativePath);
                         }
@@ -403,13 +401,13 @@ module.exports = function(pb) {
      * @param {function} cb               Callback function
      */
     TemplateService.prototype.load = function(templateLocation, cb) {
-        if (!util.isFunction(cb)) {
+        if (!_.isFunction(cb)) {
             throw new Error('cb parameter must be a function');
         }
 
         var self = this;
         this.getTemplateContentsByPriority(templateLocation, function(err, templateContents) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err, null);
             }
             if (!templateContents) {
@@ -429,21 +427,20 @@ module.exports = function(pb) {
      * @param {function} cb Callback function
      */
     TemplateService.prototype.process = function(content, cb) {
-        if (!util.isObject(content)) {
+        if (!_.isObject(content)) {
             return cb(new Error("TemplateService: A valid content object is required in order for the template engine to process the value. Content="+util.inspect(content)), content);
         }
-        else if (!util.isFunction(cb)) {
+        else if (!_.isFunction(cb)) {
             throw new Error('cb parameter must be a function');
         }
 
         //iterate parts
         var self  = this;
-        var isSilly = pb.log.isSilly();
-        var tasks = util.getTasks(content.parts, function(parts, i) {
+        var isSilly = log.isSilly();
+        var tasks = content.parts.map(function(part) {
             return function(callback) {
 
                 //callback with static content
-                var part = parts[i];
                 if (part.type === TEMPLATE_PIECE_STATIC) {
                     return callback(null, part.val);
                 }
@@ -452,22 +449,22 @@ module.exports = function(pb) {
                     self.processFlag(part.val, function(err, subContent) {
                         if (isSilly) {
                             var str = subContent;
-                            if (util.isString(str) && str.length > 20) {
+                            if (_.isString(str) && str.length > 20) {
                                 str = str.substring(0, 17)+'...';
                             }
-                            pb.log.silly("TemplateService: Processed flag [%s] Content=[%s]", part.val, str);
+                            log.silly("TemplateService: Processed flag [%s] Content=[%s]", part.val, str);
                         }
                         callback(err, subContent);
                     });
                 }
                 else {
-                    pb.log.error('An invalid template part type was provided: %s', part.type);
+                    log.error('An invalid template part type was provided: %s', part.type);
                     callback(new Error('An invalid template part type was provided: '+part.type));
                 }
             };
         });
         async.series(tasks, function(err, results) {
-            cb(err, util.isArray(results) ? results.join('') : '');
+            cb(err, Array.isArray(results) ? results.join('') : '');
         });
     };
 
@@ -517,7 +514,7 @@ module.exports = function(pb) {
                     params: {/*TODO use the model for this*/}
                 };
                 var val = self.localizationService.g(key, opts);
-                if (!util.isString(val)) {
+                if (!_.isString(val)) {
 
                     //TODO this is here to be backwards compatible. Remove in 1.0
                     val = self.localizationService.get(key);
@@ -532,13 +529,13 @@ module.exports = function(pb) {
             else {
 
                 //log result
-                if (pb.log.isSilly()) {
-                    pb.log.silly("TemplateService: Failed to process flag [%s]", flag);
+                if (log.isSilly()) {
+                    log.silly("TemplateService: Failed to process flag [%s]", flag);
                 }
 
                 //the flag was not registered.  Hand it off to a handler for any
                 //catch-all processing.
-                if (util.isFunction(self.unregisteredFlagHandler)) {
+                if (_.isFunction(self.unregisteredFlagHandler)) {
                     self.unregisteredFlagHandler(flag, cb);
                 }
                 else {
@@ -562,8 +559,8 @@ module.exports = function(pb) {
         var pattern      = flag.substring(TEMPLATE_PREFIX_LEN);
         var templatePath = pattern.replace(/=/g, path.sep);
 
-        if (pb.log.isSilly()) {
-            pb.log.silly("Template Serice: Loading Sub-Template. FLAG=[%s] Path=[%s]", flag, templatePath);
+        if (log.isSilly()) {
+            log.silly("Template Serice: Loading Sub-Template. FLAG=[%s] Path=[%s]", flag, templatePath);
         }
         this.load(templatePath, function(err, template) {
             cb(err, template);
@@ -591,7 +588,7 @@ module.exports = function(pb) {
             if (content instanceof TemplateValue) {
                 content = content.val();
             }
-            else if (util.isObject(content) || util.isString(content)){
+            else if (_.isObject(content) || _.isString(content)){
                 content = HtmlEncoder.htmlEncode(content.toString());
             }
 
@@ -648,16 +645,16 @@ module.exports = function(pb) {
      * FALSE if a single items fails to register.
      */
     TemplateService.prototype.registerModel = function(model, modelName) {
-        if (!util.isObject(model)) {
+        if (!_.isObject(model)) {
             throw new Error('The model parameter is required');
         }
-        if (!util.isString(modelName)) {
+        if (!_.isString(modelName)) {
             modelName = '';
         }
 
         //load up the first set of items
         var queue = [];
-        util.forEach(model, function(val, key) {
+        _.each(model, function(val, key) {
             queue.push({
                 key: key,
                 prefix: modelName,
@@ -670,9 +667,9 @@ module.exports = function(pb) {
         var register = function(prefix, key, value) {
 
             var flag = (prefix ? prefix + '.' : prefix) + key;
-            if (util.isObject(value) && !(value instanceof TemplateValue)) {
+            if (_.isObject(value) && !(value instanceof TemplateValue)) {
 
-                util.forEach(value, function(value, key) {
+                _.each(value, function(value, key) {
                     queue.push({
                         key: key,
                         prefix: flag,
@@ -702,22 +699,22 @@ module.exports = function(pb) {
         var self = this;
         this._getActiveTheme(function(err, activeTheme) {
 
-            if(util.isError(err) || activeTheme === null) {
+            if(_.isError(err) || activeTheme === null) {
                 cb(err, []);
                 return;
             }
 
             //function to retrieve plugin
             var getPlugin = function(uid, callback) {
-                if (uid === pb.config.plugins.default) {
+                if (uid === Configuration.active.plugins.default) {
 
                     //load pencilblue plugin
-                    var file = pb.PluginService.getDetailsPath(pb.config.plugins.default);
-                    pb.PluginService.loadDetailsFile(file, function(err, pb) {
-                        if (pb) {
-                            pb.dirName = pb.config.plugins.default;
+                    var file = PluginService.getDetailsPath(Configuration.active.plugins.default);
+                    PluginService.loadDetailsFile(file, function(err, pbPlugin) {
+                        if (pbPlugin) {
+                            pbPlugin.dirName = Configuration.active.plugins.default;
                         }
-                        callback(err, pb);
+                        callback(err, pbPlugin);
                     });
                 }
                 else {
@@ -731,7 +728,7 @@ module.exports = function(pb) {
 
                 var templates = [];
                 if (plugin && plugin.theme && plugin.theme.content_templates) {
-                    util.arrayPushAll(plugin.theme.content_templates, templates);
+                    templates.push.apply(templates, plugin.theme.content_templates);
                 }
                 cb(err, templates);
             });
@@ -752,7 +749,7 @@ module.exports = function(pb) {
         };
         var childTs                     = new TemplateService(opts);
         childTs.theme                   = this.theme;
-        childTs.localCallbacks          = util.merge(this.localCallbacks, {});
+        childTs.localCallbacks          = Object.assign({}, this.localCallbacks);
         childTs.reprocess               = this.reprocess;
         childTs.unregisteredFlagHandler = this.unregisteredFlagHandler;
         return childTs;
@@ -767,7 +764,7 @@ module.exports = function(pb) {
      * @return {boolean}
      */
     TemplateService.isFlag = function(content, flag) {
-        return util.isString(content) && (content.length === 0 || ('^'+flag+'^') === content);
+        return _.isString(content) && (content.length === 0 || ('^'+flag+'^') === content);
     };
 
     /**
@@ -779,10 +776,10 @@ module.exports = function(pb) {
      * @return {Array} An array of template definitions
      */
     TemplateService.getAvailableContentTemplates = function(site) {
-        var templates = pb.PluginService.getActiveContentTemplates(site);
+        var templates = PluginService.getActiveContentTemplates(site);
         templates.push(
             {
-                theme_uid: pb.config.plugins.default,
+                theme_uid: Configuration.active.plugins.default,
                 theme_name: 'PencilBlue',
                 name: "Default",
                 file: "index"
@@ -817,7 +814,7 @@ module.exports = function(pb) {
      * @return {string} The absolute path
      */
     TemplateService.getDefaultPath = function(templateLocation){
-        return CUSTOM_PATH_PREFIX + pb.config.plugins.default + '/templates/' + templateLocation + '.html';
+        return CUSTOM_PATH_PREFIX + Configuration.active.plugins.default + '/templates/' + templateLocation + '.html';
     };
 
     /**
@@ -848,14 +845,14 @@ module.exports = function(pb) {
      * @return {Array} The array template parts
      */
     TemplateService.compile = function(text, start, end) {
-        if (!pb.ValidationService.isNonEmptyStr(text, true)) {
-            pb.log.warn('TemplateService: Cannot parse the content because it is not a valid string: '+text);
+        if (!ValidationService.isNonEmptyStr(text, true)) {
+            log.warn('TemplateService: Cannot parse the content because it is not a valid string: '+text);
             return [];
         }
-        if (!pb.ValidationService.isNonEmptyStr(start, true)) {
+        if (!ValidationService.isNonEmptyStr(start, true)) {
             start = '^';
         }
-        if (!pb.ValidationService.isNonEmptyStr(end, true)) {
+        if (!ValidationService.isNonEmptyStr(end, true)) {
             end = '^';
         }
 
@@ -932,7 +929,7 @@ module.exports = function(pb) {
      * @return {Boolean}
      */
     TemplateService.blacklistTemplate = function(theme, relativePath) {
-        pb.log.silly('TemplateService: Blacklisting template THEME=%s PATH=%s', theme, relativePath);
+        log.silly('TemplateService: Blacklisting template THEME=%s PATH=%s', theme, relativePath);
         return (TEMPLATE_MIS_CACHE[theme + '|' + relativePath] = true);
     };
 
@@ -949,7 +946,7 @@ module.exports = function(pb) {
     function TemplateValue(val, htmlEncode) {
 
         this.raw        = val;
-        this.htmlEncode = util.isBoolean(htmlEncode) ? htmlEncode : true;
+        this.htmlEncode = _.isBoolean(htmlEncode) ? htmlEncode : true;
     }
 
     /**
@@ -1008,4 +1005,3 @@ module.exports = function(pb) {
         TemplateService: TemplateService,
         TemplateValue: TemplateValue
     };
-};

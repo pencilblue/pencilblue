@@ -34,13 +34,12 @@ var log = require('../utils/logging');
 var mime = require('mime');
 var path = require('path');
 var SecurityService = require('../access_management');
+var SessionHandler = require('../session/session');
+var SettingServiceFactory = require('../system/settings');
 var SiteService = require('../service/entities/site_service');
 var url     = require('url');
 var UrlUtils = require('../../lib/utils/urlUtils');
 var ValidationService = require('../validation/validation_service');
-
-
-module.exports = function RequestHandlerModule(pb) {
 
     /**
      * Responsible for processing a single req by delegating it to the correct controllers
@@ -111,6 +110,8 @@ module.exports = function RequestHandlerModule(pb) {
          * @type {number}
          */
         this.errorCount = 0;
+
+        this.sessionHandler = new SessionHandler();
     }
     AsyncEventEmitter.extend(RequestHandler);
 
@@ -178,7 +179,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @property CORE_ROUTES
      * @type {Array}
      */
-    RequestHandler.CORE_ROUTES = require(path.join(Configuration.active.docRoot, '/plugins/pencilblue/include/routes.js'))(pb);
+    RequestHandler.CORE_ROUTES = require(path.join(Configuration.active.docRoot, '/plugins/pencilblue/include/routes.js'));
 
     /**
      * The event emitted when a route and theme is derived for an incoming request
@@ -417,7 +418,7 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //make sure we get a valid prototype back
-        var Controller = require(descriptor.controller)(pb);
+        var Controller = require(descriptor.controller);
         if (!Controller) {
             log.error('RequestHandler: Failed to get a prototype back from the controller module. %s', JSON.stringify(descriptor));
             return false;
@@ -606,11 +607,11 @@ module.exports = function RequestHandlerModule(pb) {
 
         //check for session cookie
         var cookies = RequestHandler.parseCookies(this.req);
-        this.req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
+        this.req.headers[SessionHandler.COOKIE_HEADER] = cookies;
 
         //open session
         var self = this;
-        pb.session.open(this.req, function(err, session){
+        this.sessionHandler.open(this.req, function(err, session){
             if (_.isError(err)) {
                 return self.serveError(err);
             }
@@ -759,7 +760,7 @@ module.exports = function RequestHandlerModule(pb) {
             }
 
             self.siteObj = self.siteObj || SiteService.getGlobalSiteContext();
-            var settingsService = pb.SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, self.siteObj.uid);
+            var settingsService = SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, self.siteObj.uid);
             settingsService.get('active_theme', function(err, activeTheme){
                 self.activeTheme = activeTheme || Configuration.active.plugins.default;
                 cb(null, self.activeTheme);
@@ -851,7 +852,7 @@ module.exports = function RequestHandlerModule(pb) {
 
         //get active theme
         var self = this;
-        var settings = pb.SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, this.siteObj.uid);
+        var settings = SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, this.siteObj.uid);
         settings.get('active_theme', function(err, activeTheme){
             if (!activeTheme) {
                 log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
@@ -1251,7 +1252,7 @@ module.exports = function RequestHandlerModule(pb) {
         var cookies = new Cookies(this.req, this.resp);
         if (this.setSessionCookie) {
             try{
-                cookies.set(pb.SessionHandler.COOKIE_NAME, this.session.uid, pb.SessionHandler.getSessionCookie(this.session));
+                cookies.set(SessionHandler.COOKIE_NAME, this.session.uid, SessionHandler.getSessionCookie(this.session));
             }
             catch(e){
                 log.error('RequestHandler: %s', e.stack);
@@ -1281,7 +1282,7 @@ module.exports = function RequestHandlerModule(pb) {
         //check if the session exists first.
         if (this.session) {
             var self = this;
-            pb.session.close(this.session, function(err/*, result*/) {
+            this.sessionHandler.close(this.session, function(err/*, result*/) {
                 if (_.isError(err)) {
                     log.warn('RequestHandler: Failed to close session [%s]', self.session.uid);
                 }
@@ -1427,15 +1428,16 @@ module.exports = function RequestHandlerModule(pb) {
         if (context.themeRoute.setup_required !== undefined && !context.themeRoute.setup_required) {
             return cb(null, result);
         }
-        pb.settings.get('system_initialized', function(err, isSetup){
+        SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache)
+            .get('system_initialized', function(err, isSetup){
 
-            //verify system init
-            if (!isSetup) {
-                result.success = false;
-                result.redirect = '/setup';
-            }
-            cb(err, result);
-        });
+                //verify system init
+                if (!isSetup) {
+                    result.success = false;
+                    result.redirect = '/setup';
+                }
+                cb(err, result);
+            });
     };
 
     /**
@@ -1710,5 +1712,4 @@ module.exports = function RequestHandlerModule(pb) {
         }, extraData || {});
     };
 
-    return RequestHandler;
-};
+    module.exports = RequestHandler;

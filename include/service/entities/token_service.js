@@ -14,24 +14,25 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
-module.exports = function TokenServiceModule(pb) {
+//dependencies
+var _ = require('lodash');
+var uuid = require('uuid');
 
-    //dependencies
-    var util = pb.util;
-
-    /**
-     * A service that manages tokens for non-password authentication.
-     *
-     * @class TokenService
-     * @constructor
-     * @module Services
-     * @submodule Entities
-     * @param {Object} options
-     * @param {String} options.site - site uid
-     * @param {String} options.user - user id
-     */
-    function TokenService(options) {
+/**
+ * A service that manages tokens for non-password authentication.
+ *
+ * @class TokenService
+ * @constructor
+ * @module Services
+ * @submodule Entities
+ * @param {Object} options
+ * @param {String} options.site - site uid
+ * @param {String} options.user - user id
+ */
+class TokenService {
+    constructor(options) {
         this.site = options.site;
         this.user = options.user;
     }
@@ -42,9 +43,9 @@ module.exports = function TokenServiceModule(pb) {
      * @method generateUserToken
      * @param {Function} cb
      */
-    TokenService.prototype.generateUserToken = function(cb) {
+    generateUserToken(cb) {
         var self = this;
-        var token = util.uniqueId();
+        var token = uuid.v4();
         var tokenInfo = {
             token: token,
             user: self.user,
@@ -52,14 +53,14 @@ module.exports = function TokenServiceModule(pb) {
             site: this.site
         };
 
-        this.saveToken(tokenInfo, function(err, result) {
-            if(util.isError(err)) {
+        this.saveToken(tokenInfo, function (err, result) {
+            if (_.isError(err)) {
                 return cb(err, null);
             }
             cb(null, {token: result.token});
         });
 
-    };
+    }
 
     /**
      * Loads token information by token value and marks as used if found
@@ -68,17 +69,17 @@ module.exports = function TokenServiceModule(pb) {
      * @param {String} token
      * @param {Function} cb
      */
-    TokenService.prototype.validateUserToken = function(token, cb) {
+    validateUserToken(token, cb) {
         var self = this;
-        var dao = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
-        dao.loadByValue('token', token, 'auth_token', function(err, tokenInfo){
-            if (util.isError(err) || !tokenInfo || tokenInfo.used) {
+        var dao = new SiteQueryService({site: this.site, onlyThisSite: true});
+        dao.loadByValue('token', token, 'auth_token', function (err, tokenInfo) {
+            if (_.isError(err) || !tokenInfo || tokenInfo.used) {
                 return cb(err, false);
             }
 
             tokenInfo.used = true;
-            self.saveToken(tokenInfo, function(err, result) {
-                if(util.isError(err)) {
+            self.saveToken(tokenInfo, function (err, result) {
+                if (_.isError(err)) {
                     return cb(err, null);
                 }
                 var timeDiff = Date.now() - tokenInfo.created;
@@ -89,7 +90,7 @@ module.exports = function TokenServiceModule(pb) {
                 cb(null, response);
             });
         });
-    };
+    }
 
     /**
      * Saves token object
@@ -98,17 +99,18 @@ module.exports = function TokenServiceModule(pb) {
      * @param {Object} tokenInfo - the token object to save
      * @param {Function} cb
      */
-    TokenService.prototype.saveToken = function(tokenInfo, cb) {
-        var doc = pb.DocumentCreator.create('auth_token', tokenInfo);
-        var dao = new pb.SiteQueryService(this.site, false);
-        dao.save(doc, function(err, result) {
-            if(util.isError(err)) {
+    saveToken(tokenInfo, cb) {
+        var doc = tokenInfo;
+        doc.object_type = 'auth_token';
+        var dao = new SiteQueryService(this.site, false);
+        dao.save(doc, function (err, result) {
+            if (_.isError(err)) {
                 return cb(err, null);
             }
             cb(null, result);
         });
-    };
+    }
+}
 
-    //exports
-    return TokenService;
-};
+//exports
+module.exports = TokenService;

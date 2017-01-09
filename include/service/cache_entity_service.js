@@ -17,174 +17,159 @@
 'use strict';
 
 //dependencies
-var util = require('../util.js');
+var _ = require('lodash');
+var CacheFactory = require('../dao/cache');
+var log = require('../utils/logging').newInstance('CacheEntityService');
+var SiteService = require('./entities/site_service');
 
 /**
- * Services for managing storage
+ * In-cache storage service
  *
- * @submodule Storage
+ * @module Services
+ * @class CacheEntityService
+ * @constructor
+ * @param {Object} options
+ * @param {String} options.objType
+ * @param {String} options.keyField
+ * @param {String} [options.valueField=null]
+ * @param {String} [options.site='global']
+ * @param {String} [options.onlyThisSite=false]
+ * @param {Integer} [options.timeout=0] The number of seconds that a value will remain in cache
+ * before expiry.
  */
-module.exports = function CacheEntityServiceModule(pb) {
+function CacheEntityService(options){
 
-    /**
-     * In-cache storage service
-     *
-     * @module Services
-     * @class CacheEntityService
-     * @constructor
-     * @param {Object} options
-     * @param {String} options.objType
-     * @param {String} options.keyField
-     * @param {String} [options.valueField=null]
-     * @param {String} [options.site=GLOBAL_SITE]
-     * @param {String} [options.onlyThisSite=false]
-     * @param {Integer} [options.timeout=0] The number of seconds that a value will remain in cache
-     * before expiry.
-     */
-    function CacheEntityService(options){
+    this.objType = options.objType;
+    this.keyField = options.keyField;
+    this.valueField = options.valueField ? options.valueField : null;
+    this.site = options.site || SiteService.GLOBAL_SITE;
+    this.onlyThisSite = !!options.onlyThisSite;
+    this.timeout = options.timeout || 0;
+    this.type = 'Cache-'+this.site+'-'+this.onlyThisSite;
+}
 
-        this.objType = options.objType;
-        this.keyField = options.keyField;
-        this.valueField = options.valueField ? options.valueField : null;
-        this.site = options.site || GLOBAL_SITE;
-        this.onlyThisSite = !!options.onlyThisSite;
-        this.timeout = options.timeout || 0;
-        this.type = 'Cache-'+this.site+'-'+this.onlyThisSite;
-    }
+/**
+ * Retrieve a value from the cache
+ *
+ * @method get
+ * @param  {String}   key
+ * @param  {Function} cb  Callback function
+ */
+CacheEntityService.prototype.get = function(key, cb){
 
-    /**
-     * Short reference to SiteService.GLOBAL_SITE
-     * @private
-     * @static
-     * @readonly
-     * @property GLOBAL_SITE
-     * @type {String}
-     */
-    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+    var self = this;
+    CacheFactory.getInstance().get(keyValue(key, this.site), function(err, result){
+        if (_.isError(err)) {
+            return cb(err, null);
+        }
 
-    /**
-     * Retrieve a value from the cache
-     *
-     * @method get
-     * @param  {String}   key
-     * @param  {Function} cb  Callback function
-     */
-    CacheEntityService.prototype.get = function(key, cb){
+        //site specific value doesn't exist in cache
+        if (result === null) {
 
-        var self = this;
-        pb.cache.get(keyValue(key, this.site), function(err, result){
-            if (util.isError(err)) {
-                return cb(err, null);
+            if (self.site === SiteService.GLOBAL_SITE || self.onlyThisSite) {
+                return cb(null, null);
             }
 
-            //site specific value doesn't exist in cache
-            if (result === null) {
+            CacheFactory.getInstance().get(keyValue(key, SiteService.GLOBAL_SITE), function(err, result){
+                if (_.isError(err)) {
+                    return cb(err, null);
+                }
 
-                if (self.site === GLOBAL_SITE || self.onlyThisSite) {
+                //value doesn't exist in cache
+                if (result === null) {
                     return cb(null, null);
                 }
 
-                pb.cache.get(keyValue(key, GLOBAL_SITE), function(err, result){
-                    if (util.isError(err)) {
-                        return cb(err, null);
-                    }
-
-                    //value doesn't exist in cache
-                    if (result === null) {
-                        return cb(null, null);
-                    }
-
-                    //make call back
-                    return cb(null, self.getRightFieldFromValue(result, self.valueField));
-                });
-            }
-            else {
                 //make call back
                 return cb(null, self.getRightFieldFromValue(result, self.valueField));
-            }
-        });
-    };
-
-    CacheEntityService.prototype.getRightFieldFromValue = function(result, valueField) {
-        var val = result;
-        if (valueField !== null){
-            var rawVal = JSON.parse(result);
-            val        = rawVal[valueField];
+            });
         }
         else {
-            try{
-                val = JSON.parse(val);
-            }
-            catch(e) {
-                pb.log.error('CacheEntityService: an unparcable value was provided to the cache service. Type=%s Value=%s', this.objType, val);
+            //make call back
+            return cb(null, self.getRightFieldFromValue(result, self.valueField));
+        }
+    });
+};
+
+CacheEntityService.prototype.getRightFieldFromValue = function(result, valueField) {
+    var val = result;
+    if (valueField !== null){
+        var rawVal = JSON.parse(result);
+        val        = rawVal[valueField];
+    }
+    else {
+        try{
+            val = JSON.parse(val);
+        }
+        catch(e) {
+            log.error('Could not parse the value provided to the cache service. Type=%s Value=%s', this.objType, val);
+        }
+    }
+    return val;
+};
+
+/**
+ * Set a value in the cache
+ *
+ * @method set
+ * @param {String}   key
+ * @param {*}        value
+ * @param {Function} cb    Callback function
+ */
+CacheEntityService.prototype.set = function(key, value, cb) {
+    var self = this;
+    CacheFactory.getInstance().get(keyValue(key, this.site), function(err, result){
+        if (_.isError(err)) {
+            return cb(err, null);
+        }
+
+        //value doesn't exist in cache
+        var val = null;
+        if (self.valueField === null) {
+            val = value;
+
+            if (_.isObject(val)) {
+                val = JSON.stringify(val);
             }
         }
-        return val;
-    };
-
-    /**
-     * Set a value in the cache
-     *
-     * @method set
-     * @param {String}   key
-     * @param {*}        value
-     * @param {Function} cb    Callback function
-     */
-    CacheEntityService.prototype.set = function(key, value, cb) {
-        var self = this;
-        pb.cache.get(keyValue(key, this.site), function(err, result){
-            if (util.isError(err)) {
-                return cb(err, null);
-            }
-
-            //value doesn't exist in cache
-            var val = null;
-            if (self.valueField === null) {
-                val = value;
-
-                if (util.isObject(val)) {
-                    val = JSON.stringify(val);
-                }
+        else{
+            var rawVal = null;
+            if (result === null) {
+                rawVal = {
+                    object_type: self.objType
+                };
+                rawVal[self.keyField]   = key;
             }
             else{
-                var rawVal = null;
-                if (result === null) {
-                    rawVal = {
-                        object_type: this.objType
-                    };
-                    rawVal[self.keyField]   = key;
-                }
-                else{
-                    rawVal = JSON.parse(result);
-                }
-                rawVal[self.valueField] = value;
-                val                     = JSON.stringify(rawVal);
+                rawVal = JSON.parse(result);
             }
+            rawVal[self.valueField] = value;
+            val                     = JSON.stringify(rawVal);
+        }
 
-            //set into cache
-            if (self.timeout) {
-                pb.cache.setex(key, self.timeout, val, cb);
-            }
-            else {
-                pb.cache.set(key, val, cb);
-            }
-        });
-    };
-
-    function keyValue(key, site) {
-        return site + '_' + key;
-    }
-
-    /**
-     * Purge the cache of a value
-     *
-     * @method purge
-     * @param  {String}   key
-     * @param  {Function} cb  Callback function
-     */
-    CacheEntityService.prototype.purge = function(key, cb) {
-        pb.cache.del(keyValue(key, this.site), cb);
-    };
-
-    return CacheEntityService;
+        //set into cache
+        if (self.timeout) {
+            CacheFactory.getInstance().setex(key, self.timeout, val, cb);
+        }
+        else {
+            CacheFactory.getInstance().set(key, val, cb);
+        }
+    });
 };
+
+function keyValue(key, site) {
+    return site + '_' + key;
+}
+
+/**
+ * Purge the cache of a value
+ *
+ * @method purge
+ * @param  {String}   key
+ * @param  {Function} cb  Callback function
+ */
+CacheEntityService.prototype.purge = function(key, cb) {
+    CacheFactory.getInstance().del(keyValue(key, this.site), cb);
+};
+
+module.exports = CacheEntityService;

@@ -18,9 +18,21 @@
 
 //dependencies
 var fs   = require('fs');
-var util = require('../util.js');
 
-module.exports = function FSEntityServiceModule(/*pb*/) {
+/**
+ * File system storage service
+ *
+ * @module Services
+ * @submodule Storage
+ * @class FSEntityService
+ * @constructor
+ * @param {String} objType
+ */
+class FSEntityService {
+    constructor(objType) {
+        this.type = 'FS';
+        this.objType = objType;
+    }
 
     /**
      * Encoding options for interacting with the file system
@@ -29,22 +41,10 @@ module.exports = function FSEntityServiceModule(/*pb*/) {
      * @readonly
      * @property FS_ENCODING_OPTS
      */
-    var FS_ENCODING_OPTS = Object.freeze({
-        encoding: "UTF-8"
-    });
-
-    /**
-     * File system storage service
-     *
-     * @module Services
-     * @submodule Storage
-     * @class FSEntityService
-     * @constructor
-     * @param {String} objType
-     */
-    function FSEntityService(objType){
-        this.type       = 'FS';
-        this.objType    = objType;
+    static get FS_ENCODING_OPTS () {
+        return Object.freeze({
+            encoding: "UTF-8"
+        });
     }
 
     /**
@@ -54,9 +54,9 @@ module.exports = function FSEntityServiceModule(/*pb*/) {
      * @param  {String}   key
      * @param  {Function} cb  Callback function
      */
-    FSEntityService.prototype.get = function(key, cb){
-        fs.readFile(key, FS_ENCODING_OPTS, cb);
-    };
+    get(key, cb) {
+        fs.readFile(key, FSEntityService.FS_ENCODING_OPTS, cb);
+    }
 
     /**
      * Set a value in the file system
@@ -66,9 +66,9 @@ module.exports = function FSEntityServiceModule(/*pb*/) {
      * @param {*}        value
      * @param {Function} cb    Callback function
      */
-    FSEntityService.prototype.set = function(key, value, cb) {
-        fs.writeFile(key, value, FS_ENCODING_OPTS, cb);
-    };
+    set(key, value, cb) {
+        fs.writeFile(key, value, FSEntityService.FS_ENCODING_OPTS, cb);
+    }
 
     /**
      * Purge the file system of a value
@@ -77,9 +77,9 @@ module.exports = function FSEntityServiceModule(/*pb*/) {
      * @param  {String}   key
      * @param  {Function} cb  Callback function
      */
-    FSEntityService.prototype.purge = function(key, cb) {
+    purge(key, cb) {
         fs.unlink(key, cb);
-    };
+    }
+}
 
-    return FSEntityService;
-};
+module.exports = FSEntityService;

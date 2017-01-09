@@ -17,27 +17,26 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
 var fs   = require('fs');
-var util = require('../util.js');
+var FsEntityService = require('./fs_entity_service');
+var log = require('../utils/logging').newInstance('JsonFsEntityService');
+var util = require('util');
 
-module.exports = function JSONFSEntityServiceModule(pb) {
-
-    /**
-     * JSON file system storage service
-     *
-     * @module Services
-     * @submodule Storage
-     * @class JSONFSEntityService
-     * @constructor
-     * @param {String} objType
-     */
-    function JSONFSEntityService(objType){
-        this.type       = 'JSONFS';
-        this.objType    = objType;
+/**
+ * JSON file system storage service
+ * TODO [1.0] check for references to see if can be removed
+ * @module Services
+ * @submodule Storage
+ * @class JSONFSEntityService
+ * @constructor
+ * @param {String} objType
+ */
+class JsonFsEntityService extends FsEntityService {
+    constructor(objType) {
+        super(objType);
+        this.type = 'JSONFS';
     }
-
-    //inheritance
-    util.inherits(JSONFSEntityService, pb.FSEntityService);
 
     /**
      * Retrieve a value from the file system
@@ -46,23 +45,23 @@ module.exports = function JSONFSEntityServiceModule(pb) {
      * @param  {String}   key
      * @param  {Function} cb  Callback function
      */
-    JSONFSEntityService.prototype.get = function(key, cb){
-        var handler = function(err, value) {
-            if (util.isError(err)) {
+    get(key, cb) {
+        var handler = function (err, value) {
+            if (_.isError(err)) {
                 return cb(err, null);
             }
 
             try {
                 cb(null, JSON.parse(value));
             }
-            catch(e) {
-                var error = util.format("%s: Failed to parse JSON from file: %s", this.type, key);
-                pb.log.error(error);
-                cb(new pb.PBError(error).setSource(e)); // PBError class necessary?
+            catch (e) {
+                var error = util.format("%s: Failed to parse JSON from file: %s\n%s", this.type, key, e.stack);
+                log.error(error);
+                cb(new Error(error)); // PBError class necessary?
             }
         };
-        JSONFSEntityService.super_.prototype.render.apply([this, key, handler]);
-    };
+        super.get(key, handler);
+    }
 
     /**
      * Set a value in the file system
@@ -72,20 +71,20 @@ module.exports = function JSONFSEntityServiceModule(pb) {
      * @param {*}        value
      * @param {Function} cb    Callback function
      */
-    JSONFSEntityService.prototype.set = function(key, value, cb) {
-        if (!util.isObject(value) && !util.isArray(value)) {
-            cb(new pb.PBError(this.type+": Value must be an array or object: "+util.inspect(value)), null); // PBError class necessary?
+    set(key, value, cb) {
+        if (!_.isObject(value) && !Array.isArray(value)) {
+            cb(new Error('Value must be an array or object: ' + util.inspect(value)));
         }
 
         try {
             value = JSON.stringify(value);
         }
-        catch(e) {
+        catch (e) {
             cb(e, null);
             return;
         }
         fs.writeFile(key, value, {encoding: "UTF-8"}, cb);
-    };
+    }
 
     /**
      * Purge the file system of a value
@@ -94,9 +93,9 @@ module.exports = function JSONFSEntityServiceModule(pb) {
      * @param  {String}   key
      * @param  {Function} cb  Callback function
      */
-    JSONFSEntityService.prototype.purge = function(key, cb) {
+    purge(key, cb) {
         fs.unlink(key, cb);
-    };
+    }
+}
 
-    return JSONFSEntityService;
-};
+module.exports = JsonFsEntityService;

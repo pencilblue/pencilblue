@@ -17,29 +17,30 @@
 'use strict';
 
 //dependencies
-var util = require('../util.js');
+var FsEntityService = require('./fs_entity_service');
+var log = require('../utils/logging').newInstance('TemplateEntityService');
+var TemplateService = require('./entities/template_service');
+var ValidationService = require('../validation/validation_service');
 
-module.exports = function TemplateEntityService(pb) {
-
-    /**
-     * Service that is used to load the HTML templates from the file system.  If
-     * the template is available it is compiled.
-     *
-     * @module Services
-     * @class TemplateEntityService
-     * @constructor
-     * @param {String} startMarker The string that represents the begining of
-     * directives.
-     * @param {String} endMarker The string that represents the ending of
-     * directives.
-     */
-    function TemplateEntityService(startMarker, endMarker){
-        this.type        = 'Template';
-        this.objType     = 'template';
+/**
+ * Service that is used to load the HTML templates from the file system.  If
+ * the template is available it is compiled.
+ *
+ * @module Services
+ * @class TemplateEntityService
+ * @constructor
+ * @param {String} startMarker The string that represents the begining of
+ * directives.
+ * @param {String} endMarker The string that represents the ending of
+ * directives.
+ */
+class TemplateEntityService extends FsEntityService {
+    constructor(startMarker, endMarker) {
+        this.type = 'Template';
+        this.objType = 'template';
         this.startMarker = startMarker;
-        this.endMarker   = endMarker;
+        this.endMarker = endMarker;
     }
-    util.inherits(TemplateEntityService, pb.FSEntityService);
 
     /**
      * Retrieve a value from the file system.  Will callback with an object with
@@ -49,30 +50,30 @@ module.exports = function TemplateEntityService(pb) {
      * @param  {String} key the file path to the template
      * @param  {Function} cb A callback function that takes two parameters: cb(Error, Object)
      */
-    TemplateEntityService.prototype.get = function(key, cb){
+    get(key, cb) {
         var self = this;
-        var callback = function(err, content) {
+        var callback = function (err, content) {
 
             //log result
-            if (pb.log.isSilly()) {
-                pb.log.silly('TemplateEntityService: Attempted to retrieve template content.  FILE=[%s] CONTENT_LEN=[%s]', key, content ? content.length : 'n/a');
+            if (log.isSilly()) {
+                log.silly('TemplateEntityService: Attempted to retrieve template content.  FILE=[%s] CONTENT_LEN=[%s]', key, content ? content.length : 'n/a');
             }
 
             //compile the content
             var structure = null;
-            if (pb.validation.isNonEmptyStr(content, true)) {
+            if (ValidationService.isNonEmptyStr(content, true)) {
                 structure = {
                     key: key,
-                    parts: pb.TemplateService.compile(content, self.startMarker, self.endMarker)
+                    parts: TemplateService.compile(content, self.startMarker, self.endMarker)
                 };
 
-                if (pb.log.isSilly()) {
-                    pb.log.silly('TemplateEntityService: Compiled into %d parts', structure.parts.length);
+                if (log.isSilly()) {
+                    log.silly('TemplateEntityService: Compiled into %d parts', structure.parts.length);
                 }
             }
             cb(err, structure);
         };
-        TemplateEntityService.super_.prototype.get.apply(this, [key, callback]);
+        super.get(key, callback);
     };
 
     /**
@@ -83,9 +84,9 @@ module.exports = function TemplateEntityService(pb) {
      * @param {*} value The string content to set
      * @param {Function} cb    Callback function
      */
-    TemplateEntityService.prototype.set = function(key, value, cb) {
+    set(key, value, cb) {
         throw new Error('Not Supported');
-    };
+    }
+}
 
-    return TemplateEntityService;
-};
+module.exports = TemplateEntityService;

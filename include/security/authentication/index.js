@@ -17,62 +17,65 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var DAO = require('../../dao/dao');
 var util = require('../../util.js');
 var RegExpUtils = require('../../utils/reg_exp_utils');
+var SecurityService = require('../../access_management');
+var SiteQueryService = require('../../service/entities/site_query_service');
 
 module.exports = function AuthenticationModule(pb) {
 
     /**
      *
-     * @class UsernamePasswordAuthentication
-     * @constructor
      */
-    function UsernamePasswordAuthentication() {}
+    class UsernamePasswordAuthentication {
 
-    /**
-     *
-     * @method authenticate
-     * @param {Object} credentials
-     * @param {String} credentials.username
-     * @param {String} credentials.password
-     * @param {Function} cb
-     */
-    UsernamePasswordAuthentication.prototype.authenticate = function(credentials, cb) {
-        if (!util.isObject(credentials) || !util.isString(credentials.username) || !util.isString(credentials.password)) {
-            return cb(new Error("UsernamePasswordAuthentication: The username and password must be passed as part of the credentials object: "+credentials), null);
-        }
+        /**
+         *
+         * @method authenticate
+         * @param {Object} credentials
+         * @param {String} credentials.username
+         * @param {String} credentials.password
+         * @param {Function} cb
+         */
+        authenticate(credentials, cb) {
+            if (!_.isObject(credentials) || !_.isString(credentials.username) || !_.isString(credentials.password)) {
+                return cb(new Error("UsernamePasswordAuthentication: The username and password must be passed as part of the credentials object: " + credentials), null);
+            }
 
-        //build query
-        var usernameSearchExp = RegExpUtils.getCaseInsensitiveExact(credentials.username);
-        var query = {
-            object_type : 'user',
-            '$or' : [
-                {
-                    username : usernameSearchExp
-                },
-                {
-                    email : usernameSearchExp
-                }
-            ],
-            password : credentials.password
-        };
-
-        //check for required access level
-        if (!isNaN(credentials.access_level)) {
-            query.admin = {
-                '$gte': credentials.access_level
+            //build query
+            var usernameSearchExp = RegExpUtils.getCaseInsensitiveExact(credentials.username);
+            var query = {
+                object_type: 'user',
+                '$or': [
+                    {
+                        username: usernameSearchExp
+                    },
+                    {
+                        email: usernameSearchExp
+                    }
+                ],
+                password: credentials.password
             };
-        }
 
-        var dao;
-        if (credentials.site) {
-            dao = new pb.SiteQueryService({site: credentials.site, onlyThisSite: false});
-        } else {
-            dao = new pb.DAO();
+            //check for required access level
+            if (!isNaN(credentials.access_level)) {
+                query.admin = {
+                    '$gte': credentials.access_level
+                };
+            }
+
+            var dao;
+            if (credentials.site) {
+                dao = new SiteQueryService({site: credentials.site, onlyThisSite: false});
+            } else {
+                dao = new DAO();
+            }
+            //search for user
+            dao.loadByValues(query, 'user', cb);
         }
-        //search for user
-        dao.loadByValues(query, 'user', cb);
-    };
+    }
 
     /**
      *
@@ -80,26 +83,26 @@ module.exports = function AuthenticationModule(pb) {
      * @constructor
      * @extends UsernamePasswordAuthentication
      */
-    function FormAuthentication() {}
-    util.inherits(FormAuthentication, UsernamePasswordAuthentication);
+    class FormAuthentication extends UsernamePasswordAuthentication {
 
-    /**
-     * @method authenticate
-     * @param {Object} postObj
-     * @param {String} postObj.username
-     * @param {String} postObj.password
-     * @param {Function} cb
-     */
-    FormAuthentication.prototype.authenticate = function(postObj, cb) {
-        if (!util.isObject(postObj)) {
-            return cb(new Error("FormAuthentication: The postObj parameter must be an object: "+postObj), null);
-        }
+        /**
+         * @method authenticate
+         * @param {Object} postObj
+         * @param {String} postObj.username
+         * @param {String} postObj.password
+         * @param {Function} cb
+         */
+        authenticate(postObj, cb) {
+            if (!_.isObject(postObj)) {
+                return cb(new Error("FormAuthentication: The postObj parameter must be an object: " + postObj), null);
+            }
 
-        if (postObj.password) {
-            postObj.password = pb.security.encrypt(postObj.password);
+            if (postObj.password) {
+                postObj.password = SecurityService.encrypt(postObj.password);
+            }
+            super.authenticate(postObj, cb);
         }
-        FormAuthentication.super_.prototype.authenticate.apply(this, [postObj, cb]);
-    };
+    }
 
     /**
      *
@@ -109,30 +112,32 @@ module.exports = function AuthenticationModule(pb) {
      * @param {String} options.site - site uid
      * @param {String} options.user - user id
      */
-    function TokenAuthentication(options) {
-        this.options = options;
-        this.tokenService = new pb.TokenService(options);
-        this.userService = new pb.UserService(options);
+    class TokenAuthentication {
+        constructor(options) {
+            this.options = options;
+            this.tokenService = new TokenService(options);
+            this.userService = new pb.UserService(options);
+        }
+
+        /**
+         * @method authenticate
+         * @param {String} token
+         * @param {Function} cb
+         */
+        authenticate(token, cb) {
+            var self = this;
+            this.tokenService.validateUserToken(token, function (err, result) {
+                if (_.isError(err)) {
+                    return cb(err, null);
+                }
+
+                if (!result.tokenInfo || !result.valid || !result.tokenInfo.user) {
+                    return cb();
+                }
+                self.userService.get(result.tokenInfo.user, cb);
+            });
+        }
     }
-
-    /**
-     * @method authenticate
-     * @param {String} token
-     * @param {Function} cb
-     */
-    TokenAuthentication.prototype.authenticate = function(token, cb) {
-        var self = this;
-        this.tokenService.validateUserToken(token, function(err, result) {
-            if(util.isError(err)) {
-                return cb(err, null);
-            }
-
-            if(!result.tokenInfo || !result.valid || !result.tokenInfo.user) {
-                return cb();
-            }
-            self.userService.get(result.tokenInfo.user, cb);
-        });
-    };
 
     //exports
     return {

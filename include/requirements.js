@@ -42,7 +42,7 @@ module.exports = function PB() {
         AsyncEventEmitter: require(config.docRoot + '/include/utils/async_event_emitter.js'),
 
         //setup the System instance
-        System: require(config.docRoot + 'include/system/system.js'),
+        System: require(config.docRoot + '/include/system/system.js'),
 
         //configure cache
         CacheFactory: require(config.docRoot + '/include/dao/cache.js'),
@@ -63,46 +63,39 @@ module.exports = function PB() {
                 DbLockProvider: require(config.docRoot + '/include/service/locks/providers/db_lock_provider.js')
             }
         },
-        LockService: require(config.docRoot + '/include/service/locks/lock_service.js')(pb)
+        LockService: require(config.docRoot + '/include/service/locks/lock_service.js'),
+
+        SessionHandler: require(config.docRoot + '/include/session/session.js'),
+
+        BaseObjectService: require(config.docRoot + '/include/service/base_object_service.js'),
+
+        SiteService: require(config.docRoot + '/include/service/entities/site_service.js'),
+        SiteQueryService: require(config.docRoot + '/include/service/entities/site_query_service.js'),
+
+        SimpleLayeredService: require(config.docRoot + '/include/service/simple_layered_service.js'),
+        MemoryEntityService: require(path.join(config.docRoot, '/include/service/memory_entity_service.js')),
+        CacheEntityService: require(path.join(config.docRoot, '/include/service/cache_entity_service.js')),
+        DBEntityService: require(path.join(config.docRoot, '/include/service/db_entity_service.js')),
+        FSEntityService: require(path.join(config.docRoot, '/include/service/fs_entity_service.js')),
+        JSONFSEntityService: require(path.join(config.docRoot, '/include/service/json_fs_entity_service.js')),
+        ReadOnlySimpleLayeredService: require(path.join(config.docRoot, '/include/service/read_only_simple_layered_service.js')),
+        TemplateEntityService: require(path.join(config.docRoot, '/include/service/template_entity_service.js')),
+        CustomObjectService: require(path.join(config.docRoot, 'include/service/entities/custom_object_service.js')),
+        TemplateService: require(config.docRoot+'/include/service/entities/template_service.js').TemplateService,
+        TemplateValue: require(config.docRoot+'/include/service/entities/template_service.js').TemplateValue,
+        SecurityService: require(path.join(config.docRoot, '/include/access_management.js')),
+
     };
 
-    Object.defineProperty(pb, 'util', {
-        get: function() {
-            throw new Error('Util has been removed from the framework');
-        }
+    //error on removed items
+    ['util', 'session', 'validation', 'users', 'settings', 'security'].forEach(function(prop) {
+        Object.defineProperty(pb, prop, {
+            get: function() {
+                throw new Error(prop + ' has been removed from the framework');
+            }
+        });
     });
 
-    //setup the session handler
-    var SessionModule = require(path.join(config.docRoot, '/include/session/session.js'));
-    pb.SessionHandler = SessionModule(pb);
-    pb.session        = new pb.SessionHandler(pb.SessionHandler.getSessionStoreInstance());
-
-    pb.BaseObjectService = require(path.join(config.docRoot, '/include/service/base_object_service.js'))(pb);
-
-    //setup site service
-    pb.SiteService = require(path.join(config.docRoot, '/include/service/entities/site_service.js'))(pb);
-    pb.SiteQueryService = require(path.join(config.docRoot, '/include/service/entities/site_query_service.js'))(pb);
-
-
-    //setup object services
-    pb.SimpleLayeredService         = require(path.join(config.docRoot, '/include/service/simple_layered_service.js'))(pb);
-    pb.MemoryEntityService          = require(path.join(config.docRoot, '/include/service/memory_entity_service.js'))(pb);
-    pb.CacheEntityService           = require(path.join(config.docRoot, '/include/service/cache_entity_service.js'))(pb);
-    pb.DBEntityService              = require(path.join(config.docRoot, '/include/service/db_entity_service.js'))(pb);
-    pb.FSEntityService              = require(path.join(config.docRoot, '/include/service/fs_entity_service.js'))(pb);
-    pb.JSONFSEntityService          = require(path.join(config.docRoot, '/include/service/json_fs_entity_service.js'))(pb);
-    pb.ReadOnlySimpleLayeredService = require(path.join(config.docRoot, '/include/service/read_only_simple_layered_service.js'))(pb);
-    pb.TemplateEntityService        = require(path.join(config.docRoot, '/include/service/template_entity_service.js'))(pb);
-    pb.CustomObjectService          = require(path.join(config.docRoot, 'include/service/entities/custom_object_service.js'))(pb);
-
-    //setup template service
-    var TemplateModule = require(config.docRoot+'/include/service/entities/template_service.js')(pb);
-    pb.TemplateService = TemplateModule.TemplateService;
-    pb.TemplateValue   = TemplateModule.TemplateValue;
-
-    //setup security
-    pb.SecurityService                = require(path.join(config.docRoot, '/include/access_management.js'))(pb);
-    pb.security                       = pb.SecurityService;
     var Authentication                = require(path.join(config.docRoot, '/include/security/authentication'))(pb);
     pb.UsernamePasswordAuthentication = Authentication.UsernamePasswordAuthentication;
     pb.FormAuthentication             = Authentication.FormAuthentication;

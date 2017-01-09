@@ -17,36 +17,29 @@
 'use strict';
 
 //dependencies
-var util = require('../util.js');
+var SimpleLayeredService = require('./simple_layered_service');
 
-module.exports = function ReadOnlySimpleLayeredServiceModule(pb) {
-
-    /**
-     * Service to set storage services as read only
-     *
-     * @module Services
-     * @submodule Storage
-     * @class ReadOnlySimpleLayeredService
-     * @constructor
-     * @param {Array} services Array of services
-     * @param {String} [name]  The name to assign to this service
-     */
-    function ReadOnlySimpleLayeredService(services, name){
+/**
+ * Service to set storage services as read only
+ * TODO [1.0] check for references to be removed
+ * @module Services
+ * @submodule Storage
+ * @class ReadOnlySimpleLayeredService
+ * @constructor
+ * @param {Array} services Array of services
+ * @param {String} [name]  The name to assign to this service
+ */
+class ReadOnlySimpleLayeredService extends SimpleLayeredService {
+    constructor(services, name) {
+        super();
         this.services = services;
-        this.name     = name ? name : 'ReadOnlySimpleLayeredService';
+        this.name = name ? name : 'ReadOnlySimpleLayeredService';
 
         //convert services
         for (var i = 0; i < this.services.length; i++) {
             ReadOnlySimpleLayeredService.makeReadOnly(this.services[i]);
         }
-
-        if (pb.log.isDebug()) {
-            this.logInitialization();
-        }
     }
-
-    //inheritance
-    util.inherits(ReadOnlySimpleLayeredService, pb.SimpleLayeredService);
 
     /**
      *
@@ -55,9 +48,9 @@ module.exports = function ReadOnlySimpleLayeredServiceModule(pb) {
      * @param {*} value
      * @param {Function} cb
      */
-    ReadOnlySimpleLayeredService.prototype.set = function(key, value, cb) {
-        cb(new Error(this.name+": This service is readonly"), null);
-    };
+    set(key, value, cb) {
+        cb(new Error(this.name + ": This service is readonly"), null);
+    }
 
     /**
      *
@@ -65,11 +58,11 @@ module.exports = function ReadOnlySimpleLayeredServiceModule(pb) {
      * @method makeReadOnly
      * @param {EntityService} serviceInstance
      */
-    ReadOnlySimpleLayeredService.makeReadOnly = function(serviceInstance) {
-        serviceInstance.set = function(key, value, cb) {
-            cb(new Error(this.name+": This service is readonly"), null);
+    static makeReadOnly(serviceInstance) {
+        serviceInstance.set = function (key, value, cb) {
+            cb(new Error(this.name + ": This service is readonly"), null);
         };
-    };
+    }
+}
 
-    return ReadOnlySimpleLayeredService;
-};
+module.exports = ReadOnlySimpleLayeredService;
