@@ -17,10 +17,13 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var Configuration = require('./config');
+var log = require('./utils/logging').newInstance('EmailService');
 var NodeMailer = require('nodemailer');
-var util       = require('./util.js');
-
-module.exports = function EmailServiceModule(pb) {
+var SettingServiceFactory = require('./system/settings');
+var SiteService = require('./service/entities/site_service');
+var TemplateService = require('./service/entities/template_service');
 
     /**
      * Service for sending emails.
@@ -33,7 +36,7 @@ module.exports = function EmailServiceModule(pb) {
      */
     function EmailService(options) {
         if (options) {
-            this.site = pb.SiteService.getCurrentSite(options.site);
+            this.site = SiteService.getCurrentSite(options.site);
             this.onlyThisSite = options.onlyThisSite || false;
         }
     }
@@ -47,9 +50,9 @@ module.exports = function EmailServiceModule(pb) {
      * @type {Object}
      */
     var DEFAULT_SETTINGS = Object.freeze({
-        from_name: pb.config.siteName,
+        from_name: Configuration.active.siteName,
         from_address: 'no-reply@sample.com',
-        verification_subject: pb.config.siteName+' Account Confirmation',
+        verification_subject: Configuration.active.siteName+' Account Confirmation',
         verification_content: '',
         template: 'admin/elements/default_verification_email',
         service: 'Gmail',
@@ -71,7 +74,7 @@ module.exports = function EmailServiceModule(pb) {
         var self = this;
 
         //TODO: Move the instantiation of the template service to the constructor so it can be injectable with all of the other context properties it needs.
-        var ts   = new pb.TemplateService({ site: this.site });
+        var ts   = new TemplateService({ site: this.site });
         if (options.replacements) {
             for(var key in options.replacements) {
                 ts.registerLocal(key, options.replacements[key]);
@@ -115,12 +118,12 @@ module.exports = function EmailServiceModule(pb) {
     EmailService.prototype.send = function(from, to, subject, body, cb) {
 
         this.getSettings(function(err, emailSettings) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 throw err;
             }
             else if (!emailSettings) {
                 err = new Error('No Email settings available.  Go to the admin settings and put in SMTP settings');
-                pb.log.error(err.stack);
+                log.error(err.stack);
                 return cb(err);
             }
 
@@ -147,8 +150,8 @@ module.exports = function EmailServiceModule(pb) {
             };
 
             smtpTransport.sendMail(mailOptions, function(err, response) {
-                if (util.isError(err)) {
-                    pb.log.error("EmailService: Failed to send email: ", err.stack);
+                if (_.isError(err)) {
+                    log.error("EmailService: Failed to send email: ", err.stack);
                 }
                 smtpTransport.close();
 
@@ -165,9 +168,9 @@ module.exports = function EmailServiceModule(pb) {
      */
     EmailService.prototype.getSettings = function(cb) {
         var self = this;
-        var settingsService = pb.SettingServiceFactory.getServiceBySite(self.site, self.onlyThisSite);
+        var settingsService = SettingServiceFactory.getServiceBySite(self.site, self.onlyThisSite);
         settingsService.get('email_settings', function(err, settings) {
-            cb(err, util.isError(err) || !settings ? EmailService.getDefaultSettings() : settings);
+            cb(err, _.isError(err) || !settings ? EmailService.getDefaultSettings() : settings);
         });
     };
 
@@ -182,5 +185,4 @@ module.exports = function EmailServiceModule(pb) {
     };
 
     //exports
-    return EmailService;
-};
+    module.exports = EmailService;

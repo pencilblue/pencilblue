@@ -85,6 +85,16 @@ module.exports = function PB() {
         TemplateValue: require(config.docRoot+'/include/service/entities/template_service.js').TemplateValue,
         SecurityService: require(path.join(config.docRoot, '/include/access_management.js')),
 
+        UsernamePasswordAuthentication: require(config.docRoot + '/include/security/authentication').UsernamePasswordAuthentication,
+        FormAuthentication: require(config.docRoot + '/include/security/authentication').FormAuthentication,
+        TokenAuthentication: require(config.docRoot + '/include/security/authentication').TokenAuthentication,
+
+        UserService: require(config.docRoot + '/include/service/entities/user_service.js'),
+
+        BaseBodyParser: require(config.docRoot + 'include/http/parsers').BaseBodyParser,
+        JsonBodyParser: require(config.docRoot + 'include/http/parsers').JsonBodyParser,
+        FormBodyParser: require(config.docRoot + 'include/http/parsers').FormBodyParser,
+
     };
 
     //error on removed items
@@ -96,25 +106,7 @@ module.exports = function PB() {
         });
     });
 
-    var Authentication                = require(path.join(config.docRoot, '/include/security/authentication'))(pb);
-    pb.UsernamePasswordAuthentication = Authentication.UsernamePasswordAuthentication;
-    pb.FormAuthentication             = Authentication.FormAuthentication;
-    pb.TokenAuthentication            = Authentication.TokenAuthentication;
-
-    //setup user service
-    pb.UserService       = require(path.join(config.docRoot, '/include/service/entities/user_service.js'))(pb);
-    Object.defineProperty(pb, 'users', {
-        get: function() {
-            pb.log.warn('PencilBlue: pb.users is deprecated.  Use new pb.UserService(context) instead');
-            return new pb.UserService();
-        }
-    });
-
     //setup request handling
-    var BodyParsers        = require(path.join(config.docRoot, 'include/http/parsers'))(pb);
-    pb.BaseBodyParser      = BodyParsers.BaseBodyParser;
-    pb.JsonBodyParser      = BodyParsers.JsonBodyParser;
-    pb.FormBodyParser      = BodyParsers.FormBodyParser;
     pb.BaseController      = require(path.join(config.docRoot, '/controllers/base_controller.js'))(pb);
     pb.BaseApiController   = require(path.join(config.docRoot, '/controllers/api/base_api_controller.js'))(pb);
     pb.BaseAdminController = require(path.join(config.docRoot, '/controllers/admin/base_admin_controller.js'))(pb);
