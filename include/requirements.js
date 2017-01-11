@@ -95,6 +95,19 @@ module.exports = function PB() {
         JsonBodyParser: require(config.docRoot + 'include/http/parsers').JsonBodyParser,
         FormBodyParser: require(config.docRoot + 'include/http/parsers').FormBodyParser,
 
+        BaseController: require(path.join(config.docRoot, '/controllers/base_controller.js')),
+        BaseApiController: require(path.join(config.docRoot, '/controllers/api/base_api_controller.js')),
+        BaseAdminController: require(path.join(config.docRoot, '/controllers/admin/base_admin_controller.js')),
+        ViewController: require(path.join(config.docRoot, '/controllers/view_controller.js')),
+        FormController: require(path.join(config.docRoot, '/controllers/form_controller.js')),
+        DeleteController: require(path.join(config.docRoot, '/controllers/delete_controller.js')),
+        ApiActionController: require(path.join(config.docRoot, '/controllers/api/api_action_controller.js')),
+        ErrorViewController: require(path.join(config.docRoot, '/controllers/error_controller.js')),
+        RequestHandler: require(path.join(config.docRoot, '/include/http/request_handler.js')),
+        Middleware: require(path.join(config.docRoot, '/include/http/middleware')),
+        Router: require(path.join(config.docRoot, '/include/http/router.js')),
+
+        //TODO convert from BaseApiController down
     };
 
     //error on removed items

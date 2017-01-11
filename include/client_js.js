@@ -17,9 +17,10 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var log = require('./utils/logging').newInstance('ClientJs');
+var TemplateValue = require('./service/entities/template_service').TemplateValue;
 var util = require('./util.js');
-
-module.exports = function ClientJsModule(pb) {
 
     /**
      * Service for creating JavaScript tags
@@ -39,12 +40,12 @@ module.exports = function ClientJsModule(pb) {
      * @param {String} [directiveJS] JavaScript to run after on-finish-render directive
      */
     ClientJs.getAngularController = function(objects, modules, directiveJS) {
-        if(!util.isArray(modules) || modules.length === 0) {
+        if(!Array.isArray(modules) || modules.length === 0) {
             modules = ['ngRoute'];
         }
 
         var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ')';
-        if(!util.isNullOrUndefined(directiveJS)) {
+        if(!_.isNil(directiveJS)) {
             angularController += '.directive("onFinishRender", function($timeout) {return {restrict: "A", link: function(scope, element, attr) {if (scope.$last === true){$timeout(function() {' + directiveJS + '})}}}})';
         }
 
@@ -64,11 +65,11 @@ module.exports = function ClientJsModule(pb) {
     ClientJs.getAngularObjects = function(objects) {
         var scopeString = '';
         Object.keys(objects).forEach(function(key) {
-            if(util.isString(objects[key]) && objects[key].indexOf('function(') === 0) {
+            if(_.isString(objects[key]) && objects[key].indexOf('function(') === 0) {
                 scopeString = scopeString.concat('$scope.' + key + ' = ' + objects[key] + ";\n");
                 return;
             }
-            scopeString = scopeString.concat('$scope.' + key + ' = ' + JSON.stringify(objects[key], null, pb.log.isSilly() ? ' ' : undefined) + ";\n");
+            scopeString = scopeString.concat('$scope.' + key + ' = ' + JSON.stringify(objects[key], null, log.isSilly() ? ' ' : undefined) + ";\n");
         });
 
         return scopeString;
@@ -82,7 +83,7 @@ module.exports = function ClientJsModule(pb) {
      * @param {String} url
      */
     ClientJs.includeJS = function(url) {
-        return new pb.TemplateValue('<script type="text/javascript" src="' + url + '"></script>', false);
+        return new TemplateValue('<script type="text/javascript" src="' + url + '"></script>', false);
     };
 
     /**
@@ -93,9 +94,8 @@ module.exports = function ClientJsModule(pb) {
      * @param {String} jsCode
      */
     ClientJs.getJSTag = function(jsCode) {
-        return new pb.TemplateValue('<script type="text/javascript">\n' + jsCode + '\n</script>', false);
+        return new TemplateValue('<script type="text/javascript">\n' + jsCode + '\n</script>', false);
     };
 
     //exports
-    return ClientJs;
-};
+    module.exports = ClientJs;

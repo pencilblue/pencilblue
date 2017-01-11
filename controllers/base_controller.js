@@ -17,13 +17,21 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var AnalyticsManager = require('../include/system/analytics_manager');
+var BaseBodyParser = require('../include/http/parsers').BaseBodyParser;
+var BaseObjectService = require('../include/service/base_object_service');
+var ClientJs = require('../include/client_js');
+var Configuration = require('../include/config');
+var log = require('../include/utils/logging').newInstance('BaseController');
+var RequestHandler = require('../include/http/request_handler');
+var SiteService = require('../include/service/entities/site_service');
+var TemplateService = require('../include/service/entities/template_service').TemplateService;
+var TemplateValue = require('../include/service/entities/template_service').TemplateValue;
 var url  = require('url');
-var util = require('../include/util.js');
-
-module.exports = function BaseControllerModule(pb) {
-
-    // pb dependancies
-    var SiteService = pb.SiteService;
+var UrlUtils = require('../lib/utils/urlUtils');
+var util = require('util');
+var uuid = require('uuid');
 
     /**
      * The base controller provides functions for the majority of
@@ -184,7 +192,7 @@ module.exports = function BaseControllerModule(pb) {
         this.siteObj             = props.siteObj;
         this.site                = props.site;
         this.siteName            = props.siteName;
-        this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || pb.config.siteRoot;
+        this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || Configuration.active.siteRoot;
 
         /**
          * The referring URL
@@ -255,7 +263,7 @@ module.exports = function BaseControllerModule(pb) {
         };
 
         //create instance
-        var ts = new pb.TemplateService(tsOpts);
+        var ts = new TemplateService(tsOpts);
 
         //configure for common flags
         var model = {
@@ -275,15 +283,15 @@ module.exports = function BaseControllerModule(pb) {
             },
 
             analytics: function(flag, cb) {
-                pb.AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
+                AnalyticsManager.onPageRender(self.req, self.session, self.ls, cb);
             },
 
             wysiwyg: function(flag, cb) {
-                var wysiwygId = util.uniqueId();
+                var wysiwygId = uuid.v4();
 
                 self.ts.registerLocal('wys_id', wysiwygId);
                 self.ts.load('admin/elements/wysiwyg', function(err, data) {
-                    cb(err, new pb.TemplateValue(data, false));
+                    cb(err, new TemplateValue(data, false));
                 });
             },
 
@@ -332,10 +340,10 @@ module.exports = function BaseControllerModule(pb) {
             else {
                 urlOpts.locale = locale;
             }
-            var url = pb.UrlService.createSystemUrl(path, urlOpts);
+            var url = UrlUtils.createSystemUrl(path, urlOpts);
             val += '<link rel="' + relationship + '" hreflang="' + locale + '" href="' + url + '" />\n';
         });
-        cb(null, new pb.TemplateValue(val, false));
+        cb(null, new TemplateValue(val, false));
     };
 
     /**
@@ -345,7 +353,7 @@ module.exports = function BaseControllerModule(pb) {
      * @return {Object}
      */
     BaseController.prototype.getServiceContext = function(){
-        return util.merge(this.context, {});
+        return Object.assign({}, this.context);
     };
 
     /**
@@ -366,9 +374,9 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.requiresClientLocalizationCallback = function(flag, cb) {
         var val = '';
         if (this.requiresClientLocalization()) {
-            val = pb.ClientJs.includeJS('/api/localization/script');
+            val = ClientJs.includeJS('/api/localization/script');
         }
-        cb(null, new pb.TemplateValue(val, false));
+        cb(null, new TemplateValue(val, false));
     };
 
     /**
@@ -381,8 +389,8 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.formError = function(message, redirectLocation, cb) {
 
         this.session.error = message;
-        var uri = pb.UrlService.createSystemUrl(redirectLocation, { hostname: this.hostname });
-        cb(pb.RequestHandler.generateRedirect(uri));
+        var uri = UrlUtils.createSystemUrl(redirectLocation, { hostname: this.hostname });
+        cb(RequestHandler.generateRedirect(uri));
     };
 
     /**
@@ -395,12 +403,12 @@ module.exports = function BaseControllerModule(pb) {
         if(this.session.error) {
             var error = this.session.error;
             delete this.session.error;
-            cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-danger', this.ls.get(error)), false));
+            cb(null, new TemplateValue(util.format(ALERT_PATTERN, 'alert-danger', this.ls.get(error)), false));
         }
         else if(this.session.success) {
             var success = this.session.success;
             delete this.session.success;
-            cb(null, new pb.TemplateValue(util.format(ALERT_PATTERN, 'alert-success', this.ls.get(success)), false));
+            cb(null, new TemplateValue(util.format(ALERT_PATTERN, 'alert-success', this.ls.get(success)), false));
         }
         else {
             cb(null, '');
@@ -436,13 +444,13 @@ module.exports = function BaseControllerModule(pb) {
 
         this.getPostData(function(err, raw){
             //Handle error
-            if (util.isError(err)) {
-                pb.log.error("BaseController.getPostParams encountered an error. ERROR[%s]", err.stack);
+            if (_.isError(err)) {
+                log.error("BaseController.getPostParams encountered an error. ERROR[%s]", err.stack);
                 return cb(err, null);
             }
 
             //lookup encoding
-            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
+            var encoding = BaseBodyParser.getContentEncoding(self.req);
             encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
 
             //convert to string
@@ -468,13 +476,13 @@ module.exports = function BaseControllerModule(pb) {
 
         this.getPostData(function(err, raw){
             //Handle error
-            if (util.isError(err)) {
-                pb.log.error("BaseController.getJSONPostParams encountered an error. ERROR[%s]", err.stack);
+            if (_.isError(err)) {
+                log.error("BaseController.getJSONPostParams encountered an error. ERROR[%s]", err.stack);
                 return cb(err, null);
             }
 
             //lookup encoding
-            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
+            var encoding = BaseBodyParser.getContentEncoding(self.req);
             encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
 
             var error      = null;
@@ -561,7 +569,7 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.checkForFormRefill = function(result, cb) {
         if(this.session.fieldValues) {
             var content    = util.format(FORM_REFILL_PATTERN, JSON.stringify(this.session.fieldValues));
-            var formScript = pb.ClientJs.getJSTag(content);
+            var formScript = ClientJs.getJSTag(content);
             result         = result.concat(formScript);
 
             delete this.session.fieldValues;
@@ -580,17 +588,17 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Object} obj
      */
     BaseController.prototype.sanitizeObject = function(obj) {
-        if (!util.isObject(obj)) {
-            pb.log.warn("BaseController.sanitizeObject was not passed an object.");
+        if (!_.isObject(obj)) {
+            log.warn("BaseController.sanitizeObject was not passed an object.");
             return;
         }
 
         var rules = this.getSanitizationRules();
         Object.keys(obj).forEach(function(prop) {
-            if (util.isString(obj[prop])) {
+            if (_.isString(obj[prop])) {
 
                 var config = rules[prop];
-                obj[prop] = pb.BaseObjectService.sanitize(obj[prop], config);
+                obj[prop] = BaseObjectService.sanitize(obj[prop], config);
             }
         });
     };
@@ -605,47 +613,17 @@ module.exports = function BaseControllerModule(pb) {
     };
 
     /**
-     * The sanitization rules that apply to Pages and Articles
-     * @deprecated Since 0.4.1
-     * @static
-     * @method getContentSanitizationRules
-     */
-    BaseController.getContentSanitizationRules = function() {
-        return pb.BaseObjectService.getContentSanitizationRules();
-    };
-
-    /**
-     * @deprecated Since 0.4.1
-     * @static
-     * @method getDefaultSanitizationRules
-     */
-    BaseController.getDefaultSanitizationRules = function() {
-        return pb.BaseObjectService.getDefaultSanitizationRules();
-    };
-
-    /**
-     *
-     * @deprecated Since 0.4.1
-     * @static
-     * @method sanitize
-     * @param {String} value
-     * @param {Object} [config]
-     */
-    BaseController.sanitize = function(value, config) {
-        return pb.BaseObjectService.sanitize(value, config);
-    };
-
-    /**
      * Redirects a request to a different location
      * @method redirect
      * @param {String} location
      * @param {Function} cb
      */
     BaseController.prototype.redirect = function(location, cb){
-        cb(pb.RequestHandler.generateRedirect(location));
+        cb(RequestHandler.generateRedirect(location));
     };
 
     /**
+     * TODO: [1.0] Remove and standardize on base object service structures
      * Generates an generic API response object
      * @static
      * @method apiResponse
@@ -671,5 +649,4 @@ module.exports = function BaseControllerModule(pb) {
         var response = {code: cd, message: msg, data: dta};
         return JSON.stringify(response);
     };
-    return BaseController;
-};
+    module.exports = BaseController;

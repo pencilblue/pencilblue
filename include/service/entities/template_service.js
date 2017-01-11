@@ -34,7 +34,7 @@ var util = require('util');
 var ValidationService = require('../../validation/validation_service');
 
     /**
-     * A templating engine that provides the ability to read in file snippets and
+     * A template engine that provides the ability to read in file snippets and
      * call back for data based on the flags in the template file.  The instance
      * can be provided a Localization instance which will be used to perform
      * translations for localization flags are encountered.  Flags are marked in
@@ -1001,7 +1001,7 @@ var ValidationService = require('../../validation/validation_service');
         return this.val();
     };
 
-    return {
+    module.exports = {
         TemplateService: TemplateService,
         TemplateValue: TemplateValue
     };

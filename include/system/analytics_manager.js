@@ -14,16 +14,18 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
+var _ = require('lodash');
 var async  = require('async');
+var Configuration = require('../config');
 var domain = require('domain');
-var util   = require('../util.js');
-
-module.exports = function AnalyticsManagerModule(pb) {
-
-    //pb dependencies
-    var ValidationService = pb.ValidationService;
+var log = require('../utils/logging').newInstance('AnalyticsManager');
+var RequestHandler = require('../http/request_handler');
+var SiteService = require('../service/entities/site_service');
+var TemplateValue = require('../service/entities/template_service').TemplateValue;
+var ValidationService = require('../validation/validation_service');
 
     /**
      * Provides functionality to render HTML snippets to report metrics back to
@@ -42,7 +44,7 @@ module.exports = function AnalyticsManagerModule(pb) {
          * @property site
          * @type {String}
          */
-        this.site = options.site || pb.SiteService.GLOBAL_SITE;
+        this.site = options.site || SiteService.GLOBAL_SITE;
 
         /**
          * The amount of time, in milliseconds, that the manager will wait for
@@ -125,11 +127,11 @@ module.exports = function AnalyticsManagerModule(pb) {
 
         //build the task list
         var self = this;
-        var tasks = util.getTasks(providerKeys, function(keys, i) {
-            return self.buildRenderTask(keys[i], req, session, ls);
+        var tasks = providerKeys.map(function(key) {
+            return self.buildRenderTask(key, req, session, ls);
         });
         async.parallel(tasks, function(err, results) {
-            cb(err, new pb.TemplateValue(results.join(''), false));
+            cb(err, new TemplateValue(results.join(''), false));
         });
     };
 
@@ -148,8 +150,8 @@ module.exports = function AnalyticsManagerModule(pb) {
         var timeout = this.timeout;
 
         return function(callback) {
-            if (pb.log.isSilly()) {
-                pb.log.silly("AnalyticsManager: Rendering provider [%s] for URL [%s:%s]", key, req.method, req.url);
+            if (log.isSilly()) {
+                log.silly("AnalyticsManager: Rendering provider [%s] for URL [%s:%s]", key, req.method, req.url);
             }
 
             //build context object for builder functions to have access to params
@@ -174,7 +176,7 @@ module.exports = function AnalyticsManagerModule(pb) {
                 opts.start = new Date().getTime();
                 opts.th = setTimeout(AnalyticsManager.buildTimeoutHandler(opts), timeout);
 
-                var provider = PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE] || [];
+                var provider = PROVIDER_HOOKS[SiteService.GLOBAL_SITE] || [];
                 if (PROVIDER_HOOKS[site] && PROVIDER_HOOKS[site][key]) {
                     provider = PROVIDER_HOOKS[site];
                 }
@@ -199,8 +201,8 @@ module.exports = function AnalyticsManagerModule(pb) {
      */
     AnalyticsManager.buildProviderResponseHandler = function(opts) {
         return function(err, result) {
-            if (util.isError(err)) {
-                pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", opts.key, opts.method, opts.url, err.stack);
+            if (_.isError(err)) {
+                log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", opts.key, opts.method, opts.url, err.stack);
             }
 
             //collect runtime metrics
@@ -235,7 +237,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      */
     AnalyticsManager.buildDomainErrorHandler = function(opts) {
         return function(err) {
-            pb.log.error('AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s', opts.key, opts.method, opts.url, err.stack);
+            log.error('AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s', opts.key, opts.method, opts.url, err.stack);
 
             //only callback if the timeout handle is still in place
             if (opts.th !== null) {
@@ -287,7 +289,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @return {Object}
      */
     AnalyticsManager.getStats = function() {
-        return util.clone(STATS);
+        return _.clone(STATS);
     };
 
     /**
@@ -298,7 +300,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      */
     AnalyticsManager.buildTimeoutHandler = function(opts) {
         return function() {
-            pb.log.warn("AnalyticsManager: Rendering for provider [%s] timed out", opts.key);
+            log.warn("AnalyticsManager: Rendering for provider [%s] timed out", opts.key);
 
             opts.th = null;
             opts.callback(null, '');
@@ -322,13 +324,13 @@ module.exports = function AnalyticsManagerModule(pb) {
      * plugin.
      */
     AnalyticsManager.registerProvider = function(name, site, onPageRendering) {
-        if (util.isFunction(site)) {
+        if (_.isFunction(site)) {
             onPageRendering = site;
-            site = pb.SiteService.GLOBAL_SITE;
+            site = SiteService.GLOBAL_SITE;
         }
 
         if (!ValidationService.validateNonEmptyStr(name, true) ||
-            !util.isFunction(onPageRendering) || AnalyticsManager.isRegistered(name, site)) {
+            !_.isFunction(onPageRendering) || AnalyticsManager.isRegistered(name, site)) {
             return false;
         }
         if (!PROVIDER_HOOKS[site]) {
@@ -356,8 +358,8 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @return {Boolean} TRUE if was unregistered, FALSE if not found
      */
     AnalyticsManager.unregisterProvider = function(name, site) {
-        if (!util.isString(site)) {
-            site = pb.SiteService.GLOBAL_SITE;
+        if (!_.isString(site)) {
+            site = SiteService.GLOBAL_SITE;
         }
         if (!AnalyticsManager.isRegistered(name, site)) {
             return false;
@@ -376,11 +378,11 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @return {Boolean} TRUE when the provider is registered, FALSE if not
      */
     AnalyticsManager.isRegistered = function(name, site) {
-        if (!util.isString(site)) {
-            site = pb.SiteService.GLOBAL_SITE;
+        if (!_.isString(site)) {
+            site = SiteService.GLOBAL_SITE;
         }
-        return !util.isNullOrUndefined(PROVIDER_HOOKS[site]) &&
-            util.isFunction(PROVIDER_HOOKS[site][name]);
+        return !_.isNil(PROVIDER_HOOKS[site]) &&
+            _.isFunction(PROVIDER_HOOKS[site][name]);
     };
 
     /**
@@ -398,8 +400,8 @@ module.exports = function AnalyticsManagerModule(pb) {
      */
     AnalyticsManager.onPageRender = function(req, session, ls, cb) {
         var context = {
-            site: pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null,
-            timeout: pb.config.analytics.timeout
+            site: RequestHandler.sites[req.headers.host] ? RequestHandler.sites[req.headers.host].uid : null,
+            timeout: Configuration.active.analytics.timeout
         };
         var managerInstance = new AnalyticsManager(context);
         managerInstance.gatherData(req, session, ls, cb);
@@ -416,12 +418,12 @@ module.exports = function AnalyticsManagerModule(pb) {
         var keyFunc = keyHandler(keyHash);
 
         //check for global keys.  They apply to all sites
-        if (PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE]) {
-            (Object.keys(PROVIDER_HOOKS[pb.SiteService.GLOBAL_SITE]) || []).forEach(keyFunc);
+        if (PROVIDER_HOOKS[SiteService.GLOBAL_SITE]) {
+            (Object.keys(PROVIDER_HOOKS[SiteService.GLOBAL_SITE]) || []).forEach(keyFunc);
         }
 
         //check for non-global site keys
-        if(PROVIDER_HOOKS[site] && site !== pb.SiteService.GLOBAL_SITE) {
+        if(PROVIDER_HOOKS[site] && site !== SiteService.GLOBAL_SITE) {
             Object.keys(PROVIDER_HOOKS[site]).forEach(keyFunc);
         }
         return Object.keys(keyHash);
@@ -441,5 +443,4 @@ module.exports = function AnalyticsManagerModule(pb) {
     }
 
     //exports
-    return AnalyticsManager;
-};
+    module.exports = AnalyticsManager;
