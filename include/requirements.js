@@ -100,43 +100,27 @@ module.exports = function PB() {
         BaseAdminController: require(path.join(config.docRoot, '/controllers/admin/base_admin_controller.js')),
         ViewController: require(path.join(config.docRoot, '/controllers/view_controller.js')),
         FormController: require(path.join(config.docRoot, '/controllers/form_controller.js')),
-        DeleteController: require(path.join(config.docRoot, '/controllers/delete_controller.js')),
-        ApiActionController: require(path.join(config.docRoot, '/controllers/api/api_action_controller.js')),
         ErrorViewController: require(path.join(config.docRoot, '/controllers/error_controller.js')),
         RequestHandler: require(path.join(config.docRoot, '/include/http/request_handler.js')),
         Middleware: require(path.join(config.docRoot, '/include/http/middleware')),
         Router: require(path.join(config.docRoot, '/include/http/router.js')),
 
-        //TODO convert from BaseApiController down
+        ErrorsOverTime: require(path.join(config.docRoot, '/include/error/errors_over_time.js')),
+        ErrorFormatters: require(path.join(config.docRoot, '/include/error/formatters/error_formatters.js')),
+
+        Localization: require(path.join(config.docRoot, '/include/localization.js')),
+        
+        
     };
 
     //error on removed items
-    ['util', 'session', 'validation', 'users', 'settings', 'security'].forEach(function(prop) {
+    ['util', 'session', 'validation', 'users', 'settings', 'security', 'DeleteController', 'ApiActionController', 'HttpStatus', 'PBError'].forEach(function(prop) {
         Object.defineProperty(pb, prop, {
             get: function() {
                 throw new Error(prop + ' has been removed from the framework');
             }
         });
     });
-
-    //setup request handling
-    pb.BaseController      = require(path.join(config.docRoot, '/controllers/base_controller.js'))(pb);
-    pb.BaseApiController   = require(path.join(config.docRoot, '/controllers/api/base_api_controller.js'))(pb);
-    pb.BaseAdminController = require(path.join(config.docRoot, '/controllers/admin/base_admin_controller.js'))(pb);
-    pb.ViewController      = require(path.join(config.docRoot, '/controllers/view_controller.js'))(pb);
-    pb.FormController      = require(path.join(config.docRoot, '/controllers/form_controller.js'))(pb);
-    pb.DeleteController    = require(path.join(config.docRoot, '/controllers/delete_controller.js'))(pb);
-    pb.ApiActionController = require(path.join(config.docRoot, '/controllers/api/api_action_controller.js'))(pb);
-    pb.ErrorViewController = require(path.join(config.docRoot, '/controllers/error_controller.js'))(pb);
-    pb.RequestHandler      = require(path.join(config.docRoot, '/include/http/request_handler.js'))(pb);
-    pb.Middleware          = require(path.join(config.docRoot, '/include/http/middleware'))(pb);
-    pb.Router              = require(path.join(config.docRoot, '/include/http/router.js'))(pb);
-    pb.HttpStatus          = require('http-status-codes');
-
-    //setup errors
-    pb.PBError    = require(path.join(config.docRoot, '/include/error/pb_error.js'))(pb);
-    pb.ErrorsOverTime = require(path.join(config.docRoot, '/include/error/errors_over_time.js'))(pb);
-    pb.ErrorFormatters = require(path.join(config.docRoot, '/include/error/formatters/error_formatters.js'))(pb);
 
     //setup localization
     pb.Localization = require(path.join(config.docRoot, '/include/localization.js'))(pb);

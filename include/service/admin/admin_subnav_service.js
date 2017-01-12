@@ -16,30 +16,32 @@
 */
 'use strict';
 
+var _ = require('lodash');
+var Configuration = require('../../config');
+var SiteService = require('../entities/site_service');
 var util = require('../../util.js');
+var ValidationService = require('../../validation/validation_service');
 
-module.exports = function AdminSubnavServiceModule(pb) {
+/**
+ *
+ * @private
+ * @static
+ * @property CALLBACKS
+ * @type {Object}
+ */
+var CALLBACKS = {};
 
-    /**
-     * Provides the ability to manage the admin section's sub-nav.  It manages
-     * callbacks for specific areas of the admin section that will build a structure
-     * to represent the sub-nav.  This sub nav, when retrieved will combine all
-     * registrants' pills into a single structure which can then be rendered in a UI.
-     *
-     * @module Services
-     * @class AdminSubnavService
-     * @constructor
-     */
-    function AdminSubnavService(){}
-
-    /**
-     *
-     * @private
-     * @static
-     * @property CALLBACKS
-     * @type {Object}
-     */
-    var CALLBACKS = {};
+/**
+ * Provides the ability to manage the admin section's sub-nav.  It manages
+ * callbacks for specific areas of the admin section that will build a structure
+ * to represent the sub-nav.  This sub nav, when retrieved will combine all
+ * registrants' pills into a single structure which can then be rendered in a UI.
+ *
+ * @module Services
+ * @class AdminSubnavService
+ * @constructor
+ */
+class AdminSubnavService {
 
     /**
      * Register a callback with the service
@@ -48,8 +50,8 @@ module.exports = function AdminSubnavServiceModule(pb) {
      * @param {String}   key            The key to register
      * @param {Function} getSubNavItems The callback function
      */
-    AdminSubnavService.registerFor = function(key, getSubNavItems) {
-        if (!pb.validation.isNonEmptyStr(key, true) || !util.isFunction(getSubNavItems)) {
+    static registerFor (key, getSubNavItems) {
+        if (!ValidationService.isNonEmptyStr(key, true) || !_.isFunction(getSubNavItems)) {
             return false;
         }
 
@@ -72,7 +74,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
 
         CALLBACKS[key].push(getSubNavItems);
         return true;
-    };
+    }
 
     /**
      * Unregisters a callback function
@@ -82,11 +84,11 @@ module.exports = function AdminSubnavServiceModule(pb) {
      * @param {Function} Function to unregister
      * @return {Boolean} TRUE if function was unregistered, FALSE if not
      */
-    AdminSubnavService.unregisterFor = function(key, registeredFunc) {
-        if (!pb.validation.isNonEmptyStr(key, true) || !util.isFunction(registeredFunc)) {
+    static unregisterFor (key, registeredFunc) {
+        if (!ValidationService.isNonEmptyStr(key, true) || !_.isFunction(registeredFunc)) {
             return false;
         }
-        else if (!util.isArray(CALLBACKS[key])) {
+        else if (!Array.isArray(CALLBACKS[key])) {
             return false;
         }
 
@@ -96,7 +98,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
             return true;
         }
         return false;
-    };
+    }
 
     /**
      * Retrieves the sub-nav items
@@ -108,16 +110,16 @@ module.exports = function AdminSubnavServiceModule(pb) {
      * @param  {Object} [data]     Data object to send to the callback function
      * @return {Object}            The sub-nav items
      */
-    AdminSubnavService.get = function(key, ls, activePill, data) {
-        if (!util.isArray(CALLBACKS[key]) || CALLBACKS[key].length === 0) {
+    static get (key, ls, activePill, data) {
+        if (!Array.isArray(CALLBACKS[key]) || CALLBACKS[key].length === 0) {
             return [];
         }
 
         var navItems = [];
-        for(var i = 0; i < CALLBACKS[key].length; i++) {
+        for (var i = 0; i < CALLBACKS[key].length; i++) {
 
             var items = CALLBACKS[key][i](key, ls, data);
-            if (util.isArray(items)) {
+            if (Array.isArray(items)) {
 
                 for (var j = 0; j < items.length; j++) {
                     if (items[j] && items[j].name === activePill) {
@@ -128,7 +130,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
             }
         }
         return navItems;
-    };
+    }
 
     /**
      * Add a site name pill to existing pills
@@ -139,9 +141,9 @@ module.exports = function AdminSubnavServiceModule(pb) {
      * @param {String} siteName name of the site to add to the pill
      * @return {Array} a list of pills with site name added
      */
-    AdminSubnavService.addSiteToPills = function (standardPills, siteName) {
+    static addSiteToPills (standardPills, siteName) {
         var pills = [];
-        if (siteName && pb.config.multisite.enabled) {
+        if (siteName && Configuration.active.multisite.enabled) {
             pills.push({
                 name: 'selected_site',
                 title: siteName,
@@ -151,7 +153,7 @@ module.exports = function AdminSubnavServiceModule(pb) {
         }
         pills = pills.concat(standardPills);
         return pills;
-    };
+    }
 
     /**
      * Retrieves the sub-nav items with selcted site
@@ -163,13 +165,13 @@ module.exports = function AdminSubnavServiceModule(pb) {
      * @param  {Object} [data]     Data object to send to the callback function (Must include field named "site")
      * @param {Function} cb        Yields resulting subnav items
      */
-    AdminSubnavService.getWithSite = function(key, ls, activePill, data, cb) {
+    static getWithSite (key, ls, activePill, data, cb) {
         var standardPills = AdminSubnavService.get(key, ls, activePill, data);
-        if(pb.config.multisite.enabled) {
-            if(!data || !data.site) {
+        if (Configuration.active.multisite.enabled) {
+            if (!data || !data.site) {
                 throw new Error('Data must include a field named "site"');
             }
-            new pb.SiteService().getSiteNameByUid(data.site, function(err, siteName) {
+            new SiteService().getSiteNameByUid(data.site, function (err, siteName) {
                 var pills = AdminSubnavService.addSiteToPills(standardPills, siteName);
                 cb(err, pills);
             });
@@ -177,8 +179,8 @@ module.exports = function AdminSubnavServiceModule(pb) {
         else {
             cb(null, standardPills);
         }
-    };
+    }
+}
 
-    //exports
-    return AdminSubnavService;
-};
+//exports
+module.exports = AdminSubnavService;

@@ -16,105 +16,103 @@
 */
 
 //dependencies
+var _ = require('lodash');
 var async = require('async');
+var BaseController = require('./base_controller');
+var ClientJs = require('../include/client_js');
+var Configuration = require('../include/config');
+var ContentService = require('../include/content');
+var HttpStatusCodes = require('http-status-codes');
+var SecurityService = require('../include/access_management');
+var TemplateValue = require('../include/service/entities/template_service').TemplateValue;
+var TopMenuService = require('../include/theme/top_menu');
+var log = require('../include/utils/logging').newInstance('ErrorController');
 
-module.exports = function(pb) {
-
-    //pb dependencies
-    var util = pb.util;
-
-    /**
-     * Default Error Controller for HTML
-     * @class ErrorViewController
-     * @constructor
-     * @extends BaseController
-     */
-    function ErrorViewController(){}
-    util.inherits(ErrorViewController, pb.BaseController);
+/**
+ * Default Error Controller for HTML
+ * @class ErrorViewController
+ * @constructor
+ * @extends BaseController
+ */
+class ErrorViewController extends BaseController {
+    constructor() {
+        super();
+    }
 
     /**
      * Initializes the controller
-     * @method init
      * @param {Object} context
-     * @param {Function} cb
      */
-    ErrorViewController.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err, result) {
+    initSync(context) {
 
-            /**
-             *
-             * @property error
-             * @type {Error}
-             */
-            self.error = context.error || self.error;
+        /**
+         *
+         * @property error
+         * @type {Error}
+         */
+        this.error = context.error || this.error;
 
-            /**
-             *
-             * @property status
-             * @type {Integer}
-             */
-            self.status = self.error && self.error.code ? self.error.code : 500;
+        /**
+         *
+         * @property status
+         * @type {Integer}
+         */
+        this.status = this.error && this.error.code ? this.error.code : HttpStatusCodes.INTERNAL_SERVER_ERROR;
 
-            /**
-             *
-             * @property contentSettingService
-             * @type {ContentService}
-             */
-            self.contentSettingService = new pb.ContentService(self.getServiceContext());
+        /**
+         *
+         * @property contentSettingService
+         * @type {ContentService}
+         */
+        this.contentSettingService = new ContentService(this.getServiceContext());
 
-            /**
-             *
-             * @property contentSettingService
-             * @type {TopMenuService}
-             */
-            self.topMenuService = new pb.TopMenuService(self.getServiceContext());
+        /**
+         *
+         * @property contentSettingService
+         * @type {TopMenuService}
+         */
+        this.topMenuService = new TopMenuService(this.getServiceContext());
 
-            //set the default page name based on the status code if provided
-            self.setPageName(self.status + '');
-
-            //carry on
-            cb(err, result);
-        };
-        ErrorViewController.super_.prototype.init.apply(this, [context, init]);
-    };
+        //set the default page name based on the status code if provided
+        this.setPageName(this.status + '');
+    }
 
     /**
      *
      * @method render
      * @param {Function} cb
      */
-    ErrorViewController.prototype.render = function(cb) {
+    render(cb) {
         var self = this;
 
 
-        this.gatherData(function(err, data) {
-            if (util.isError(err)) {
+        this.gatherData(function (err, data) {
+            if (_.isError(err)) {
 
                 //to prevent loops we just bury the error
-                pb.log.error('ErrorController: %s', err.stack);
+                log.error('ErrorController: %s', err.stack);
                 data = {
                     navItems: {}
                 };
             }
 
             //build angular controller
-            var angularController = pb.ClientJs.getAngularController(
+            var angularController = ClientJs.getAngularController(
                 {
                     navigation: data.navItems.navigation,
                     contentSettings: data.contentSettings,
-                    loggedIn: pb.security.isAuthenticated(self.session),
+                    loggedIn: SecurityService.isAuthenticated(self.session),
                     accountButtons: data.navItems.accountButtons
                 }
             );
 
             //register the model with the template service
             var errMsg = self.getErrorMessage();
-            var errStack = self.error && pb.config.logging.showErrors ? self.error.stack : '';
+            var errStack = self.error && Configuration.active.logging.showErrors ? self.error.stack : '';
             var model = {
-                navigation: new pb.TemplateValue(data.navItems.navigation, false),
-                account_buttons: new pb.TemplateValue(data.navItems.accountButtons, false),
-                angular_objects: new pb.TemplateValue(angularController, false),
+                navigation: new TemplateValue(data.navItems.navigation, false),
+                account_buttons: new TemplateValue(data.navItems.accountButtons, false),
+                angular_objects: new TemplateValue(angularController, false),
                 status: self.status,
                 error_message: errMsg,
                 error_stack: errStack
@@ -122,11 +120,11 @@ module.exports = function(pb) {
             self.ts.registerModel(model);
 
             //load template
-            self.ts.load(self.getTemplatePath(), function(err, content) {
-                if (util.isError(err)) {
+            self.ts.load(self.getTemplatePath(), function (err, content) {
+                if (_.isError(err)) {
 
                     //to prevent loops we just bury the error
-                    pb.log.error('ErrorController: %s', err.stack);
+                    log.error('ErrorController: %s', err.stack);
                 }
 
                 cb({
@@ -136,38 +134,38 @@ module.exports = function(pb) {
                 });
             });
         });
-    };
+    }
 
     /**
      * @method getErrorMessage
      * @return {String}
      */
-    ErrorViewController.prototype.getErrorMessage = function() {
+    getErrorMessage() {
         return this.error ? this.error.message : this.ls.g('error.ERROR');
-    };
+    }
 
     /**
      *
      * @method getTemplatePath
      * @return {String}
      */
-    ErrorViewController.prototype.getTemplatePath = function() {
+    getTemplatePath() {
         return 'error/default';
-    };
+    }
 
     /**
      * @method gatherData
      * @param {Function} cb
      */
-    ErrorViewController.prototype.gatherData = function(cb) {
+    gatherData(cb) {
         var self = this;
 
         var tasks = {
-            contentSettings: function(callback) {
+            contentSettings: function (callback) {
                 self.contentSettingService.getSettings(callback);
             },
 
-            navItems: function(callback) {
+            navItems: function (callback) {
                 var options = {
                     ls: self.ls,
                     activeTheme: self.activeTheme,
@@ -178,8 +176,8 @@ module.exports = function(pb) {
             }
         };
         async.parallel(tasks, cb);
-    };
+    }
+}
 
-    //exports
-    return ErrorViewController;
-};
+//exports
+module.exports = ErrorViewController;

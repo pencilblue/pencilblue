@@ -14,61 +14,46 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
-module.exports = function BaseAdminControllerModule(pb) {
-  "use strict";
+//dependencies
+var AdminSubnavService = require('../../include/service/admin/admin_subnav_service');
+var BaseController = require('../base_controller');
+var SettingServiceFactory = require('../../include/system/settings');
+var SiteQueryService = require('../../include/');
 
-  var util = pb.util;
-  var BaseController = pb.BaseController;
+/**
+ * This class serves as a base class for all the controllers used in the admin control panel
+ * @extends BaseController
+ */
+class BaseAdminController extends BaseController {
+    constructor() {
+        super();
+    }
 
-  /**
-   * This class serves as a base class for all the controllers used in the admin control panel
-   * @class BaseAdminController
-   * @constructor
-   * @extends BaseController
-   */
-  function BaseAdminController() {}
-  util.inherits(BaseAdminController, BaseController);
+    /**
+    * Initializes the admin controller with site-related info
+    * @param {Object} context
+    * @param {Function} cb
+    */
+    initSync(context) {
+        this.siteQueryService = new SiteQueryService({site: this.site, onlyThisSite: true});
+        this.settings = SettingServiceFactory.getServiceBySite(this.site, true);
+    }
 
-  /**
-   * Initializes the admin controller with site-related info
-   * @override
-   * @method init
-   * @param {Object} props
-   * @param {Function} cb
-   */
-  BaseAdminController.prototype.init = function (props, cb) {
-    var self = this;
-    BaseController.prototype.init.call(self, props, function () {
-      self.extendedInit(cb);
-    });
-  };
+    /**
+     * Centralized place to obtain the pills to be displayed on top of the admin controller
+     * @param {string} navKey
+     * @param {Localization} localizationService
+     * @param {*} activePill
+     * @param {Object} [data]
+     * @return {Object} pill objects for admin console with site pill at the beginning
+     */
+    getAdminPills(navKey, localizationService, activePill, data) {
+        var pills = AdminSubnavService.get(navKey, localizationService, activePill, data);
+        return AdminSubnavService.addSiteToPills(pills, this.siteName);
+    }
+}
 
-  /**
-   * Initializes the admin controller with instance variables
-   * @override
-   * @method extendedInit
-   * @param {Function} cb
-   */
-  BaseAdminController.prototype.extendedInit = function(cb) {
-    this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
-    this.settings = pb.SettingServiceFactory.getServiceBySite(this.site, true);
-    cb();
-  };
+  module.exports = BaseAdminController;
 
-  /**
-   * Centralized place to obtain the pills to be displayed on top of the admin controller
-   * @method getAdminPills
-   * @param {string} navKey
-   * @param {Localization} localizationService
-   * @param {*} activePill
-   * @param {Object} [data]
-   * @return {Object} pill objects for admin console with site pill at the beginning
-   */
-  BaseAdminController.prototype.getAdminPills = function (navKey, localizationService, activePill, data) {
-    var pills = pb.AdminSubnavService.get(navKey, localizationService, activePill, data);
-    return pb.AdminSubnavService.addSiteToPills(pills, this.siteName);
-  };
-
-  return BaseAdminController;
-};

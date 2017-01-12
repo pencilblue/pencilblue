@@ -17,6 +17,7 @@
 
 //dependencies
 var async = require('async');
+var FormController = require('./form_controller');
 var util  = require('../include/util.js');
 
 module.exports = function(pb) {
