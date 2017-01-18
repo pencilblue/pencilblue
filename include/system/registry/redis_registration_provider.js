@@ -17,24 +17,36 @@
 'use strict';
 
 //dependencies
-var util = require('../../util.js');
+var _ = require('lodash');
+var CacheFactory = require('../../dao/cache');
+var Configuration = require('../../config');
+var log = require ('../../utils/logging').newInstance('RedisRegistrationProvider');
+var DateUtils = require('../../../lib/utils/dateUtils');
 
-module.exports = function RedisRegistrationProviderModule(pb) {
+/**
+ * The Redis client used to connect to the service registry
+ * @private
+ * @static
+ * @readonly
+ * @property CLIENT
+ * @type {Integer}
+ */
+var CLIENT = null;
 
-    /**
-     * Implements the necessary functions in order to be able to create and manage
-     * a service registry for PB processes in the cluster.  This provider uses Redis
-     * as the storage.  In addition, it leverages Redis's expiry functionality to
-     * expire entries automatically if they have not been touched.  In order to
-     * retrieve all nodes/processes in the cluster the provider must execute
-     * Redis's "keys" function which is an expensive operation.  To lessen the
-     * impact on production systems the provider creates and manages its own Redis
-     * client and switches to DB 2 in order to minimize the number of keys that
-     * need to be scanned since the rest of the PB system leverages DB 0.
-     * @class RedisRegistrationProvider
-     * @constructor
-     */
-    function RedisRegistrationProvider(){}
+/**
+ * Implements the necessary functions in order to be able to create and manage
+ * a service registry for PB processes in the cluster.  This provider uses Redis
+ * as the storage.  In addition, it leverages Redis's expiry functionality to
+ * expire entries automatically if they have not been touched.  In order to
+ * retrieve all nodes/processes in the cluster the provider must execute
+ * Redis's "keys" function which is an expensive operation.  To lessen the
+ * impact on production systems the provider creates and manages its own Redis
+ * client and switches to DB 2 in order to minimize the number of keys that
+ * need to be scanned since the rest of the PB system leverages DB 0.
+ * @class RedisRegistrationProvider
+ * @constructor
+ */
+class RedisRegistrationProvider {
 
     /**
      * The Redis DB used for storage
@@ -44,7 +56,9 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @property REGISTRY_DB
      * @type {Integer}
      */
-    var REGISTRY_DB = 0;
+    static get REGISTRY_DB() {
+        return 0;
+    }
 
     /**
      * The character used to separate the registry key prefix from the unique value
@@ -55,17 +69,9 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @property SEP
      * @type {String}
      */
-    var SEP = '-';
-
-    /**
-     * The Redis client used to connect to the service registry
-     * @private
-     * @static
-     * @readonly
-     * @property CLIENT
-     * @type {Integer}
-     */
-    var CLIENT = null;
+    static get SEP() {
+        return '-';
+    }
 
     /**
      * Retrieves the entire cluster status as an array of status objects.  The '_id'
@@ -73,33 +79,34 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @method get
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
-    RedisRegistrationProvider.prototype.get = function(cb) {
+    get(cb) {
 
         var pattern = RedisRegistrationProvider.getPattern();
-        CLIENT.keys(pattern, function(err, keys) {
-            if (util.isError(err)) {
+        CLIENT.keys(pattern, function (err, keys) {
+            if (_.isError(err)) {
                 cb(err);
                 return;
             }
 
-            CLIENT.mget(keys, function(err, statusObj) {
+            CLIENT.mget(keys, function (err, statusObj) {
 
                 //do data transform
                 var statuses = [];
-                if (util.isObject(statusObj)) {
+                if (_.isObject(statusObj)) {
                     for (var key in statusObj) {
                         try {
                             var status = JSON.parse(statusObj[key]);
                             status._id = status.id || key;
                             statuses.push(status);
                         }
-                        catch(e){}
+                        catch (e) {
+                        }
                     }
                 }
                 cb(err, statuses);
             });
         });
-    };
+    }
 
     /**
      * Updates the status of a single node.
@@ -108,33 +115,31 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @param {Object} status The status information
      * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
      */
-    RedisRegistrationProvider.prototype.set = function(id, status, cb) {
-        if (!util.isObject(status)) {
-            cb(new Error('The status parameter must be a valid object'));
-            return;
+    set(id, status, cb) {
+        if (!_.isObject(status)) {
+            return cb(new Error('The status parameter must be a valid object'));
         }
 
-        var key    = RedisRegistrationProvider.getKey(id);
-        var expiry = Math.floor(pb.config.registry.update_interval / util.TIME.MILLIS_PER_SEC);
+        var key = RedisRegistrationProvider.getKey(id);
+        var expiry = Math.floor(Configuration.activee.registry.update_interval / DateUtils.MILLIS_PER_SEC);
         CLIENT.setex(key, expiry, JSON.stringify(status), cb);
-    };
+    }
 
     /**
      * Purges all statuses from storage.
      * @method flush
      * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
      */
-    RedisRegistrationProvider.prototype.flush = function(cb) {
+    flush(cb) {
         var pattern = RedisRegistrationProvider.getPattern();
-        CLIENT.keys(pattern, function(err, keys) {
-            if (util.isError(err)) {
-                cb(err);
-                return;
+        CLIENT.keys(pattern, function (err, keys) {
+            if (_.isError(err)) {
+                return cb(err);
             }
 
             CLIENT.del(keys, cb);
         });
-    };
+    }
 
     /**
      * This function should only be called once at startup.  It is responsible for
@@ -143,11 +148,11 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @method init
      * @param {Function} cb A callback that takes two parameters. cb(Error, [RESULT])
      */
-    RedisRegistrationProvider.prototype.init = function(cb) {
+    init(cb) {
 
-        CLIENT = pb.CacheFactory.createInstance();
+        CLIENT = CacheFactory.createInstance();
         CLIENT.select(REGISTRY_DB, cb);
-    };
+    }
 
     /**
      * Should be called during shutdown.  It is responsible for removing the
@@ -156,15 +161,15 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @param {String} id The unique identifier for the node/process
      * @param {Function} cb A callback that takes two parameters: cb(Error, [RESULT])
      */
-    RedisRegistrationProvider.prototype.shutdown = function(id, cb) {
+    shutdown(id, cb) {
         if (!id) {
-            pb.log.error('RedisRegistrationProvider: A valid ID is needed in order to properly shutdown');
+            log.error('RedisRegistrationProvider: A valid ID is needed in order to properly shutdown');
             cb(null, false);
         }
 
         var key = RedisRegistrationProvider.getKey(id);
         CLIENT.del(key, cb);
-    };
+    }
 
     /**
      * Creates the cache key used to store the status update
@@ -173,9 +178,9 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @param {String} id The unique identifier for the node/process
      * @return {String} The cache key to be used for storing the update
      */
-    RedisRegistrationProvider.getKey = function(id) {
-        return [pb.config.registry.key, id].join(SEP);
-    };
+    static getKey(id) {
+        return [Configuration.activee.registry.key, id].join(SEP);
+    }
 
     /**
      * Creates the glob pattern to be used to find service registry keys
@@ -183,9 +188,9 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @method getPattern
      * @return {String} The glob patern to be used to find all status updates
      */
-    RedisRegistrationProvider.getPattern = function() {
-        return pb.config.registry.key + '*';
-    };
+    static getPattern() {
+        return Configuration.activee.registry.key + '*';
+    }
+}
 
-    return RedisRegistrationProvider;
-};
+module.exports = RedisRegistrationProvider;

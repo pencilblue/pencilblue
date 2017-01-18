@@ -17,22 +17,24 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var Configuration = require('../../config');
+var DAO = require('../../dao/dao');
+var log = require('../../utils/logging').newInstance('MongoRegistrationProvider');
 var util = require('../../util.js');
 
-module.exports = function MongoRegistrationProviderModule(pb) {
-
-    /**
-     * Implements the necessary functions in order to be able to create and manage
-     * a service registry for PB processes in the cluster.  This provider uses MongoDB
-     * as the storage.  In addition, it leverages MongoDB's TTL collections.  The
-     * reaper for mongo runs every 60 seconds.  It is possible for dead processes to
-     * appear in the status list for up to that magical 60 second threshold.  The
-     * name of the collection used to store all statuses is determined by the
-     * configuration property: "registry.key".
-     * @class MongoRegistrationProvider
-     * @constructor
-     */
-    function MongoRegistrationProvider(){}
+/**
+ * Implements the necessary functions in order to be able to create and manage
+ * a service registry for PB processes in the cluster.  This provider uses MongoDB
+ * as the storage.  In addition, it leverages MongoDB's TTL collections.  The
+ * reaper for mongo runs every 60 seconds.  It is possible for dead processes to
+ * appear in the status list for up to that magical 60 second threshold.  The
+ * name of the collection used to store all statuses is determined by the
+ * configuration property: "registry.key".
+ * @class MongoRegistrationProvider
+ * @constructor
+ */
+class MongoRegistrationProvider {
 
     /**
      * Retrieves the entire cluster status as an array of status objects.  The '_id'
@@ -40,11 +42,11 @@ module.exports = function MongoRegistrationProviderModule(pb) {
      * @method get
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
-    MongoRegistrationProvider.prototype.get = function(cb) {
+    get(cb) {
 
-        var dao = new pb.DAO();
-        dao.q(pb.config.registry.key, {where: pb.DAO.ANYWHERE}, cb);
-    };
+        var dao = new DAO();
+        dao.q(Configuration.active.registry.key, {where: DAO.ANYWHERE}, cb);
+    }
 
     /**
      * Updates the status of a single node.
@@ -53,27 +55,27 @@ module.exports = function MongoRegistrationProviderModule(pb) {
      * @param {Object} status The status information
      * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
      */
-    MongoRegistrationProvider.prototype.set = function(id, status, cb) {
-        if (!util.isObject(status)) {
+    set(id, status, cb) {
+        if (!_.isObject(status)) {
             cb(new Error('The status parameter must be a valid object'));
             return;
         }
 
-        status[pb.DAO.getIdField()] = id;
-        status.object_type = pb.config.registry.key;
-        var dao = new pb.DAO();
+        status[DAO.getIdField()] = id;
+        status.object_type = Configuration.active.registry.key;
+        var dao = new DAO();
         dao.save(status, cb);
-    };
+    }
 
     /**
      * Purges all statuses from storage.
      * @method flush
      * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
      */
-    MongoRegistrationProvider.prototype.flush = function(cb) {
-        var dao = new pb.DAO();
-        dao.delete(pb.DAO.ANYWHERE, pb.config.registry.key, cb);
-    };
+    flush(cb) {
+        var dao = new DAO();
+        dao.delete(DAO.ANYWHERE, Configuration.active.registry.key, cb);
+    }
 
     /**
      * This function should only be called once at startup.  It is responsible for
@@ -85,14 +87,14 @@ module.exports = function MongoRegistrationProviderModule(pb) {
      * @method init
      * @param {Function} cb A callback that takes two parameters. cb(Error, [RESULT])
      */
-    MongoRegistrationProvider.prototype.init = function(cb) {
+    init(cb) {
 
         //prepare index values
-        var expiry    = Math.floor(pb.config.registry.update_interval / util.TIME.MILLIS_PER_SEC);
+        var expiry = Math.floor(Configuration.active.registry.update_interval / util.TIME.MILLIS_PER_SEC);
         var procedure = {
-            collection: pb.config.registry.key,
-            spec: { last_modified: 1 },
-            options: { expireAfterSeconds: expiry }
+            collection: Configuration.active.registry.key,
+            spec: {last_modified: 1},
+            options: {expireAfterSeconds: expiry}
         };
 
         //ensure an index exists.  According to the MongoDB documentation ensure
@@ -104,7 +106,7 @@ module.exports = function MongoRegistrationProviderModule(pb) {
         var TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js')(pb);
         var helper = new TTLIndexHelper();
         helper.ensureIndex(procedure, cb);
-    };
+    }
 
     /**
      * Should be called during shutdown.  It is responsible for removing the
@@ -114,21 +116,21 @@ module.exports = function MongoRegistrationProviderModule(pb) {
      * @param {String} id The unique identifier for the node/process
      * @param {Function} cb A callback that takes two parameters: cb(Error, [RESULT])
      */
-    MongoRegistrationProvider.prototype.shutdown = function(id, cb) {
-        pb.log.debug('MongoRegistrationProvider: Shutting down...');
+    shutdown(id, cb) {
+        log.debug('MongoRegistrationProvider: Shutting down...');
 
         //verify an ID was passed
         if (!id) {
-            pb.log.error('MongoRegistrationProvider: A valid ID is needed in order to properly shutdown');
+            log.error('MongoRegistrationProvider: A valid ID is needed in order to properly shutdown');
             cb(null, false);
         }
 
-        //ID is always a string so we don't use pb.DAO.getIdWhere(id)
+        //ID is always a string so we don't use DAO.getIdWhere(id)
         var where = {};
-        where[pb.DAO.getIdField()] = id;
-        var dao = new pb.DAO();
-        dao.delete(where, pb.config.registry.key, cb);
-    };
+        where[DAO.getIdField()] = id;
+        var dao = new DAO();
+        dao.delete(where, Configuration.active.registry.key, cb);
+    }
+}
 
-    return MongoRegistrationProvider;
-};
+module.exports = MongoRegistrationProvider;
