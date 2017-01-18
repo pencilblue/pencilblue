@@ -109,7 +109,7 @@ module.exports = function PB() {
         ErrorFormatters: require(path.join(config.docRoot, '/include/error/formatters/error_formatters.js')),
 
         Localization: require(path.join(config.docRoot, '/include/localization.js')),
-
+        
         MongoRegistrationProvider: require(config.docRoot + '/include/system/registry/mongo_registration_provider.js'),
         RedisRegistrationProvider: require(config.docRoot + '/include/system/registry/redis_registration_provider.js'),
         ServerRegistration: require(config.docRoot, '/include/system/server_registration.js'),
