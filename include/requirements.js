@@ -109,7 +109,7 @@ module.exports = function PB() {
         ErrorFormatters: require(path.join(config.docRoot, '/include/error/formatters/error_formatters.js')),
 
         Localization: require(path.join(config.docRoot, '/include/localization.js')),
-        
+
         MongoRegistrationProvider: require(config.docRoot + '/include/system/registry/mongo_registration_provider.js'),
         RedisRegistrationProvider: require(config.docRoot + '/include/system/registry/redis_registration_provider.js'),
         ServerRegistration: require(config.docRoot, '/include/system/server_registration.js'),
@@ -118,7 +118,17 @@ module.exports = function PB() {
         MongoCommandBroker: require(path.join(config.docRoot, '/include/system/command/mongo_command_broker.js')),
         CommandService: require(path.join(config.docRoot, '/include/system/command/command_service.js')),
 
-        SettingServiceFactory: require(path.join(config.docRoot, '/include/system/settings.js'))
+        SettingServiceFactory: require(path.join(config.docRoot, '/include/system/settings.js')),
+
+        JobRunner: require(path.join(config.docRoot, '/include/service/jobs/job_runner.js')),
+        AsyncJobRunner: require(path.join(config.docRoot, '/include/service/jobs/async_job_runner')),
+        ClusterJobRunner: require(path.join(config.docRoot, '/include/service/jobs/cluster_job_runner')),
+        PluginJobRunner: require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_job_runner.js')),
+        PluginUninstallJob: require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_uninstall_job.js')),
+        PluginAvailableJob: require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_available_job.js')),
+        PluginDependenciesJob: require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_dependencies_job.js')),
+        PluginInitializeJob: require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_initialize_job.js')),
+        PluginInstallJob: require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_install_job.js')),
     };
 
     //error on removed items
@@ -131,15 +141,6 @@ module.exports = function PB() {
     });
 
     //Jobs
-    pb.JobRunner             = require(path.join(config.docRoot, '/include/service/jobs/job_runner.js'))(pb);
-    pb.AsyncJobRunner        = require(path.join(config.docRoot, '/include/service/jobs/async_job_runner'))(pb);
-    pb.ClusterJobRunner      = require(path.join(config.docRoot, '/include/service/jobs/cluster_job_runner'))(pb);
-    pb.PluginJobRunner       = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_job_runner.js'))(pb);
-    pb.PluginUninstallJob    = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_uninstall_job.js'))(pb);
-    pb.PluginAvailableJob    = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_available_job.js'))(pb);
-    pb.PluginDependenciesJob = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_dependencies_job.js'))(pb);
-    pb.PluginInitializeJob   = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_initialize_job.js'))(pb);
-    pb.PluginInstallJob      = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_install_job.js'))(pb);
     pb.SiteJobRunner         = require(path.join(config.docRoot, '/include/service/jobs/sites/site_job_runner.js'))(pb);
     pb.SiteActivateJob       = require(path.join(config.docRoot, '/include/service/jobs/sites/site_activate_job.js'))(pb);
     pb.SiteDeactivateJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_deactivate_job.js'))(pb);

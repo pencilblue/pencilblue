@@ -17,24 +17,24 @@
 'use strict';
 
 //dependencies
-var util = require('../../../util.js');
+var _ = require('lodash');
+var PluginJobRunner = require('./plugin_job_runner');
+var PluginService = require('../../entities/plugin_service');
 
-module.exports = function PluginDependenciesJobModule(pb) {
-
-    /**
-     * A system job that coordinates the installation of a plugin's dependencies to
-     * the plugin's node modules directory.
-     * @class PluginDependenciesJob
-     * @constructor
-     * @extends PluginJobRunner
-     */
-    function PluginDependenciesJob(){
-        PluginDependenciesJob.super_.call(this);
+/**
+ * A system job that coordinates the installation of a plugin's dependencies to
+ * the plugin's node modules directory.
+ * @class PluginDependenciesJob
+ * @constructor
+ * @extends PluginJobRunner
+ */
+class PluginDependenciesJob extends PluginJobRunner {
+    constructor() {
+        super();
 
         //initialize
         this.setParallelLimit(1);
     }
-    util.inherits(PluginDependenciesJob, pb.PluginJobRunner);
 
     /**
      * Retrieves the tasks needed to contact each process in the cluster to
@@ -42,13 +42,13 @@ module.exports = function PluginDependenciesJobModule(pb) {
      * @method getInitiatorTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginDependenciesJob.prototype.getInitiatorTasks = function(cb) {
+    getInitiatorTasks(cb) {
         var self = this;
 
         //progress function
-        var progress  = function(indexOfExecutingTask, totalTasks) {
+        var progress = function (indexOfExecutingTask, totalTasks) {
 
-            var increment = indexOfExecutingTask > 0 ? 100 / totalTasks * self.getChunkOfWorkPercentage(): 0;
+            var increment = indexOfExecutingTask > 0 ? 100 / totalTasks * self.getChunkOfWorkPercentage() : 0;
             self.onUpdate(increment);
         };
 
@@ -64,10 +64,10 @@ module.exports = function PluginDependenciesJobModule(pb) {
         var tasks = [
 
             //install dependencies for all
-            this.createCommandTask('install_plugin_dependencies', dependenciesCommand),
+            this.createCommandTask('install_plugin_dependencies', dependenciesCommand)
         ];
         cb(null, tasks);
-    };
+    }
 
     /**
      * Retrieves the tasks needed to validate that the plugin is available for
@@ -75,20 +75,20 @@ module.exports = function PluginDependenciesJobModule(pb) {
      * @method getWorkerTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginDependenciesJob.prototype.getWorkerTasks = function(cb) {
+    getWorkerTasks(cb) {
         var self = this;
 
         var pluginDetails = null;
-        var pluginUid     = this.getPluginUid();
+        var pluginUid = this.getPluginUid();
         var tasks = [
 
             //verify plugin is available
-            function(callback) {
-                var filePath = pb.PluginService.getDetailsPath(pluginUid);
+            function (callback) {
+                var filePath = PluginService.getDetailsPath(pluginUid);
 
                 self.log("Loading plugin details to extract dependencies from: %s", filePath);
-                pb.PluginService.loadDetailsFile(filePath, function(err, details) {
-                    var didLoad = util.isObject(details);
+                PluginService.loadDetailsFile(filePath, function (err, details) {
+                    var didLoad = _.isObject(details);
                     if (didLoad) {
                         pluginDetails = details;
                     }
@@ -97,20 +97,20 @@ module.exports = function PluginDependenciesJobModule(pb) {
             },
 
             //load dependencies
-            function(callback) {
-                if (!util.isObject(pluginDetails) || !util.isObject(pluginDetails.dependencies)) {
+            function (callback) {
+                if (!_.isObject(pluginDetails) || !_.isObject(pluginDetails.dependencies)) {
                     self.log('No dependencies to load.');
                     return callback(null, true);
                 }
 
-                self.pluginService.installPluginDependencies(pluginUid, pluginDetails.dependencies, pluginDetails, function(err, results) {
-                    callback(err, !util.isError(err));
+                self.pluginService.installPluginDependencies(pluginUid, pluginDetails.dependencies, pluginDetails, function (err/*, results*/) {
+                    callback(err, !_.isError(err));
                 });
             }
         ];
         cb(null, tasks);
-    };
+    }
+}
 
-    //exports
-    return PluginDependenciesJob;
-};
+//exports
+module.exports = PluginDependenciesJob;

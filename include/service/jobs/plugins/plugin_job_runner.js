@@ -17,64 +17,65 @@
 'use strict';
 
 //dependencies
-var util = require('../../../util.js');
+var _ = require('lodash');
+var ClusterJobRunner = require('../cluster_job_runner');
+var PluginService = require('../../entities/plugin_service');
+var util = require('util');
 
-module.exports = function PluginJobRunnerModule(pb) {
-
-    /**
-     * The framework for a cluster wide job that affects 1 or more plugins.
-     * @class PluginJobRunner
-     * @constructor
-     * @extends ClusterJobRunner
-     */
-    function PluginJobRunner() {
-        PluginJobRunner.super_.call(this);
+/**
+ * The framework for a cluster wide job that affects 1 or more plugins.
+ * @class PluginJobRunner
+ * @constructor
+ * @extends ClusterJobRunner
+ */
+class PluginJobRunner extends ClusterJobRunner {
+    constructor() {
+        super();
 
         /**
          *
          * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new pb.PluginService();
-    }
-    util.inherits(PluginJobRunner, pb.ClusterJobRunner);
+        this.pluginService = new PluginService();
 
-    /**
-     * The unique identifier of the plugin to be uninstalled
-     * @property pluginUid
-     * @type {String}
-     */
-    PluginJobRunner.prototype.pluginUid = '';
+        /**
+         * The unique identifier of the plugin to be uninstalled
+         * @property pluginUid
+         * @type {String}
+         */
+        this.pluginUid = '';
+    }
 
     /**
      * Sets the unique plugin identifier for the plugin to be uninstalled
      * @method setPluginUid
-     * @param {String} The plugin identifier
+     * @param {String} pluginUid The plugin identifier
      * @return {PluginUninstallJob} This instance
      */
-    PluginJobRunner.prototype.setPluginUid = function(pluginUid) {
+    setPluginUid(pluginUid) {
         this.pluginUid = pluginUid;
         return this;
-    };
+    }
 
     /**
      * Retrieves the identifier of the plugin to be uninstalled
      * @method getPluginUid
      * @return {String} The plugin UID
      */
-    PluginJobRunner.prototype.getPluginUid = function() {
+    getPluginUid() {
         return this.pluginUid;
-    };
+    }
 
-    PluginJobRunner.prototype.setSite = function(site) {
+    setSite(site) {
         this.site = site;
-        this.pluginService = new pb.PluginService({site: site});
+        this.pluginService = new PluginService({site: site});
         return this;
-    };
+    }
 
-    PluginJobRunner.prototype.getSite = function() {
+    getSite() {
         return this.site;
-    };
+    }
 
     /**
      * Called when the tasks have completed execution and isInitiator = FALSE.  The
@@ -89,14 +90,14 @@ module.exports = function PluginJobRunnerModule(pb) {
      * any error that occurred (if exists) and the second is an object that encloses
      * the properties that describe the job as well as the raw results.
      */
-    PluginJobRunner.prototype.processClusterResults = function(err, results, cb) {
-        if (util.isError(err)) {
+    processClusterResults(err, results, cb) {
+        if (_.isError(err)) {
             this.log(err.stack);
             return cb(err, results);
         }
 
         var firstErr;
-        var success  = true;
+        var success = true;
         for (var i = 0; i < results.length; i++) {
             if (!results[i]) {
                 firstErr = util.format('An error occurred while attempting to execute the job for plugin [%s]. RESULT=[%s] TASK=[%d]', this.getPluginUid(), util.inspect(results[i]), i);
@@ -119,8 +120,8 @@ module.exports = function PluginJobRunnerModule(pb) {
             results: results
         };
         cb(err, result);
-    };
+    }
+}
 
-    //exports
-    return PluginJobRunner;
-};
+//exports
+module.exports = PluginJobRunner;

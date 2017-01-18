@@ -17,24 +17,24 @@
 'use strict';
 
 //dependencies
-var util = require('../../../util.js');
+var _ = require('lodash');
+var PluginJobRunner = require('./plugin_job_runner');
+var PluginService = require('../../entities/plugin_service');
 
-module.exports = function PluginInitializeJobModule(pb) {
-
-    /**
-     * A system job that coordinates the initialization of a plugin across a
-     * cluster
-     * @class PluginInitializeJob
-     * @constructor
-     * @extends PluginJobRunner
-     */
-    function PluginInitializeJob(){
-        PluginInitializeJob.super_.call(this);
+/**
+ * A system job that coordinates the initialization of a plugin across a
+ * cluster
+ * @class PluginInitializeJob
+ * @constructor
+ * @extends PluginJobRunner
+ */
+class PluginInitializeJob extends PluginJobRunner {
+    constructor() {
+        super();
 
         //initialize
         this.setParallelLimit(1);
     }
-    util.inherits(PluginInitializeJob, pb.PluginJobRunner);
 
     /**
      * Retrieves the tasks needed to contact each process in the cluster to
@@ -42,13 +42,13 @@ module.exports = function PluginInitializeJobModule(pb) {
      * @method getInitiatorTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginInitializeJob.prototype.getInitiatorTasks = function(cb) {
+    getInitiatorTasks(cb) {
         var self = this;
 
         //progress function
-        var progress  = function(indexOfExecutingTask, totalTasks) {
+        var progress = function (indexOfExecutingTask, totalTasks) {
 
-            var increment = indexOfExecutingTask > 0 ? 100 / totalTasks * self.getChunkOfWorkPercentage(): 0;
+            var increment = indexOfExecutingTask > 0 ? 100 / totalTasks * self.getChunkOfWorkPercentage() : 0;
             self.onUpdate(increment);
         };
 
@@ -68,14 +68,14 @@ module.exports = function PluginInitializeJobModule(pb) {
             this.createCommandTask('initialize_plugin', validateCommand),
         ];
         cb(null, tasks);
-    };
+    }
 
     /**
      * Retrieves the tasks needed to initialize the plugin for this process.
      * @method getWorkerTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginInitializeJob.prototype.getWorkerTasks = function(cb) {
+    getWorkerTasks(cb) {
         var self = this;
 
         var pluginUid = this.getPluginUid();
@@ -83,27 +83,27 @@ module.exports = function PluginInitializeJobModule(pb) {
         var tasks = [
 
             //initialize the plugin if not already
-            function(callback) {
-                if (pb.PluginService.isPluginActiveBySite(pluginUid, site)) {
+            function (callback) {
+                if (PluginService.isPluginActiveBySite(pluginUid, site)) {
                     self.log('Plugin %s is already active!', pluginUid);
                     callback(null, true);
                     return;
                 }
 
                 //load the plugin from persistence then initialize it on the server
-                self.pluginService.getPluginBySite(pluginUid, function(err, plugin) {
-                    if (util.isError(err)) {
+                self.pluginService.getPluginBySite(pluginUid, function (err, plugin) {
+                    if (_.isError(err)) {
                         callback(err);
                         return;
                     }
-                    else if (!util.isObject(plugin)) {
+                    else if (!_.isObject(plugin)) {
                         self.log('Could not find plugin descriptor %s', pluginUid);
-                        callback(new Error('Failed to load the plugin '+pluginUid));
+                        callback(new Error('Failed to load the plugin ' + pluginUid));
                         return;
                     }
 
                     self.log('Initializing plugin %s', pluginUid);
-                    self.pluginService.initPlugin(plugin, function(err, result) {
+                    self.pluginService.initPlugin(plugin, function (err, result) {
                         self.log('Completed initialization RESULT=[%s] ERROR=[%s]', result, err ? err.message : 'n/a');
                         callback(err, result);
                     });
@@ -111,8 +111,8 @@ module.exports = function PluginInitializeJobModule(pb) {
             }
         ];
         cb(null, tasks);
-    };
+    }
+}
 
-    //exports
-    return PluginInitializeJob;
-};
+//exports
+module.exports = PluginInitializeJob;

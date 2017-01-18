@@ -17,24 +17,23 @@
 'use strict';
 
 //dependencies
-var util = require('../../../util.js');
+var PluginJobRunner = require('./plugin_job_runner');
+var PluginService = require('../../entities/plugin_service');
 
-module.exports = function PluginAvailableJobModule(pb) {
-
-    /**
-     * A system job that coordinates the check to see if a plugin is available for
-     * install on each process across the cluster.
-     * @class PluginAvailableJob
-     * @constructor
-     * @extends PluginJobRunner
-     */
-    function PluginAvailableJob(){
-        PluginAvailableJob.super_.call(this);
+/**
+ * A system job that coordinates the check to see if a plugin is available for
+ * install on each process across the cluster.
+ * @class PluginAvailableJob
+ * @constructor
+ * @extends PluginJobRunner
+ */
+class PluginAvailableJob extends PluginJobRunner {
+    constructor() {
+        super();
 
         //initialize
         this.setParallelLimit(1);
     }
-    util.inherits(PluginAvailableJob, pb.PluginJobRunner);
 
     /**
      * Retrieves the tasks needed to contact each process in the cluster to
@@ -42,13 +41,13 @@ module.exports = function PluginAvailableJobModule(pb) {
      * @method getInitiatorTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginAvailableJob.prototype.getInitiatorTasks = function(cb) {
+    getInitiatorTasks(cb) {
         var self = this;
 
         //progress function
-        var progress  = function(indexOfExecutingTask, totalTasks) {
+        var progress = function (indexOfExecutingTask, totalTasks) {
 
-            var increment = indexOfExecutingTask > 0 ? 100 / totalTasks * self.getChunkOfWorkPercentage(): 0;
+            var increment = indexOfExecutingTask > 0 ? 100 / totalTasks * self.getChunkOfWorkPercentage() : 0;
             self.onUpdate(increment);
         };
 
@@ -66,7 +65,7 @@ module.exports = function PluginAvailableJobModule(pb) {
             this.createCommandTask('is_plugin_available', validateCommand),
         ];
         cb(null, tasks);
-    };
+    }
 
     /**
      * Retrieves the tasks needed to validate that the plugin is available for
@@ -74,23 +73,23 @@ module.exports = function PluginAvailableJobModule(pb) {
      * @method getWorkerTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginAvailableJob.prototype.getWorkerTasks = function(cb) {
+    getWorkerTasks(cb) {
         var self = this;
 
         var pluginUid = this.getPluginUid();
         var tasks = [
 
             //verify plugin is available
-            function(callback) {
-                var filePath = pb.PluginService.getDetailsPath(pluginUid);
+            function (callback) {
+                var filePath = PluginService.getDetailsPath(pluginUid);
 
                 self.log("Inspecting plugin on disk at: %s", filePath);
-                pb.PluginService.loadDetailsFile(filePath, callback);
+                PluginService.loadDetailsFile(filePath, callback);
             }
         ];
         cb(null, tasks);
-    };
+    }
+}
 
-    //exports
-    return PluginAvailableJob;
-};
+//exports
+module.exports = PluginAvailableJob;

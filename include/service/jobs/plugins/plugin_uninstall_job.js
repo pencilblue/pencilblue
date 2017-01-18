@@ -17,35 +17,41 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var Configuration = require('../../../config');
+var DAO = require('../../../dao/dao');
 var domain  = require('domain');
-var util    = require('../../../util.js');
+var Localization = require('../../../localization');
+var PluginJobRunner = require('./plugin_job_runner');
+var PluginService = require('../../entities/plugin_service');
+var RequestHandler = require('../../../http/request_handler');
+var SettingServiceFactory = require('../../../system/settings');
+var SiteService = require('../../entities/site_service');
 
-module.exports = function PluginUninstallJobModule(pb) {
-
-    /**
-     * A system job that coordinates the uninstall of a plugin across the cluster.
-     * The job has two modes.  The first is initiator.  This is the process that
-     * receives the request to uninstall the plugin.  It coordinates a sequenced
-     * uninstall from each process in the cluster.  The initiator does this by
-     * getting a list of active processes through the service registry.  It then
-     * uses the registry to send a message to each process to uninstall the plugin.
-     * Some operations are repeated for each server but this is ok based on the
-     * current set of operations.  When a command is received that instructs a
-     * process to uninstall a plugin it creates an instance of the plugin uninstall
-     * job with isInitiator = FALSE.  This changes causes the actual uninstall
-     * process to take place.  Log statements are sent both to the system logger
-     * and to the job log persistence entity.
-     * @class PluginUninstallJob
-     * @constructor
-     * @extends PluginJobRunner
-     */
-    function PluginUninstallJob(){
+/**
+ * A system job that coordinates the uninstall of a plugin across the cluster.
+ * The job has two modes.  The first is initiator.  This is the process that
+ * receives the request to uninstall the plugin.  It coordinates a sequenced
+ * uninstall from each process in the cluster.  The initiator does this by
+ * getting a list of active processes through the service registry.  It then
+ * uses the registry to send a message to each process to uninstall the plugin.
+ * Some operations are repeated for each server but this is ok based on the
+ * current set of operations.  When a command is received that instructs a
+ * process to uninstall a plugin it creates an instance of the plugin uninstall
+ * job with isInitiator = FALSE.  This changes causes the actual uninstall
+ * process to take place.  Log statements are sent both to the system logger
+ * and to the job log persistence entity.
+ * @class PluginUninstallJob
+ * @constructor
+ * @extends PluginJobRunner
+ */
+class PluginUninstallJob extends PluginJobRunner {
+    constructor() {
         PluginUninstallJob.super_.call(this);
 
         //initialize
         this.setParallelLimit(1);
     }
-    util.inherits(PluginUninstallJob, pb.PluginJobRunner);
 
     /**
      * The command to that intends for the the uninstall job to run
@@ -54,23 +60,9 @@ module.exports = function PluginUninstallJobModule(pb) {
      * @property UNINSTALL_PLUGIN_COMMAND
      * @type {String}
      */
-    PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND = 'uninstall_plugin';
-
-    /**
-     * @private
-     * @static
-     * @property GLOBAL_PREFIX
-     * @type {String}
-     */
-    var GLOBAL_PREFIX = pb.SiteService.GLOBAL_SITE;
-
-    /**
-     * @private
-     * @static
-     * @property SITE_FIELD
-     * @type {String}
-     */
-    var SITE_FIELD = pb.SiteService.SITE_FIELD;
+    static get UNINSTALL_PLUGIN_COMMAND() {
+        return 'uninstall_plugin';
+    }
 
     /**
      * Retrieves the tasks needed to contact each process in the cluster to
@@ -78,7 +70,7 @@ module.exports = function PluginUninstallJobModule(pb) {
      * @method getInitiatorTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginUninstallJob.prototype.getInitiatorTasks = function(cb) {
+    getInitiatorTasks(cb) {
         var self = this;
 
         var command = {
@@ -86,9 +78,9 @@ module.exports = function PluginUninstallJobModule(pb) {
             jobId: self.getId(),
             site: self.getSite(),
             //we provide a progress function to update the job listing
-            progress: function(indexOfExecutingTask, totalTasks) {
+            progress: function (indexOfExecutingTask, totalTasks) {
 
-                var increment = indexOfExecutingTask > 0 ? 100 / totalTasks / self.getChunkOfWorkPercentage(): 0;
+                var increment = indexOfExecutingTask > 0 ? 100 / totalTasks / self.getChunkOfWorkPercentage() : 0;
                 self.onUpdate(increment);
             }
         };
@@ -96,7 +88,7 @@ module.exports = function PluginUninstallJobModule(pb) {
             this.createCommandTask(PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, command)
         ];
         cb(null, tasks);
-    };
+    }
 
     /**
      * Retrieves the tasks needed to uninstall the plugin from this executing
@@ -113,7 +105,7 @@ module.exports = function PluginUninstallJobModule(pb) {
      * @method getWorkerTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginUninstallJob.prototype.getWorkerTasks = function(cb) {
+    getWorkerTasks(cb) {
         var self = this;
 
         var pluginUid = this.getPluginUid();
@@ -121,21 +113,21 @@ module.exports = function PluginUninstallJobModule(pb) {
         var tasks = [
 
             //call onUninstall
-            function(callback) {
-                if (!pb.PluginService.isPluginActiveBySite(pluginUid, site)) {
+            function (callback) {
+                if (!PluginService.isPluginActiveBySite(pluginUid, site)) {
                     self.log("Skipping call to plugin's onUninstall function.  Main module was not active.");
                     callback(null, true);
                     return;
                 }
 
-                var mm = pb.PluginService.getActiveMainModule(pluginUid, site);
-                if (util.isFunction(mm.onUninstall) || util.isFunction(mm.onUninstallWithContext)) {
+                var mm = PluginService.getActiveMainModule(pluginUid, site);
+                if (_.isFunction(mm.onUninstall) || _.isFunction(mm.onUninstallWithContext)) {
                     self.log('Calling plugin onUnstall', pluginUid);
 
                     var d = domain.create();
                     d.on('error', callback);
-                    d.run(function() {
-                        if (util.isFunction(mm.onUninstall)) {
+                    d.run(function () {
+                        if (_.isFunction(mm.onUninstall)) {
                             mm.onUninstall(callback);
                         } else {
                             var context = {site: site};
@@ -150,21 +142,23 @@ module.exports = function PluginUninstallJobModule(pb) {
             },
 
             //unregister routes
-            function(callback) {
-                var routesRemoved = pb.RequestHandler.unregisterThemeRoutes(pluginUid, site);
+            function (callback) {
+                var routesRemoved = RequestHandler.unregisterThemeRoutes(pluginUid, site);
                 self.log('Unregistered %d routes', routesRemoved);
-                process.nextTick(function(){callback(null, true);});
+                process.nextTick(function () {
+                    callback(null, true);
+                });
             },
 
             //remove localization
-            function(callback) {
+            function (callback) {
 
                 //retrieve localizations
-                self.pluginService.getLocalizations(pluginUid, function(err, localizations) {
-                    if (util.isError(err)) {
+                self.pluginService.getLocalizations(pluginUid, function (err, localizations) {
+                    if (_.isError(err)) {
                         return callback(err);
                     }
-                    else if (util.isNullOrUndefined(localizations)) {
+                    else if (_.isNil(localizations)) {
 
                         //no localization directory was found
                         return callback(null, true);
@@ -172,31 +166,31 @@ module.exports = function PluginUninstallJobModule(pb) {
 
                     //remove all localizations
                     var result = true;
-                    Object.keys(localizations).forEach(function(locale) {
-                        result = result && pb.Localization.unregisterLocale(locale, { plugin: pluginUid });
+                    Object.keys(localizations).forEach(function (locale) {
+                        result = result && Localization.unregisterLocale(locale, {plugin: pluginUid});
                     });
                     callback(null, result);
                 });
             },
 
             //remove settings
-            function(callback) {
+            function (callback) {
                 self.log('Attempting to remove plugin settings');
                 self.pluginService.purgePluginSettings(pluginUid, function (err, result) {
-                    callback(err, !util.isError(err) && result);
+                    callback(err, !_.isError(err) && result);
                 });
             },
 
             //remove theme settings
-            function(callback) {
+            function (callback) {
                 self.log('Attempting to remove theme settings');
                 self.pluginService.purgeThemeSettings(pluginUid, function (err, result) {
-                    callback(err, !util.isError(err) && result);
+                    callback(err, !_.isError(err) && result);
                 });
             },
 
             //remove plugin record from "plugin" collection
-            function(callback) {
+            function (callback) {
                 self.log('Attempting to remove plugin from persistent storage');
 
                 var where = {
@@ -204,42 +198,42 @@ module.exports = function PluginUninstallJobModule(pb) {
                 };
 
                 var hasNoSite = {};
-                hasNoSite[SITE_FIELD] = { $exists : false};
+                hasNoSite[SiteService.SITE_FIELD] = {$exists: false};
 
                 var siteIsGlobal = {};
-                siteIsGlobal[SITE_FIELD] = GLOBAL_PREFIX;
+                siteIsGlobal[SiteService.SITE_FIELD] = SiteService.GLOBAL_SITE;
 
-                if(!site || site === GLOBAL_PREFIX) {
+                if (!site || site === SiteService.GLOBAL_SITE) {
                     where.$or = [
                         hasNoSite,
                         siteIsGlobal
                     ];
                 } else {
-                    where[SITE_FIELD] = site;
+                    where[SiteService.SITE_FIELD] = site;
                 }
 
-                var dao = new pb.DAO();
-                dao.delete(where, 'plugin', function(err/*, result*/) {
-                    callback(err, !util.isError(err));
+                var dao = new DAO();
+                dao.delete(where, 'plugin', function (err/*, result*/) {
+                    callback(err, !_.isError(err));
                 });
             },
 
             //roll over to default theme
-            function(callback) {
+            function (callback) {
                 self.log('Inspecting the active theme');
 
                 //retrieve the plugin so we can see if the value matches what we
                 //are uninstalling
-                var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, site, true);
-                settings.get('active_theme', function(err, activeTheme) {
-                    if (util.isError(err)) {
+                var settings = SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, site, true);
+                settings.get('active_theme', function (err, activeTheme) {
+                    if (_.isError(err)) {
                         return callback(err, false);
                     }
 
                     //check if we need to reset the active theme
                     if (activeTheme === pluginUid) {
-                        self.log('Uninstalling the active theme.  Switching to:' + pb.config.plugins.default);
-                        settings.set('active_theme', pb.config.plugins.default, function(err, result) {
+                        self.log('Uninstalling the active theme.  Switching to:' + Configuration.active.plugins.default);
+                        settings.set('active_theme', Configuration.active.plugins.default, function (err, result) {
                             callback(err, result ? true : false);
                         });
                     }
@@ -250,13 +244,15 @@ module.exports = function PluginUninstallJobModule(pb) {
             },
 
             //remove from ACTIVE_PLUGINS//unregister services
-            function(callback) {
-                var result = pb.PluginService.deactivatePlugin(pluginUid, site);
-                process.nextTick(function(){callback(null, result);});
+            function (callback) {
+                var result = PluginService.deactivatePlugin(pluginUid, site);
+                process.nextTick(function () {
+                    callback(null, result);
+                });
             }
         ];
         cb(null, tasks);
-    };
+    }
 
     /**
      * Called when the tasks have completed execution and isInitiator = FALSE. The
@@ -267,10 +263,10 @@ module.exports = function PluginUninstallJobModule(pb) {
      * any error that occurred (if exists) and the second is an array of Boolean
      * values that indicate the success or failure of each task.
      */
-    PluginUninstallJob.prototype.processWorkerResults = function(err, results, cb) {
+    processWorkerResults(err, results, cb) {
         cb(err, results);
-    };
+    }
+}
 
-    //exports
-    return PluginUninstallJob;
-};
+//exports
+module.exports = PluginUninstallJob;

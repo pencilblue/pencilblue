@@ -17,42 +17,46 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
 var async = require('async');
-var util  = require('../../../util.js');
+var PluginAvailableJob = require('./plugin_available_job');
+var PluginInitializeJob = require('./plugin_initialize_job');
+var PluginJobRunner = require('./plugin_job_runner');
+var PluginService = require('../../entities/plugin_service');
+var SiteService = require('../../entities/site_service');
+var util  = require('util');
 
-module.exports = function PluginInstallJobModule(pb) {
-    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
-
-    /**
-     * A system job that coordinates the install of a plugin across the cluster.
-     * The job has two modes.  The first is initiator.  This is the process that
-     * receives the request to uninstall the plugin.  It coordinates a sequenced
-     * install from each process in the cluster.  The initiator does this by
-     * getting a list of active processes through the service registry.  It then
-     * uses the registry to send a message to each process to uninstall the plugin.
-     * Some operations are repeated for each server but this is ok based on the
-     * current set of operations.  When a command is received that instructs a
-     * process to install a plugin it creates an instance of the plugin install
-     * job with isInitiator = FALSE.  This changes causes the actual install
-     * process to take place.  Log statements are sent both to the system logger
-     * and to the job log persistence entity.
-     * @class PluginInstallJob
-     * @constructor
-     * @extends PluginJobRunner
-     */
-    function PluginInstallJob(options){
+/**
+ * A system job that coordinates the install of a plugin across the cluster.
+ * The job has two modes.  The first is initiator.  This is the process that
+ * receives the request to uninstall the plugin.  It coordinates a sequenced
+ * install from each process in the cluster.  The initiator does this by
+ * getting a list of active processes through the service registry.  It then
+ * uses the registry to send a message to each process to uninstall the plugin.
+ * Some operations are repeated for each server but this is ok based on the
+ * current set of operations.  When a command is received that instructs a
+ * process to install a plugin it creates an instance of the plugin install
+ * job with isInitiator = FALSE.  This changes causes the actual install
+ * process to take place.  Log statements are sent both to the system logger
+ * and to the job log persistence entity.
+ * @class PluginInstallJob
+ * @constructor
+ * @extends PluginJobRunner
+ */
+class PluginInstallJob extends PluginJobRunner {
+    constructor(options) {
         options = options || {};
 
-        this.site = options.site || pb.SiteService.GLOBAL_SITE;
+        this.site = options.site || SiteService.GLOBAL_SITE;
 
-        PluginInstallJob.super_.call(this);
+        super();
 
-       this.pluginService = new pb.PluginService(this.site);
+        this.pluginService = new PluginService(this.site);
+
         //initialize
         this.init();
         this.setParallelLimit(1);
     }
-    util.inherits(PluginInstallJob, pb.PluginJobRunner);
 
     /**
      * Retrieves the tasks needed to contact each process in the cluster to
@@ -60,48 +64,48 @@ module.exports = function PluginInstallJobModule(pb) {
      * @method getInitiatorTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginInstallJob.prototype.getInitiatorTasks = function(cb) {
+    getInitiatorTasks(cb) {
         var self = this;
 
         //progress function
-        var jobId     = self.getId();
+        var jobId = self.getId();
         var pluginUid = self.getPluginUid();
-        var site      = self.getSite();
+        var site = self.getSite();
         var tasks = [
 
             //verify that the plugin is not already installed
-            function(callback) {
+            function (callback) {
                 self.log("Verifying that plugin %s is not already installed", pluginUid);
 
-                self.pluginService.isInstalled(pluginUid, function(err, isInstalled){
-                    if (util.isError(err)) {
+                self.pluginService.isInstalled(pluginUid, function (err, isInstalled) {
+                    if (_.isError(err)) {
                         callback(err, !isInstalled);
                     }
                     else {
-                        err = isInstalled ? (new Error('The '+pluginUid+' plugin is already installed')) : null;
+                        err = isInstalled ? (new Error('The ' + pluginUid + ' plugin is already installed')) : null;
                         callback(err, !isInstalled);
                     }
                 });
             },
 
             //validate available for all
-            function(callback) {
+            function (callback) {
 
                 var name = util.format("IS_AVAILABLE_%s", pluginUid);
-                var job  = new pb.PluginAvailableJob();
+                var job = new PluginAvailableJob();
                 job.setRunAsInitiator(true)
-                .init(name, jobId)
-                .setPluginUid(pluginUid)
-                .setSite(site)
-                .setChunkOfWorkPercentage(1/2)
-                .run(callback);
+                    .init(name, jobId)
+                    .setPluginUid(pluginUid)
+                    .setSite(site)
+                    .setChunkOfWorkPercentage(1 / 2)
+                    .run(callback);
             },
 
             //do persistence tasks
-            function(callback) {
-                self.doPersistenceTasks(function(err, results) {
+            function (callback) {
+                self.doPersistenceTasks(function (err, results) {
                     self.onUpdate(100 / tasks.length);
-                    if (util.isError(err)) {
+                    if (_.isError(err)) {
                         self.log(err.stack);
                     }
                     callback(err, results);
@@ -109,20 +113,20 @@ module.exports = function PluginInstallJobModule(pb) {
             },
 
             //initialize plugin across cluster
-            function(callback) {
+            function (callback) {
 
                 var name = util.format("INITIALIZE_PLUGIN_%s", pluginUid);
-                var job  = new pb.PluginInitializeJob();
+                var job = new PluginInitializeJob();
                 job.setRunAsInitiator(true)
-                .init(name, jobId)
-                .setPluginUid(pluginUid)
-                .setSite(site)
-                .setChunkOfWorkPercentage(1/2)
-                .run(callback);
+                    .init(name, jobId)
+                    .setPluginUid(pluginUid)
+                    .setSite(site)
+                    .setChunkOfWorkPercentage(1 / 2)
+                    .run(callback);
             }
         ];
         cb(null, tasks);
-    };
+    }
 
     /**
      * Retrieves 0 tasks because the PluginInstallJob is a coordinator job.  It is
@@ -130,80 +134,79 @@ module.exports = function PluginInstallJobModule(pb) {
      * @method getWorkerTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
-    PluginInstallJob.prototype.getWorkerTasks = function(cb) {
+    getWorkerTasks(cb) {
         throw new Error('The PluginInstallJob should only be initialized in Initiator mode!');
-    };
+    }
 
     /**
      *
      * @method doPersistenceTasks
      */
-    PluginInstallJob.prototype.doPersistenceTasks = function(cb) {
+    doPersistenceTasks(cb) {
         var self = this;
 
         var pluginUid = this.getPluginUid();
-        var site      = this.getSite();
-        var details   = null;
-        var tasks     = [
+        var site = this.getSite();
+        var details = null;
+        var tasks = [
 
             //load details file
-            function(callback) {
-                var filePath = pb.PluginService.getDetailsPath(pluginUid);
+            function (callback) {
+                var filePath = PluginService.getDetailsPath(pluginUid);
 
                 self.log("Loading details file for install persistence operations from: %s", filePath);
-                pb.PluginService.loadDetailsFile(filePath, function(err, loadedDetails) {
+                PluginService.loadDetailsFile(filePath, function (err, loadedDetails) {
                     details = loadedDetails;
                     callback(err, loadedDetails ? true : false);
                 });
             },
 
             //create plugin entry
-            function(callback) {
-                 self.log("Setting system install flags for %s", details.uid);
+            function (callback) {
+                self.log("Setting system install flags for %s", details.uid);
 
-                 var clone     = util.clone(details);
-                 clone.dirName = pluginUid;
+                var clone = _.clone(details);
+                clone.dirName = pluginUid;
+                clone.object_type = 'plugin';
+                clone.site = site || SiteService.GLOBAL_SITE;
+                self.dao.save(clone, callback);
+            },
 
-                 var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
-                 pluginDescriptor.site = site || GLOBAL_SITE;
-                 self.dao.save(pluginDescriptor, callback);
-             },
+            //load plugin settings
+            function (callback) {
+                self.log("Adding settings for %s", details.uid);
+                self.pluginService.resetSettings(details, callback);
+            },
 
-             //load plugin settings
-             function(callback) {
-                 self.log("Adding settings for %s", details.uid);
-                 self.pluginService.resetSettings(details, callback);
-             },
+            //load theme settings
+            function (callback) {
+                if (details.theme && details.theme.settings) {
+                    self.log("Adding theme settings for %s", details.uid);
 
-             //load theme settings
-             function(callback) {
-                 if (details.theme && details.theme.settings) {
-                     self.log("Adding theme settings for %s", details.uid);
-
-                     self.pluginService.resetThemeSettings(details, callback);
-                 }
-                 else {
-                     callback(null, true);
-                 }
-             },
+                    self.pluginService.resetThemeSettings(details, callback);
+                }
+                else {
+                    callback(null, true);
+                }
+            },
 
             //call plugin's onInstall function
-            function(callback) {
+            function (callback) {
 
-                var mainModule = pb.PluginService.loadMainModule(pluginUid, details.main_module.path);
+                var mainModule = PluginService.loadMainModule(pluginUid, details.main_module.path);
                 if (!mainModule) {
                     return callback(new Error('Failed to load main module ' + pluginUid + ' at ' + details.main_module.path));
                 }
-                var hasBasicOnInstall = util.isFunction(mainModule.onInstall);
-                var hasContextOnInstall = util.isFunction(mainModule.onInstallWithContext);
-                if (!util.isNullOrUndefined(mainModule) && (hasBasicOnInstall || hasContextOnInstall)) {
+                var hasBasicOnInstall = _.isFunction(mainModule.onInstall);
+                var hasContextOnInstall = _.isFunction(mainModule.onInstallWithContext);
+                if (!_.isNil(mainModule) && (hasBasicOnInstall || hasContextOnInstall)) {
                     self.log("Executing %s 'onInstall' function", details.uid);
 
                     if (hasBasicOnInstall) {
                         return mainModule.onInstall(callback);
                     }
 
-                    mainModule.onInstallWithContext({ site: site }, callback);
+                    mainModule.onInstallWithContext({site: site}, callback);
                 }
                 else {
                     self.log("WARN: Plugin %s did not provide an 'onInstall' function.", details.uid);
@@ -211,11 +214,11 @@ module.exports = function PluginInstallJobModule(pb) {
                 }
             }
         ];
-        async.series(tasks, function(err, results) {
+        async.series(tasks, function (err, results) {
             cb(err, !err);
         });
-    };
+    }
+}
 
-    //exports
-    return PluginInstallJob;
-};
+//exports
+module.exports = PluginInstallJob;
