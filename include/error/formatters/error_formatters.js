@@ -123,7 +123,7 @@ module.exports = function(pb) {
             path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error/index.js')
         ];
         if (params.activeTheme !== pb.config.plugins.default) {
-            paths.push(path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'));
+            paths.push(path.join(pb.config.docRoot, 'plugins', pb.config.plugins.default, 'controllers/error', code + '.js'));
         }
         paths.push(path.join(pb.config.docRoot, 'controllers/error_controller.js'));
 
