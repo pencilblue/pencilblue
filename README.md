@@ -40,7 +40,7 @@ The instructions below assume that Node.js [0.11, 6] and MongoDB [2, 3) are inst
  2. ```cd``` into the cloned repository's folder
  3. Run ```npm install``` to retrieve PencilBlue's dependencies. Depending on your system access privileges, you may have to run  ```sudo npm install```
  4. (Optional) Install [Redis](http://redis.io/) for caching
- 5. (Optional) Create a custom configuration file using the provided ```sample.config.json```. The file can reside in two places: within the root folder of your installation as ```config.json``` or at ```/etc/pencilblue/config.json```. The installation root takes precedence. If running all services locally, no configuration file is needed, but a configuration file is necessary for overriding specific settings.
+ 5. (Optional) Create a custom configuration file using the provided ```sample.config.js```. The file can reside in two places: within the root folder of your installation as ```config.js``` or at ```/etc/pencilblue/config.js```. The installation root takes precedence. If running all services locally, no configuration file is needed, but a configuration file is necessary for overriding specific settings.
  6. Start PencilBlue. You can simply run ```node pencilblue```, but we recommend using [nodemon](https://www.npmjs.org/package/nodemon) for development and [forever](https://www.npmjs.org/package/forever) for production. Nodemon will restart PencilBlue on file changes and forever will ensure that PencilBlue is always running.
  ```
  # development

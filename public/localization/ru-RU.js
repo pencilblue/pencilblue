@@ -1,6 +1,6 @@
 module.exports = {
     generic: {
-        LOCALE_DISPLAY: 'Русский (РФ)', 
+        LOCALE_DISPLAY: 'Русский (РФ)',
         PENCILBLUE: 'PencilBlue',
         ALL_RIGHTS: 'Все права защищены',
         NONE: 'Нет',
@@ -450,7 +450,7 @@ module.exports = {
     site_settings:
     {
         CONFIGURATION: 'Настройки сайта',
-        EDIT_CONFIGURATION: 'Чтобы изменить/настроить конфигурацию, создайте файл config.json в корневом каталоге',
+        EDIT_CONFIGURATION: 'Чтобы изменить/настроить конфигурацию, создайте файл config.js в корневом каталоге',
         SITE_NAME: 'Название сайта',
         SITE_ROOT: 'URL сайта',
         DOCUMENT_ROOT: 'Корневой каталог',

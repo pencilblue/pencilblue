@@ -57,7 +57,7 @@ module.exports = function(pb) {
                 dbName: pb.config.db.name,
                 dbServers: pb.config.db.servers,
                 callHome: callHome,
-                configSet: fs.existsSync(pb.config.docRoot + '/config.json')
+                configSet: fs.existsSync(pb.config.docRoot + '/config.js')
             };
 
             var angularObjects = pb.ClientJs.getAngularObjects({

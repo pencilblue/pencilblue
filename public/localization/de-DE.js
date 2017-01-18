@@ -459,7 +459,7 @@ module.exports = {
     },
     site_settings: {
         CONFIGURATION: 'Konfiguration',
-        EDIT_CONFIGURATION: 'Um die Konfiguration zu bearbeiten, müssen die die Datei "config.json" im Root-Verzeichnis anlegen.',
+        EDIT_CONFIGURATION: 'Um die Konfiguration zu bearbeiten, müssen die die Datei "config.js" im Root-Verzeichnis anlegen.',
         MEDIA_ROOT: 'Root-Verzeichnis der Medientyp',
         SITE_NAME: 'Name der Seite',
         SITE_ROOT: 'Root-Verzeichnis der Seite',

@@ -6,7 +6,7 @@
  *
  * The file can be renamed to "config.js" in the same directory as this file
  * and it will be used as the configuration when PencilBlue is started.  If
- * this file is used then there is no need to create a "config.json"
+ * this file is used then there is no need to create a "config.js"
  */
 
 module.exports = {
