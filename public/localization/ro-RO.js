@@ -429,7 +429,7 @@ module.exports = {
     },
     site_settings: {
         CONFIGURATION: 'Configurare',
-        EDIT_CONFIGURATION: 'Pentru a edita configurarea creaza un fisier config.json in folderul radacina',
+        EDIT_CONFIGURATION: 'Pentru a edita configurarea creaza un fisier config.js in folderul radacina',
         SITE_NAME: 'Nume sit',
         SITE_ROOT: 'Radacina sit',
         MEDIA_ROOT: 'Radacina media',
