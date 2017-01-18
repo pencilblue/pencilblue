@@ -109,8 +109,16 @@ module.exports = function PB() {
         ErrorFormatters: require(path.join(config.docRoot, '/include/error/formatters/error_formatters.js')),
 
         Localization: require(path.join(config.docRoot, '/include/localization.js')),
-        
-        
+
+        MongoRegistrationProvider: require(config.docRoot + '/include/system/registry/mongo_registration_provider.js'),
+        RedisRegistrationProvider: require(config.docRoot + '/include/system/registry/redis_registration_provider.js'),
+        ServerRegistration: require(config.docRoot, '/include/system/server_registration.js'),
+
+        RedisCommandBroker: require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js')),
+        MongoCommandBroker: require(path.join(config.docRoot, '/include/system/command/mongo_command_broker.js')),
+        CommandService: require(path.join(config.docRoot, '/include/system/command/command_service.js')),
+
+        SettingServiceFactory: require(path.join(config.docRoot, '/include/system/settings.js'))
     };
 
     //error on removed items
@@ -121,23 +129,6 @@ module.exports = function PB() {
             }
         });
     });
-
-    //setup localization
-    pb.Localization = require(path.join(config.docRoot, '/include/localization.js'))(pb);
-
-    //server registration
-    pb.MongoRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/mongo_registration_provider.js'))(pb);
-    pb.RedisRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/redis_registration_provider.js'))(pb);
-    pb.ServerRegistration        = require(path.join(config.docRoot, '/include/system/server_registration.js'))(pb);
-
-    //command service
-    pb.RedisCommandBroker = require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js'))(pb);
-    pb.MongoCommandBroker = require(path.join(config.docRoot, '/include/system/command/mongo_command_broker.js'))(pb);
-    pb.CommandService     = require(path.join(config.docRoot, '/include/system/command/command_service.js'))(pb);
-
-    //setup settings service
-    pb.SettingServiceFactory = require(path.join(config.docRoot, '/include/system/settings.js'))(pb);
-    pb.settings              = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache);
 
     //Jobs
     pb.JobRunner             = require(path.join(config.docRoot, '/include/service/jobs/job_runner.js'))(pb);
