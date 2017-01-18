@@ -16,26 +16,28 @@
 */
 'use strict';
 
-var util = require('./util.js');
+//dependencies
+var _ = require('lodash');
+var SettingServiceFactory = require('./system/settings');
+var SiteService = require('./service/entities/site_service');
 
-module.exports = function(pb) {
-
-    /**
-     * Service for content settings retrieval
-     *
-     * @module Services
-     * @class ContentService
-     * @constructor
-     */
-    function ContentService(options) {
-        if(options) {
-            this.siteUid = pb.SiteService.getCurrentSite(options.site) || pb.SiteService.GLOBAL_SITE;
+/**
+ * Service for content settings retrieval
+ * TODO [1.0] Remove this class and use the setting service as intended
+ * @module Services
+ * @class ContentService
+ * @constructor
+ */
+class ContentService {
+    constructor(options) {
+        if (options) {
+            this.siteUid = SiteService.getCurrentSite(options.site) || SiteService.GLOBAL_SITE;
             this.onlyThisSite = options.onlyThisSite || false;
         } else {
-            this.siteUid = pb.SiteService.GLOBAL_SITE;
+            this.siteUid = SiteService.GLOBAL_SITE;
             this.onlyThisSite = false;
         }
-        this.settingService = pb.SettingServiceFactory.getServiceBySite(this.siteUid, this.onlyThisSite);
+        this.settingService = SettingServiceFactory.getServiceBySite(this.siteUid, this.onlyThisSite);
     }
 
     /**
@@ -46,7 +48,9 @@ module.exports = function(pb) {
      * @property CONTENT_SETTINGS_REF
      * @type {String}
      */
-    var CONTENT_SETTINGS_REF = 'content_settings';
+    static get CONTENT_SETTINGS_REF() {
+        return 'content_settings';
+    }
 
     /**
      *
@@ -56,33 +60,36 @@ module.exports = function(pb) {
      * @property DEFAULT_SETTINGS
      * @type {String}
      */
-    var DEFAULT_SETTINGS = Object.freeze({
-        articles_per_page: 5,
-        auto_break_articles: 0,
-        read_more_text: 'Read more',
-        display_timestamp: 1,
-        date_format: 'M dd, YYYY',
-        two_digit_date: 0,
-        display_hours_minutes: 1,
-        time_format: '12',
-        two_digit_time: 0,
-        display_bylines: 1,
-        display_author_photo: 1,
-        display_author_position: 1,
-        allow_comments: 1,
-        default_comments: 1,
-        require_account: 0,
-        require_verification: 0
-    });
+    static get DEFAULT_SETTINGS() {
+        return Object.freeze({
+            articles_per_page: 5,
+            auto_break_articles: 0,
+            read_more_text: 'Read more',
+            display_timestamp: 1,
+            date_format: 'M dd, YYYY',
+            two_digit_date: 0,
+            display_hours_minutes: 1,
+            time_format: '12',
+            two_digit_time: 0,
+            display_bylines: 1,
+            display_author_photo: 1,
+            display_author_position: 1,
+            allow_comments: 1,
+            default_comments: 1,
+            require_account: 0,
+            require_verification: 0
+        });
+    }
 
     /**
      * A long named alias of 'get'
+     * //TODO [1.0] remove duplicate naming
      * @method getSettings
      * @param {Function} cb Callback function
      */
-    ContentService.prototype.getSettings = function(cb){
+    getSettings = function (cb) {
         this.get(cb);
-    };
+    }
 
     /**
      * Retrieves the content settings.  When settings are not found in storage
@@ -90,30 +97,30 @@ module.exports = function(pb) {
      * @method get
      * @param {Function} cb Callback function
      */
-    ContentService.prototype.get = function(cb) {
+    get = function (cb) {
         var self = this;
-        this.settingService.get(CONTENT_SETTINGS_REF, function(err, settings){
+        this.settingService.get(CONTENT_SETTINGS_REF, function (err, settings) {
             if (settings) {
                 return cb(err, settings);
             }
 
             //set default settings if they don't exist
             settings = ContentService.getDefaultSettings();
-            self.settingService.set(CONTENT_SETTINGS_REF, settings, function(err, result) {
+            self.settingService.set(CONTENT_SETTINGS_REF, settings, function (err, result) {
                 cb(err, settings);
             });
         });
-    };
+    }
 
     /**
      * Retrieves the default content settings from installation
-     *
+     * TODO [1.0] remove because of static property
      * @method getDefaultSettings
      * @return {Object} Content settings
      */
-    ContentService.getDefaultSettings = function() {
-        return util.clone(DEFAULT_SETTINGS);
-    };
+    static getDefaultSettings = function () {
+        return _.clone(ContentService.DEFAULT_SETTINGS);
+    }
 
     /**
      * Returns a formatted time stamp from a date
@@ -122,7 +129,7 @@ module.exports = function(pb) {
      * @param {Date} date
      * @param {Object} contentSettings
      */
-    ContentService.getTimestampTextFromSettings = function(date, contentSettings, ls) {
+    static getTimestampTextFromSettings = function (date, contentSettings, ls) {
         var options = {
             date: date,
             format: contentSettings.date_format,
@@ -133,10 +140,10 @@ module.exports = function(pb) {
             ls: ls
         };
         return ContentService.getTimestampText(options);
-    };
+    }
 
     /**
-     *
+     * TODO [1.0] document remove check for instance of localization service
      * @static
      * @method getTimestampText
      * @param {Object} options
@@ -148,39 +155,36 @@ module.exports = function(pb) {
      * @param {Boolean} options.twoDigitTime
      * @param {Localization} options.ls
      */
-    ContentService.getTimestampText = function(options) {
-        var date         = options.date;
-        var format       = options.format;
+    static getTimestampText = function (options) {
+        var date = options.date;
+        var format = options.format;
         var twoDigitDate = options.twoDigitDate;
-        var displayTime  = options.displayTime;
-        var timeFormat   = options.timeFormat;
+        var displayTime = options.displayTime;
+        var timeFormat = options.timeFormat;
         var twoDigitTime = options.twoDigitTime;
-        var ls           = options.ls;
-        if (!ls) {
-            ls = new pb.Localization();
-        }
+        var ls = options.ls;
 
         var dateString = format;
         var monthNames = [
-          ls.g('timestamp.JAN'),
-          ls.g('timestamp.FEB'),
-          ls.g('timestamp.MAR'),
-          ls.g('timestamp.APR'),
-          ls.g('timestamp.MAY'),
-          ls.g('timestamp.JUN'),
-          ls.g('timestamp.JUL'),
-          ls.g('timestamp.AUG'),
-          ls.g('timestamp.SEP'),
-          ls.g('timestamp.OCT'),
-          ls.g('timestamp.NOV'),
-          ls.g('timestamp.DEC')
+            ls.g('timestamp.JAN'),
+            ls.g('timestamp.FEB'),
+            ls.g('timestamp.MAR'),
+            ls.g('timestamp.APR'),
+            ls.g('timestamp.MAY'),
+            ls.g('timestamp.JUN'),
+            ls.g('timestamp.JUL'),
+            ls.g('timestamp.AUG'),
+            ls.g('timestamp.SEP'),
+            ls.g('timestamp.OCT'),
+            ls.g('timestamp.NOV'),
+            ls.g('timestamp.DEC')
         ];
 
         var month = date.getMonth() + 1;
-        var day   = date.getDate();
+        var day = date.getDate();
 
         month = (twoDigitDate && month < 10) ? '0' + month : month.toString();
-        day   = (twoDigitDate && day < 10) ? '0' + day : day.toString();
+        day = (twoDigitDate && day < 10) ? '0' + day : day.toString();
 
         dateString = dateString.split('YYYY').join(date.getFullYear())
             .split('yy').join(date.getYear())
@@ -190,16 +194,16 @@ module.exports = function(pb) {
 
         if (typeof displayTime !== 'undefined' && displayTime) {
 
-            var hours   = date.getHours();
+            var hours = date.getHours();
             var minutes = date.getMinutes();
-            if(minutes < 10) {
+            if (minutes < 10) {
                 minutes = '0' + minutes;
             }
             var ampm = '';
 
             //format for 12 hour time
-            if(timeFormat == '12') {
-                if(hours > 12) {
+            if (timeFormat == '12') {
+                if (hours > 12) {
                     hours -= 12;
                     ampm = ' ' + ls.g('timestamp.TIME_PM');
                 }
@@ -207,15 +211,15 @@ module.exports = function(pb) {
                     ampm = ' ' + ls.g('timestamp.TIME_AM');
                 }
             }
-            if(twoDigitTime && hours < 10) {
+            if (twoDigitTime && hours < 10) {
                 hours = '0' + hours;
             }
 
             dateString = dateString.concat(' ' + hours + ':' + minutes + ampm);
         }
         return dateString;
-    };
+    }
+}
 
-    //exports
-    return ContentService;
-};
+//exports
+module.exports = ContentService;

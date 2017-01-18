@@ -129,35 +129,29 @@ module.exports = function PB() {
         PluginDependenciesJob: require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_dependencies_job.js')),
         PluginInitializeJob: require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_initialize_job.js')),
         PluginInstallJob: require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_install_job.js')),
+
+        SiteJobRunner: require(path.join(config.docRoot, '/include/service/jobs/sites/site_job_runner.js')),
+        SiteActivateJob: require(path.join(config.docRoot, '/include/service/jobs/sites/site_activate_job.js')),
+        SiteDeactivateJob: require(path.join(config.docRoot, '/include/service/jobs/sites/site_deactivate_job.js')),
+        SiteCreateEditJob: require(path.join(config.docRoot, '/include/service/jobs/sites/site_create_edit_job.js')),
+
+        EmailService: require(path.join(config.docRoot, '/include/email')),
+
+        ContentService: require(path.join(config.docRoot, '/include/content')),
     };
 
     //error on removed items
-    ['util', 'session', 'validation', 'users', 'settings', 'security', 'DeleteController', 'ApiActionController', 'HttpStatus', 'PBError'].forEach(function(prop) {
+    [
+        'util', 'session', 'validation', 'users', 'settings', 'security', 'DeleteController', 'ApiActionController',
+        'HttpStatus', 'PBError', 'DocumentCreator', 'content',
+    ].forEach(function(prop) {
         Object.defineProperty(pb, prop, {
             get: function() {
                 throw new Error(prop + ' has been removed from the framework');
             }
         });
     });
-
-    //Jobs
-    pb.SiteJobRunner         = require(path.join(config.docRoot, '/include/service/jobs/sites/site_job_runner.js'))(pb);
-    pb.SiteActivateJob       = require(path.join(config.docRoot, '/include/service/jobs/sites/site_activate_job.js'))(pb);
-    pb.SiteDeactivateJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_deactivate_job.js'))(pb);
-    pb.SiteCreateEditJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_create_edit_job.js'))(pb);
-
-    //Email settings and functions
-    pb.EmailService = require(path.join(config.docRoot, '/include/email'))(pb);
-
-    //system requires
-    pb.DocumentCreator = require(config.docRoot+'/include/model/create_document.js')(pb);	// Document creation
-    pb.ContentService  = require(path.join(config.docRoot, '/include/content'))(pb); // Content settings and functions
-    Object.defineProperty(pb, 'content', {
-        get: function() {
-            pb.log.warn('PencilBlue: pb.content is deprecated.  Use pb.ContentService instead');
-            return new pb.ContentService();
-        }
-    });
+    
     pb.LibrariesService = require(path.join(config.docRoot, '/include/libraries.js'))(pb); // JS libraries settings and functions
     Object.defineProperty(pb, 'libraries', {
         get: function() {

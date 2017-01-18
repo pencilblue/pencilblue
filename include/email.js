@@ -25,16 +25,17 @@ var SettingServiceFactory = require('./system/settings');
 var SiteService = require('./service/entities/site_service');
 var TemplateService = require('./service/entities/template_service');
 
-    /**
-     * Service for sending emails.
-     *
-     * @module Services
-     * @class EmailService
-     * @constructor
-     * @param {String} [options.site=GLOBAL_SITE]
-     * @param {String} [options.onlyThisSite=false]
-     */
-    function EmailService(options) {
+/**
+ * Service for sending emails.
+ *
+ * @module Services
+ * @class EmailService
+ * @constructor
+ * @param {String} [options.site=GLOBAL_SITE]
+ * @param {String} [options.onlyThisSite=false]
+ */
+class EmailService {
+    constructor(options) {
         if (options) {
             this.site = SiteService.getCurrentSite(options.site);
             this.onlyThisSite = options.onlyThisSite || false;
@@ -49,19 +50,21 @@ var TemplateService = require('./service/entities/template_service');
      * @property DEFAULT_SETTINGS
      * @type {Object}
      */
-    var DEFAULT_SETTINGS = Object.freeze({
-        from_name: Configuration.active.siteName,
-        from_address: 'no-reply@sample.com',
-        verification_subject: Configuration.active.siteName+' Account Confirmation',
-        verification_content: '',
-        template: 'admin/elements/default_verification_email',
-        service: 'Gmail',
-        host: '',
-        secure_connection: 1,
-        port: 465,
-        username: '',
-        password: ''
-    });
+    static get DEFAULT_SETTINGS() {
+        return Object.freeze({
+            from_name: Configuration.active.siteName,
+            from_address: 'no-reply@sample.com',
+            verification_subject: Configuration.active.siteName + ' Account Confirmation',
+            verification_content: '',
+            template: 'admin/elements/default_verification_email',
+            service: 'Gmail',
+            host: '',
+            secure_connection: 1,
+            port: 465,
+            username: '',
+            password: ''
+        });
+    }
 
     /**
      * Retrieves a template and sends it as an email
@@ -70,40 +73,40 @@ var TemplateService = require('./service/entities/template_service');
      * @param {Object}   options Object containing the email settings and template name
      * @param {Function} cb      Callback function
      */
-    EmailService.prototype.sendFromTemplate = function(options, cb){
+    sendFromTemplate(options, cb) {
         var self = this;
 
         //TODO: Move the instantiation of the template service to the constructor so it can be injectable with all of the other context properties it needs.
-        var ts   = new TemplateService({ site: this.site });
+        var ts = new TemplateService({site: this.site});
         if (options.replacements) {
-            for(var key in options.replacements) {
+            for (var key in options.replacements) {
                 ts.registerLocal(key, options.replacements[key]);
             }
         }
-        ts.load(options.template, function(err, data) {
+        ts.load(options.template, function (err, data) {
 
             var body = '' + data;
             self.send(options.from, options.to, options.subject, body, cb);
         });
-    };
+    }
 
     /**
-    * Uses an HTML layout and sends it as an email
-    *
-    * @method sendFromLayout
-    * @param {Object}   options Object containing the email settings and layout
-    * @param {Function} cb      Callback function
-    */
-    EmailService.prototype.sendFromLayout = function(options, cb){
+     * Uses an HTML layout and sends it as an email
+     *
+     * @method sendFromLayout
+     * @param {Object}   options Object containing the email settings and layout
+     * @param {Function} cb      Callback function
+     */
+    sendFromLayout(options, cb) {
         var self = this;
         var layout = options.layout;
         if (options.replacements) {
-            for(var key in options.replacements) {
+            for (var key in options.replacements) {
                 layout.split('^' + key + '^').join(options.replacements[key]);
             }
         }
         self.send(options.from, options.to, options.subject, layout, cb);
-    };
+    }
 
     /**
      * Sends an email
@@ -115,9 +118,9 @@ var TemplateService = require('./service/entities/template_service');
      * @param  {String}   body    Email content
      * @param  {Function} cb      Callback function
      */
-    EmailService.prototype.send = function(from, to, subject, body, cb) {
+    send(from, to, subject, body, cb) {
 
-        this.getSettings(function(err, emailSettings) {
+        this.getSettings(function (err, emailSettings) {
             if (_.isError(err)) {
                 throw err;
             }
@@ -129,16 +132,15 @@ var TemplateService = require('./service/entities/template_service');
 
             var options = {
                 service: emailSettings.service,
-                auth:
-                {
+                auth: {
                     user: emailSettings.username,
                     pass: emailSettings.password
                 }
             };
             if (emailSettings.service == 'custom') {
                 options.host = emailSettings.host,
-                options.secureConnection = emailSettings.secure_connection,
-                options.port = emailSettings.port;
+                    options.secureConnection = emailSettings.secure_connection,
+                    options.port = emailSettings.port;
             }
             var smtpTransport = NodeMailer.createTransport("SMTP", options);
 
@@ -149,7 +151,7 @@ var TemplateService = require('./service/entities/template_service');
                 html: body
             };
 
-            smtpTransport.sendMail(mailOptions, function(err, response) {
+            smtpTransport.sendMail(mailOptions, function (err, response) {
                 if (_.isError(err)) {
                     log.error("EmailService: Failed to send email: ", err.stack);
                 }
@@ -158,7 +160,7 @@ var TemplateService = require('./service/entities/template_service');
                 cb(err, response);
             });
         });
-    };
+    }
 
     /**
      * Retrieves the email settings
@@ -166,23 +168,14 @@ var TemplateService = require('./service/entities/template_service');
      * @method getSettings
      * @param {Function} cb Callback function
      */
-    EmailService.prototype.getSettings = function(cb) {
+    getSettings(cb) {
         var self = this;
         var settingsService = SettingServiceFactory.getServiceBySite(self.site, self.onlyThisSite);
-        settingsService.get('email_settings', function(err, settings) {
-            cb(err, _.isError(err) || !settings ? EmailService.getDefaultSettings() : settings);
+        settingsService.get('email_settings', function (err, settings) {
+            cb(err, _.isError(err) || !settings ? EmailService.DEFAULT_SETTINGS : settings);
         });
-    };
+    }
+}
 
-    /**
-     * Retrieves the default email settings from installation
-     *
-     * @method getDefaultSettings
-     * @return {Object} Email settings
-     */
-    EmailService.getDefaultSettings = function() {
-        return DEFAULT_SETTINGS;
-    };
-
-    //exports
-    module.exports = EmailService;
+//exports
+module.exports = EmailService;
