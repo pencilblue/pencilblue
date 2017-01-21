@@ -26,10 +26,10 @@ var extend = require('node.extend');
 
 /**
  * Default configuration.  The settings here should be overriden by taking the
- * example file "sample.config.json" and modifying it to override the properties
+ * example file "sample.config.js" and modifying it to override the properties
  * shown below.  In order to properly override the default configuration do the
  * following:
- * 1) copy "sample.config.json" to "/etc/pencilblue/config.json"
+ * 1) copy "sample.config.js" to "/etc/pencilblue/config.js"
  * 2) Override the properties as desired.
  * 3) Add any custom properties you wish to provide for your specific purposes.
  */
@@ -178,7 +178,7 @@ class Configuration {
                 skip_index_check: false,
 
                 //The indices that will be ensured by the system.  This list is checked
-                //at startup by every child process.  The override config.json file may
+                //at startup by every child process.  The override config.js file may
                 //also provide this attribute.  In that case the items in that array
                 //will be added to the those that already exist.  This attributes is generated
                 //based on the multi-site boolean setting.  NOTE: duplicates can

@@ -119,8 +119,9 @@ describe('DAO', function() {
 
         it('should set the created date when there is no ID present on the object', function() {
             var obj = {};
+            var now = Date.now();
             this.pb.DAO.updateChangeHistory(obj);
-            obj.created.getTime().should.be.greaterThanOrEqual(Date.now());
+            obj.created.getTime().should.be.greaterThanOrEqual(now);
             obj.last_modified.should.eql(obj.created);
         });
 
@@ -130,9 +131,10 @@ describe('DAO', function() {
                 created: new Date(12333),
                 last_modified: new Date(12333)
             };
+            var now = Date.now();
             this.pb.DAO.updateChangeHistory(obj);
             obj.created.should.eql(new Date(12333));
-            obj.last_modified.getTime().should.be.greaterThanOrEqual(Date.now());
+            obj.last_modified.getTime().should.be.greaterThanOrEqual(now);
         });
 
         it('should reset the id property to the mongo specific _id property when the _id property exists', function() {
