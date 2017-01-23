@@ -17,6 +17,7 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
 var path        = require('path');
 var HttpStatusCodes = require('http-status-codes');
 var XmlErrorFormatter = require('./xml_error_formatter');
@@ -145,9 +146,10 @@ module.exports = function(pb) {
                 failedControllerPaths[paths[i]] = true;
             }
         }
+
         params.request.controllerInstance = new ErrorController();
         params.request.controllerInstance.error = params.error;
-        params.request.themeRoute = params.request.themeRoute || {};
+        params.request.themeRoute = !!params.request.themeRoute ? _.clone(params.request.themeRoute) : {};
         params.request.routeTheme = params.request.routeTheme || {};
         params.request.siteObj = params.request.siteObj || pb.SiteService.getGlobalSiteContext();
         params.request.themeRoute.handler = 'render';

@@ -485,8 +485,12 @@ module.exports = function RequestHandlerModule(pb) {
             routeDescriptor.themes[site][theme] = {};
             routeDescriptor.themes[site].size++;
         }
-        routeDescriptor.themes[site][theme][descriptor.method]            = descriptor;
-        routeDescriptor.themes[site][theme][descriptor.method].controller = Controller;
+
+        //set the controller then lock it down to prevent tampering
+        descriptor.controller = Controller;
+        routeDescriptor.themes[site][theme][descriptor.method] = Object.freeze(descriptor);
+
+
 
        //only add the descriptor it is new.  We do it here because we need to
        //know that the controller is good.
