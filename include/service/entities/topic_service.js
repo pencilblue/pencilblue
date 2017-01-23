@@ -17,21 +17,13 @@
 'use strict';
 
 //dependencies
-var util = require('../../util.js');
+var _ = require('lodash');
+var BaseObjectService = require('../base_object_service');
+var DAO = require('../../dao/dao');
+var RegExpUtils = require('../../utils/reg_exp_utils');
+var ValidationService = require('../../validation/validation_service');
 
 module.exports = function(pb) {
-
-    //pb dependencies
-    var BaseObjectService = pb.BaseObjectService;
-
-    /**
-     * @private
-     * @static
-     * @readonly
-     * @property TYPE
-     * @type {String}
-     */
-    var TYPE = 'topic';
 
     /**
      * Provides interactions with topics
@@ -40,84 +32,90 @@ module.exports = function(pb) {
      * @constructor
      * @param {Object} context
      */
-    function TopicService(context) {
-        if (!util.isObject(context)) {
-            context = {};
+    class TopicService extends BaseObjectService {
+        constructor(context) {
+
+            context.type = TopicService.TYPE;
+            super(context);
         }
 
-        context.type = TYPE;
-        TopicService.super_.call(this, context);
+        /**
+         * @readonly
+         * @type {String}
+         */
+        static get TYPE() {
+            return 'topic';
+        }
+
+        /**
+         *
+         * @static
+         * @method onFormat
+         * @param {Object} context
+         * @param {TopicService} context.service An instance of the service that triggered
+         * the event that called this handler
+         * @param {Function} cb A callback that takes a single parameter: an error if occurred
+         */
+        static onFormat(context, cb) {
+            var dto = context.data;
+            dto.name = BaseObjectService.sanitize(dto.name);
+            cb(null);
+        }
+
+        /**
+         *
+         * @static
+         * @method onMerge
+         * @param {Object} context
+         * @param {TopicService} context.service An instance of the service that triggered
+         * the event that called this handler
+         * @param {Function} cb A callback that takes a single parameter: an error if occurred
+         */
+        static onMerge(context, cb) {
+            context.object.name = context.data.name;
+            cb(null);
+        }
+
+        /**
+         *
+         * @static
+         * @method onValidate
+         * @param {Object} context
+         * @param {Object} context.data The DTO that was provided for persistence
+         * @param {TopicService} context.service An instance of the service that triggered
+         * the event that called this handler
+         * @param {Function} cb A callback that takes a single parameter: an error if occurred
+         */
+        static onValidate(context, cb) {
+            var obj = context.data;
+            var errors = context.validationErrors;
+
+            if (!ValidationService.isNonEmptyStr(obj.name, true)) {
+                errors.push(BaseObjectService.validationFailure('name', 'Name is required'));
+
+                //no need to check the DB.  Short circuit it here
+                return cb(null, errors);
+            }
+
+            //validate name is not taken
+            var where = DAO.getNotIdWhere(obj[DAO.getIdField()]);
+            where.name = RegExpUtils.getCaseInsensitiveExact(obj.name);
+            context.service.dao.exists(BaseObjectService.TYPE, where, function (err, exists) {
+                if (_.isError(err)) {
+                    return cb(err);
+                }
+                else if (exists) {
+                    errors.push(BaseObjectService.validationFailure('name', 'Name already exists'));
+                }
+                cb(null, errors);
+            });
+        }
     }
-    util.inherits(TopicService, BaseObjectService);
-
-    /**
-     *
-     * @static
-     * @method format
-     * @param {Object} context
-     * @param {TopicService} context.service An instance of the service that triggered
-     * the event that called this handler
-     * @param {Function} cb A callback that takes a single parameter: an error if occurred
-     */
-    TopicService.format = function(context, cb) {
-        var dto = context.data;
-        dto.name = BaseObjectService.sanitize(dto.name);
-        cb(null);
-    };
-
-    /**
-     *
-     * @static
-     * @method merge
-     * @param {Object} context
-     * @param {TopicService} context.service An instance of the service that triggered
-     * the event that called this handler
-     * @param {Function} cb A callback that takes a single parameter: an error if occurred
-     */
-    TopicService.merge = function(context, cb) {
-        context.object.name = context.data.name;
-        cb(null);
-    };
-
-    /**
-     *
-     * @static
-     * @method validate
-     * @param {Object} context
-     * @param {Object} context.data The DTO that was provided for persistence
-     * @param {TopicService} context.service An instance of the service that triggered
-     * the event that called this handler
-     * @param {Function} cb A callback that takes a single parameter: an error if occurred
-     */
-    TopicService.validate = function(context, cb) {
-        var obj = context.data;
-        var errors = context.validationErrors;
-
-        if (!pb.ValidationService.isNonEmptyStr(obj.name, true)) {
-            errors.push(BaseObjectService.validationFailure('name', 'Name is required'));
-
-            //no need to check the DB.  Short circuit it here
-            return cb(null, errors);
-        }
-
-        //validate name is not taken
-        var where = pb.DAO.getNotIdWhere(obj[pb.DAO.getIdField()]);
-        where.name = new RegExp('^' + util.escapeRegExp(obj.name) + '$', 'i');
-        context.service.dao.exists(TYPE, where, function(err, exists) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            else if (exists) {
-                errors.push(BaseObjectService.validationFailure('name', 'Name already exists'));
-            }
-            cb(null, errors);
-        });
-    };
 
     //Event Registries
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, TopicService.format);
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, TopicService.merge);
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, TopicService.validate);
+    BaseObjectService.on(TopicService.TYPE + '.' + BaseObjectService.FORMAT, TopicService.onFormat);
+    BaseObjectService.on(TopicService.TYPE + '.' + BaseObjectService.MERGE, TopicService.onMerge);
+    BaseObjectService.on(TopicService.TYPE + '.' + BaseObjectService.VALIDATE, TopicService.onValidate);
 
     //exports
     return TopicService;

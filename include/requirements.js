@@ -151,7 +151,7 @@ module.exports = function PB() {
             }
         });
     });
-    
+
     pb.LibrariesService = require(path.join(config.docRoot, '/include/libraries.js'))(pb); // JS libraries settings and functions
     Object.defineProperty(pb, 'libraries', {
         get: function() {
@@ -184,8 +184,8 @@ module.exports = function PB() {
     });
 
     //create plugin setting service
-    pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'))(pb);
-    pb.PluginRepository = require(path.join(config.docRoot, '/include/repository/plugin_repository.js'))(pb);
+    pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'));
+    pb.PluginRepository = require(path.join(config.docRoot, '/include/repository/plugin_repository.js'));
 
     //media renderers
     pb.media = {
