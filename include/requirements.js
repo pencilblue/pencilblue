@@ -139,7 +139,9 @@ module.exports = function PB() {
 
         ContentService: require(path.join(config.docRoot, '/include/content')),
         LibrariesService: require(path.join(config.docRoot, '/include/libraries.js')),
-        ClientJs: require(config.docRoot+'/include/client_js')
+        ClientJs: require(config.docRoot+'/include/client_js'),
+
+        AdminNavigation: require(path.join(config.docRoot, '/include/admin_navigation'))
     };
 
     //error on removed items
@@ -154,7 +156,6 @@ module.exports = function PB() {
         });
     });
     
-    pb.AdminNavigation    = require(path.join(config.docRoot, '/include/admin_navigation'))(pb);			// Admin Navigation
     pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'))(pb);
     pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'))(pb);
     pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'))(pb);
