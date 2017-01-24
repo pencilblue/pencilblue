@@ -305,7 +305,7 @@ module.exports = function(pb) {
                         if (Array.isArray(authors)) {
 
                             authorHash = _.keyBy(authors, function(author) {
-                                return authors[DAO.getIdField()] + '';
+                                return author[DAO.getIdField()] + '';
                             });
                         }
                         callback(err, authorHash);

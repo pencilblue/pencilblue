@@ -17,44 +17,25 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
 var async = require('async');
-var util = require('../util.js');
+var DAO = require('../dao/dao');
+var SiteService = require('../service/entities/site_service');
 
-module.exports = function PluginRepositoryModule(pb) {
+/**
+ * Empty constructor because this object uses static methods.
+ * @class PluginRepository
+ * @constructor
+ */
+class PluginRepository {
 
     /**
-     * @private
-     * @static
      * @readonly
-     * @property PLUGIN_COLL
-     * @type {String}
+     * @type {string}
      */
-    var PLUGIN_COLL = 'plugin';
-
-    /**
-     * @private
-     * @static
-     * @readonly
-     * @property GLOBAL_SITE
-     * @type {String}
-     */
-    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
-
-    /**
-     * @private
-     * @static
-     * @readonly
-     * @property SITE_FIELD
-     * @type {String}
-     */
-    var SITE_FIELD = pb.SiteService.SITE_FIELD;
-
-    /**
-     * Empty constructor because this object uses static methods.
-     * @class PluginRepository
-     * @constructor
-     */
-    function PluginRepository() {}
+    static get PLUGIN_COLL() {
+        return 'plugin';
+    }
 
     /**
      * Retrieves the plugins that have themes associated with them from both site and global level.
@@ -63,11 +44,11 @@ module.exports = function PluginRepositoryModule(pb) {
      * @param {String} site - site unique id
      * @param {Function} cb - the callback function
      */
-    PluginRepository.loadPluginsWithThemesAvailableToThisSite = function (site, cb) {
-        var dao = new pb.DAO();
+    static loadPluginsWithThemesAvailableToThisSite(site, cb) {
+        var dao = new DAO();
         var hasATheme = getHasThemeQuery();
         var belongsToSite = getBelongsToSiteQuery(site);
-        var belongsToGlobal = getBelongsToSiteQuery(GLOBAL_SITE);
+        var belongsToGlobal = getBelongsToSiteQuery(SiteService.GLOBAL_SITE);
         var siteWhere = {
             $and: [hasATheme, belongsToSite]
         };
@@ -76,10 +57,10 @@ module.exports = function PluginRepositoryModule(pb) {
         };
         var tasks = {
             sitePlugins: function (callback) {
-                dao.q(PLUGIN_COLL, {where: siteWhere}, callback);
+                dao.q(PluginRepository.PLUGIN_COLL, {where: siteWhere}, callback);
             },
             globalPlugins: function (callback) {
-                dao.q(PLUGIN_COLL, {where: globalWhere}, callback);
+                dao.q(PluginRepository.PLUGIN_COLL, {where: globalWhere}, callback);
             }
         };
         async.parallel(tasks, function (err, results) {
@@ -92,7 +73,7 @@ module.exports = function PluginRepositoryModule(pb) {
                 cb(null, resultArray);
             }
         });
-    };
+    }
 
     /**
      * Retrieves the plugins that have themes associated with them from site level.
@@ -101,15 +82,15 @@ module.exports = function PluginRepositoryModule(pb) {
      * @param {String} site - site unique id
      * @param {Function} cb - the callback function
      */
-    PluginRepository.loadPluginsWithThemesOwnedByThisSite = function (site, cb) {
-        var dao = new pb.DAO();
+    static loadPluginsWithThemesOwnedByThisSite(site, cb) {
+        var dao = new DAO();
         var hasATheme = getHasThemeQuery();
         var belongsToSite = getBelongsToSiteQuery(site);
         var where = {
             $and: [hasATheme, belongsToSite]
         };
-        dao.q(PLUGIN_COLL, {where: where}, cb);
-    };
+        dao.q(PluginRepository.PLUGIN_COLL, {where: where}, cb);
+    }
 
     /**
      * Loads the plugin object on the site level from the database.
@@ -119,7 +100,7 @@ module.exports = function PluginRepositoryModule(pb) {
      * @param {String} site - site unique id
      * @param {Function} cb - the callback function
      */
-    PluginRepository.loadPluginOwnedByThisSite = function (pluginID, site, cb) {
+    static loadPluginOwnedByThisSite(pluginID, site, cb) {
         var hasCorrectIdentifier = getCorrectIdQuery(pluginID);
         var belongsToThisSite = getBelongsToSiteQuery(site);
 
@@ -127,9 +108,9 @@ module.exports = function PluginRepositoryModule(pb) {
             $and: [hasCorrectIdentifier, belongsToThisSite]
         };
 
-        var dao = new pb.DAO();
-        dao.loadByValues(where, PLUGIN_COLL, cb);
-    };
+        var dao = new DAO();
+        dao.loadByValues(where, PluginRepository.PLUGIN_COLL, cb);
+    }
 
     /**
      * Loads the plugin object on the site level first. If blank, attempts to load plugin object from the global level.
@@ -139,16 +120,16 @@ module.exports = function PluginRepositoryModule(pb) {
      * @param {String} site - site unqiue id
      * @param {Function} cb - the callback function
      */
-    PluginRepository.loadPluginAvailableToThisSite = function (pluginID, site, cb) {
+    static loadPluginAvailableToThisSite(pluginID, site, cb) {
         PluginRepository.loadPluginOwnedByThisSite(pluginID, site, function (err, plugin) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 cb(err, null);
                 return;
             }
 
             if (!plugin) {
-                if (site && site !== GLOBAL_SITE) {
-                    PluginRepository.loadPluginOwnedByThisSite(pluginID, GLOBAL_SITE, cb);
+                if (site && site !== SiteService.GLOBAL_SITE) {
+                    PluginRepository.loadPluginOwnedByThisSite(pluginID, SiteService.GLOBAL_SITE, cb);
                     return;
                 }
                 cb(err, null);
@@ -156,7 +137,7 @@ module.exports = function PluginRepositoryModule(pb) {
 
             cb(err, plugin);
         });
-    };
+    }
 
     /**
      * Load all plugin objects included in pluginIDs on a site level.
@@ -166,7 +147,7 @@ module.exports = function PluginRepositoryModule(pb) {
      * @param {String} site - site unique id
      * @param {Function} cb - callback function
      */
-    PluginRepository.loadIncludedPluginsOwnedByThisSite = function (pluginIDs, site, cb) {
+    static loadIncludedPluginsOwnedByThisSite(pluginIDs, site, cb) {
         if (!pluginIDs || !pluginIDs.length) {
             pluginIDs = [];
         }
@@ -176,13 +157,13 @@ module.exports = function PluginRepositoryModule(pb) {
             $and: [idIsInTheList, belongsToThisSite]
         };
         var opts = {
-            select: pb.DAO.PROJECT_ALL,
+            select: DAO.PROJECT_ALL,
             where: where,
-            order: [['created', pb.DAO.ASC]]
+            order: [['created', DAO.ASC]]
         };
-        var dao = new pb.DAO();
-        dao.q(PLUGIN_COLL, opts, cb);
-    };
+        var dao = new DAO();
+        dao.q(PluginRepository.PLUGIN_COLL, opts, cb);
+    }
 
     /**
      * Loads plugin objects of plugin IDs that are not include in pluginIDs on the site level.
@@ -192,7 +173,7 @@ module.exports = function PluginRepositoryModule(pb) {
      * @param {String} site - site unique id
      * @param {Function} cb - callback function
      */
-    PluginRepository.loadPluginsNotIncludedOwnedByThisSite = function (pluginIDs, site, cb) {
+    static loadPluginsNotIncludedOwnedByThisSite(pluginIDs, site, cb) {
         if (!pluginIDs || !pluginIDs.length) {
             pluginIDs = [];
         }
@@ -202,13 +183,13 @@ module.exports = function PluginRepositoryModule(pb) {
             $and: [idIsNotInTheList, belongsToThisSite]
         };
         var opts = {
-            select: pb.DAO.PROJECT_ALL,
+            select: DAO.PROJECT_ALL,
             where: where,
-            order: [['created', pb.DAO.ASC]]
+            order: [['created', DAO.ASC]]
         };
-        var dao = new pb.DAO();
-        dao.q(PLUGIN_COLL, opts, cb);
-    };
+        var dao = new DAO();
+        dao.q(PluginRepository.PLUGIN_COLL, opts, cb);
+    }
 
     /**
      * Load the entire plugin collection on both site and global levels.
@@ -216,89 +197,89 @@ module.exports = function PluginRepositoryModule(pb) {
      * @static
      * @param {Function} cb - the callback function
      */
-    PluginRepository.loadPluginsAcrossAllSites = function (cb) {
-        var dao = new pb.DAO();
-        dao.q(PLUGIN_COLL, cb);
+    static loadPluginsAcrossAllSites(cb) {
+        var dao = new DAO();
+        dao.q(PluginRepository.PLUGIN_COLL, cb);
+    }
+}
+
+function getIdsNotInListQuery(pluginIDs) {
+    return {uid: {'$nin': pluginIDs}};
+}
+
+function getIdsInListQuery(pluginIDs) {
+    return {uid: {'$in': pluginIDs}};
+}
+
+function getHasThemeQuery() {
+    return {theme: {$exists: true}};
+}
+
+function getCorrectIdQuery(pluginID) {
+    var hasCorrectIdentifier = {
+        $or: [
+            {},
+            {
+                uid: pluginID
+            }
+        ]
     };
+    hasCorrectIdentifier.$or[0][DAO.getIdField()] = pluginID;
+    return hasCorrectIdentifier;
+}
 
-    function getIdsNotInListQuery(pluginIDs) {
-        return {uid: {'$nin': pluginIDs}};
-    }
+function getBelongsToSiteQuery(site) {
+    var belongsToThisSite = {};
+    if (!site || site === SiteService.GLOBAL_SITE) {
+        var hasNoSite = {};
+        hasNoSite[SiteService.SITE_FIELD] = {$exists: false};
 
-    function getIdsInListQuery(pluginIDs) {
-        return {uid: {'$in': pluginIDs}};
-    }
+        var siteIsGlobal = {};
+        siteIsGlobal[SiteService.SITE_FIELD] = SiteService.GLOBAL_SITE;
 
-    function getHasThemeQuery() {
-        return {theme: {$exists: true}};
-    }
-
-    function getCorrectIdQuery(pluginID) {
-        var hasCorrectIdentifier = {
+        belongsToThisSite = {
             $or: [
-                {},
-                {
-                    uid: pluginID
-                }
+                hasNoSite,
+                siteIsGlobal
             ]
         };
-        hasCorrectIdentifier.$or[0][pb.DAO.getIdField()] = pluginID;
-        return hasCorrectIdentifier;
+    } else {
+        belongsToThisSite = {};
+        belongsToThisSite[SiteService.SITE_FIELD] = site;
     }
+    return belongsToThisSite;
+}
 
-    function getBelongsToSiteQuery(site) {
-        var belongsToThisSite = {};
-        if (!site || site === GLOBAL_SITE) {
-            var hasNoSite = {};
-            hasNoSite[SITE_FIELD] = {$exists: false};
+function mergeSitePluginsWithGlobalPlugins(sitePlugins, globalPlugins) {
+    var resultArray = [].concat(sitePlugins);
 
-            var siteIsGlobal = {};
-            siteIsGlobal[SITE_FIELD] = GLOBAL_SITE;
-
-            belongsToThisSite = {
-                $or: [
-                    hasNoSite,
-                    siteIsGlobal
-                ]
-            };
-        } else {
-            belongsToThisSite = {};
-            belongsToThisSite[SITE_FIELD] = site;
-        }
-        return belongsToThisSite;
-    }
-
-    function mergeSitePluginsWithGlobalPlugins(sitePlugins, globalPlugins) {
-        var resultArray = [].concat(sitePlugins);
-
-        for (var j = 0; j < globalPlugins.length; j++) {
-            var exists = false;
-            for (var i = 0; i < sitePlugins.length; i++) {
-                if (pluginsHaveSameID(globalPlugins[j], sitePlugins[i])) {
-                    exists = true;
-                }
-            }
-            if (!exists) {
-                resultArray.push(globalPlugins[j]);
+    for (var j = 0; j < globalPlugins.length; j++) {
+        var exists = false;
+        for (var i = 0; i < sitePlugins.length; i++) {
+            if (pluginsHaveSameID(globalPlugins[j], sitePlugins[i])) {
+                exists = true;
             }
         }
-        return resultArray;
-    }
-
-    function pluginsHaveSameID(pluginOne, pluginTwo) {
-        var otherIDField = pb.DAO.getIdField();
-        if (pluginOne.uid && pluginTwo.uid) {
-            if (pluginOne.uid === pluginTwo.uid) {
-                return true;
-            }
+        if (!exists) {
+            resultArray.push(globalPlugins[j]);
         }
-        if (pluginOne[otherIDField] && pluginTwo[otherIDField]) {
-            if (pluginOne[otherIDField] === pluginTwo[otherIDField]) {
-                return true;
-            }
-        }
-        return false;
     }
+    return resultArray;
+}
 
-    return PluginRepository;
-};
+function pluginsHaveSameID(pluginOne, pluginTwo) {
+    var otherIDField = DAO.getIdField();
+    if (pluginOne.uid && pluginTwo.uid) {
+        if (pluginOne.uid === pluginTwo.uid) {
+            return true;
+        }
+    }
+    if (pluginOne[otherIDField] && pluginTwo[otherIDField]) {
+        if (pluginOne[otherIDField] === pluginTwo[otherIDField]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+module.exports = PluginRepository;

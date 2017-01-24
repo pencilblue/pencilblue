@@ -121,7 +121,7 @@ ErrorFormatters.html = function(params, cb) {
         path.join(Configuration.active.docRoot, 'plugins', params.activeTheme, 'controllers/error/index.js')
     ];
     if (params.activeTheme !== Configuration.active.plugins.default) {
-        paths.push(path.join(Configuration.active.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'));
+        paths.push(path.join(Configuration.active.docRoot, 'plugins', Configuration.active.plugins.default, 'controllers/error', code + '.js'));
     }
     paths.push(path.join(Configuration.active.docRoot, 'controllers/error_controller.js'));
 

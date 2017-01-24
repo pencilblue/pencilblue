@@ -87,7 +87,7 @@ class ContentService {
      * @method getSettings
      * @param {Function} cb Callback function
      */
-    getSettings = function (cb) {
+    getSettings (cb) {
         this.get(cb);
     }
 
@@ -97,16 +97,16 @@ class ContentService {
      * @method get
      * @param {Function} cb Callback function
      */
-    get = function (cb) {
+    get  (cb) {
         var self = this;
-        this.settingService.get(CONTENT_SETTINGS_REF, function (err, settings) {
+        this.settingService.get(ContentService.CONTENT_SETTINGS_REF, function (err, settings) {
             if (settings) {
                 return cb(err, settings);
             }
 
             //set default settings if they don't exist
             settings = ContentService.getDefaultSettings();
-            self.settingService.set(CONTENT_SETTINGS_REF, settings, function (err, result) {
+            self.settingService.set(ContentService.CONTENT_SETTINGS_REF, settings, function (err, result) {
                 cb(err, settings);
             });
         });
@@ -118,7 +118,7 @@ class ContentService {
      * @method getDefaultSettings
      * @return {Object} Content settings
      */
-    static getDefaultSettings = function () {
+    static getDefaultSettings  () {
         return _.clone(ContentService.DEFAULT_SETTINGS);
     }
 
@@ -128,8 +128,9 @@ class ContentService {
      * @method getTimestampTextFromSettings
      * @param {Date} date
      * @param {Object} contentSettings
+     * @param {Localization} ls
      */
-    static getTimestampTextFromSettings = function (date, contentSettings, ls) {
+    static getTimestampTextFromSettings  (date, contentSettings, ls) {
         var options = {
             date: date,
             format: contentSettings.date_format,
@@ -155,7 +156,7 @@ class ContentService {
      * @param {Boolean} options.twoDigitTime
      * @param {Localization} options.ls
      */
-    static getTimestampText = function (options) {
+    static getTimestampText  (options) {
         var date = options.date;
         var format = options.format;
         var twoDigitDate = options.twoDigitDate;
@@ -202,7 +203,7 @@ class ContentService {
             var ampm = '';
 
             //format for 12 hour time
-            if (timeFormat == '12') {
+            if (timeFormat === '12') {
                 if (hours > 12) {
                     hours -= 12;
                     ampm = ' ' + ls.g('timestamp.TIME_PM');

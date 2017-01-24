@@ -17,25 +17,27 @@
 'use strict';
 
 //dependencies
-var os    = require('os');
-var fs    = require('fs');
-var path  = require('path');
+var _ = require('lodash');
 var async = require('async');
-var util  = require('../../util.js');
+var Configuration = require('../../config');
+var fs    = require('fs');
+var log = require('../../utils/logging').newInstance('FsMediaProvider');
+var os    = require('os');
+var path  = require('path');
+const TaskUtils = require('../../../lib/utils/taskUtils');
 
-module.exports = function FsMediaProviderModule(pb) {
-
-    /**
-     * A media provider that uses the underlying file system as the method of
-     * storage.
-     * @class FsMediaProvider
-     * @constructor
-     * @param {Object} context
-     * @param {String} [context.parentDir]
-     * @param {String} context.site
-     */
-    function FsMediaProvider(context) {
-        this.parentDir = context.parentDir || pb.config.media.parent_dir;
+/**
+ * A media provider that uses the underlying file system as the method of
+ * storage.
+ * @class FsMediaProvider
+ * @constructor
+ * @param {Object} context
+ * @param {String} [context.parentDir]
+ * @param {String} context.site
+ */
+class FsMediaProvider {
+    constructor(context) {
+        this.parentDir = context.parentDir || Configuration.active.media.parent_dir;
     }
 
     /**
@@ -48,10 +50,10 @@ module.exports = function FsMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and a ReadableStream that contains the media content.
      */
-    FsMediaProvider.prototype.getStream = function(mediaPath, cb) {
+    getStream (mediaPath, cb) {
         var ap = FsMediaProvider.getMediaPath(this.parentDir, mediaPath);
         cb(null, fs.createReadStream(ap));
-    };
+    }
 
     /**
      * Retrieves the content from the file system as a String or Buffer.
@@ -61,10 +63,10 @@ module.exports = function FsMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and an entity that contains the media content.
      */
-    FsMediaProvider.prototype.get = function(mediaPath, cb) {
+    get (mediaPath, cb) {
         var ap = FsMediaProvider.getMediaPath(this.parentDir, mediaPath);
         fs.readFile(ap, cb);
-    };
+    }
 
     /**
      * Sets media content into the file system based on the specified media path and
@@ -76,19 +78,19 @@ module.exports = function FsMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and the success of the operation.
      */
-    FsMediaProvider.prototype.setStream = function(stream, mediaPath, cb) {
+    setStream (stream, mediaPath, cb) {
 
-        this.createWriteStream(mediaPath, function(err, fileStream) {
-            if (util.isError(err)) {
+        this.createWriteStream(mediaPath, function (err, fileStream) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
-            pb.log.silly('FsMediaProvider: Piping stream to [%s]', mediaPath);
+            log.silly('FsMediaProvider: Piping stream to [%s]', mediaPath);
             stream.pipe(fileStream);
             stream.on('end', cb);
             stream.on('error', cb);
         });
-    };
+    }
 
     /**
      * Sets media content into an file system based on the specified media path and
@@ -100,15 +102,15 @@ module.exports = function FsMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and the success of the operation.
      */
-    FsMediaProvider.prototype.set = function(fileDataStrOrBuff, mediaPath, cb) {
+    set (fileDataStrOrBuff, mediaPath, cb) {
         var ap = FsMediaProvider.getMediaPath(this.parentDir, mediaPath);
-        this.mkdirs(ap, function(err) {
-            if (util.isError(err)) {
+        this.mkdirs(ap, function (err) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             fs.writeFile(ap, fileDataStrOrBuff, cb);
         });
-    };
+    }
 
     /**
      * Creates a writable stream to a file with the specified path.  The resource
@@ -119,21 +121,21 @@ module.exports = function FsMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and a WriteableStream.
      */
-    FsMediaProvider.prototype.createWriteStream = function(mediaPath, cb) {
+    createWriteStream (mediaPath, cb) {
         var ap = FsMediaProvider.getMediaPath(this.parentDir, mediaPath);
-        this.mkdirs(ap, function(err) {
-            if(util.isError(err)) {
+        this.mkdirs(ap, function (err) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
             try {
                 cb(null, fs.createWriteStream(ap));
             }
-            catch(e) {
+            catch (e) {
                 cb(e);
             }
         });
-    };
+    }
 
     /**
      * Checks to see if the file actually exists on disk
@@ -143,12 +145,12 @@ module.exports = function FsMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and a Boolean.
      */
-    FsMediaProvider.prototype.exists = function(mediaPath, cb) {
+    exists (mediaPath, cb) {
         var ap = FsMediaProvider.getMediaPath(this.parentDir, mediaPath);
-        fs.exists(ap, function(exists) {
+        fs.exists(ap, function (exists) {
             cb(null, exists);
         });
-    };
+    }
 
     /**
      * Deletes a file from the file system
@@ -158,12 +160,12 @@ module.exports = function FsMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and the success of the operation.
      */
-    FsMediaProvider.prototype.delete = function(mediaPath, cb) {
+    delete (mediaPath, cb) {
         var ap = FsMediaProvider.getMediaPath(this.parentDir, mediaPath);
-        fs.exists(ap, function(exists) {
+        fs.exists(ap, function (exists) {
             fs.unlink(ap, cb);
         });
-    };
+    }
 
     /**
      * Retrieve the stats on the file
@@ -173,10 +175,10 @@ module.exports = function FsMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and an object that contains the file stats
      */
-    FsMediaProvider.prototype.stat = function(mediaPath, cb) {
+    stat (mediaPath, cb) {
         var ap = FsMediaProvider.getMediaPath(this.parentDir, mediaPath);
         fs.stat(ap, cb);
-    };
+    }
 
     /**
      * Recursively creates the directory structure based on the absolute file path
@@ -187,63 +189,62 @@ module.exports = function FsMediaProviderModule(pb) {
      * occurred and result of the attempt at the creation of each directory in the
      * path.
      */
-    FsMediaProvider.prototype.mkdirs = function(absoluteFilePath, cb) {
+    mkdirs (absoluteFilePath, cb) {
 
         var pieces = absoluteFilePath.split(path.sep);
-        pb.log.silly('FsMediaProvider: Ensuring directories exist for path: %s', absoluteFilePath);
+        log.silly('FsMediaProvider: Ensuring directories exist for path: %s', absoluteFilePath);
 
-        var curr      = '';
+        var curr = '';
         var isWindows = os.type().toLowerCase().indexOf('windows') !== -1;
-        var tasks     = util.getTasks(pieces, function(pieces, i) {
-            return function(callback) {
+        var tasks = TaskUtils.getTasks(pieces, function (p, i) {
+            return function (callback) {
 
                 //we need to skip the first one bc it will probably be empty and we
                 //want to skip the last one because it will probably be the file
                 //name not a directory.
-                var p = pieces[i];
                 if (p.length === 0 || i >= pieces.length - 1) {
                     return callback();
                 }
 
                 curr += (isWindows && i === 0 ? '' : path.sep) + p;
-                fs.exists(curr, function(exists) {
+                fs.exists(curr, function (exists) {
                     if (exists) {
-                        pb.log.silly('FsMediaProvider: Skipping creation of [%s] because it already exists', curr);
+                        log.silly('FsMediaProvider: Skipping creation of [%s] because it already exists', curr);
                         return callback();
                     }
 
-                    pb.log.silly('FsMediaProvider: Creating directory [%s]', curr);
+                    log.silly('FsMediaProvider: Creating directory [%s]', curr);
                     fs.mkdir(curr, callback);
                 });
             };
         });
         async.series(tasks, cb);
-    };
+    }
 
     /**
      * Generates an absolute path based on the parent directory and media path.
      * The parent directory is expected to a single directory or set of directories
-     * nested under the pb.config.docRoot.
+     * nested under the Configuration.active.docRoot.
      * @static
      * @method getMediaPath
      * @param {String} parentDir
      * @param {String} mediaPath
      * @return {String} Absolute path to the resource
      */
-    FsMediaProvider.getMediaPath = function(parentDir, mediaPath) {
+    getMediaPath (parentDir, mediaPath) {
 
         var absolutePath = '';
         if (parentDir.indexOf('/') !== 0) {
 
             //we have a relative path meant to be from the project directory
-            absolutePath = path.join(pb.config.docRoot, parentDir, mediaPath);
+            absolutePath = path.join(Configuration.active.docRoot, parentDir, mediaPath);
         }
         else {
             absolutePath = path.join(parentDir, mediaPath);
         }
         return absolutePath;
-    };
+    }
+}
 
-    //exports
-    return FsMediaProvider;
-};
+//exports
+module.exports = FsMediaProvider;

@@ -434,7 +434,7 @@ module.exports = {
     },
     site_settings:  {
         CONFIGURATION: '配置',
-        EDIT_CONFIGURATION: '要修改配置, 需要在根目录创建一个 config.json 文件',
+        EDIT_CONFIGURATION: '要修改配置, 需要在根目录创建一个 config.js 文件',
         SITE_NAME: '站点名称',
         SITE_ROOT: '站点地址',
         DOCUMENT_ROOT: '文件地址',

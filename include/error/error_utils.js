@@ -87,6 +87,8 @@ class ErrorUtils {
 
     /**
      * Creates a custom error with a specific message and status code
+     * @static
+     * @method custom
      * @param {string} [message='An Error Occurred']
      * @param {Number} [code=500]
      * @return {Error}

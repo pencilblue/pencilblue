@@ -203,6 +203,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                     users[index].email = 'user_' + util.uniqueId() + '@placeholder.com';
                     users[index].admin = pb.SecurityService.ACCESS_WRITER;
                     users[index].password = generatedPassword;
+                    users[index].locale = 'en-US';
 
                     self.service.add(users[index], function(err, result) {
                         if (util.isError(err)) {

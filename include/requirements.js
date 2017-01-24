@@ -153,7 +153,7 @@ module.exports = function PB() {
             }
         });
     });
-
+    
     pb.AdminNavigation    = require(path.join(config.docRoot, '/include/admin_navigation'))(pb);			// Admin Navigation
     pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'))(pb);
     pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'))(pb);
@@ -172,8 +172,8 @@ module.exports = function PB() {
     });
 
     //create plugin setting service
-    pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'))(pb);
-    pb.PluginRepository = require(path.join(config.docRoot, '/include/repository/plugin_repository.js'))(pb);
+    pb.PluginSettingService = require(path.join(config.docRoot, '/include/service/entities/plugin_setting_service.js'));
+    pb.PluginRepository = require(path.join(config.docRoot, '/include/repository/plugin_repository.js'));
 
     //media renderers
     pb.media = {

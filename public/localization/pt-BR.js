@@ -434,7 +434,7 @@ module.exports = {
     },
     site_settings: {
         CONFIGURATION: 'Configuração',
-        EDIT_CONFIGURATION: 'Para editar as configurações, crie um config.json na raiz do diretório',
+        EDIT_CONFIGURATION: 'Para editar as configurações, crie um config.js na raiz do diretório',
         SITE_NAME: 'Nome do site',
         SITE_ROOT: 'Raiz do site',
         MEDIA_ROOT: 'Raiz do mídia',

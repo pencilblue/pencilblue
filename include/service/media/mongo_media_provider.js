@@ -17,20 +17,21 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var Configuration = require('../../config');
+var DbManager = require('../../dao/db_manager');
 var MongoDB   = require('mongodb');
 var GridStore = MongoDB.GridStore;
-var util      = require('../../util.js');
 
-module.exports = function MongoMediaProviderModule(pb) {
-
-    /**
-     * A media provider that uses Mongo's GridFS as the method of storage.
-     * @class MongoMediaProvider
-     * @constructor
-     * @param {Object} context
-     * @param {String} context.site
-     */
-    function MongoMediaProvider(/*context*/) {}
+/**
+ * A media provider that uses Mongo's GridFS as the method of storage.
+ * @class MongoMediaProvider
+ * @constructor
+ * @param {Object} context
+ * @param {String} context.site
+ */
+class MongoMediaProvider {
+    constructor(/*context*/) {}
 
     /**
      * Retrieves the item in GridFS as a stream.
@@ -42,23 +43,23 @@ module.exports = function MongoMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and a ReadableStream that contains the media content.
      */
-    MongoMediaProvider.prototype.getStream = function(mediaPath, cb) {
+    getStream(mediaPath, cb) {
 
-        pb.dbm.getDb(pb.config.db.name, function(err, db) {
-            if (util.isError(err)) {
+        DbManager.getDb(Configuration.active.db.name, function (err, db) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
-            var gs  = new GridStore(db, mediaPath, 'r');
-            gs.open(function(err, gs) {
-                if (util.isError(err)) {
+            var gs = new GridStore(db, mediaPath, 'r');
+            gs.open(function (err, gs) {
+                if (_.isError(err)) {
                     return cb(err);
                 }
 
                 cb(null, gs.stream(true));
             });
         });
-    };
+    }
 
     /**
      * Retrieves the content from GridFS as a String or Buffer.
@@ -68,31 +69,31 @@ module.exports = function MongoMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and an entity that contains the media content.
      */
-    MongoMediaProvider.prototype.get = function(mediaPath, cb) {
+    get(mediaPath, cb) {
 
-        pb.dbm.getDb(pb.config.db.name, function(err, db) {
-            if (util.isError(err)) {
+        DbManager.getDb(Configuration.active.db.name, function (err, db) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
-            var gs  = new GridStore(db, mediaPath, 'r');
-            gs.open(function(err, gs) {
-                if (util.isError(err)) {
+            var gs = new GridStore(db, mediaPath, 'r');
+            gs.open(function (err, gs) {
+                if (_.isError(err)) {
                     return cb(err);
                 }
 
-                gs.read(function(err, data) {
-                    if (util.isError(err)) {
+                gs.read(function (err, data) {
+                    if (_.isError(err)) {
                         return cb(err);
                     }
 
-                    gs.close(function(err) {
+                    gs.close(function (err) {
                         cb(err, data);
                     });
                 });
             });
         });
-    };
+    }
 
     /**
      * Sets media content into GridFS based on the specified media path and
@@ -104,22 +105,22 @@ module.exports = function MongoMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and the success of the operation.
      */
-    MongoMediaProvider.prototype.setStream = function(stream, mediaPath, cb) {
+    setStream(stream, mediaPath, cb) {
         var self = this;
 
         var buffers = [];
-        stream.on('data', function(buffer) {
+        stream.on('data', function (buffer) {
             buffers.push(buffer);
         });
-        stream.on('end', function() {
+        stream.on('end', function () {
 
             var buffer = Buffer.concat(buffers);
             self.set(buffer, mediaPath, cb);
         });
-        stream.on('error', function(err) {
+        stream.on('error', function (err) {
             cb(err);
         });
-    };
+    }
 
     /**
      * Sets media content into GridFS based on the specified media path and
@@ -131,27 +132,27 @@ module.exports = function MongoMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and the success of the operation.
      */
-    MongoMediaProvider.prototype.set = function(fileDataStrOrBuff, mediaPath, cb) {
+    set(fileDataStrOrBuff, mediaPath, cb) {
 
         var opt = {
             content_type: "application/octet-stream",
-            metadata:{
+            metadata: {
                 provider: "MongoMediaProvider",
                 mediaPath: mediaPath
             }
         };
 
-        pb.dbm.getDb(pb.config.db.name, function(err, db) {
-            if (util.isError(err)) {
+        DbManager.getDb(Configuration.active.db.name, function (err, db) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
-            var gs  = new GridStore(db, mediaPath, 'w', opt);
-            gs.open(function(err, gs) {
+            var gs = new GridStore(db, mediaPath, 'w', opt);
+            gs.open(function (err, gs) {
                 gs.write(fileDataStrOrBuff, true, cb);
             });
         });
-    };
+    }
 
     /**
      * Not Implemented
@@ -161,9 +162,9 @@ module.exports = function MongoMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and a WriteableStream.
      */
-    MongoMediaProvider.prototype.createWriteStream = function(mediaPath, cb) {
+    createWriteStream(mediaPath, cb) {
         throw new Error('Not implemented');
-    };
+    }
 
     /**
      * Checks to see if the file actually exists in GridFS
@@ -173,16 +174,16 @@ module.exports = function MongoMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and a Boolean.
      */
-    MongoMediaProvider.prototype.exists = function(mediaPath, cb) {
+    exists(mediaPath, cb) {
 
-        pb.dbm.getDb(pb.config.db.name, function(err, db) {
-            if (util.isError(err)) {
+        DbManager.getDb(Configuration.active.db.name, function (err, db) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
             GridStore.exist(db, mediaPath, cb);
         });
-    };
+    }
 
     /**
      * Deletes a file from the GridFS
@@ -192,16 +193,16 @@ module.exports = function MongoMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and the success of the operation.
      */
-    MongoMediaProvider.prototype.delete = function(mediaPath, cb) {
+    delete(mediaPath, cb) {
 
-        pb.dbm.getDb(pb.config.db.name, function(err, db) {
-            if (util.isError(err)) {
+        DbManager.getDb(Configuration.active.db.name, function (err, db) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
             GridStore.unlink(db, mediaPath, cb);
         });
-    };
+    }
 
     /**
      * Retrieve the stats on the file
@@ -211,16 +212,16 @@ module.exports = function MongoMediaProviderModule(pb) {
      * @param {Function} cb A callback that provides two parameters: An Error, if
      * occurred and an object that contains the file stats
      */
-    MongoMediaProvider.prototype.stat = function(mediaPath, cb) {
+    stat(mediaPath, cb) {
 
-        pb.dbm.getDb(pb.config.db.name, function(err, db) {
-            if (util.isError(err)) {
+        DbManager.getDb(Configuration.active.db.name, function (err, db) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
-            var gs  = new GridStore(db, mediaPath, 'r');
-            gs.open(function(err, gs) {
-                if (util.isError(err)) {
+            var gs = new GridStore(db, mediaPath, 'r');
+            gs.open(function (err, gs) {
+                if (_.isError(err)) {
                     return cb(err);
                 }
 
@@ -231,13 +232,13 @@ module.exports = function MongoMediaProviderModule(pb) {
                     metadata: gs.metadata,
                     chunkSize: gs.chunkSize
                 };
-                gs.close(function(err) {
+                gs.close(function (err) {
                     cb(err, stat);
                 });
             });
         });
-    };
+    }
+}
 
-    //exports
-    return MongoMediaProvider;
-};
+//exports
+module.exports = MongoMediaProvider;
