@@ -17,18 +17,19 @@
 'use strict';
 
 //dependencies
-var util = require('./util.js');
+var _ = require('lodash');
+var Configuration = require('./config');
+var SettingServiceFactory = require('./system/settings');
+var TemplateService = require('./service/entities/template_service').TemplateService;
 
-module.exports = function LibrariesServiceModule(pb) {
-
-    /**
-     * Service for library settings retrieval
-     *
-     * @module Services
-     * @class LibrariesService
-     * @constructor
-     */
-    function LibrariesService(){}
+/**
+ * Service for library settings retrieval
+ *
+ * @module Services
+ * @class LibrariesService
+ * @constructor
+ */
+class LibrariesService {
 
     /**
      *
@@ -38,7 +39,9 @@ module.exports = function LibrariesServiceModule(pb) {
      * @property LIBRARIES_SETTINGS_REF
      * @type {String}
      */
-    var LIBRARIES_SETTINGS_REF = 'libraries_settings';
+    static get LIBRARIES_SETTINGS_REF() {
+        return 'libraries_settings';
+    }
 
     /**
      *
@@ -48,36 +51,38 @@ module.exports = function LibrariesServiceModule(pb) {
      * @property CDN_DEFAULTS
      * @type {Object}
      */
-    var CDN_DEFAULTS = Object.freeze({
-        jquery: '//code.jquery.com/jquery-1.11.1.min.js',
-        jquery_ui_js: '//code.jquery.com/ui/1.10.4/jquery-ui.min.js',
-        jquery_ui_css: '//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css',
-        jquery_ui_touch_punch: '//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js',
-        jquery_file_upload_js: '/js/lib/jquery/jquery.fileupload.js',
-        jquery_file_upload_css: '/css/lib/jquery/jquery.fileupload.css',
-        jquery_iframe_transport: '/js/lib/jquery/jquery.iframe-transport.js',
-        jquery_datetime_picker_js: '/js/lib/jquery/jquery.datetimepicker.min.js',
-        jquery_datetime_picker_css: '/css/lib/jquery/jquery.datetimepicker.min.css',
-        jquery_validate: '//ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.min.js',
-        bootstrap_js: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js',
-        bootstrap_css: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css',
-        font_awesome: '//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css',
-        angular: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js',
-        angular_route: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-route.min.js',
-        angular_sanitize: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.min.js',
-        spin: '//fgnass.github.io/spin.js/spin.min.js',
-        jquery_spin: '//fgnass.github.io/spin.js/jquery.spin.js',
-        he: '/js/lib/he/he.js',
-        to_markdown: '/js/lib/to_markdown/to-markdown.js',
-        markdown: '/js/lib/markdown/lib/markdown.js',
-        angular_upload: '//cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/1.6.1/angular-file-upload.min.js',
-        angular_upload_shim: '//cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/1.6.1/angular-file-upload-shim.min.js',
-        ng_sortable_css: '/css/lib/ng-sortable/ng-sortable.min.css',
-        ng_sortable_style_css: '/css/lib/ng-sortable/ng-sortable.style.min.css',
-        ng_sortable_js: '/js/lib/ng-sortable/ng-sortable.min.js',
-        rangy: '//cdnjs.cloudflare.com/ajax/libs/rangy/1.3.0/rangy-core.min.js',
-        rangy_saverestore: '//cdnjs.cloudflare.com/ajax/libs/rangy/1.3.0/rangy-selectionsaverestore.min.js'
-    });
+    static get CDN_DEFAULTS() {
+        return Object.freeze({
+            jquery: '//code.jquery.com/jquery-1.11.1.min.js',
+            jquery_ui_js: '//code.jquery.com/ui/1.10.4/jquery-ui.min.js',
+            jquery_ui_css: '//code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css',
+            jquery_ui_touch_punch: '//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js',
+            jquery_file_upload_js: '/js/lib/jquery/jquery.fileupload.js',
+            jquery_file_upload_css: '/css/lib/jquery/jquery.fileupload.css',
+            jquery_iframe_transport: '/js/lib/jquery/jquery.iframe-transport.js',
+            jquery_datetime_picker_js: '/js/lib/jquery/jquery.datetimepicker.min.js',
+            jquery_datetime_picker_css: '/css/lib/jquery/jquery.datetimepicker.min.css',
+            jquery_validate: '//ajax.aspnetcdn.com/ajax/jquery.validate/1.12.0/jquery.validate.min.js',
+            bootstrap_js: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js',
+            bootstrap_css: '//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css',
+            font_awesome: '//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css',
+            angular: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js',
+            angular_route: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-route.min.js',
+            angular_sanitize: '//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.min.js',
+            spin: '//fgnass.github.io/spin.js/spin.min.js',
+            jquery_spin: '//fgnass.github.io/spin.js/jquery.spin.js',
+            he: '/js/lib/he/he.js',
+            to_markdown: '/js/lib/to_markdown/to-markdown.js',
+            markdown: '/js/lib/markdown/lib/markdown.js',
+            angular_upload: '//cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/1.6.1/angular-file-upload.min.js',
+            angular_upload_shim: '//cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/1.6.1/angular-file-upload-shim.min.js',
+            ng_sortable_css: '/css/lib/ng-sortable/ng-sortable.min.css',
+            ng_sortable_style_css: '/css/lib/ng-sortable/ng-sortable.style.min.css',
+            ng_sortable_js: '/js/lib/ng-sortable/ng-sortable.min.js',
+            rangy: '//cdnjs.cloudflare.com/ajax/libs/rangy/1.3.0/rangy-core.min.js',
+            rangy_saverestore: '//cdnjs.cloudflare.com/ajax/libs/rangy/1.3.0/rangy-selectionsaverestore.min.js'
+        });
+    }
 
     /**
      *
@@ -87,7 +92,8 @@ module.exports = function LibrariesServiceModule(pb) {
      * @property BOWER_DEFAULTS
      * @type {Object}
      */
-    var BOWER_DEFAULTS = Object.freeze({
+    static get BOWER_DEFAULTS() {
+        return Object.freeze({
             jquery: '/bower_components/jquery/dist/jquery.min.js',
             jquery_ui_js: '/bower_components/jqueryui/jquery-ui.min.js',
             jquery_ui_css: '/bower_components/jqueryui/themes/ui-lightness/jquery-ui.min.css',
@@ -117,6 +123,7 @@ module.exports = function LibrariesServiceModule(pb) {
             rangy: '/bower_components/rangy-release/rangy-core.min.js',
             rangy_saverestore: '/bower_components/rangy-release/rangy-selectionsaverestore.js'
         });
+    }
 
     /**
      * Retrieves the library settings
@@ -124,19 +131,20 @@ module.exports = function LibrariesServiceModule(pb) {
      * @method getSettings
      * @param {Function} cb Callback function
      */
-    LibrariesService.prototype.getSettings = function(cb){
-        pb.settings.get(LIBRARIES_SETTINGS_REF, function(err, settings){
+    getSettings(cb) {
+        var settingService = SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache);
+        settingService.get(LIBRARIES_SETTINGS_REF, function (err, settings) {
             if (settings) {
                 return cb(err, settings);
             }
 
             //set default settings if they don't exist
             settings = LibrariesService.getCDNDefaults();
-            pb.settings.set(LIBRARIES_SETTINGS_REF, settings, function(err, result) {
+            settingService.set(LIBRARIES_SETTINGS_REF, settings, function (err/*, result*/) {
                 cb(err, settings);
             });
         });
-    };
+    }
 
     /**
      * Loads the libraries settings into template service globals. Called on system
@@ -145,40 +153,42 @@ module.exports = function LibrariesServiceModule(pb) {
      * @method init
      * @param  {Function} cb Callback function
      */
-    LibrariesService.init = function(cb) {
+    static init(cb) {
         var instance = new LibrariesService();
-        instance.getSettings(function(err, settings) {
-            if(util.isError(err)) {
+        instance.getSettings(function (err, settings) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
-            Object.keys(settings).forEach(function(key) {
-                pb.TemplateService.registerGlobal(key + '_src', settings[key]);
+            Object.keys(settings).forEach(function (key) {
+                TemplateService.registerGlobal(key + '_src', settings[key]);
             });
             cb(null, true);
         });
-    };
+    }
 
     /**
      * Retrieves the default library settings for CDNs
-     *
+     * TODO [1.0] remove
+     * @deprecated
      * @method getCDNDefaults
      * @return {Object} CDN defaults
      */
-    LibrariesService.getCDNDefaults = function() {
-        return util.clone(CDN_DEFAULTS);
-    };
+    static getCDNDefaults() {
+        return _.clone(CDN_DEFAULTS);
+    }
 
     /**
      * Retrieves the default library settings for Bower
-     *
+     * TODO [1.0] remove
+     * @deprecated
      * @method getBowerDefaults
      * @return {Object} Bower defaults
      */
-    LibrariesService.getBowerDefaults = function() {
-        return util.clone(BOWER_DEFAULTS);
-    };
+    static getBowerDefaults() {
+        return _.clone(BOWER_DEFAULTS);
+    }
+}
 
-    //exports
-    return LibrariesService;
-};
+//exports
+module.exports = LibrariesService;

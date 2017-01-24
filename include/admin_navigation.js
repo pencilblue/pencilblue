@@ -16,6 +16,8 @@
  */
 
 //dependencies
+var _ = require('lodash');
+var ArrayUtils = require('../lib/utils/array_utils');
 var util = require('./util.js');
 
 module.exports = function AdminNavigationModule(pb) {
@@ -27,7 +29,7 @@ module.exports = function AdminNavigationModule(pb) {
     /**
      * Provides function to construct the structure needed to display the navigation
      * in the Admin section of the application.
-     *
+     * TODO [1.0] Remove in favor of global navigtion assignments
      * @module Services
      * @submodule Admin
      * @class AdminNavigation
@@ -246,15 +248,15 @@ module.exports = function AdminNavigationModule(pb) {
     }
 
     function getDefaultNavigation(site) {
-        return util.clone([CONTENT_NAV, PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
+        return _.clone([CONTENT_NAV, PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
     }
 
     function getMultiSiteNavigation() {
-        return util.clone([MULTISITE_NAV]);
+        return _.clone([MULTISITE_NAV]);
     }
 
     function getGlobalScopeNavigation(site) {
-        return util.clone([PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
+        return _.clone([PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
     }
 
 
@@ -288,12 +290,12 @@ module.exports = function AdminNavigationModule(pb) {
      */
     function getAdditionsInScope(additions, site) {
         if (additions[site]) {
-            return util.clone(additions[site]);
+            return _.clone(additions[site]);
         }
         else if (additions[pb.SiteService.GLOBAL_SITE]) {
-            return util.clone(additions[pb.SiteService.GLOBAL_SITE]);
+            return _.clone(additions[pb.SiteService.GLOBAL_SITE]);
         }
-        return util.clone(additions);
+        return _.clone(additions);
     }
 
     /**
@@ -311,19 +313,19 @@ module.exports = function AdminNavigationModule(pb) {
 
         if (pb.config.multisite.enabled) {
             var multiSiteAdditions = getMultiSiteNavigation();
-            util.arrayPushAll(multiSiteAdditions, navigation);
+            ArrayUtils.pushAll(multiSiteAdditions, navigation);
         }
 
         if (pb.config.multisite.enabled && pb.SiteService.isGlobal(site)) {
             // Don't include content or view site in the nav for multitenancy global scope.
-            util.arrayPushAll(getGlobalScopeNavigation(site), navigation);
+            ArrayUtils.pushAll(getGlobalScopeNavigation(site), navigation);
         }
         else {
             var defaultNavigation = getDefaultNavigation(site);
-            util.arrayPushAll(defaultNavigation, navigation);
+            ArrayUtils.pushAll(defaultNavigation, navigation);
         }
 
-        util.arrayPushAll(additions, navigation);
+        ArrayUtils.pushAll(additions, navigation);
 
         //retrieve the nav items to iterate over
         var ids = Object.keys(childrenAdditions);

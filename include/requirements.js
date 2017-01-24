@@ -138,12 +138,14 @@ module.exports = function PB() {
         EmailService: require(path.join(config.docRoot, '/include/email')),
 
         ContentService: require(path.join(config.docRoot, '/include/content')),
+        LibrariesService: require(path.join(config.docRoot, '/include/libraries.js')),
+        ClientJs: require(config.docRoot+'/include/client_js')
     };
 
     //error on removed items
     [
         'util', 'session', 'validation', 'users', 'settings', 'security', 'DeleteController', 'ApiActionController',
-        'HttpStatus', 'PBError', 'DocumentCreator', 'content',
+        'HttpStatus', 'PBError', 'DocumentCreator', 'content', 'libraries', 'js'
     ].forEach(function(prop) {
         Object.defineProperty(pb, prop, {
             get: function() {
@@ -151,21 +153,7 @@ module.exports = function PB() {
             }
         });
     });
-    
-    pb.LibrariesService = require(path.join(config.docRoot, '/include/libraries.js'))(pb); // JS libraries settings and functions
-    Object.defineProperty(pb, 'libraries', {
-        get: function() {
-            pb.log.warn('PencilBlue: pb.libraries is deprecated.  Use pb.LibrariesService instead');
-            return new pb.ContentService();
-        }
-    });
-    pb.ClientJs = require(config.docRoot+'/include/client_js')(pb); // Client JS
-    Object.defineProperty(pb, 'js', {
-        get: function() {
-            pb.log.warn('PencilBlue: pb.js is deprecated.  Use pb.ClientJs instead');
-            return pb.ClientJS;
-        }
-    });
+
     pb.AdminNavigation    = require(path.join(config.docRoot, '/include/admin_navigation'))(pb);			// Admin Navigation
     pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'))(pb);
     pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'))(pb);

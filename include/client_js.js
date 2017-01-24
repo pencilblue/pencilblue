@@ -20,18 +20,18 @@
 var _ = require('lodash');
 var log = require('./utils/logging').newInstance('ClientJs');
 var TemplateValue = require('./service/entities/template_service').TemplateValue;
-var util = require('./util.js');
+
+/**
+ * Service for creating JavaScript tags
+ * TODO [1.0] move to JsUtils
+ * @module Services
+ * @class ClientJs
+ * @constructor
+ */
+class ClientJs {
 
     /**
-     * Service for creating JavaScript tags
-     *
-     * @module Services
-     * @class ClientJs
-     * @constructor
-     */
-    function ClientJs(){}
-
-    /**
+     * TODO [1.0] Remove
      * Creates a basic AngularJS controller with a repeat directive for templatizing
      * @static
      * @method getAngularController
@@ -39,13 +39,13 @@ var util = require('./util.js');
      * @param {Array}  modules     Array of AngularJS module names
      * @param {String} [directiveJS] JavaScript to run after on-finish-render directive
      */
-    ClientJs.getAngularController = function(objects, modules, directiveJS) {
-        if(!Array.isArray(modules) || modules.length === 0) {
+    static getAngularController (objects, modules, directiveJS) {
+        if (!Array.isArray(modules) || modules.length === 0) {
             modules = ['ngRoute'];
         }
 
         var angularController = 'var pencilblueApp = angular.module("pencilblueApp", ' + JSON.stringify(modules) + ')';
-        if(!_.isNil(directiveJS)) {
+        if (!_.isNil(directiveJS)) {
             angularController += '.directive("onFinishRender", function($timeout) {return {restrict: "A", link: function(scope, element, attr) {if (scope.$last === true){$timeout(function() {' + directiveJS + '})}}}})';
         }
 
@@ -53,19 +53,19 @@ var util = require('./util.js');
         angularController = angularController.concat('.controller("PencilBlueController", function($scope, $sce) {' + scopeString + "});\n");
         angularController = angularController.concat('pencilblueApp.config(["$compileProvider",function(e) {e.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|javascript):/)}]);');
         return ClientJs.getJSTag(angularController);
-    };
+    }
 
     /**
-     *
+     * TODO [1.0] Remove
      * @static
      * @method getAngularObjects
      * @param {Object} objects
      * @return {String}
      */
-    ClientJs.getAngularObjects = function(objects) {
+    static getAngularObjects (objects) {
         var scopeString = '';
-        Object.keys(objects).forEach(function(key) {
-            if(_.isString(objects[key]) && objects[key].indexOf('function(') === 0) {
+        Object.keys(objects).forEach(function (key) {
+            if (_.isString(objects[key]) && objects[key].indexOf('function(') === 0) {
                 scopeString = scopeString.concat('$scope.' + key + ' = ' + objects[key] + ";\n");
                 return;
             }
@@ -73,7 +73,7 @@ var util = require('./util.js');
         });
 
         return scopeString;
-    };
+    }
 
     /**
      * Creates a JS tag that loads the specified url
@@ -82,9 +82,9 @@ var util = require('./util.js');
      * @method includeJS
      * @param {String} url
      */
-    ClientJs.includeJS = function(url) {
+    static includeJS (url) {
         return new TemplateValue('<script type="text/javascript" src="' + url + '"></script>', false);
-    };
+    }
 
     /**
      * Puts the supplied JS code string into a script tag
@@ -93,9 +93,10 @@ var util = require('./util.js');
      * @method getJSTag
      * @param {String} jsCode
      */
-    ClientJs.getJSTag = function(jsCode) {
+    static getJSTag (jsCode) {
         return new TemplateValue('<script type="text/javascript">\n' + jsCode + '\n</script>', false);
-    };
+    }
+}
 
-    //exports
-    module.exports = ClientJs;
+//exports
+module.exports = ClientJs;
