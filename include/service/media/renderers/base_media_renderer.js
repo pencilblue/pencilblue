@@ -17,19 +17,17 @@
 'use strict';
 
 //dependencies
+var _ = require('lodash');
+var Configuration = require('../../../config');
 var HtmlEncoder = require('htmlencode');
+var UrlUtils = require('../../../../lib/utils/urlUtils');
 
-module.exports = function BaseMediaRenderer(pb) {
-
-    //pb dependencies
-    var util = pb.util;
-
-    /**
-     * Provides functions to provide common functionality among media renderers
-     * @class BaseMediaRenderer
-     * @constructor
-     */
-    function BaseMediaRenderer() {}
+/**
+ * Provides functions to provide common functionality among media renderers
+ * @class BaseMediaRenderer
+ * @constructor
+ */
+class BaseMediaRenderer {
 
     /**
      * Renders an iframe element
@@ -37,9 +35,9 @@ module.exports = function BaseMediaRenderer(pb) {
      * @method renderSingleElementEmbed
      * @return {String} HTML
      */
-    BaseMediaRenderer.renderIFrameEmbed = function(srcUrl, attrs, style) {
+    static renderIFrameEmbed  (srcUrl, attrs, style) {
         return BaseMediaRenderer.renderSingleElementEmbed('iframe', srcUrl, attrs, style);
-    };
+    }
 
     /**
      * Renders a single element
@@ -47,7 +45,7 @@ module.exports = function BaseMediaRenderer(pb) {
      * @method renderSingleElementEmbed
      * @return {String} HTML
      */
-    BaseMediaRenderer.renderSingleElementEmbed = function(elementName, srcUrl, attrs, style) {
+    static renderSingleElementEmbed  (elementName, srcUrl, attrs, style) {
         if (!attrs) {
             attrs = {};
         }
@@ -55,11 +53,11 @@ module.exports = function BaseMediaRenderer(pb) {
             style = {};
         }
 
-        return '<'+elementName+' src="' + HtmlEncoder.htmlEncode(srcUrl) + '" ' +
+        return '<' + elementName + ' src="' + HtmlEncoder.htmlEncode(srcUrl) + '" ' +
             BaseMediaRenderer.getAttributeStr(attrs) +
             BaseMediaRenderer.getStyleAttrStr(style) +
             '></' + elementName + '>';
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering.
@@ -70,12 +68,12 @@ module.exports = function BaseMediaRenderer(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    BaseMediaRenderer.getEmbedUrl = function(mediaId) {
-        if(mediaId.indexOf('http://') === 0 || mediaId.indexOf('https://') === 0 || mediaId.indexOf('//') === 0) {
-          return mediaId;
+    static getEmbedUrl  (mediaId) {
+        if (mediaId.indexOf('http://') === 0 || mediaId.indexOf('https://') === 0 || mediaId.indexOf('//') === 0) {
+            return mediaId;
         }
-        return pb.UrlService.urlJoin(pb.config.media.urlRoot, mediaId);
-    };
+        return UrlUtils.urlJoin(Configuration.active.media.urlRoot, mediaId);
+    }
 
     /**
      * Generates an attribute string from a hash of key/value pairs
@@ -83,17 +81,17 @@ module.exports = function BaseMediaRenderer(pb) {
      * @method getAttributeStr
      * @return {String}
      */
-    BaseMediaRenderer.getAttributeStr = function(attr) {
-        if (!util.isObject(attr)) {
+    static getAttributeStr  (attr) {
+        if (!_.isObject(attr)) {
             return '';
         }
 
         var attrStr = '';
-        util.forEach(attr, function(value, key/*, attr, i*/) {
+        _.forEach(attr, function (value, key/*, attr, i*/) {
             attrStr += key + '="' + HtmlEncoder.htmlEncode(value + '') + '" ';
         });
         return attrStr;
-    };
+    }
 
     /**
      * Generates a style string from a hash of key/value pairs.  The string
@@ -102,8 +100,8 @@ module.exports = function BaseMediaRenderer(pb) {
      * @method getStyleAttrStr
      * @return {String}
      */
-    BaseMediaRenderer.getStyleAttrStr = function(style) {
-        if (!util.isObject(style)) {
+    static getStyleAttrStr  (style) {
+        if (!_.isObject(style)) {
             return null;
         }
         else if (Object.keys(style).length === 0) {
@@ -111,13 +109,13 @@ module.exports = function BaseMediaRenderer(pb) {
         }
 
         var styleStr = 'style="';
-        util.forEach(style, function(value, key/*, style, i*/) {
+        _.forEach(style, function (value, key/*, style, i*/) {
             styleStr += key + ':' + HtmlEncoder.htmlEncode(value + '') + ';';
         });
         styleStr += '" ';
         return styleStr;
-    };
+    }
+}
 
-    //exports
-    return BaseMediaRenderer;
-};
+//exports
+module.exports = BaseMediaRenderer;
