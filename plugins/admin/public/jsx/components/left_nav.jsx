@@ -51,10 +51,9 @@ let quickItems = [{
 }];
 
 /**
- * The main left navigation component.
- *
- * @namespace Components
- * @class LeftNav
+ * React component for the left nav.
+ * @constructor
+ * @param {Object} props The properties of the React instance.
  */
 class LeftNav extends React.Component {
   constructor(props) {
@@ -67,6 +66,9 @@ class LeftNav extends React.Component {
     this.toggleNav = this.toggleNav.bind(this);
   }
 
+  /**
+   * Toggles the opening and closing of the nav.
+   */
   toggleNav() {
     this.setState((prevState) => ({
       navOpen: !prevState.navOpen,
@@ -75,6 +77,13 @@ class LeftNav extends React.Component {
   }
 
   componentDidMount() {
+    this.getNavigation();
+  }
+
+  /**
+   * Retrieves the navigation from the API.
+   */
+  getNavigation() {
     var self = this;
     $.ajax({
       url: '/api/content/navigation/map/admin' + (typeof activeNavItems !== 'undefined' ? '?activeItems=' + activeNavItems : ''),
@@ -88,6 +97,9 @@ class LeftNav extends React.Component {
     });
   }
 
+  /**
+   * Renders the left nav component.
+   */
   render() {
     if(!this.state.navItems.length) {
       let tempQuickItems = [{

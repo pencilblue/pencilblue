@@ -1,20 +1,25 @@
 /*
-    Copyright (C) 2017  PencilBlue, LLC
+  Copyright (C) 2017  PencilBlue, LLC
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * React controller for manage topics page of the admin section.
+ * @constructor
+ * @param {Object} props The properties of the React instance.
+ */
 class Topics extends React.Component {
   constructor(props) {
     super(props);
@@ -27,6 +32,13 @@ class Topics extends React.Component {
     this.getTopics();
   }
 
+  /**
+   * Retrieves topics from the API.
+   *
+   * @param  {Number} [limit]  The number of topics to retrieve.
+   * @param  {Number} [offset] The offset of topics to start from.
+   * @param  {String} [query]  The search query to retrieve topics by.
+   */
   getTopics(limit = 50, offset = 0, query = '') {
     let self = this;
 
@@ -41,6 +53,9 @@ class Topics extends React.Component {
     });
   }
 
+  /**
+   * Renders the topics page components.
+   */
   render() {
     if(!this.state.topics) {
       return (

@@ -15,6 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * React controller for new/edit topic pages of the admin section.
+ * @constructor
+ * @param {Object} props The properties of the React instance.
+ */
 class TopicForm extends React.Component {
   constructor(props) {
     super(props);
@@ -39,6 +44,9 @@ class TopicForm extends React.Component {
     });
   }
 
+  /**
+   * Retrieves an editable topic from the API.
+   */
   getTopic() {
     let self = this;
 
@@ -54,6 +62,11 @@ class TopicForm extends React.Component {
     });
   }
 
+  /**
+   * Handles updated state change from form input.
+   *
+   * @param  {Object} [event]  The input event object.
+   */
   handleValueChange(event) {
     let newState = JSON.parse(JSON.stringify(this.state));
     newState.topic[event.target.id] = event.target.value;
@@ -61,6 +74,11 @@ class TopicForm extends React.Component {
     this.setState(newState);
   }
 
+  /**
+   * Adds or updates the topic with the API.
+   *
+   * @param  {Object} [event]  The form submit event object.
+   */
   saveTopic(event) {
     let self = this;
 
@@ -88,6 +106,9 @@ class TopicForm extends React.Component {
     event.preventDefault();
   }
 
+  /**
+   * Renders the topic form page components.
+   */
   render() {
     if(!this.state.topic) {
       return (

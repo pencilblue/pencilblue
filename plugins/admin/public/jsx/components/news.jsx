@@ -15,6 +15,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * React component for the news box.
+ * @constructor
+ * @param {Object} props The properties of the React instance.
+ */
 class News extends React.Component {
   constructor(props) {
     super(props);
@@ -26,6 +31,13 @@ class News extends React.Component {
   }
 
   componentDidMount() {
+    this.getNews();
+  }
+
+  /**
+   * Retrieves blog posts from the RSS feed.
+   */
+  getNews() {
     let self = this;
     $.ajax({
       url: 'https://pencilblue.org/feed',
@@ -56,6 +68,9 @@ class News extends React.Component {
     };
   }
 
+  /**
+   * Renders the news component.
+   */
   render() {
     if(!this.state.title) {
       return (

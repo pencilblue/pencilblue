@@ -18,10 +18,10 @@
 
 module.exports = function(pb) {
   /**
-   * Controller for topics pages of the admin section.
+   * Controller for articles pages of the admin section.
    * @constructor
    */
-  class AdminTopicsController {
+  class AdminArticlesController {
     /**
      * Initializes the controller with PencilBlue properties.
      *
@@ -37,81 +37,81 @@ module.exports = function(pb) {
     }
 
     /**
-     * Loads the Manage Topics page.
+     * Loads the Manage Articles page.
      *
      * @param  {Function} [cb]  The callback function for when loading is complete.
      */
-    manageTopics(cb) {
+    manageArticles(cb) {
       var self = this;
 
-      self.setPageName(self.ls.g('topics.MANAGE_TOPICS'));
-      self.ts.registerLocal('active_nav_items', 'content,topics');
-      self.ts.load('admin-new/content/topics', function(err, result) {
+      self.setPageName(self.ls.g('articles.MANAGE_ARTICLES'));
+      self.ts.registerLocal('active_nav_items', 'content,articles');
+      self.ts.load('admin-new/content/articles', function(err, result) {
         cb({content: result});
       });
     }
 
     /**
-     * Loads the New Topic page.
+     * Loads the New Article page.
      *
      * @param  {Function} [cb]  The callback function for when loading is complete.
      */
-    newTopic(cb) {
+    newArticle(cb) {
       var self = this;
 
-      self.setPageName(self.ls.g('topics.NEW_TOPIC'));
+      self.setPageName(self.ls.g('articles.NEW_ARTICLE'));
       self.ts.registerLocal('item_id', '');
-      self.ts.registerLocal('active_nav_items', 'content,topics');
-      self.ts.load('admin-new/content/topic_form', function(err, result) {
+      self.ts.registerLocal('active_nav_items', 'content,articles');
+      self.ts.load('admin-new/content/article_form', function(err, result) {
         cb({content: result});
       });
     }
 
     /**
-     * Loads the Edit Topic page.
+     * Loads the Edit Article page.
      *
      * @param  {Function} [cb]  The callback function for when loading is complete.
      */
-    editTopic(cb) {
+    editArticle(cb) {
       var self = this;
 
-      self.setPageName(self.ls.g('topics.NEW_TOPIC'));
+      self.setPageName(self.ls.g('articles.NEW_ARTICLE'));
       self.ts.registerLocal('item_id', this.pathVars.id);
-      self.ts.registerLocal('active_nav_items', 'content,topics');
-      self.ts.load('admin-new/content/topic_form', function(err, result) {
+      self.ts.registerLocal('active_nav_items', 'content,articles');
+      self.ts.load('admin-new/content/article_form', function(err, result) {
         cb({content: result});
       });
     }
   }
 
-  AdminTopicsController.getRoutes = function(cb) {
+  AdminArticlesController.getRoutes = function(cb) {
     var routes = [{
       method: 'GET',
-      path: '/admin-new/content/topics',
+      path: '/admin-new/content/articles',
       auth_required: true,
       access_level: pb.SecurityService.ACCESS_USER,
       localization: true,
-      handler: 'manageTopics'
+      handler: 'manageArticles'
     }, {
       method: 'GET',
-      path: '/admin-new/content/topics/new',
+      path: '/admin-new/content/articles/new',
       auth_required: true,
       access_level: pb.SecurityService.ACCESS_USER,
       localization: true,
-      handler: 'newTopic'
+      handler: 'newArticle'
     }, {
       method: 'GET',
-      path: '/admin-new/content/topics/:id',
+      path: '/admin-new/content/articles/:id',
       auth_required: true,
       access_level: pb.SecurityService.ACCESS_USER,
       localization: true,
-      handler: 'editTopic'
+      handler: 'editArticle'
     }];
 
     cb(null, routes);
   };
 
-  pb.util.inherits(AdminTopicsController, pb.BaseController);
+  pb.util.inherits(AdminArticlesController, pb.BaseController);
 
-  return AdminTopicsController;
+  return AdminArticlesController;
 }
