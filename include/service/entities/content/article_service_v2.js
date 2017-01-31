@@ -16,47 +16,40 @@
  */
 
 //dependencies
-var util = require('../../../util.js');
+var _ = require('lodash');
+var ArticleRenderer = require('./article_renderer');
 var async = require('async');
+var BaseObjectService = require('../../base_object_service');
+var ContentObjectService = require('./content_object_service');
+var DAO = require('../../../dao/dao');
+var SiteService = require('../site_service');
+var ValidationService = require('../../../validation/validation_service');
 
-module.exports = function (pb) {
+/**
+ * Provides functions to interact with articles
+ * @class ArticleServiceV2
+ * @constructor
+ * @extends ContentObjectService
+ * @param {Object} context
+ * @param {object} [context.contentSettings]
+ * @param {string} context.site
+ * @param {boolean} context.onlyThisSite
+ */
+class ArticleServiceV2 extends ContentObjectService {
+    constructor(context) {
 
-    //pb dependencies
-    var DAO = pb.DAO;
-    var BaseObjectService = pb.BaseObjectService;
-    var ContentObjectService = pb.ContentObjectService;
-    var ValidationService = pb.ValidationService;
+        context.type = ArticleServiceV2.TYPE;
 
-    /**
-     * Provides functions to interact with articles
-     * @class ArticleServiceV2
-     * @constructor
-     * @extends ContentObjectService
-     * @param {Object} context
-     * @param {object} [context.contentSettings]
-     * @param {string} context.site
-     * @param {boolean} context.onlyThisSite
-     */
-    function ArticleServiceV2(context) {
-        if (!util.isObject(context)) {
-            context = {};
-        }
-        this.site = pb.SiteService.getCurrentSite(context.site);
-        this.onlyThisSite = context.onlyThisSite;
-        context.type = TYPE;
-        ArticleServiceV2.super_.call(this, context);
+        super(context);
     }
-    util.inherits(ArticleServiceV2, ContentObjectService);
 
     /**
-     *
-     * @private
-     * @static
      * @readonly
-     * @property TYPE
      * @type {String}
      */
-    var TYPE = 'article';
+    static get TYPE() {
+        return 'article';
+    }
 
     /**
      * Provides the options for rendering
@@ -64,7 +57,7 @@ module.exports = function (pb) {
      * @param {Object} options
      * @return {Object}
      */
-    ArticleServiceV2.prototype.getRenderOptions = function (options, isMultiple) {
+    getRenderOptions(options, isMultiple) {
         if (isMultiple) {
             return {
                 readMore: options && options.readMore !== undefined ? options.readMore : true
@@ -75,16 +68,16 @@ module.exports = function (pb) {
                 readMore: options && options.readMore ? true : false
             };
         }
-    };
+    }
 
     /**
      * Retrieves an instance of a content renderer
      * @method getRenderer
      * @return {ArticleRenderer}
      */
-    ArticleServiceV2.prototype.getRenderer = function () {
-        return new pb.ArticleRenderer(this.context);
-    };
+    getRenderer() {
+        return new ArticleRenderer(this.context);
+    }
 
     /**
      * Retrieves articles based on the section
@@ -93,26 +86,26 @@ module.exports = function (pb) {
      * @param {Object} [options]
      * @param {Function} cb
      */
-    ArticleServiceV2.prototype.getBySection = function (sectionId, options, cb) {
-        if (util.isFunction(options)) {
+    getBySection(sectionId, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         //ensure a where clause exists
-        if (!util.isObject(options.where)) {
+        if (!_.isObject(options.where)) {
             options.where = {};
         }
 
         //add where clause to search based on section
         var section = sectionId;
-        if (util.isObject(section)) {
+        if (_.isObject(section)) {
             section = section[DAO.getIdField()] + '';
         }
         options.where.article_sections = section;
 
         this.getAll(options, cb);
-    };
+    }
 
     /**
      * Extracts an array of Topic IDs from the content that the content is associated with.
@@ -120,9 +113,9 @@ module.exports = function (pb) {
      * @param {Object} content
      * @return {Array} An array of strings representing the Topic IDs
      */
-    ArticleServiceV2.prototype.getTopicsForContent = function (content) {
+    getTopicsForContent(content) {
         return content.article_topics;
-    };
+    }
 
     /**
      *
@@ -133,7 +126,7 @@ module.exports = function (pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    ArticleServiceV2.format = function (context, cb) {
+    static onFormat(context, cb) {
         var dto = context.data;
         dto.headline = BaseObjectService.sanitize(dto.headline);
         dto.subheading = BaseObjectService.sanitize(dto.subheading);
@@ -144,14 +137,14 @@ module.exports = function (pb) {
         dto.url = BaseObjectService.sanitize(dto.url);
         dto.publish_date = BaseObjectService.getDate(dto.publish_date);
 
-        if (util.isArray(dto.meta_keywords)) {
+        if (Array.isArray(dto.meta_keywords)) {
             for (var i = 0; i < dto.meta_keywords.length; i++) {
                 dto.meta_keywords[i] = BaseObjectService.sanitize(dto.meta_keywords[i]);
             }
         }
 
         cb(null);
-    };
+    }
 
     /**
      *
@@ -162,7 +155,7 @@ module.exports = function (pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    ArticleServiceV2.merge = function (context, cb) {
+    static onMerge(context, cb) {
         var dto = context.data;
         var obj = context.object;
 
@@ -185,12 +178,12 @@ module.exports = function (pb) {
         obj.article_layout = dto.article_layout;
 
         cb(null);
-    };
+    }
 
     /**
      *
      * @static
-     * @method validate
+     * @method onValidate
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
      * @param {Array} context.validationErrors
@@ -198,7 +191,7 @@ module.exports = function (pb) {
      * the event that called this handler
      * @param {Function} cb (Error) A callback that takes a single parameter: an error if occurred
      */
-    ArticleServiceV2.validate = function (context, cb) {
+    static onValidate(context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
 
@@ -210,8 +203,8 @@ module.exports = function (pb) {
             errors.push(BaseObjectService.validationFailure('publish_date', 'Publish date is required'));
         }
 
-        if (!util.isArray(obj.meta_keywords)) {
-            if (!util.isNullOrUndefined(obj.meta_keywords)) {
+        if (!Array.isArray(obj.meta_keywords)) {
+            if (!_.isNil(obj.meta_keywords)) {
                 errors.push(BaseObjectService.validationFailure('meta_keywords', 'Meta Keywords must be an array'));
             }
         }
@@ -224,8 +217,8 @@ module.exports = function (pb) {
             });
         }
 
-        if (!util.isArray(obj.article_media)) {
-            if (!util.isNullOrUndefined(obj.article_media)) {
+        if (!Array.isArray(obj.article_media)) {
+            if (!_.isNil(obj.article_media)) {
                 errors.push(BaseObjectService.validationFailure('article_media', 'Article Media must be an array'));
             }
         }
@@ -238,8 +231,8 @@ module.exports = function (pb) {
             });
         }
 
-        if (!util.isArray(obj.article_sections)) {
-            if (!util.isNullOrUndefined(obj.article_sections)) {
+        if (!Array.isArray(obj.article_sections)) {
+            if (!_.isNil(obj.article_sections)) {
                 errors.push(BaseObjectService.validationFailure('article_sections', 'Article sections must be an array'));
             }
         }
@@ -252,8 +245,8 @@ module.exports = function (pb) {
             });
         }
 
-        if (!util.isArray(obj.article_topics)) {
-            if (!util.isNullOrUndefined(obj.article_topics)) {
+        if (!Array.isArray(obj.article_topics)) {
+            if (!_.isNil(obj.article_topics)) {
                 errors.push(BaseObjectService.validationFailure('article_topics', 'Article topics must be an array'));
             }
         }
@@ -270,7 +263,7 @@ module.exports = function (pb) {
             errors.push(BaseObjectService.validationFailure('url', 'An invalid URL slug was provided'));
         }
 
-        if (!util.isNullOrUndefined(obj.template)) {
+        if (!_.isNil(obj.template)) {
 
             if (!ValidationService.isStr(obj.template, false)) {
                 errors.push(BaseObjectService.validationFailure('template', 'The template must take the form of [PLUGIN]|[TEMPLATE_NAME]'));
@@ -287,7 +280,7 @@ module.exports = function (pb) {
             errors.push(BaseObjectService.validationFailure('subheading', 'An invalid subheading was provided'));
         }
 
-        if (!util.isBoolean(obj.allow_comments)) {
+        if (!_.isBoolean(obj.allow_comments)) {
             errors.push(BaseObjectService.validationFailure('allow_comments', 'An invalid allow comments value was provided'));
         }
 
@@ -316,7 +309,7 @@ module.exports = function (pb) {
         }
 
         context.service.validateHeadline(context, cb);
-    };
+    }
 
     /**
      *
@@ -324,9 +317,9 @@ module.exports = function (pb) {
      * @method setSectionClause
      * @param {Object} where
      */
-    ArticleServiceV2.setSectionClause = function (where, sectionId) {
+    static setSectionClause(where, sectionId) {
         where.article_sections = sectionId + '';
-    };
+    }
 
     /**
      *
@@ -334,14 +327,14 @@ module.exports = function (pb) {
      * @method setTopicClause
      * @param {Object} where
      */
-    ArticleServiceV2.setTopicClause = function (where, topicId) {
+    static setTopicClause(where, topicId) {
         where.article_topics = topicId + '';
-    };
+    }
+}
 
-    //Event Registries
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, ArticleServiceV2.format);
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, ArticleServiceV2.merge);
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, ArticleServiceV2.validate);
+//Event Registries
+BaseObjectService.on(ArticleServiceV2.TYPE + '.' + BaseObjectService.FORMAT, ArticleServiceV2.onFormat);
+BaseObjectService.on(ArticleServiceV2.TYPE + '.' + BaseObjectService.MERGE, ArticleServiceV2.onMerge);
+BaseObjectService.on(ArticleServiceV2.TYPE + '.' + BaseObjectService.VALIDATE, ArticleServiceV2.onValidate);
 
-    return ArticleServiceV2;
-};
+module.exports = ArticleServiceV2;

@@ -17,46 +17,39 @@
 'use strict';
 
 //dependencies
-var util  = require('../../../util.js');
-var async = require('async');
+const _ = require('lodash');
+const util  = require('../../../util.js');
+const async = require('async');
+const BaseObjectService = require('../../base_object_service');
+const ContentObjectService = require('./content_object_service');
+const PageRenderer = require('./page_renderer');
+const ValidationService = require('../../../validation/validation_service');
 
-module.exports = function(pb) {
+/**
+ * Provides functions to interact with pages
+ *
+ * @class PageService
+ * @extends ContentObjectService
+ * @constructor
+ * @param {object} context
+ * @param {object} [context.contentSettings]
+ * @param {string} context.site
+ * @param {boolean} context.onlyThisSite
+ */
+class PageService extends ContentObjectService {
+    constructor(context) {
 
-    //pb dependencies
-    var BaseObjectService    = pb.BaseObjectService;
-    var ContentObjectService = pb.ContentObjectService;
-    var ValidationService    = pb.ValidationService;
-
-    /**
-     * Provides functions to interact with pages
-     *
-     * @class PageService
-     * @extends ContentObjectService
-     * @constructor
-     * @param {object} context
-     * @param {object} [context.contentSettings]
-     * @param {string} context.site
-     * @param {boolean} context.onlyThisSite
-     */
-    function PageService(context){
-        if (!util.isObject(context)) {
-            context = {};
-        }
-
-        context.type = TYPE;
-        PageService.super_.call(this, context);
+        context.type = PageService.TYPE;
+        super(context);
     }
-    util.inherits(PageService, ContentObjectService);
 
     /**
-     *
-     * @private
-     * @static
      * @readonly
-     * @property TYPE
      * @type {String}
      */
-    var TYPE = 'page';
+    static get TYPE() {
+        return 'page';
+    }
 
     /**
      * Provides the options for rendering
@@ -65,27 +58,27 @@ module.exports = function(pb) {
      * @param {Boolean} isMultiple
      * @return {Object}
      */
-    PageService.prototype.getRenderOptions = function(options/*, isMultiple*/) {
-        if (!util.isObject(options)) {
+    getRenderOptions(options/*, isMultiple*/) {
+        if (!_.isObject(options)) {
             options = {};
         }
 
-        return util.merge(options, {
+        return Object.assign({
             readMore: false,
             renderComments: false,
             renderBylines: false,
             renderTimestamp: false
-        });
-    };
+        }, options);
+    }
 
     /**
      * Retrieves an instance of a content renderer
      * @method getRenderer
      * @return {PageRenderer}
      */
-    PageService.prototype.getRenderer = function() {
-        return new pb.PageRenderer(this.context);
-    };
+    getRenderer() {
+        return new PageRenderer(this.context);
+    }
 
     /**
      * Extracts an array of Topic IDs from the content that the content is associated with.
@@ -93,9 +86,9 @@ module.exports = function(pb) {
      * @param {Object} content
      * @return {Array} An array of strings representing the Topic IDs
      */
-    PageService.prototype.getTopicsForContent = function(content) {
+    getTopicsForContent(content) {
         return content.page_topics;
-    };
+    }
 
     /**
      *
@@ -107,7 +100,7 @@ module.exports = function(pb) {
      * @param {object} context.data
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    PageService.format = function(context, cb) {
+    static onFormat(context, cb) {
         var dto = context.data;
         dto.headline = BaseObjectService.sanitize(dto.headline);
         dto.subheading = BaseObjectService.sanitize(dto.subheading);
@@ -118,14 +111,14 @@ module.exports = function(pb) {
         dto.url = BaseObjectService.sanitize(dto.url);
         dto.publish_date = BaseObjectService.getDate(dto.publish_date);
 
-        if (util.isArray(dto.meta_keywords)) {
+        if (Array.isArray(dto.meta_keywords)) {
             for (var i = 0; i < dto.meta_keywords.length; i++) {
                 dto.meta_keywords[i] = BaseObjectService.sanitize(dto.meta_keywords[i]);
             }
         }
 
         cb(null);
-    };
+    }
 
     /**
      *
@@ -137,7 +130,7 @@ module.exports = function(pb) {
      * @param {object} context.data
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    PageService.merge = function(context, cb) {
+    static onMerge(context, cb) {
         var dto = context.data;
         var obj = context.object;
 
@@ -159,7 +152,7 @@ module.exports = function(pb) {
         obj.page_layout = dto.page_layout;
 
         cb(null);
-    };
+    }
 
     /**
      *
@@ -172,7 +165,7 @@ module.exports = function(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    PageService.validate = function(context, cb) {
+    static onValidate(context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
 
@@ -184,44 +177,44 @@ module.exports = function(pb) {
             errors.push(BaseObjectService.validationFailure('publish_date', 'Publish date is required'));
         }
 
-        if (!util.isArray(obj.meta_keywords)) {
-            if (!util.isNullOrUndefined(obj.meta_keywords)) {
+        if (!Array.isArray(obj.meta_keywords)) {
+            if (!_.isNil(obj.meta_keywords)) {
                 errors.push(BaseObjectService.validationFailure('meta_keywords', 'Meta Keywords must be an array'));
             }
         }
         else {
-            obj.meta_keywords.forEach(function(keyword, i) {
+            obj.meta_keywords.forEach(function (keyword, i) {
 
                 if (!ValidationService.isNonEmptyStr(keyword, true)) {
-                    errors.push(BaseObjectService.validationFailure('meta_keywords['+i+']', 'An invalid meta keyword was provided'));
+                    errors.push(BaseObjectService.validationFailure('meta_keywords[' + i + ']', 'An invalid meta keyword was provided'));
                 }
             });
         }
 
-        if (!util.isArray(obj.page_media)) {
-            if (!util.isNullOrUndefined(obj.page_media)) {
+        if (!Array.isArray(obj.page_media)) {
+            if (!_.isNil(obj.page_media)) {
                 errors.push(BaseObjectService.validationFailure('page_media', 'Page Media must be an array'));
             }
         }
         else {
-            obj.page_media.forEach(function(mediaId, i) {
+            obj.page_media.forEach(function (mediaId, i) {
 
                 if (!ValidationService.isIdStr(mediaId, true)) {
-                    errors.push(BaseObjectService.validationFailure('page_media['+i+']', 'An invalid media ID was provided'));
+                    errors.push(BaseObjectService.validationFailure('page_media[' + i + ']', 'An invalid media ID was provided'));
                 }
             });
         }
 
-        if (!util.isArray(obj.page_topics)) {
-            if (!util.isNullOrUndefined(obj.page_topics)) {
+        if (!Array.isArray(obj.page_topics)) {
+            if (!_.isNil(obj.page_topics)) {
                 errors.push(BaseObjectService.validationFailure('page_topics', 'Page topics must be an array'));
             }
         }
         else {
-            obj.page_topics.forEach(function(topicId, i) {
+            obj.page_topics.forEach(function (topicId, i) {
 
                 if (!ValidationService.isIdStr(topicId, true)) {
-                    errors.push(BaseObjectService.validationFailure('page_topics['+i+']', 'An invalid topic ID was provided'));
+                    errors.push(BaseObjectService.validationFailure('page_topics[' + i + ']', 'An invalid topic ID was provided'));
                 }
             });
         }
@@ -234,7 +227,7 @@ module.exports = function(pb) {
             errors.push(BaseObjectService.validationFailure('subheading', 'An invalid subheading was provided'));
         }
 
-        if (!util.isBoolean(obj.allow_comments)) {
+        if (!_.isBoolean(obj.allow_comments)) {
             errors.push(BaseObjectService.validationFailure('allow_comments', 'An invalid allow comments value was provided'));
         }
 
@@ -263,18 +256,18 @@ module.exports = function(pb) {
         }
 
         context.service.validateHeadline(context, cb);
-    };
+    }
 
     /**
-     *
+     * TODO [1.0] is property name a bug???
      * @static
      * @method setSectionClause
      * @param {Object} where
      * @param {string} sectionId
      */
-    PageService.setSectionClause = function(where, sectionId) {
+    static setSectionClause(where, sectionId) {
         where.article_sections = sectionId + '';
-    };
+    }
 
     /**
      *
@@ -283,14 +276,14 @@ module.exports = function(pb) {
      * @param {Object} where
      * @param {string} topicId
      */
-    PageService.setTopicClause = function(where, topicId) {
+    static setTopicClause(where, topicId) {
         where.page_topics = topicId + '';
-    };
+    }
+}
 
-    //Event Registries
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, PageService.format);
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, PageService.merge);
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, PageService.validate);
+//Event Registries
+BaseObjectService.on(PageService.TYPE + '.' + BaseObjectService.FORMAT, PageService.onFormat);
+BaseObjectService.on(PageService.TYPE + '.' + BaseObjectService.MERGE, PageService.onMerge);
+BaseObjectService.on(PageService.TYPE + '.' + BaseObjectService.VALIDATE, PageService.onValidate);
 
-    return PageService;
-};
+module.exports = PageService;

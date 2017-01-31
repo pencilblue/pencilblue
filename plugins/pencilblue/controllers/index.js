@@ -298,7 +298,7 @@ module.exports = function IndexModule(pb) {
         ats.registerLocal('author_position', content.author_position ? content.author_position : '');
         ats.registerLocal('media_body_style', content.media_body_style ? content.media_body_style : '');
         ats.registerLocal('comments', function(flag, cb) {
-            if (isPage || !pb.ArticleService.allowComments(contentSettings, content)) {
+            if (isPage || !CommentService.allowComments(contentSettings, content)) {
                 return cb(null, '');
             }
 

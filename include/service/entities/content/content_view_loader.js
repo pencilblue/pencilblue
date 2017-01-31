@@ -14,34 +14,40 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
-var util        = require('../../../util.js');
-var async       = require('async');
-var HtmlEncoder = require('htmlencode');
+const _ = require('lodash');
+const async       = require('async');
+const ClientJs = require('../../../client_js');
+const CommentService = require('../../../theme/comments');
+const ContentService = require('../../../content');
+const DAO = require('../../../dao/dao');
+const HtmlEncoder = require('htmlencode');
+const log = require('../../../utils/logging').newInstance('ContentViewLoader');
+const PluginService = require('../plugin_service');
+const SecurityService = require('../../../access_management');
+const TemplateValue = require('../template_service').TemplateValue;
+const TopMenuService = require('../../../theme/top_menu');
+const UrlUtils = require('../../../../lib/utils/urlUtils');
+const ValidationService = require('../../../validation/validation_service');
 
-module.exports = function(pb) {
-
-    //pb dependencies
-    var DAO          = pb.DAO;
-    var Localization = pb.Localization;
-    var ClientJs     = pb.ClientJs;
-
-    /**
-     * Renders a 1 or more pieces of content such as articles or pages
-     * @class ContentViewLoader
-     * @constructor
-     * @param {Object} context
-     * @param {TemplateService} context.ts
-     * @param {Localization} context.ls
-     * @param {Object} [context.contentSettings]
-     * @param {Object} context.session
-     * @param {ContentObjectService} context.service
-     * @param {String} context.activeTheme
-     * @param {CommentService} [context.commentService]
-     * @param {object} context.siteObj
-     */
-    function ContentViewLoader(context) {
+/**
+ * Renders a 1 or more pieces of content such as articles or pages
+ * @class ContentViewLoader
+ * @constructor
+ * @param {Object} context
+ * @param {TemplateService} context.ts
+ * @param {Localization} context.ls
+ * @param {Object} [context.contentSettings]
+ * @param {Object} context.session
+ * @param {ContentObjectService} context.service
+ * @param {String} context.activeTheme
+ * @param {CommentService} [context.commentService]
+ * @param {object} context.siteObj
+ */
+class ContentViewLoader {
+    constructor(context) {
         this.ts = context.ts;
         this.ls = context.ls;
         this.req = context.req;
@@ -58,7 +64,7 @@ module.exports = function(pb) {
          * @property commentService
          * @type {CommentService}
          */
-        this.commentService = context.commentService || new pb.CommentService(context);
+        this.commentService = context.commentService || new CommentService(context);
     }
 
     /**
@@ -68,7 +74,9 @@ module.exports = function(pb) {
      * @property DISPLAY_NONE_STYLE_ATTR
      * @type {String}
      */
-    var DISPLAY_NONE_STYLE_ATTR = 'display:none;';
+    static get DISPLAY_NONE_STYLE_ATTR() {
+        return 'display:none;';
+    }
 
     /**
      *
@@ -77,9 +85,9 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.renderSingle = function(content, options, cb) {
+    renderSingle(content, options, cb) {
         this.render([content], options, cb);
-    };
+    }
 
     /**
      *
@@ -91,40 +99,40 @@ module.exports = function(pb) {
      * @param {Object} [options.section] The section represented by the collection of content to be rendered
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.render = function(contentArray, options, cb) {
+    render(contentArray, options, cb) {
         var self = this;
 
-        this.gatherData(contentArray, options, function(err, data) {
-            if (util.isError(err)) {
+        this.gatherData(contentArray, options, function (err, data) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
             self.setMetaInfo(data.meta, options);
             self.ts.registerLocal('current_url', self.req.url);
-            self.ts.registerLocal('navigation', new pb.TemplateValue(data.nav.navigation, false));
-            self.ts.registerLocal('account_buttons', new pb.TemplateValue(data.nav.accountButtons, false));
-            self.ts.registerLocal('infinite_scroll', function(flag, cb) {
+            self.ts.registerLocal('navigation', new TemplateValue(data.nav.navigation, false));
+            self.ts.registerLocal('account_buttons', new TemplateValue(data.nav.accountButtons, false));
+            self.ts.registerLocal('infinite_scroll', function (flag, cb) {
                 self.onInfiniteScroll(contentArray, options, cb);
             });
-            self.ts.registerLocal('page_name', function(flag, cb) {
+            self.ts.registerLocal('page_name', function (flag, cb) {
                 self.onPageName(contentArray, options, cb);
             });
-            self.ts.registerLocal('angular', function(flag, cb) {
+            self.ts.registerLocal('angular', function (flag, cb) {
                 self.onAngular(contentArray, options, cb);
             });
-            self.ts.registerLocal('articles', function(flag, cb) {
+            self.ts.registerLocal('articles', function (flag, cb) {
                 self.onContent(contentArray, options, cb);
             });
 
-            self.getTemplate(contentArray, options, function(err, template) {
-                if (util.isError(err)) {
+            self.getTemplate(contentArray, options, function (err, template) {
+                if (_.isError(err)) {
                     return cb(err);
                 }
 
                 self.ts.load(template, cb);
             });
         });
-    };
+    }
 
     /**
      *
@@ -136,17 +144,17 @@ module.exports = function(pb) {
      * @param {Object} [options.section] The section represented by the collection of content to be rendered
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.getTemplate = function(content, options, cb) {
+    getTemplate(content, options, cb) {
 
         //check if we should just use whatever default there is.
         //this could fall back to an active theme or the default pencilblue theme.
-        if (options.useDefaultTemplate || util.isObject(options.topic) || util.isObject(options.section)) {
+        if (options.useDefaultTemplate || _.isObject(options.topic) || _.isObject(options.section)) {
             return cb(null, this.getDefaultTemplatePath());
         }
 
         //now we are dealing with a single page or article. the template will be
         //judged based off the article's preference.
-        if (util.isArray(content) && content.length > 0) {
+        if (Array.isArray(content) && content.length > 0) {
             content = content[0];
         }
         var uidAndTemplate = content.template;
@@ -155,9 +163,9 @@ module.exports = function(pb) {
         //preference and we can fall back on the default (index).  We depend on the
         //template service to determine who has priority based on the active theme
         //then defaulting back to pencilblue.
-        if (!pb.validation.isNonEmptyStr(uidAndTemplate, true)) {
+        if (!ValidationService.isNonEmptyStr(uidAndTemplate, true)) {
             var defautTemplatePath = this.getDefaultTemplatePath();
-            pb.log.silly("ContentController: No template specified, defaulting to %s.", defautTemplatePath);
+            log.silly("ContentController: No template specified, defaulting to %s.", defautTemplatePath);
             return cb(null, defautTemplatePath);
         }
 
@@ -170,38 +178,38 @@ module.exports = function(pb) {
         //default case of "index"
         if (pieces.length === 1) {
 
-            pb.log.silly("ContentController: No theme specified, Template Service will delegate [%s]", pieces[0]);
+            log.silly("ContentController: No theme specified, Template Service will delegate [%s]", pieces[0]);
             return cb(null, pieces[0]);
         }
         else if (pieces.length <= 0) {
 
             //shit's broke. This should never be the case but better safe than sorry
-            return cb(new Error("The content's template property provided an invalid value of ["+content.template+']'), null);
+            return cb(new Error("The content's template property provided an invalid value of [" + content.template + ']'), null);
         }
 
         //the theme is specified, we ensure that the theme is installed and
         //initialized otherwise we let the template service figure out how to
         //delegate.
-        if (!pb.PluginService.isActivePlugin(pieces[0])) {
-            pb.log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
+        if (!PluginService.isActivePlugin(pieces[0])) {
+            log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
             return cb(null, pieces[1]);
         }
 
         //the theme is OK. We don't gaurantee that the template is on the disk but we can testify that it SHOULD.  We set the
         //prioritized theme for the template service.
-        pb.log.silly("ContentController: Prioritizing Theme [%s] for template [%s]", pieces[0], pieces[1]);
+        log.silly("ContentController: Prioritizing Theme [%s] for template [%s]", pieces[0], pieces[1]);
         this.ts.setTheme(pieces[0]);
         cb(null, pieces[1]);
-    };
+    }
 
     /**
      *
      * @method getDefaultTemplatePath
      * @return {String}
      */
-    ContentViewLoader.prototype.getDefaultTemplatePath = function() {
+    getDefaultTemplatePath() {
         return 'index';
-    };
+    }
 
     /**
      *
@@ -210,22 +218,22 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.onContent = function(contentArray, options, cb) {
-        var self  = this;
+    onContent(contentArray, options, cb) {
+        var self = this;
         var limit = Math.min(this.contentSettings.articles_per_page, contentArray.length);
 
-        var tasks = util.getTasks(contentArray, function(contentArray, i) {
-            return function(callback) {
+        var tasks = contentArray.map(function (content, i) {
+            return function (callback) {
                 if (i >= limit) {
                     return callback(null, '');
                 }
-                self.renderContent(contentArray[i], options, callback);
+                self.renderContent(content, options, callback);
             };
         });
-        async.series(tasks, function(err, content) {
-            cb(err, new pb.TemplateValue(content.join(''), false));
+        async.series(tasks, function (err, content) {
+            cb(err, new TemplateValue(content.join(''), false));
         });
-    };
+    }
 
     /**
      *
@@ -234,12 +242,12 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.gatherData = function(contentArray, options, cb) {
-        var self  = this;
+    gatherData(contentArray, options, cb) {
+        var self = this;
         var tasks = {
 
             //navigation
-            nav: function(callback) {
+            nav: function (callback) {
 
                 var opts = {
                     currUrl: self.req.url,
@@ -248,28 +256,28 @@ module.exports = function(pb) {
                     site: self.site,
                     activeTheme: self.activeTheme
                 };
-                var topMenuService = new pb.TopMenuService();
+                var topMenuService = new TopMenuService();
                 topMenuService.getNavItems(opts, callback);
             },
 
-            meta: function(callback) {
+            meta: function (callback) {
                 self.getMetaInfo(contentArray, options, callback);
             },
 
-            contentSettings: function(callback) {
-                if (util.isObject(self.contentSettings)) {
+            contentSettings: function (callback) {
+                if (_.isObject(self.contentSettings)) {
                     return callback(null, self.contentSettings);
                 }
 
-                var contentService = new pb.ContentService({site: self.site, onlyThisSite: self.onlyThisSite});
-                contentService.getSettings(function(err, contentSettings) {
+                var contentService = new ContentService({site: self.site, onlyThisSite: self.onlyThisSite});
+                contentService.getSettings(function (err, contentSettings) {
                     self.contentSettings = contentSettings;
                     callback(err, contentSettings);
                 });
             }
         };
         async.parallel(tasks, cb);
-    };
+    }
 
     /**
      *
@@ -278,13 +286,13 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.onAngular = function(contentArray, options, cb) {
+    onAngular(contentArray, options, cb) {
         var objects = {
             trustHTML: 'function(string){return $sce.trustAsHtml(string);}'
         };
-        var angularData = pb.ClientJs.getAngularController(objects, ['ngSanitize']);
+        var angularData = ClientJs.getAngularController(objects, ['ngSanitize']);
         cb(null, angularData);
-    };
+    }
 
     /**
      *
@@ -293,17 +301,17 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.onPageName = function(contentArray, options, cb) {
+    onPageName(contentArray, options, cb) {
         var content = contentArray[0];
-        if (!util.isObject(content)) {
+        if (!_.isObject(content)) {
             return cb(null, options.metaTitle || this.siteObj.displayName);
         }
 
         var name = '';
-        if(util.isObject(options.section)) {
+        if (_.isObject(options.section)) {
             name = options.section.name;
         }
-        else if (util.isObject(options.topic)) {
+        else if (_.isObject(options.topic)) {
             name = options.topic.name;
         }
         else if (contentArray.length === 1) {
@@ -314,7 +322,7 @@ module.exports = function(pb) {
         }
 
         cb(null, name ? name + ' | ' + this.siteObj.displayName : this.siteObj.displayName);
-    };
+    }
 
     /**
      *
@@ -323,35 +331,35 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.onInfiniteScroll = function(contentArray, options, cb) {
-        if(contentArray.length <= 1) {
+    onInfiniteScroll(contentArray, options, cb) {
+        if (contentArray.length <= 1) {
             return cb(null, '');
         }
 
-        var infiniteScrollScript = pb.ClientJs.includeJS('/js/infinite_article_scroll.js');
-        if(util.isObject(options.section)) {
-            infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollSection = "' + options.section[pb.DAO.getIdField()] + '";');
+        var infiniteScrollScript = ClientJs.includeJS('/js/infinite_article_scroll.js');
+        if (_.isObject(options.section)) {
+            infiniteScrollScript += ClientJs.getJSTag('var infiniteScrollSection = "' + options.section[DAO.getIdField()] + '";');
         }
-        else if(util.isObject(options.topic)) {
-            infiniteScrollScript += pb.ClientJs.getJSTag('var infiniteScrollTopic = "' + options.topic.topic[pb.DAO.getIdField()] + '";');
+        else if (_.isObject(options.topic)) {
+            infiniteScrollScript += ClientJs.getJSTag('var infiniteScrollTopic = "' + options.topic.topic[DAO.getIdField()] + '";');
         }
 
-        var val = new pb.TemplateValue(infiniteScrollScript, false);
+        var val = new TemplateValue(infiniteScrollScript, false);
         cb(null, val);
-    };
+    }
 
     /**
      *
      * @method setMetaInfo
      * @param {Object} options
      */
-    ContentViewLoader.prototype.setMetaInfo = function(meta, options) {
+    setMetaInfo(meta, options) {
         this.ts.registerLocal('meta_keywords', meta.keywords);
         this.ts.registerLocal('meta_desc', options.metaDescription || meta.description);
         this.ts.registerLocal('meta_title', options.metaTitle || meta.title);
         this.ts.registerLocal('meta_thumbnail', meta.thumbnail || '');
         this.ts.registerLocal('meta_lang', options.metaLang || this.ls.language);
-    };
+    }
 
     /**
      *
@@ -360,12 +368,12 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.getMetaInfo = function(contentArray, options, cb) {
+    getMetaInfo(contentArray, options, cb) {
         if (contentArray.length === 0) {
             return cb(null, {});
         }
         this.service.getMetaInfo(contentArray[0], cb);
-    };
+    }
 
     /**
      *
@@ -374,34 +382,34 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.renderContent = function(content, options, cb) {
+    renderContent(content, options, cb) {
         var self = this;
 
         //set recurring params
-        if (util.isNullOrUndefined(options.contentIndex)) {
+        if (_.isNil(options.contentIndex)) {
             options.contentIndex = 0;
         }
 
-        var isPage           = this.service.getType() === 'page';
-        var showByLine       = this.contentSettings.display_bylines && !isPage;
-        var showTimestamp    = this.contentSettings.display_timestamp && !isPage;
-        var ats              = self.ts.getChildInstance();
+        var isPage = this.service.getType() === 'page';
+        var showByLine = this.contentSettings.display_bylines && !isPage;
+        var showTimestamp = this.contentSettings.display_timestamp && !isPage;
+        var ats = self.ts.getChildInstance();
         var contentUrlPrefix = '/' + this.service.getType() + '/';
         self.ts.reprocess = false;
-        ats.registerLocal('article_permalink', function(flag, cb) {
+        ats.registerLocal('article_permalink', function (flag, cb) {
             self.onContentPermalink(content, options, cb);
         });
-        ats.registerLocal('article_headline', function(flag, cb) {
+        ats.registerLocal('article_headline', function (flag, cb) {
             self.onContentHeadline(content, options, cb);
         });
         ats.registerLocal('article_headline_nolink', content.headline);
         ats.registerLocal('article_subheading', ContentViewLoader.valOrEmpty(content.subheading));
         ats.registerLocal('article_subheading_display', ContentViewLoader.getDisplayAttr(content.subheading));
-        ats.registerLocal('article_id', content[pb.DAO.getIdField()] + '');
+        ats.registerLocal('article_id', content[DAO.getIdField()] + '');
         ats.registerLocal('article_index', options.contentIndex);
         ats.registerLocal('article_timestamp', showTimestamp && content.timestamp ? content.timestamp : '');
         ats.registerLocal('article_timestamp_display', ContentViewLoader.getDisplayAttr(showTimestamp));
-        ats.registerLocal('article_layout', new pb.TemplateValue(content.layout, false));
+        ats.registerLocal('article_layout', new TemplateValue(content.layout, false));
         ats.registerLocal('article_url', content.url);
         ats.registerLocal('display_byline', ContentViewLoader.getDisplayAttr(showByLine));
         ats.registerLocal('author_photo', ContentViewLoader.valOrEmpty(content.author_photo));
@@ -409,29 +417,29 @@ module.exports = function(pb) {
         ats.registerLocal('author_name', ContentViewLoader.valOrEmpty(content.author_name));
         ats.registerLocal('author_position', ContentViewLoader.valOrEmpty(content.author_position));
         ats.registerLocal('media_body_style', ContentViewLoader.valOrEmpty(content.media_body_style));
-        ats.registerLocal('comments', function(flag, cb) {
-            if (isPage || !pb.ArticleService.allowComments(self.contentSettings, content)) {
+        ats.registerLocal('comments', function (flag, cb) {
+            if (isPage || !CommentService.allowComments(self.contentSettings, content)) {
                 return cb(null, '');
             }
 
             var ts = ats.getChildInstance();
-            self.renderComments(content, ts, function(err, comments) {
-                cb(err, new pb.TemplateValue(comments, false));
+            self.renderComments(content, ts, function (err, comments) {
+                cb(err, new TemplateValue(comments, false));
             });
         });
         ats.load(self.getDefaultContentTemplatePath(), cb);
 
         options.contentIndex++;
-    };
+    }
 
     /**
      *
      * @method getDefaultContentTemplatePath
      * @return {String}
      */
-    ContentViewLoader.prototype.getDefaultContentTemplatePath = function() {
+    getDefaultContentTemplatePath() {
         return 'elements/article';
-    };
+    }
 
     /**
      *
@@ -440,50 +448,50 @@ module.exports = function(pb) {
      * @param {TemplateService} ts
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.renderComments = function(content, ts, cb) {
-        var self           = this;
+    renderComments(content, ts, cb) {
+        var self = this;
         var commentingUser = null;
-        if(pb.security.isAuthenticated(this.session)) {
+        if (SecurityService.isAuthenticated(this.session)) {
             commentingUser = this.commentService.getCommentingUser(this.session.authentication.user);
         }
 
-        ts.registerLocal('user_photo', function(flag, cb) {
+        ts.registerLocal('user_photo', function (flag, cb) {
             self.onCommentingUserPhoto(content, commentingUser, cb);
         });
-        ts.registerLocal('user_position', function(flag, cb) {
+        ts.registerLocal('user_position', function (flag, cb) {
             self.onCommentingUserPosition(content, commentingUser, cb);
         });
         ts.registerLocal('user_name', commentingUser ? commentingUser.name : '');
         ts.registerLocal('display_submit', commentingUser ? 'block' : 'none');
         ts.registerLocal('display_login', commentingUser ? 'none' : 'block');
-        ts.registerLocal('comments_length', util.isArray(content.comments) ? content.comments.length : 0);
-        ts.registerLocal('individual_comments', function(flag, cb) {
-            if (!util.isArray(content.comments) || content.comments.length === 0) {
+        ts.registerLocal('comments_length', Array.isArray(content.comments) ? content.comments.length : 0);
+        ts.registerLocal('individual_comments', function (flag, cb) {
+            if (!Array.isArray(content.comments) || content.comments.length === 0) {
                 return cb(null, '');
             }
 
-            var tasks = util.getTasks(content.comments, function(comments, i) {
-                return function(callback) {
+            var tasks = content.comments.map(function (comment) {
+                return function (callback) {
 
                     var cts = ts.getChildInstance();
-                    self.renderComment(comments[i], cts, callback);
+                    self.renderComment(comment, cts, callback);
                 };
             });
-            async.parallel(tasks, function(err, results) {
-                cb(err, new pb.TemplateValue(results.join(''), false));
+            async.parallel(tasks, function (err, results) {
+                cb(err, new TemplateValue(results.join(''), false));
             });
         });
         ts.load(self.getDefaultCommentsTemplatePath(), cb);
-    };
+    }
 
     /**
      *
      * @method getDefaultCommentsTemplatePath
      * @return {String}
      */
-    ContentViewLoader.prototype.getDefaultCommentsTemplatePath = function() {
+    getDefaultCommentsTemplatePath() {
         return 'elements/comments';
-    };
+    }
 
     /**
      *
@@ -492,7 +500,7 @@ module.exports = function(pb) {
      * @param {TemplateService} cts
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.renderComment = function(comment, cts, cb) {
+    renderComment(comment, cts, cb) {
 
         cts.reprocess = false;
         cts.registerLocal('commenter_photo', comment.commenter_photo ? comment.commenter_photo : '');
@@ -502,16 +510,16 @@ module.exports = function(pb) {
         cts.registerLocal('content', comment.content);
         cts.registerLocal('timestamp', comment.timestamp);
         cts.load(this.getDefaultCommentTemplatePath(), cb);
-    };
+    }
 
     /**
      *
      * @method getDefaultCommentTemplatePath
      * @return {String}
      */
-    ContentViewLoader.prototype.getDefaultCommentTemplatePath = function() {
+    getDefaultCommentTemplatePath() {
         return 'elements/comments/comment';
-    };
+    }
 
     /**
      *
@@ -520,13 +528,13 @@ module.exports = function(pb) {
      * @param {Object} commentingUser
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.onCommentingUserPhoto = function(content, commentingUser, cb) {
+    onCommentingUserPhoto(content, commentingUser, cb) {
         var val = '';
         if (commentingUser) {
             val = commentingUser.photo || '';
         }
         cb(null, val);
-    };
+    }
 
     /**
      *
@@ -535,13 +543,13 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.onCommentingUserPosition = function(content, commentingUser, cb) {
+    onCommentingUserPosition(content, commentingUser, cb) {
         var val = '';
-        if (commentingUser && util.isArray(commentingUser.position) && commentingUser.position.length > 0) {
+        if (commentingUser && Array.isArray(commentingUser.position) && commentingUser.position.length > 0) {
             val = ', ' + commentingUser.position;
         }
         cb(null, val);
-    };
+    }
 
     /**
      *
@@ -550,9 +558,9 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.onContentPermalink = function(content, options, cb) {
+    onContentPermalink(content, options, cb) {
         cb(null, this.createContentPermalink(content));
-    };
+    }
 
     /**
      *
@@ -561,11 +569,11 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    ContentViewLoader.prototype.onContentHeadline = function(content, options, cb) {
+    onContentHeadline(content, options, cb) {
         var url = this.createContentPermalink(content);
-        var val = new pb.TemplateValue('<a href="' + url + '">' + HtmlEncoder.htmlEncode(content.headline) + '</a>', false);
+        var val = new TemplateValue('<a href="' + url + '">' + HtmlEncoder.htmlEncode(content.headline) + '</a>', false);
         cb(null, val);
-    };
+    }
 
     /**
      *
@@ -573,10 +581,10 @@ module.exports = function(pb) {
      * @param {Object} content
      * @return {String}
      */
-    ContentViewLoader.prototype.createContentPermalink = function(content) {
+    createContentPermalink(content) {
         var prefix = '/' + this.service.getType();
-        return pb.UrlService.createSystemUrl(pb.UrlService.urlJoin(prefix, content.url), { hostname: this.hostname });
-    };
+        return UrlUtils.createSystemUrl(UrlUtils.join(prefix, content.url), {hostname: this.hostname});
+    }
 
     /**
      *
@@ -585,9 +593,9 @@ module.exports = function(pb) {
      * @param {*} val
      * @return {String}
      */
-    ContentViewLoader.getDisplayAttr = function(val) {
-        return val ? '' : DISPLAY_NONE_STYLE_ATTR;
-    };
+    static getDisplayAttr(val) {
+        return val ? '' : ContentViewLoader.DISPLAY_NONE_STYLE_ATTR;
+    }
 
     /**
      * When passed a value it is evaluated as a boolean.  If evaluated to TRUE
@@ -597,9 +605,9 @@ module.exports = function(pb) {
      * @param {*} val
      * @return {*}
      */
-    ContentViewLoader.valOrEmpty = function(val) {
+    static valOrEmpty(val) {
         return val ? val : '';
-    };
+    }
+}
 
-    return ContentViewLoader;
-};
+module.exports = ContentViewLoader;

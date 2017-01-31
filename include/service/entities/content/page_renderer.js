@@ -14,39 +14,40 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
-var util = require('../../../util.js');
+const _ = require('lodash');
+const ArticleRenderer = require('./article_renderer');
+const CommentService = require('../../../theme/comments');
 
-module.exports = function(pb) {
-
-    /**
-     * Retrieves the necessary data as well as prepares the layout so a view
-     * loader can complete the render of content
-     * @class PageRenderer
-     * @constructor
-     * @param {object} context
-     */
-    function PageRenderer(context) {
+/**
+ * Retrieves the necessary data as well as prepares the layout so a view
+ * loader can complete the render of content
+ * @class PageRenderer
+ * @constructor
+ * @param {object} context
+ */
+class PageRenderer extends ArticleRenderer {
+    constructor(context) {
 
         /**
          *
          * @property commentService
          * @type {CommentService}
          */
-        this.commentService = new pb.CommentService(context);
+        this.commentService = new CommentService(context);
 
-        PageRenderer.super_.call(this, context);
+        super(context);
     }
-    util.inherits(PageRenderer, pb.ArticleRenderer);
 
     /**
      * @method getContentLinkPrefix
      * @return {String}
      */
-    PageRenderer.prototype.getContentLinkPrefix = function() {
+    getContentLinkPrefix() {
         return '/page/';
-    };
+    }
 
     /**
      * Retrieves the layout from the content object. Provides a mechanism to
@@ -55,9 +56,9 @@ module.exports = function(pb) {
      * @param {Object} content
      * @return {String}
      */
-    PageRenderer.prototype.getLayout = function(content) {
+    getLayout(content) {
         return content.page_layout;
-    };
+    }
 
     /**
      * A workaround to allow this prototype to operate on articles and pages.
@@ -67,9 +68,9 @@ module.exports = function(pb) {
      * @param {Object} content
      * @param {String} layout
      */
-    PageRenderer.prototype.setLayout = function(content, layout) {
+    setLayout(content, layout) {
         content.page_layout = layout;
-    };
+    }
+}
 
-    return PageRenderer;
-};
+module.exports = PageRenderer;

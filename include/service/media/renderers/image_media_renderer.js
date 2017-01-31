@@ -16,18 +16,17 @@
 */
 'use strict';
 
-module.exports = function ImageMediaRendererModule(pb) {
+//dependencies
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
+const FileUtils = require('../../../../lib/utils/fileUtils');
 
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     * Renders
-     * @class ImageMediaRenderer
-     * @constructor
-     */
-    function ImageMediaRenderer(){}
+/**
+ * Renders
+ * @class ImageMediaRenderer
+ * @constructor
+ */
+class ImageMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -36,7 +35,9 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'image';
+    static get TYPE() {
+        return 'image';
+    }
 
     /**
      * The list of supported extensions
@@ -46,26 +47,28 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @property SUPPORTED
      * @type {Object}
      */
-    var SUPPORTED = Object.freeze({
-        jpg: {
-            mime: 'image/jpg'
-        },
-        jpeg: {
-            mime: 'image/jpeg'
-        },
-        png: {
-            mime: 'image/png'
-        },
-        svg: {
-            mime: 'image/svg+xml'
-        },
-        webp: {
-            mime: 'image/webp'
-        },
-        gif: {
-            mime: 'image/gif'
-        }
-    });
+    static get SUPPORTED() {
+        return Object.freeze({
+            jpg: {
+                mime: 'image/jpg'
+            },
+            jpeg: {
+                mime: 'image/jpeg'
+            },
+            png: {
+                mime: 'image/png'
+            },
+            svg: {
+                mime: 'image/svg+xml'
+            },
+            webp: {
+                mime: 'image/webp'
+            },
+            gif: {
+                mime: 'image/gif'
+            }
+        });
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -74,19 +77,19 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            'max-width': "100%",
-            'max-height': '500px'
-        },
+            view: {
+                'max-width': "100%",
+                'max-height': '500px'
+            },
 
-        editor: {
-        },
+            editor: {},
 
-        post: {
-        }
-    });
+            post: {}
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -94,9 +97,9 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    ImageMediaRenderer.getSupportedExtensions = function() {
-        return Object.keys(SUPPORTED);
-    };
+    static getSupportedExtensions () {
+        return Object.keys(ImageMediaRenderer.SUPPORTED);
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -105,9 +108,9 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    ImageMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle (viewType) {
+        return ImageMediaRenderer.STYLES[viewType] || ImageMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -115,11 +118,11 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    ImageMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes () {
         var types = {};
-        types[TYPE] = true;
+        types[ImageMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -127,9 +130,9 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    ImageMediaRenderer.getName = function() {
+    static getName () {
         return 'ImageMediaRenderer';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -138,10 +141,10 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    ImageMediaRenderer.isSupported = function(urlStr) {
-        var ext = util.getExtension(urlStr, {lower: true, sep: '/'});
-        return SUPPORTED[ext] ? true : false;
-    };
+    static isSupported (urlStr) {
+        var ext = FileUtils.getExtension(urlStr, {lower: true, sep: '/'});
+        return ImageMediaRenderer.SUPPORTED[ext] ? true : false;
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -150,9 +153,9 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    ImageMediaRenderer.getType = function(urlStr) {
-        return ImageMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType (urlStr) {
+        return ImageMediaRenderer.isSupported(urlStr) ? ImageMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -162,9 +165,9 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    ImageMediaRenderer.getIcon = function(type) {
+    static getIcon (type) {
         return 'picture-o';
-    };
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -180,14 +183,14 @@ module.exports = function ImageMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    ImageMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        ImageMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl (urlStr, options, cb) {
+        ImageMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             ImageMediaRenderer.render({location: mediaId}, options, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -207,15 +210,15 @@ module.exports = function ImageMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    ImageMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render (media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var embedUrl = ImageMediaRenderer.getEmbedUrl(media.location);
         cb(null, BaseMediaRenderer.renderSingleElementEmbed('image', embedUrl, options.attrs, options.style));
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -225,9 +228,9 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    ImageMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl (mediaId) {
         return BaseMediaRenderer.getEmbedUrl(mediaId);
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -236,9 +239,9 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    ImageMediaRenderer.getMediaId = function(urlStr, cb) {
+    static getMediaId (urlStr, cb) {
         cb(null, urlStr);
-    };
+    }
 
     /**
      * Retrieves any meta data about the media represented by the URL.
@@ -250,11 +253,11 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    ImageMediaRenderer.getMeta = function(urlStr, isFile, cb) {
-        var ext = util.getExtension(urlStr, {lower: true});
-        var meta = util.clone(SUPPORTED[ext]);
+    static getMeta (urlStr, isFile, cb) {
+        var ext = FileUtils.getExtension(urlStr, {lower: true});
+        var meta = _.clone(ImageMediaRenderer.SUPPORTED[ext]);
         cb(null, meta);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -265,9 +268,9 @@ module.exports = function ImageMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    ImageMediaRenderer.getThumbnail = function(urlStr, cb) {
+    static getThumbnail (urlStr, cb) {
         cb(null, urlStr);
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -275,10 +278,10 @@ module.exports = function ImageMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    ImageMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl (media) {
         return media.location;
-    };
+    }
+}
 
-    //exports
-    return ImageMediaRenderer;
-};
+//exports
+return ImageMediaRenderer;

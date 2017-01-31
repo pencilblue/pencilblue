@@ -14,6 +14,7 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
 var http  = require('http');
@@ -22,6 +23,7 @@ var path  = require('path');
 var async = require('async');
 var util  = require('../../util.js');
 
+//TODO [1.0] remove file
 module.exports = function MediaServiceModule(pb) {
 
     /**

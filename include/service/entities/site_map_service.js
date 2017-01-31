@@ -14,31 +14,39 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
-var async       = require('async');
-var url         = require('url');
-var util        = require('../../util.js');
-var HtmlEncoder = require('htmlencode');
+const _ = require('lodash');
+const ArrayUtils = require('../../../lib/utils/array_utils');
+const async       = require('async');
+const HtmlEncoder = require('htmlencode');
+const Localization = require('../../localization');
+const SectionService = require('./section_service');
+const SiteQueryService = require('./site_query_service');
+const TemplateValue = require('./template_service').TemplateValue;
+const url = require('url');
+const UrlUtils = require('../../../lib/utils/urlUtils');
+const util = require('util');
+const ValidationService = require('../../validation/validation_service');
 
-module.exports = function(pb) {
-
-    /**
-     * @class SiteMapService
-     * @constructor
-     * @param {Object} context
-     * @param {TemplateService} context.ts
-     * @param {Localization} context.ls
-     * @param {ArticleServiceV2} context.articleService
-     * @param {PageService} context.pageService
-     * @param {String} context.site The site UID
-     * @param {Boolean} context.onlyThisSite
-     * @param {String} context.templatePath
-     * @param {String} context.urlTemplatePath
-     * @param {Array} [context.supportedLocales]
-     */
-    function SiteMapService(context) {
-        if (!util.isObject(context)) {
+/**
+ * @class SiteMapService
+ * @constructor
+ * @param {Object} context
+ * @param {TemplateService} context.ts
+ * @param {Localization} context.ls
+ * @param {ArticleServiceV2} context.articleService
+ * @param {PageService} context.pageService
+ * @param {String} context.site The site UID
+ * @param {Boolean} context.onlyThisSite
+ * @param {String} context.templatePath
+ * @param {String} context.urlTemplatePath
+ * @param {Array} [context.supportedLocales]
+ */
+class SiteMapService {
+    constructor(context) {
+        if (!_.isObject(context)) {
             throw new Error('context parameter must be a valid object');
         }
 
@@ -70,7 +78,7 @@ module.exports = function(pb) {
          * @property dao
          * @type {SiteQueryService}
          */
-        this.dao = new pb.SiteQueryService({site: context.site, onlyThisSite: context.onlyThisSite});
+        this.dao = new SiteQueryService({site: context.site, onlyThisSite: context.onlyThisSite});
 
         /**
          * @property site
@@ -88,27 +96,27 @@ module.exports = function(pb) {
          * @property templatePath
          * @type {String}
          */
-        this.templatePath = context.templatePath || DEFAULT_TEMPLATE;
+        this.templatePath = context.templatePath || SiteMapService.DEFAULT_TEMPLATE;
 
         /**
          * @property urlTemplatePath
          * @type {String}
          */
-        this.urlTemplatePath = context.urlTemplatePath || DEFAULT_URL_TEMPLATE;
+        this.urlTemplatePath = context.urlTemplatePath || SiteMapService.DEFAULT_URL_TEMPLATE;
 
         /**
          * The locales that are supported for the site as an array of strings
          * @property supportedLocales
          * @type {Array}
          */
-        this.supportedLocales = context.supportedLocales || pb.Localization.getSupported();
+        this.supportedLocales = context.supportedLocales || Localization.getSupported();
 
         /**
          * The instance of the registry to pull from.  Initializes based off of the global configuration
          * @property siteMapRegistry
          * @type {Object}
          */
-        this.siteMapRegistry = util.merge(SITE_MAP_REGISTRY, {});
+        this.siteMapRegistry = Object.assign({}, SITE_MAP_REGISTRY);
     }
 
     /**
@@ -118,7 +126,9 @@ module.exports = function(pb) {
      * @property DEFAULT_TEMPLATE
      * @type {String}
      */
-    var DEFAULT_TEMPLATE = 'xml_feeds/sitemap';
+    static get DEFAULT_TEMPLATE() {
+        return 'xml_feeds/sitemap';
+    }
 
     /**
      *
@@ -127,29 +137,9 @@ module.exports = function(pb) {
      * @property DEFAULT_URL_TEMPLATE
      * @type {String}
      */
-    var DEFAULT_URL_TEMPLATE = 'xml_feeds/sitemap/url';
-
-    /**
-     *
-     * @private
-     * @static
-     * @property SITE_MAP_REGISTRY
-     * @type {Object}
-     */
-    var SITE_MAP_REGISTRY = {
-
-        article: function(context, cb) {
-            context.service.getForArticles(context, cb);
-        },
-
-        page: function(context, cb) {
-            context.service.getForPages(context, cb);
-        },
-
-        section: function(context, cb) {
-            context.service.getForSections(context, cb);
-        }
-    };
+    static get DEFAULT_URL_TEMPLATE() {
+        return 'xml_feeds/sitemap/url';
+    }
 
     /**
      *
@@ -157,24 +147,24 @@ module.exports = function(pb) {
      * @param {Object} [options]
      * @param {Function} cb
      */
-    SiteMapService.prototype.getAndSerialize = function(options, cb) {
-        if (util.isFunction(options)) {
+    getAndSerialize(options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
         var self = this;
         var tasks = [
 
-            function(callback) {
+            function (callback) {
                 self.get(options, callback);
             },
 
-            function(items, callback) {
+            function (items, callback) {
                 self.toXml(items, options, callback);
             }
         ];
         async.waterfall(tasks, cb);
-    };
+    }
 
     /**
      *
@@ -182,8 +172,8 @@ module.exports = function(pb) {
      * @param {Object} [options]
      * @param {Function} cb
      */
-    SiteMapService.prototype.get = function(options, cb) {
-        if (util.isFunction(options)) {
+    get(options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
@@ -196,13 +186,13 @@ module.exports = function(pb) {
             ts: this.ts,
             hostname: this.hostname
         });
-        var tasks = util.getTasks(Object.keys(self.siteMapRegistry), function(keys, i) {
-            return function(callback) {
-                self.siteMapRegistry[keys[i]](context, callback);
+        var tasks = Object.keys(self.siteMapRegistry).map(function (key) {
+            return function (callback) {
+                self.siteMapRegistry[key](context, callback);
             };
         });
         async.parallel(tasks, SiteMapService.formatGetResults(cb));
-    };
+    }
 
     /**
      *
@@ -211,20 +201,20 @@ module.exports = function(pb) {
      * @param {Object} [options]
      * @param {Function} cb
      */
-    SiteMapService.prototype.toXml = function(items, options, cb) {
-        if (util.isFunction(options)) {
+    toXml(items, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var self = this;
         this.ts.registerModel({
-            urls: function(flag, cb) {
+            urls: function (flag, cb) {
                 self._serializeItems(items, cb);
             }
         });
         this.ts.load(this.templatePath, cb);
-    };
+    }
 
     /**
      *
@@ -233,12 +223,11 @@ module.exports = function(pb) {
      * @param {Array} items
      * @param {Function} cb
      */
-    SiteMapService.prototype._serializeItems = function(items, cb) {
+    _serializeItems(items, cb) {
         var self = this;
 
-        var tasks = util.getTasks(items, function(items, i) {
-            return function(callback) {
-                var item = items[i];
+        var tasks = items.map(function (item) {
+            return function (callback) {
 
                 var ts = self.ts.getChildInstance();
                 ts.registerModel({
@@ -246,18 +235,18 @@ module.exports = function(pb) {
                     priority: item.priority || '1.0',
                     url: item.url,
                     last_mod: SiteMapService.getLastModDateStr(item.last_modified),
-                    alternate_links: new pb.TemplateValue(SiteMapService.createAlternateLinks(item, self.ls.language, self.supportedLocales, self.hostname), false)
+                    alternate_links: new TemplateValue(SiteMapService.createAlternateLinks(item, self.ls.language, self.supportedLocales, self.hostname), false)
                 });
                 ts.load(self.urlTemplatePath, callback);
             };
         });
-        async.parallel(tasks, function(err, results) {
-            if (util.isError(err)) {
+        async.parallel(tasks, function (err, results) {
+            if (_.isError(err)) {
                 return cb(err);
             }
-            cb(null, new pb.TemplateValue(results.join(''), false));
+            cb(null, new TemplateValue(results.join(''), false));
         });
-    };
+    }
 
     /**
      *
@@ -265,7 +254,7 @@ module.exports = function(pb) {
      * @param {Object} context
      * @param {Function} cb
      */
-    SiteMapService.prototype.getForArticles = function(context, cb) {
+    getForArticles(context, cb) {
         var opts = {
             service: this.articleService,
             weight: '1.0',
@@ -274,7 +263,7 @@ module.exports = function(pb) {
             hostname: this.hostname
         };
         this.getForContent(context, opts, cb);
-    };
+    }
 
     /**
      *
@@ -282,7 +271,7 @@ module.exports = function(pb) {
      * @param {Object} context
      * @param {Function} cb
      */
-    SiteMapService.prototype.getForPages = function(context, cb) {
+    getForPages(context, cb) {
         var opts = {
             service: this.pageService,
             weight: '1.0',
@@ -291,7 +280,7 @@ module.exports = function(pb) {
             hostname: this.hostname
         };
         this.getForContent(context, opts, cb);
-    };
+    }
 
     /**
      *
@@ -300,12 +289,12 @@ module.exports = function(pb) {
      * @param {Object} options
      * @param {Function} cb
      */
-    SiteMapService.prototype.getForContent = function(context, options, cb) {
+    getForContent(context, options, cb) {
         var opts = {
-            select: { url: 1, last_modified: 1}
+            select: {url: 1, last_modified: 1}
         };
         options.service.getPublished(opts, SiteMapService.onPostLoad(options, cb));
-    };
+    }
 
     /**
      *
@@ -313,13 +302,18 @@ module.exports = function(pb) {
      * @param {Object} context
      * @param {Function} cb
      */
-    SiteMapService.prototype.getForSections = function(context, cb) {
+    getForSections(context, cb) {
         var opts = {
-            select: { url: 1, last_modified: 1, type: 1, item: 1 },
+            select: {url: 1, last_modified: 1, type: 1, item: 1},
             where: {type: {$ne: 'container'}}
         };
-        this.dao.q('section', opts, SiteMapService.onPostLoad({urlPrefix: '', weight: '0.5', localized: true, hostname: this.hostname}, cb));
-    };
+        this.dao.q('section', opts, SiteMapService.onPostLoad({
+            urlPrefix: '',
+            weight: '0.5',
+            localized: true,
+            hostname: this.hostname
+        }, cb));
+    }
 
     /**
      * Returns a function that processes site map items.  It calculates the
@@ -336,27 +330,27 @@ module.exports = function(pb) {
      * @param {Function} cb
      * @return {Function}
      */
-    SiteMapService.onPostLoad = function(options, cb) {
-        return function(err, results) {
-            if (util.isError(err)) {
+    static onPostLoad(options, cb) {
+        return function (err, results) {
+            if (_.isError(err)) {
                 return cb(err);
             }
-            results.forEach(function(obj) {
-                var url;
+            results.forEach(function (obj) {
+                var urlStr;
                 if (options.urlPrefix === '') {//special case for navItems
-                    pb.SectionService.formatUrl(obj);
-                    url = obj.url;
+                    SectionService.formatUrl(obj);
+                    urlStr = obj.url;
                 }
                 else {
-                    url = pb.UrlService.urlJoin(options.urlPrefix, obj.url);
+                    urlStr = UrlUtils.join(options.urlPrefix, obj.url);
                 }
-                obj.url = pb.UrlService.createSystemUrl(url, {hostname: options.hostname});
+                obj.url = UrlUtils.createSystemUrl(url, {hostname: options.hostname});
                 obj.weight = options.weight;
                 obj.localized = options.localized;
             });
             cb(null, results);
         };
-    };
+    }
 
     /**
      * Registers an item provider.  The callback should take two parameters.
@@ -367,16 +361,16 @@ module.exports = function(pb) {
      * @param {Function} callback
      * @return {Boolean}
      */
-    SiteMapService.register = function(type, callback) {
-        if (!pb.ValidationService.isNonEmptyStr(type, true)) {
+    static register(type, callback) {
+        if (!ValidationService.isNonEmptyStr(type, true)) {
             throw new Error('type parameter must be a string');
         }
-        if (!util.isFunction(callback)) {
+        if (!_.isFunction(callback)) {
             throw new Error('callback parameter must be a function');
         }
         SITE_MAP_REGISTRY[type] = callback;
         return true;
-    };
+    }
 
     /**
      * Unregisters an item provider from the site map service
@@ -385,17 +379,17 @@ module.exports = function(pb) {
      * @param {String} type
      * @return {Boolean}
      */
-    SiteMapService.unregister = function(type) {
-        if (!pb.ValidationService.isNonEmptyStr(type, true)) {
+    static unregister(type) {
+        if (!ValidationService.isNonEmptyStr(type, true)) {
             throw new Error('type parameter must be a string');
         }
 
-        var exists = util.isFunction(SITE_MAP_REGISTRY[type]);
+        var exists = _.isFunction(SITE_MAP_REGISTRY[type]);
         if (exists) {
             delete SITE_MAP_REGISTRY[type];
         }
         return exists;
-    };
+    }
 
     /**
      * Formats date objects to a string in the format of: YYYY-MM-DD
@@ -404,11 +398,11 @@ module.exports = function(pb) {
      * @param {Date} date
      * @return {String}
      */
-    SiteMapService.getLastModDateStr = function(date) {
+    static getLastModDateStr(date) {
         var month = SiteMapService.paddedNumStr(date.getMonth() + 1);
         var day = SiteMapService.paddedNumStr(date.getDate());
         return date.getFullYear() + '-' + month + '-' + day;
-    };
+    }
 
     /**
      * Converts the provided number to a string. If the number is less than 10
@@ -418,9 +412,9 @@ module.exports = function(pb) {
      * @param {Integer} num
      * @return {String}
      */
-    SiteMapService.paddedNumStr = function(num) {
+    static paddedNumStr(num) {
         return num < 10 ? '0' + num : '' + num;
-    };
+    }
 
     /**
      * Returns a function that accepts two parameters. The first is an error,
@@ -432,19 +426,19 @@ module.exports = function(pb) {
      * @param {Function} cb
      * @return {Function}
      */
-    SiteMapService.formatGetResults = function(cb) {
-        return function(err, results) {
-            if (util.isError(err)) {
+    static formatGetResults(cb) {
+        return function (err, results) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
-            var combined = results.reduce(function(prev, curr) {
-                util.arrayPushAll(curr, prev);
+            var combined = results.reduce(function (prev, curr) {
+                ArrayUtils.pushAll(curr, prev);
                 return prev;
             }, []);
             cb(null, combined);
         };
-    };
+    }
 
     /**
      * Takes a site map item and inspects its localized property.  If it
@@ -458,12 +452,12 @@ module.exports = function(pb) {
      * @param {String} hostname
      * @return {String}
      */
-    SiteMapService.createAlternateLinks = function(item, currentLocale, locales, hostname) {
+    static createAlternateLinks(item, currentLocale, locales, hostname) {
         if (!item.localized) {
             return '';
         }
 
-        return locales.reduce(function(prev, curr) {
+        return locales.reduce(function (prev, curr) {
             if (currentLocale === curr) {
                 return prev;
             }
@@ -478,11 +472,11 @@ module.exports = function(pb) {
             var context = {
                 relationship: 'alternate',
                 locale: curr,
-                url: pb.UrlService.createSystemUrl(urlPath, urlOpts)
+                url: UrlUtils.createSystemUrl(urlPath, urlOpts)
             };
             return prev + SiteMapService.serializeLocaleLink(context) + '\n';
         }, '');
-    };
+    }
 
     /**
      * Takes the provided relationship, locale, and URL to generate an XML
@@ -495,9 +489,31 @@ module.exports = function(pb) {
      * @param {String} context.url
      * @return {String}
      */
-    SiteMapService.serializeLocaleLink = function(context) {
+    static serializeLocaleLink(context) {
         return util.format('<xhtml:link rel="%s" hreflang="%s" href="%s" />', context.relationship, context.locale, HtmlEncoder.htmlEncode(context.url));
-    };
+    }
+}
 
-    return SiteMapService;
+/**
+ *
+ * @private
+ * @static
+ * @property SITE_MAP_REGISTRY
+ * @type {Object}
+ */
+var SITE_MAP_REGISTRY = {
+
+    article: function(context, cb) {
+        context.service.getForArticles(context, cb);
+    },
+
+    page: function(context, cb) {
+        context.service.getForPages(context, cb);
+    },
+
+    section: function(context, cb) {
+        context.service.getForSections(context, cb);
+    }
 };
+
+module.exports = SiteMapService;

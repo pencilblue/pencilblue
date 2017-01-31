@@ -14,75 +14,68 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
-var util  = require('../util.js');
-var async = require('async');
-var registered = false;
+const util  = require('../util.js');
+const _ = require('lodash');
+const ArticleServiceV2 = require('../service/entities/content/article_service_v2');
+const async = require('async');
+const BaseObjectService = require('../service/base_object_service');
+const ContentService = require('../content');
+const DAO = require('../dao/dao');
+const log = require('../utils/logging').newInstance('CommentService');
+const SecurityService = require('../access_management');
+const TemplateService = require('../service/entities/template_service').TemplateService;
+const UserService = require('../service/entities/user_service');
+const ValidationService = require('../validation/validation_service');
 
 /**
- * Theme content services
+ * Retrieves comment information
  *
  * @module Services
  * @submodule Theme
+ * @class CommentService
+ * @extends BaseObjectService
+ * @constructor
+ * @param {Object} context
+ * @param {string} context.site
+ * @param {boolean} context.onlyThisSite
  */
-module.exports = function CommentServiceModule(pb) {
-
-    //pb dependencies
-    var BaseObjectService = pb.BaseObjectService;
-    var ValidationService = pb.ValidationService;
-
-    /**
-     * Retrieves comment information
-     *
-     * @module Services
-     * @submodule Theme
-     * @class CommentService
-     * @extends BaseObjectService
-     * @constructor
-     * @param {Object} context
-     * @param {string} context.site
-     * @param {boolean} context.onlyThisSite
-     */
-    function CommentService(context){
-        if (!util.isObject(context)) {
-            context = {};
-        }
-
-        context.type = TYPE;
-        CommentService.super_.call(this, context);
+class CommentService extends BaseObjectService {
+    constructor(context) {
+        context.type = CommentService.TYPE;
+        super(context);
 
         /**
          *
          * @property userService
          * @type {UserService}
          */
-        this.userService = new pb.UserService(context);
+        this.userService = new UserService(context);
 
         /**
          *
          * @property articleService
          * @type {ArticleService}
          */
-        this.articleService = new pb.ArticleServiceV2(context);
+        this.articleService = new ArticleServiceV2(context);
 
         /**
          *
          * @property contentService
          * @type {ContentService}
          */
-        this.contentService = new pb.ContentService(context);
+        this.contentService = new ContentService(context);
     }
-    util.inherits(CommentService, BaseObjectService);
 
     /**
-     * @private
-     * @static
      * @readonly
-     * @property TYPE
      * @type {String}
      */
-    var TYPE = 'comment';
+    static get TYPE() {
+        return 'comment';
+    }
 
     /**
      * Validates a comment
@@ -90,7 +83,7 @@ module.exports = function CommentServiceModule(pb) {
      * @param {Object} context
      * @param {Function} cb
      */
-    CommentService.prototype.validate = function(context, cb) {
+    validate(context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
 
@@ -106,8 +99,8 @@ module.exports = function CommentServiceModule(pb) {
             errors.push(BaseObjectService.validationFailure('article', 'The article ID is required'));
         }
 
-        var principal = pb.SecurityService.getPrincipal(context.session);
-        var isAdmin = pb.SecurityService.isAuthorized(context.session, {admin_level: pb.SecurityService.ACCESS_ADMINISTRATOR});
+        var principal = SecurityService.getPrincipal(context.session);
+        var isAdmin = SecurityService.isAuthorized(context.session, {admin_level: SecurityService.ACCESS_ADMINISTRATOR});
 
         if (!ValidationService.isIdStr(obj.commenter)) {
             errors.push(BaseObjectService.validationFailure('commenter', 'An invalid commenter ID was provided'));
@@ -119,7 +112,7 @@ module.exports = function CommentServiceModule(pb) {
                 //you can't edit an anonymous comment unless you are an admin
                 errors.push(BaseObjectService.validationFailure('commenter', 'Only admins can edit anonymous comments'));
             }
-            else if (principal && obj.commenter !== principal[pb.DAO.getIdField()].toString() && !isAdmin) {
+            else if (principal && obj.commenter !== principal[DAO.getIdField()].toString() && !isAdmin) {
 
                 //you can't edit a comment unless it is your comment or you are an admin
                 errors.push(BaseObjectService.validationFailure('commenter', 'Only admins can edit another user\'s comment'));
@@ -138,14 +131,14 @@ module.exports = function CommentServiceModule(pb) {
         var tasks = [
 
             //validate commenter exists
-            function(callback) {
+            function (callback) {
                 if (!ValidationService.isIdStr(obj.commenter, true)) {
                     return callback();
                 }
 
                 //check for existence of user
-                self.userService.get(obj.commenter, function(err, user) {
-                    if (!util.isObject(user)) {
+                self.userService.get(obj.commenter, function (err, user) {
+                    if (!_.isObject(user)) {
                         errors.push(BaseObjectService.validationFailure('commenter', 'An invalid  commenter ID was provided'));
                     }
                     callback(err);
@@ -154,11 +147,11 @@ module.exports = function CommentServiceModule(pb) {
 
 
             //validate article exists
-            function(callback) {
+            function (callback) {
 
                 //retrieve the article to ensure it exists
-                self.articleService.get(obj.article, function(err, article) {
-                    if (!util.isObject(article)) {
+                self.articleService.get(obj.article, function (err, article) {
+                    if (!_.isObject(article)) {
                         errors.push(BaseObjectService.validationFailure('article', 'An invalid article ID was provided'));
                         return callback(err);
                     }
@@ -170,8 +163,8 @@ module.exports = function CommentServiceModule(pb) {
                     }
 
                     //ensure the site supports comments
-                    self.contentService.get(function(err, settings) {
-                        if (util.isObject(settings) && !settings.allow_comments) {
+                    self.contentService.get(function (err, settings) {
+                        if (_.isObject(settings) && !settings.allow_comments) {
                             errors.push(BaseObjectService.validationFailure('article', 'Comments are not enabled'));
                         }
                         return callback(err);
@@ -180,7 +173,7 @@ module.exports = function CommentServiceModule(pb) {
             }
         ];
         async.parallel(tasks, cb);
-    };
+    }
 
     /**
      * Retrieves the template for comments
@@ -189,22 +182,22 @@ module.exports = function CommentServiceModule(pb) {
      * @param {Object} contentSettings The content settings to use with retrieval
      * @param {Function} output        Callback function
      */
-    CommentService.getCommentsTemplates = function(contentSettings, output) {
+    static getCommentsTemplates(contentSettings, output) {
         var self = this;
 
-        if(!contentSettings.allow_comments) {
+        if (!contentSettings.allow_comments) {
             output('');
             return;
         }
 
-        //TODO move this out of here.
-        var ts = new pb.TemplateService();
-        ts.load('elements/comments', function(err, commentsContainer) {
-            ts.load('elements/comments/comment', function(err, comment) {
+        //TODO [1.0] move this out of here.
+        var ts = new TemplateService();
+        ts.load('elements/comments', function (err, commentsContainer) {
+            ts.load('elements/comments/comment', function (err, comment) {
                 output({commentsContainer: commentsContainer, comment: comment});
             });
         });
-    };
+    }
 
     /**
      * Retrieves the necessary user information for a commenter
@@ -212,25 +205,26 @@ module.exports = function CommentServiceModule(pb) {
      * @method getCommentingUser
      * @param {Object} user A user object
      */
-    CommentService.prototype.getCommentingUser = function(user) {
+    getCommentingUser(user) {
         return {
             photo: user.photo,
             name: this.userService.getFormattedName(user),
             position: user.position
         };
-    };
+    }
 
     /**
      * Retrieves the necessary user information for a commenter
+     * @deprecated
      * @static
      * @method getCommentingUser
      * @param {Object} user A user object
      */
-    CommentService.getCommentingUser = function(user) {
-        pb.log.warn('CommentService: Static function getCommentingUser is deprecated.  Create an instance and call it instead');
+    static getCommentingUser(user) {
+        log.warn('CommentService: Static function getCommentingUser is deprecated.  Create an instance and call it instead');
         var service = new CommentService({});
         return service.getCommentingUser(user);
-    };
+    }
 
     /**
      *
@@ -241,12 +235,12 @@ module.exports = function CommentServiceModule(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    CommentService.format = function(context, cb) {
+    static onFormat(context, cb) {
         var dto = context.data;
         dto.article = BaseObjectService.sanitize(dto.article);
         dto.content = BaseObjectService.sanitize(dto.content);
         cb(null);
-    };
+    }
 
     /**
      *
@@ -257,16 +251,16 @@ module.exports = function CommentServiceModule(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    CommentService.merge = function(context, cb) {
+    static onMerge(context, cb) {
         if (context.isCreate) {
             context.object.article = context.data.article;
 
-            var principal = pb.SecurityService.getPrincipal(context.session);
-            context.object.commenter = principal === null ? null : principal[pb.DAO.getIdField()] + '';
+            var principal = SecurityService.getPrincipal(context.session);
+            context.object.commenter = principal === null ? null : principal[DAO.getIdField()] + '';
         }
         context.object.content = context.data.content;
         cb(null);
-    };
+    }
 
     /**
      *
@@ -278,15 +272,25 @@ module.exports = function CommentServiceModule(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    CommentService.validate = function(context, cb) {
+    static onValidate(context, cb) {
         context.service.validate(context, cb);
-    };
+    }
 
-    //Event Registries
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.FORMAT, CommentService.format);
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.MERGE, CommentService.merge);
-    BaseObjectService.on(TYPE + '.' + BaseObjectService.VALIDATE, CommentService.validate);
+    /**
+     * TODO [1.0] change to camelCase property
+     * @param contentSettings
+     * @param content
+     * @returns {number|boolean|*}
+     */
+    static allowComments (contentSettings, content) {
+        return contentSettings.allow_comments && content.allow_comments;
+    }
+}
 
-    //exports
-    return CommentService;
-};
+//Event Registries
+BaseObjectService.on(CommentService.TYPE + '.' + BaseObjectService.FORMAT, CommentService.onFormat);
+BaseObjectService.on(CommentService.TYPE + '.' + BaseObjectService.MERGE, CommentService.onMerge);
+BaseObjectService.on(CommentService.TYPE + '.' + BaseObjectService.VALIDATE, CommentService.onValidate);
+
+//exports
+module.exports = CommentService;

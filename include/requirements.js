@@ -147,7 +147,8 @@ module.exports = function PB() {
     //error on removed items
     [
         'util', 'session', 'validation', 'users', 'settings', 'security', 'DeleteController', 'ApiActionController',
-        'HttpStatus', 'PBError', 'DocumentCreator', 'content', 'libraries', 'js'
+        'HttpStatus', 'PBError', 'DocumentCreator', 'content', 'libraries', 'js', 'ArticleService', 'MediaService'
+
     ].forEach(function(prop) {
         Object.defineProperty(pb, prop, {
             get: function() {
@@ -155,7 +156,7 @@ module.exports = function PB() {
             }
         });
     });
-    
+
     pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'))(pb);
     pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'))(pb);
     pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'))(pb);
@@ -209,20 +210,19 @@ module.exports = function PB() {
     pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js')(pb);
 
     //object services
-    pb.TopicService         = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'))(pb);
-    pb.ContentObjectService = require(path.join(config.docRoot, '/include/service/entities/content/content_object_service.js'))(pb);
-    pb.ArticleServiceV2     = require(path.join(config.docRoot, '/include/service/entities/content/article_service_v2.js'))(pb);
-    pb.ArticleRenderer      = require(path.join(config.docRoot, '/include/service/entities/content/article_renderer.js'))(pb);
-    pb.PageRenderer         = require(path.join(config.docRoot, '/include/service/entities/content/page_renderer.js'))(pb);
-    pb.PageService          = require(path.join(config.docRoot, '/include/service/entities/content/page_service.js'))(pb);
-    pb.ContentViewLoader    = require(path.join(config.docRoot, '/include/service/entities/content/content_view_loader.js'))(pb);
+    pb.TopicService         = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'));
+    pb.ContentObjectService = require(path.join(config.docRoot, '/include/service/entities/content/content_object_service.js'));
+    pb.ArticleServiceV2     = require(path.join(config.docRoot, '/include/service/entities/content/article_service_v2.js'));
+    pb.ArticleRenderer      = require(path.join(config.docRoot, '/include/service/entities/content/article_renderer.js'));
+    pb.PageRenderer         = require(path.join(config.docRoot, '/include/service/entities/content/page_renderer.js'));
+    pb.PageService          = require(path.join(config.docRoot, '/include/service/entities/content/page_service.js'));
+    pb.ContentViewLoader    = require(path.join(config.docRoot, '/include/service/entities/content/content_view_loader.js'));
 
-    pb.SiteMapService = require(path.join(config.docRoot, '/include/service/entities/site_map_service.js'))(pb);
+    pb.SiteMapService = require(path.join(config.docRoot, '/include/service/entities/site_map_service.js'));
 
     var ArticleServiceModule = require(path.join(config.docRoot, '/include/service/entities/article_service.js'))(pb);
-    pb.ArticleService        = ArticleServiceModule.ArticleService;
     pb.MediaLoader           = ArticleServiceModule.MediaLoader;
-    pb.CommentService        = require(config.docRoot+'/include/theme/comments.js')(pb);
+    pb.CommentService        = require(config.docRoot+'/include/theme/comments.js');
 
     pb.PluginValidationService = require(path.join(config.docRoot, '/include/service/entities/plugins/plugin_validation_service.js'))(pb);
     pb.PluginDependencyService = require(path.join(config.docRoot, '/include/service/entities/plugins/plugin_dependency_service.js'))(pb);
