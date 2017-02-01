@@ -670,19 +670,19 @@ module.exports = function RequestHandlerModule(pb) {
         var self = this;
         fs.readFile(absolutePath, function(err, content){
             if (err) {
+
+                //TODO [1.0] change default content type to JSON and refactor public file serving so it falls inline with other controller functions
+                self.themeRoute = self.themeRoute || {};
+                self.themeRoute.content_type = 'application/json';
                 return self.serve404();
             }
 
             //build response structure
-            var data = {
-                content: content
-            };
-
             //guess at content-type
-            var mimeType = mime.lookup(absolutePath);
-            if (mimeType) {
-                data.content_type = mimeType;
-            }
+            var data = {
+                content: content,
+                content_type: mime.lookup(absolutePath)
+            };
 
             //send response
             self.writeResponse(data);
@@ -742,6 +742,9 @@ module.exports = function RequestHandlerModule(pb) {
         if (this.resp.headerSent) {
             return false;
         }
+
+        //default the options object
+        options = options || {};
 
         //bump the error count so handlers will know if we are recursively trying to handle errors.
         this.errorCount++;
