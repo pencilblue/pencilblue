@@ -71,6 +71,7 @@ function PencilBlue(config){
             util.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
             util.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
             util.wrapTimedTask(this, this.initSessions, 'initSessions'),
+            util.wrapTimedTask(this, this.initMiddleware, 'initMiddleware'),
             util.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
             util.wrapTimedTask(this, this.initSites, 'initSites'),
             util.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
@@ -131,6 +132,19 @@ function PencilBlue(config){
      */
     this.initSessions = function(cb) {
         pb.session.start(cb);
+    };
+
+    /**
+     * Registers all default middleware
+     * @method initMiddleware
+     * @param {function} cb (Error, boolean)
+     */
+    this.initMiddleware = function (cb) {
+        //register default middleware
+        pb.Middleware.getAll().forEach(function(middleware) {
+            pb.Router.addMiddlewareAfterAll(middleware);
+        });
+        cb(null, true);
     };
 
     /**
@@ -219,11 +233,6 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     this.initServer = function(cb){
-
-        //register default middleware
-        pb.Middleware.getAll().forEach(function(middleware) {
-            pb.Router.addMiddlewareAfterAll(middleware);
-        });
 
         //build server setup
         var self = this;
