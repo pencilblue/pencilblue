@@ -157,12 +157,12 @@ module.exports = function PB() {
         });
     });
 
-    pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'))(pb);
-    pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'))(pb);
-    pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'))(pb);
-    pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'))(pb);
-    pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
-    pb.TokenService       = require(path.join(config.docRoot, '/include/service/entities/token_service.js'))(pb);
+    pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'));
+    pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'));
+    pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'));
+    pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'));
+    pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'));
+    pb.TokenService       = require(path.join(config.docRoot, '/include/service/entities/token_service.js'));
 
     //create plugin service
     pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);
@@ -180,12 +180,12 @@ module.exports = function PB() {
     //media renderers
     pb.media = {
         renderers: {
-            BaseMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/base_media_renderer.js'))(pb)
+            BaseMediaRenderer: require(path.join(config.docRoot, '/include/service/media/renderers/base_media_renderer.js'))
         },
 
         providers: {
-            FsMediaProvider: require(path.join(config.docRoot, '/include/service/media/fs_media_provider.js'))(pb),
-            MongoMediaProvider: require(path.join(config.docRoot, '/include/service/media/mongo_media_provider.js'))(pb)
+            FsMediaProvider: require(path.join(config.docRoot, '/include/service/media/fs_media_provider.js')),
+            MongoMediaProvider: require(path.join(config.docRoot, '/include/service/media/mongo_media_provider.js'))
         }
     };
     pb.media.renderers.ImageMediaRenderer = require(path.join(config.docRoot, '/include/service/media/renderers/image_media_renderer.js'));
@@ -205,8 +205,8 @@ module.exports = function PB() {
     pb.MediaServiceV2 = require(path.join(config.docRoot, '/include/service/entities/content/media_service_v2.js'));
 
     //content services
-    pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js')(pb);
-    pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js')(pb);
+    pb.SectionService = require(config.docRoot+'/include/service/entities/section_service.js');
+    pb.TopMenuService = require(config.docRoot+'/include/theme/top_menu.js');
 
     //object services
     pb.TopicService         = require(path.join(config.docRoot, '/include/service/entities/topic_service.js'));

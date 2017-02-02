@@ -17,108 +17,104 @@
 'use strict';
 
 //dependencies
-var os      = require('os');
-var https   = require('https');
-var domain  = require('domain');
-var util    = require('../util.js');
-
-module.exports = function CallHomeServiceModule(pb) {
+const _ = require('lodash');
+const Configuration = require('../config');
+const domain = require('domain');
+const https = require('https');
+const log = require('../utils/logging').newInstance('CallHomeService');
+const os = require('os');
 
     /**
      *
      * @class CallHomeService
      * @constructor
      */
-    function CallHomeService(){}
+    class CallHomeService {
 
-    /**
-     *
-     * @private
-     * @static
-     * @readonly
-     * @property HOST
-     * @type {String}
-     */
-    var HOST = 'pencilblue.org';
-
-    /**
-     *
-     * @private
-     * @static
-     * @readonly
-     * @property PORT
-     * @type {Integer}
-     */
-    var PORT = 443;
-
-    /**
-     *
-     * @private
-     * @static
-     * @readonly
-     * @property PATH
-     * @type {String}
-     */
-    var PATH = '/api/v1/callhome/event';
-
-    /**
-     *
-     * @private
-     * @static
-     * @readonly
-     * @property METHOD
-     * @type {String}
-     */
-    var METHOD = 'POST';
-
-    //statics
-    /**
-     *
-     * @static
-     * @readonly
-     * @property SYSTEM_SETUP_EVENT
-     * @type {String}
-     */
-    CallHomeService.SYSTEM_SETUP_EVENT = 'system_setup';
-
-    /**
-     *
-     * @static
-     * @method callHome
-     * @param {String} type
-     * @param {Object} data
-     */
-    CallHomeService.callHome = function(type, data) {
-        if (!util.isObject(data)) {
-            data = {};
+        /**
+         *
+         * @private
+         * @static
+         * @readonly
+         * @property HOST
+         * @type {String}
+         */
+        static get HOST() {
+            return 'pencilblue.org';
         }
 
-        data.type      = type;
-        data.site_ip   = pb.config.siteIP;
-        data.site_name = pb.config.siteName;
-        data.os        = os.type();
-        data.platform  = os.platform();
-        data.release   = os.release();
-        data.cpus      = os.cpus();
-        data.version   = process.versions;
-        var post_data  = JSON.stringify(data);
+        /**
+         * @readonly
+         * @type {Integer}
+         */
+        static get PORT() {
+            return 443;
+        }
 
-        // An object of options to indicate where to post to
-        var post_options = {
-            host: HOST,
-            port: PORT,
-            path: PATH,
-            method: METHOD,
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': post_data.length
+        /**
+         * @readonly
+         * @type {String}
+         */
+        static get PATH() {
+            return '/api/v1/callhome/event';
+        }
+
+        /**
+         * @readonly
+         * @type {String}
+         */
+        static get METHOD() {
+            return 'POST';
+        }
+
+        //statics
+        /**
+         * @readonly
+         * @type {String}
+         */
+        static get SYSTEM_SETUP_EVENT() {
+            return 'system_setup';
+        }
+
+        /**
+         *
+         * @static
+         * @method callHome
+         * @param {String} type
+         * @param {Object} data
+         */
+        static callHome(type, data) {
+            if (!_.isObject(data)) {
+                data = {};
             }
-        };
 
-        // Set up the request
-        pb.log.debug('CallHomeService: Sending event [%s] to [%s:%s%s', type, METHOD, HOST, PATH);
-        _callHome(post_options, post_data);
-    };
+            data.type = type;
+            data.site_ip = Configuration.active.siteIP;
+            data.site_name = Configuration.active.siteName;
+            data.os = os.type();
+            data.platform = os.platform();
+            data.release = os.release();
+            data.cpus = os.cpus();
+            data.version = process.versions;
+            var post_data = JSON.stringify(data);
+
+            // An object of options to indicate where to post to
+            var post_options = {
+                host: CallHomeService.HOST,
+                port: CallHomeService.PORT,
+                path: CallHomeService.PATH,
+                method: CallHomeService.METHOD,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': post_data.length
+                }
+            };
+
+            // Set up the request
+            log.debug('CallHomeService: Sending event [%s] to [%s:%s%s', type, CallHomeService.METHOD, HOST, PATH);
+            _callHome(post_options, post_data);
+        }
+    }
 
     /**
      *
@@ -132,7 +128,7 @@ module.exports = function CallHomeServiceModule(pb) {
 
         var d = domain.create();
         d.on('error', function(err) {
-            pb.log.silly('CallHomeService: An error occurred attempting to send event. %s', err.stack);
+            log.silly('CallHomeService: An error occurred attempting to send event. %s', err.stack);
         });
         d.run(getDomainRunner(options, postData));
     }
@@ -168,15 +164,12 @@ module.exports = function CallHomeServiceModule(pb) {
     /**
      *
      * @private
-     * @static
-     * @method onResponseRecieved
-     * @param {Object} options
-     * @param {Object} postData
+     * @param {Response} res
+     * @param {string} json
      */
     function onResponseRecieved(res, json) {
-        pb.log.silly('CallHomeService: Event Response: %s', json);
+        log.silly('CallHomeService: Event Response: %s', json);
     }
 
     //exports
-    return CallHomeService;
-};
+    module.exports = CallHomeService;

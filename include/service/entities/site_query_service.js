@@ -14,36 +14,14 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+'use strict';
 
 //dependencies
-var _ = require('lodash');
-var Configuration = require('../../config');
-var DAO = require('./../../dao/dao.js');
-var log = require('../../utils/logging').newInstance('SiteQueryService');
-
-module.exports = function SiteQueryServiceModule(pb) {
-    "use strict";
-
-    //pb dependencies
-    var util = pb.util;
-
-    /**
-     * @private
-     * @static
-     * @readonly
-     * @property SITE_FIELD
-     * @type {String}
-     */
-    var SITE_FIELD = pb.SiteService.SITE_FIELD;
-
-    /**
-     * @private
-     * @static
-     * @readonly
-     * @property GLOBAL_SITE
-     * @type {String}
-     */
-    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
+const _ = require('lodash');
+const Configuration = require('../../config');
+const DAO = require('./../../dao/dao.js');
+const log = require('../../utils/logging').newInstance('SiteQueryService');
+const SiteService = require('./site_service');
 
   /**
    * Create an instance of the site query service specific to the given site
@@ -53,14 +31,14 @@ module.exports = function SiteQueryServiceModule(pb) {
    * @constructor
    * @extends DAO
    * @param {Object} options
-   * @param {String} [options.site=GLOBAL_SITE] UID of site, should already be sanitized by SiteService
+   * @param {String} [options.site=SiteService.GLOBAL_SITE] UID of site, should already be sanitized by SiteService
    * @param {Boolean} [options.onlyThisSite=false] onlyThisSite for q, return results specific to this site instead of also looking in global
    */
     class SiteQueryService extends DAO {
       constructor(options) {
           if (!_.isObject(options)) {
               options = {
-                  site: GLOBAL_SITE,
+                  site: SiteService.GLOBAL_SITE,
                   onlyThisSite: false
               };
           }
@@ -140,15 +118,15 @@ module.exports = function SiteQueryServiceModule(pb) {
   function modifyLoadWhere(site, where) {
     if (Configuration.active.multisite.enabled) {
       where = _.clone(where);
-      if (site === GLOBAL_SITE) {
+      if (site === SiteService.GLOBAL_SITE) {
         var siteDoesNotExist = {}, siteEqualToSpecified = {};
-        siteDoesNotExist[SITE_FIELD] = {$exists: false};
-        siteEqualToSpecified[SITE_FIELD] = site;
+        siteDoesNotExist[SiteService.SITE_FIELD] = {$exists: false};
+        siteEqualToSpecified[SiteService.SITE_FIELD] = site;
 
         addToOr(where, [siteDoesNotExist, siteEqualToSpecified]);
       }
       else {
-        where[SITE_FIELD] = site;
+        where[SiteService.SITE_FIELD] = site;
       }
     }
     return where;
@@ -235,7 +213,7 @@ module.exports = function SiteQueryServiceModule(pb) {
                     callback(err, cursor);
                 }
                 else {
-                    delegate(GLOBAL_SITE, callback);
+                    delegate(SiteService.GLOBAL_SITE, callback);
                 }
             });
         });
@@ -258,7 +236,7 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @return {Boolean}
      */
     function isGlobal(siteUid) {
-        return !siteUid || siteUid === GLOBAL_SITE;
+        return !siteUid || siteUid === SiteService.GLOBAL_SITE;
     }
 
     /**
@@ -269,12 +247,11 @@ module.exports = function SiteQueryServiceModule(pb) {
      * @return {Object} The object to save
      */
     function modifySave(site, objectToSave) {
-        if (Configuration.active.multisite.enabled && !(SITE_FIELD in objectToSave)) {
-            objectToSave[SITE_FIELD] = site;
+        if (Configuration.active.multisite.enabled && !(SiteService.SITE_FIELD in objectToSave)) {
+            objectToSave[SiteService.SITE_FIELD] = site;
         }
         // else do nothing
         return objectToSave;
     }
-    
-  return SiteQueryService;
-};
+
+  module.exports = SiteQueryService;

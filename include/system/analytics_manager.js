@@ -26,7 +26,7 @@ var RequestHandler = require('../http/request_handler');
 var SiteService = require('../service/entities/site_service');
 var TemplateValue = require('../service/entities/template_service').TemplateValue;
 var ValidationService = require('../validation/validation_service');
-
+//TODO [1.0] convert to es6
     /**
      * Provides functionality to render HTML snippets to report metrics back to
      * registered analytics providers.

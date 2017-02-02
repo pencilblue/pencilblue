@@ -150,7 +150,6 @@ var ValidationService = require('../validation/validation_service');
 
     /**
      * The internal storage of routes after they are validated and processed.
-     * @protected
      * @static
      * @property storage
      * @type {Array}

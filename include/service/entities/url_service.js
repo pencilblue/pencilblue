@@ -24,17 +24,18 @@ var SiteQueryService = require('./site_query_service');
 var SiteService = require('./site_service');
 var url  = require('url');
 
-    /**
-     * A service that provides insight into the system's routes (URLs) along with
-     * other utility functions to assist in examining and constructing URLs for
-     * clients to use for interaction with the system.
-     *
-     * @class UrlService
-     * @constructor
-     * @module Services
-     * @submodule Entities
-     */
-    function UrlService(site, onlyThisSite) {
+/**
+ * A service that provides insight into the system's routes (URLs) along with
+ * other utility functions to assist in examining and constructing URLs for
+ * clients to use for interaction with the system.
+ *
+ * @class UrlService
+ * @constructor
+ * @module Services
+ * @submodule Entities
+ */
+class UrlService {
+    constructor(site, onlyThisSite) {
         this.site = SiteService.getCurrentSite(site);
         this.onlyThisSite = onlyThisSite;
         this.siteQueryService = new SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
@@ -48,11 +49,11 @@ var url  = require('url');
      * @return  {object} The themed route specification for the first route that
      * matches the given URL path.  When no routes match NULL is returned.
      */
-    UrlService.exists = function(url){
+    static exists(url) {
 
         var themes = null;
         for (var i = 0; i < RequestHandler.storage.length; i++) {
-            var curr   = RequestHandler.storage[i];
+            var curr = RequestHandler.storage[i];
             var result = curr.expression.test(url);
             if (result) {
                 themes = _.clone(curr.themes);
@@ -60,7 +61,7 @@ var url  = require('url');
             }
         }
         return themes;
-    };
+    }
 
     /**
      * Look at a specific content type to see if a matching URL key exists.  An
@@ -71,15 +72,15 @@ var url  = require('url');
      * (string) and "type" (string) are required.  "id" (string) is optional.
      * @param {function} cb Callback function
      */
-    UrlService.prototype.existsForType = function(params, cb) {
-        var url  = params.url;
+    existsForType(params, cb) {
+        var url = params.url;
         var type = params.type;
-        var id   = params.id;
+        var id = params.id;
         var site = params.site;
 
         //validate required params
         if (!url || !type) {
-            return cb(new Error("The url and type parameters are required. URL=["+url+"] TYPE=["+type+"]"), false);
+            return cb(new Error("The url and type parameters are required. URL=[" + url + "] TYPE=[" + type + "]"), false);
         }
 
         //build pattern
@@ -96,10 +97,11 @@ var url  = require('url');
         if (site !== undefined) {
             where[SiteService.SITE_FIELD] = site;
         }
-        this.siteQueryService.unique(type, where, id, function(err, isUnique) {
+        this.siteQueryService.unique(type, where, id, function (err, isUnique) {
             cb(err, !isUnique);
         });
-    };
+    }
+}
 
-    //exports
-    module.exports = UrlService;
+//exports
+module.exports = UrlService;

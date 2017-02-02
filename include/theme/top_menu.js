@@ -17,24 +17,25 @@
 'use strict';
 
 //dependencies
-var async = require('async');
-var util  = require('../util.js');
+const _ = require('lodash');
+const async = require('async');
+const ContentService = require('../content');
+const log = require('../utils/logging').newInstance('TopMenuService');
+const SectionService = require('../service/entities/section_service');
+const SecurityService = require('../access_management');
+const SettingServiceFactory = require('../system/settings');
+const TemplateService = require('../service/entities/template_service');
 
-module.exports = function TopMenuServiceModule(pb) {
-
-    //dependencies
-    var SectionService = pb.SectionService;
-
-    /**
-     * Service for top menu navigation.
-     * NOTE: This is not for administrative pages.
-     *
-     * @module Services
-     * @submodule Theme
-     * @class TopMenuService
-     * @constructor
-     */
-    function TopMenuService(){}
+/**
+ * Service for top menu navigation.
+ * NOTE: This is not for administrative pages.
+ *
+ * @module Services
+ * @submodule Theme
+ * @class TopMenuService
+ * @constructor
+ */
+class TopMenuService {
 
     /**
      * Retrieves the theme settings, navigation data structure, and account buttons.
@@ -50,42 +51,42 @@ module.exports = function TopMenuServiceModule(pb) {
      * first are the theme's settings, the second is the navigation structure, and
      * the third is the account button structure.
      */
-    TopMenuService.getTopMenu = function(session, localizationService, options, cb) {
-        if (util.isFunction(options)) {
-            cb      = options;
+    static getTopMenu(session, localizationService, options, cb) {
+        if (_.isFunction(options)) {
+            cb = options;
             options = {
                 currUrl: null
             };
         }
-        else if (!util.isObject(options)) {
+        else if (!_.isObject(options)) {
             throw new Error('The options parameter must be an object');
         }
 
-        var siteUId = pb.SiteService.getCurrentSite(options.site);
+        var siteUId = SiteService.getCurrentSite(options.site);
 
-        var getTopMenu = function(session, localizationService, options, cb) {
+        var getTopMenu = function (session, localizationService, options, cb) {
             var tasks = {
-                themeSettings: function(callback) {
-                    var settingService = pb.SettingServiceFactory.getService(siteUId);
-                    settingService.get('site_logo', function(err, logo) {
+                themeSettings: function (callback) {
+                    var settingService = SettingServiceFactory.getService(siteUId);
+                    settingService.get('site_logo', function (err, logo) {
                         callback(null, {site_logo: logo});
                     });
                 },
 
-                formattedSections: function(callback) {
+                formattedSections: function (callback) {
                     var sectionService = new SectionService({site: siteUId});
-                    sectionService.getFormattedSections(localizationService, options.currUrl, function(err, formattedSections) {
+                    sectionService.getFormattedSections(localizationService, options.currUrl, function (err, formattedSections) {
                         callback(null, formattedSections);
                     });
                 },
 
-                accountButtons: function(callback) {
+                accountButtons: function (callback) {
                     TopMenuService.getAccountButtons(session, localizationService, options.site, callback);
                 }
             };
-            async.parallel(tasks, function(err, result) {
-                if (util.isError(err)) {
-                    pb.log.error('TopMenuService: Ignored error occurred: %s', err);
+            async.parallel(tasks, function (err, result) {
+                if (_.isError(err)) {
+                    log.error('TopMenuService: Ignored error occurred: %s', err);
                 }
 
                 // the default for account buttons was added as part of #970.
@@ -95,7 +96,7 @@ module.exports = function TopMenuServiceModule(pb) {
             });
         };
         getTopMenu(session, localizationService, options, cb);
-    };
+    }
 
     /**
      * Retrieves the information needed to draw account buttons
@@ -106,23 +107,23 @@ module.exports = function TopMenuServiceModule(pb) {
      * @param {String}   [site]    The current site
      * @param {Function} cb      Callback function
      */
-    TopMenuService.getAccountButtons = function(session, ls, site, cb) {
+    static getAccountButtons(session, ls, site, cb) {
 
-        if (util.isFunction(site)) {
+        if (_.isFunction(site)) {
             cb = site;
-            site = pb.siteService.GLOBAL_SITE;
+            site = SiteService.GLOBAL_SITE;
         }
 
-        var contentService = new pb.ContentService({site: site});
-        contentService.getSettings(function(err, contentSettings) {
-            if (util.isError(err)) {
+        var contentService = new ContentService({site: site});
+        contentService.getSettings(function (err, contentSettings) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
             var accountButtons = [];
 
-            if(contentSettings.allow_comments) {
-                if(pb.security.isAuthenticated(session)) {
+            if (contentSettings.allow_comments) {
+                if (SecurityService.isAuthenticated(session)) {
                     accountButtons = [
                         {
                             icon: 'user',
@@ -144,33 +145,33 @@ module.exports = function TopMenuServiceModule(pb) {
                 }
                 else {
                     accountButtons =
+                        [
+                            {
+                                icon: 'user',
+                                title: ls.g('admin.ACCOUNT'),
+                                href: '/user/sign_up'
+                            },
+                            {
+                                icon: 'rss',
+                                title: ls.g('generic.SUBSCRIBE'),
+                                href: '/feed'
+                            }
+                        ];
+                }
+            }
+            else {
+                accountButtons =
                     [
-                        {
-                            icon: 'user',
-                            title: ls.g('admin.ACCOUNT'),
-                            href: '/user/sign_up'
-                        },
                         {
                             icon: 'rss',
                             title: ls.g('generic.SUBSCRIBE'),
                             href: '/feed'
                         }
                     ];
-                }
-            }
-            else {
-                accountButtons =
-                [
-                    {
-                        icon: 'rss',
-                        title: ls.g('generic.SUBSCRIBE'),
-                        href: '/feed'
-                    }
-                ];
             }
             cb(null, accountButtons);
         });
-    };
+    }
 
     /**
      * Returns a bootstrap ready ul list for a nav element
@@ -178,28 +179,26 @@ module.exports = function TopMenuServiceModule(pb) {
      * @method getBootstrapNav
      * @param {Object}   navigation     Navigation object
      * @param {Object}   accountButtons Account buttons object
+     * @param {object} options
      * @param {Function} cb             Callback function
      */
-    TopMenuService.getBootstrapNav = function(navigation, accountButtons, options, cb) {
-        if (util.isFunction(options)) {
+    static getBootstrapNav(navigation, accountButtons, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
-        var ts = new pb.TemplateService(options);
-        ts.load('elements/top_menu/link', function(err, linkTemplate) {
-            ts.load('elements/top_menu/dropdown', function(err, dropdownTemplate) {
-                ts.load('elements/top_menu/account_button', function(err, accountButtonTemplate) {
+        var ts = new TemplateService(options);
+        ts.load('elements/top_menu/link', function (err, linkTemplate) {
+            ts.load('elements/top_menu/dropdown', function (err, dropdownTemplate) {
+                ts.load('elements/top_menu/account_button', function (err, accountButtonTemplate) {
 
                     var bootstrapNav = ' ';
-                    for(var i = 0; i < navigation.length; i++)
-                    {
-                        if(navigation[i].dropdown)
-                        {
+                    for (var i = 0; i < navigation.length; i++) {
+                        if (navigation[i].dropdown) {
                             var subNav = ' ';
-                            for(var j = 0; j < navigation[i].children.length; j++)
-                            {
-                                if(!navigation[i].children[j]) {
+                            for (var j = 0; j < navigation[i].children.length; j++) {
+                                if (!navigation[i].children[j]) {
                                     continue;
                                 }
 
@@ -219,8 +218,7 @@ module.exports = function TopMenuServiceModule(pb) {
 
                             bootstrapNav = bootstrapNav.concat(dropdown);
                         }
-                        else
-                        {
+                        else {
                             var linkItem = linkTemplate;
                             linkItem = linkItem.split('^active^').join((navigation[i].active) ? 'active' : '');
                             linkItem = linkItem.split('^url^').join(navigation[i].url);
@@ -232,8 +230,7 @@ module.exports = function TopMenuServiceModule(pb) {
                     }
 
                     var buttons = ' ';
-                    for(i = 0; i < accountButtons.length; i++)
-                    {
+                    for (i = 0; i < accountButtons.length; i++) {
                         var button = accountButtonTemplate;
                         button = button.split('^active^').join((accountButtons[i].active) ? 'active' : '');
                         button = button.split('^url^').join(accountButtons[i].href);
@@ -247,7 +244,7 @@ module.exports = function TopMenuServiceModule(pb) {
                 });
             });
         });
-    };
+    }
 
     /**
      * @method getNavItems
@@ -258,9 +255,9 @@ module.exports = function TopMenuServiceModule(pb) {
      * @param {string} options.site
      * @param {Function} cb
      */
-    TopMenuService.prototype.getNavItems = function(options, cb) {
-        TopMenuService.getTopMenu(options.session, options.ls, options, function(themeSettings, navigation, accountButtons) {
-            TopMenuService.getBootstrapNav(navigation, accountButtons, options, function(navigation, accountButtons) {
+    getNavItems(options, cb) {
+        TopMenuService.getTopMenu(options.session, options.ls, options, function (themeSettings, navigation, accountButtons) {
+            TopMenuService.getBootstrapNav(navigation, accountButtons, options, function (navigation, accountButtons) {
                 var navItems = {
                     themeSettings: themeSettings,
                     navigation: navigation,
@@ -269,8 +266,8 @@ module.exports = function TopMenuServiceModule(pb) {
                 cb(null, navItems);
             });
         });
-    };
+    }
+}
 
-    //exports
-    return TopMenuService;
-};
+//exports
+module.exports = TopMenuService;

@@ -16,16 +16,17 @@
 */
 'use strict';
 
-var util = require('../../util.js');
+//dependencies
+const _ = require('lodash');
+const DAO = require('../../dao/dao');
 
-module.exports = function JobServiceModule(pb) {
-
-    /**
-     * Provides the ability to interact with jobs that have already been created.
-     * @class JobService
-     * @constructor
-     */
-    function JobService(){
+/**
+ * Provides the ability to interact with jobs that have already been created.
+ * @class JobService
+ * @constructor
+ */
+class JobService {
+    constructor() {
         this.type = 'job_run';
     }
 
@@ -38,9 +39,9 @@ module.exports = function JobServiceModule(pb) {
      * entry
      * @param {Function} cb A callback that takes two parameters: cb(Error, Array)
      */
-    JobService.prototype.getLogs = function(jid, startingDate, cb) {
-        if (util.isFunction(startingDate)) {
-            cb           = startingDate;
+    getLogs(jid, startingDate, cb) {
+        if (_.isFunction(startingDate)) {
+            cb = startingDate;
             startingDate = new Date(0);
         }
 
@@ -48,11 +49,11 @@ module.exports = function JobServiceModule(pb) {
             job_id: jid,
             created: {$gte: startingDate}
         };
-        var orderBy = {'created': pb.DAO.ASC};
+        var orderBy = {'created': DAO.ASC};
 
-        var dao = new pb.DAO();
-        dao.q('job_log', {where: where, select: pb.DAO.SELECT_ALL, order: orderBy}, cb);
-    };
+        var dao = new DAO();
+        dao.q('job_log', {where: where, select: DAO.SELECT_ALL, order: orderBy}, cb);
+    }
 
     /**
      * Retrieves the job descriptor by ID
@@ -60,11 +61,11 @@ module.exports = function JobServiceModule(pb) {
      * @param {String} jid The job's ID
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object)
      */
-    JobService.prototype.loadById = function(jid, cb) {
-        var dao = new pb.DAO();
+    loadById(jid, cb) {
+        var dao = new DAO();
         dao.loadById(jid, this.type, cb);
-    };
+    }
+}
 
-    //exports
-    return JobService;
-};
+//exports
+module.exports = JobService;

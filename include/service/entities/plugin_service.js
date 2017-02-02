@@ -17,24 +17,23 @@
 'use strict';
 
 //dependencies
-var fs      = require('fs');
-var npm     = require('npm');
-var path    = require('path');
-var async   = require('async');
-var domain  = require('domain');
-var semver  = require('semver');
-var util    = require('../../util.js');
+const _ = require('lodash');
+const async   = require('async');
+const Configuration = require('../../config');
+const DAO = require('../../dao/dao');
+const domain  = require('domain');
+const fs      = require('fs');
+const log = require('../../utils/logging').newInstance('PluginService');
+const npm     = require('npm');
+const path    = require('path');
+//TODO jobs
+const PluginRepository = require('../../repository/plugin_repository');
+const semver  = require('semver');
+const SecurityService = require('../../access_management');
+const SiteService = require('./site_service');
+const util    = require('util');
 
 module.exports = function PluginServiceModule(pb) {
-
-    /**
-     * @private
-     * @static
-     * @readonly
-     * @property GLOBAL_SITE
-     * @type {String}
-     */
-    var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     /**
      * PluginService - Provides functions for interacting with plugins.
@@ -48,7 +47,7 @@ module.exports = function PluginServiceModule(pb) {
      * @submodule Entities
      */
     function PluginService(options){
-        if (!util.isObject(options)) {
+        if (!_.isObject(options)) {
             options = {};
         }
 
@@ -56,16 +55,16 @@ module.exports = function PluginServiceModule(pb) {
          * @property site
          * @type {String}
          */
-        this.site = options.site || GLOBAL_SITE;
+        this.site = options.site || SiteService.GLOBAL_SITE;
 
         /**
          * @property _pluginRepository
          * @type {PluginRepository}
          */
-        this._pluginRepository = pb.PluginRepository;
+        this._pluginRepository = PluginRepository;
 
         //construct settings services
-        var caching = pb.config.plugins.caching;
+        var caching = Configuration.active.plugins.caching;
 
         /**
          * A setting service that sets and retrieves the settings for plugins
@@ -88,7 +87,7 @@ module.exports = function PluginServiceModule(pb) {
      * @property PLUGINS_DIR
      * @type {String}
      */
-    var PLUGINS_DIR = path.join(pb.config.docRoot, 'plugins');
+    var PLUGINS_DIR = path.join(Configuration.active.docRoot, 'plugins');
 
     /**
      * The name of the file that defines the plugin's properties
@@ -126,7 +125,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.getActiveIcon = function(cb) {
         var self = this;
-        var settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, this.site);
+        var settings = pb.SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, this.site);
         settings.get('active_theme', function(err, theme) {
             var active_theme = PluginService.getPluginForSite(theme, self.site);
             cb(err, active_theme && active_theme.icon ? active_theme.icon : '/favicon.ico');
@@ -148,7 +147,7 @@ module.exports = function PluginServiceModule(pb) {
         }
 
         if(!site) {
-            site = GLOBAL_SITE;
+            site = SiteService.GLOBAL_SITE;
         }
 
         if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
@@ -194,7 +193,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.getActiveMainModule = function(pluginUid, site) {
         if(!site) {
-            site = GLOBAL_SITE;
+            site = SiteService.GLOBAL_SITE;
         }
         return (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) ? ACTIVE_PLUGINS[site][pluginUid].main_module : null;
     };
@@ -207,8 +206,8 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.getActivePluginNames = function() {
         var globalPlugins = [];
-        if(ACTIVE_PLUGINS[GLOBAL_SITE]) {
-            globalPlugins = Object.keys(ACTIVE_PLUGINS[GLOBAL_SITE]);
+        if(ACTIVE_PLUGINS[SiteService.GLOBAL_SITE]) {
+            globalPlugins = Object.keys(ACTIVE_PLUGINS[SiteService.GLOBAL_SITE]);
         }
         var sitePlugins = [];
         if(ACTIVE_PLUGINS[this.site]) {
@@ -517,7 +516,7 @@ module.exports = function PluginServiceModule(pb) {
             objType: objType,
             site: site,
             onlyThisSite: false,
-            timeout: pb.config.plugins.caching.memory_timeout
+            timeout: Configuration.active.plugins.caching.memory_timeout
         };
 
         if (useMemory){
@@ -552,10 +551,10 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.syncSettings = function(plugin, details, cb) {
         var self = this;
         this.getSettingsKV(plugin.uid, function(err, settings) {
-            var isError = util.isError(err);
+            var isError = _.isError(err);
             if (isError || !settings) {
                 if (isError) {
-                    pb.log.error("PluginService: Failed to load settings from plugin [%s]", plugin.uid);
+                    log.error('Failed to load settings from plugin [%s]', plugin.uid);
                 }
                 return cb(err, !isError);
             }
@@ -586,10 +585,10 @@ module.exports = function PluginServiceModule(pb) {
             }
 
             self.resetSettings({uid: plugin.uid, settings: formattedSettings}, function(err/*, result*/) {
-                if (util.isError(err)) {
-                    pb.log.error("PluginService: Failed to save off updated settings for plugin [%s]", plugin.uid);
+                if (_.isError(err)) {
+                    log.error("PluginService: Failed to save off updated settings for plugin [%s]", plugin.uid);
                 }
-                cb(err, !util.isError(err));
+                cb(err, !_.isError(err));
             });
         });
     };
@@ -610,13 +609,13 @@ module.exports = function PluginServiceModule(pb) {
         //retrieve plugin to prove it exists (plus we need the id)
         var pluginName = details.uid;
         this.getPlugin(pluginName, function(err, plugin) {
-            if (util.isError(err) || !plugin) {
+            if (_.isError(err) || !plugin) {
                 return cb(err ? err : new Error("The plugin "+pluginName+" is not installed"), false);
             }
 
             //remove any existing settings
             self.pluginSettingsService.purge(pluginName, function (err, result) {
-                if (util.isError(err) || !result) {
+                if (_.isError(err) || !result) {
                     return cb(err, false);
                 }
 
@@ -624,15 +623,16 @@ module.exports = function PluginServiceModule(pb) {
                 var baseDoc  = {
                     plugin_name: plugin.name,
                     plugin_uid: plugin.uid,
-                    plugin_id: plugin[pb.DAO.getIdField()].toString(),
+                    plugin_id: plugin[DAO.getIdField()].toString(),
                     settings: details.settings
                 };
-                var settings = pb.DocumentCreator.create('plugin_settings', baseDoc);
+                var settings = baseDoc;
+                settings.object_type = 'plugin_settings';
 
                 //save it
-                var dao      = new pb.SiteQueryService({site: self.site});
+                var dao = new SiteQueryService({site: self.site});
                 dao.save(settings, function(err/*, result*/) {
-                    cb(err, !util.isError(err));
+                    cb(err, !_.isError(err));
                 });
             });
         });
@@ -661,14 +661,14 @@ module.exports = function PluginServiceModule(pb) {
 
         //retrieve plugin to prove it exists (plus we need the id)
         this.getPlugin(pluginName, function(err, plugin) {
-            if (util.isError(err) || !plugin) {
+            if (_.isError(err) || !plugin) {
                 cb(err, false);
                 return;
             }
 
             //remove any existing settings
             self.themeSettingsService.purge(pluginName, function (err, result) {
-                if (util.isError(err) || !result) {
+                if (_.isError(err) || !result) {
                     cb(err, false);
                     return;
                 }
@@ -677,15 +677,16 @@ module.exports = function PluginServiceModule(pb) {
                 var baseDoc  = {
                     plugin_name: plugin.name,
                     plugin_uid: plugin.uid,
-                    plugin_id: plugin[pb.DAO.getIdField()].toString(),
+                    plugin_id: plugin[DAO.getIdField()].toString(),
                     settings: details.theme.settings
                 };
-                var settings = pb.DocumentCreator.create('theme_settings', baseDoc);
+                var settings = baseDoc;
+                settings.object_type = 'theme_settings';
 
                 //save it
-                var dao      = new pb.SiteQueryService({site: self.site});
+                var dao = new SiteQueryService({site: self.site});
                 dao.save(settings, function(err/*, result*/) {
-                    cb(err, !util.isError(err));
+                    cb(err, !_.isError(err));
                 });
             });
         });
@@ -701,7 +702,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.getPermissionsForRole = function(role) {
         if (!isNaN(role)) {
-            role = pb.security.getRoleName(role);
+            role = SecurityService.getRoleName(role);
         }
 
         var perms = {};
@@ -750,7 +751,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.isActivePlugin = function(uid, site) {
         if(!site) {
-            site = GLOBAL_SITE;
+            site = SiteService.GLOBAL_SITE;
         }
         return !!PluginService.getPluginForSite(uid, site);
     };
@@ -764,8 +765,8 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.getPluginForSite = function(theme, site) {
         if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][theme]) {
             return ACTIVE_PLUGINS[site][theme];
-        } else if (ACTIVE_PLUGINS[GLOBAL_SITE] && ACTIVE_PLUGINS[GLOBAL_SITE][theme]) {
-            return ACTIVE_PLUGINS[GLOBAL_SITE][theme];
+        } else if (ACTIVE_PLUGINS[SiteService.GLOBAL_SITE] && ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][theme]) {
+            return ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][theme];
         }
         return null;
     };
@@ -780,7 +781,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.isPluginActiveBySite = function(uid, site) {
         if(!site) {
-            site = GLOBAL_SITE;
+            site = SiteService.GLOBAL_SITE;
         }
         return ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][uid];
     };
@@ -795,7 +796,7 @@ module.exports = function PluginServiceModule(pb) {
      * @return {String} URL path to the resource
      */
     PluginService.genPublicPath = function(plugin, relativePathToMedia) {
-        if (!util.isString(plugin) || !util.isString(relativePathToMedia)) {
+        if (!_.isString(plugin) || !_.isString(relativePathToMedia)) {
             return '';
         }
         return pb.UrlService.urlJoin('/public', plugin, relativePathToMedia);
@@ -828,7 +829,7 @@ module.exports = function PluginServiceModule(pb) {
             Object.keys(pluginsForSite).forEach(function(uid) {
                 var plugin = pluginsForSite[uid];
                 if (plugin.templates) {
-                    var clone = util.clone(plugin.templates);
+                    var clone = _.clone(plugin.templates);
                     for(var i = 0; i < clone.length; i++) {
                         clone[i].theme_uid = uid;
                         templates.push(clone[i]);
@@ -861,19 +862,19 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
     PluginService.prototype.getAvailablePlugins = function(active, inactive, cb) {
-        if (util.isArray(active)) {
+        if (Array.isArray(active)) {
             active = util.arrayToHash(active, function(active, i) {
                 return active[i] ? active[i].uid : '';
             });
         }
-        if (util.isArray(inactive)) {
+        if (Array.isArray(inactive)) {
             inactive = util.arrayToHash(inactive, function(inactive, i) {
                 return inactive[i] ? inactive[i].uid : '';
             });
         }
 
         util.getDirectories(PluginService.getPluginsDir(), function(err, directories) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 cb(err, null);
                 return;
             }
@@ -885,14 +886,14 @@ module.exports = function PluginServiceModule(pb) {
                     //skip pencilblue
                     var parts   = directories[i].split(path.sep);
                     var dirName = parts[parts.length - 1];
-                    if (dirName === pb.config.plugins.default) {
+                    if (dirName === Configuration.active.plugins.default) {
                         callback(null, true);
                         return;
                     }
 
                     var detailsFilePath = path.join(directories[i], DETAILS_FILE_NAME);
                     PluginService.loadDetailsFile(detailsFilePath, function(err, details) {
-                        if (util.isError(err)) {
+                        if (_.isError(err)) {
                             plugins.push({
                                 uid: dirName,
                                 dirName: dirName,
@@ -904,7 +905,7 @@ module.exports = function PluginServiceModule(pb) {
                         }
 
                         PluginService.validateDetails(details, dirName, function(err/*, result*/) {
-                            if (util.isError(err)) {
+                            if (_.isError(err)) {
                                 plugins.push({
                                     uid: dirName,
                                     dirName: dirName,
@@ -951,7 +952,7 @@ module.exports = function PluginServiceModule(pb) {
             }
         };
         async.series(tasks, function(err, results) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 cb(err, results);
                 return;
             }
@@ -976,20 +977,20 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     PluginService.prototype.uninstallPlugin = function(pluginUid, options, cb) {
-        if (util.isFunction(options)) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
-        if (!util.isObject(options)) {
+        if (!_.isObject(options)) {
             options = {};
         }
-        if (!util.isFunction(cb)) {
+        if (!_.isFunction(cb)) {
             cb = util.cb;
         }
 
         //log start of operation
-        if (pb.log.isDebug()) {
-            pb.log.debug("PluginService:[%s] Attempting uninstall with options: %s", pluginUid, util.inspect(options));
+        if (log.isDebug()) {
+            log.debug("PluginService:[%s] Attempting uninstall with options: %s", pluginUid, util.inspect(options));
         }
 
 
@@ -1045,14 +1046,14 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     PluginService.prototype.initPlugins = function(cb) {
-        pb.log.debug('PluginService: Beginning plugin initialization...');
+        log.debug('PluginService: Beginning plugin initialization...');
 
         var self = this;
         async.waterfall([
             util.wrapTask(this._pluginRepository, this._pluginRepository.loadPluginsAcrossAllSites),
             function(plugins, callback) {
                 if (plugins.length === 0) {
-                    pb.log.debug('PluginService: No plugins are installed');
+                    log.debug('PluginService: No plugins are installed');
                     return callback(null, []);
                 }
                 var tasks  = util.getTasks(plugins, function(plugins, i) {
@@ -1116,7 +1117,7 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
 
         //verify parameters
-        if (!pb.ValidationService.isNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
+        if (!pb.ValidationService.isNonEmptyStr(pluginDirName, true) || !_.isObject(dependencies)) {
             return cb(new Error('The plugin directory name and the dependencies are required'));
         }
 
@@ -1134,7 +1135,7 @@ module.exports = function PluginServiceModule(pb) {
      * @return {*} The entity returned by the "require" call.
      */
     PluginService.require = function(pluginDirName, moduleName) {
-        pb.log.warn('PluginService: require is deprecated. Use NpmPluginDependencyService.require');
+        log.warn('PluginService: require is deprecated. Use NpmPluginDependencyService.require');
         return pb.NpmPluginDependencyService.require(pluginDirName, moduleName);
     };
 
@@ -1165,7 +1166,7 @@ module.exports = function PluginServiceModule(pb) {
      * @return {Object} Service prototype
      */
     PluginService.prototype.getService = function(serviceName, pluginUid, site) {
-        pb.log.warn('PluginService: Instance function getService is deprecated. Use pb.PluginService.getService instead: plugin:' + pluginUid + ' service:' + serviceName);
+        log.warn('PluginService: Instance function getService is deprecated. Use pb.PluginService.getService instead: plugin:' + pluginUid + ' service:' + serviceName);
         try{
             return PluginService.getService(serviceName, pluginUid, site);
         }
@@ -1189,15 +1190,15 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.getService = function(serviceName, pluginUid, site) {
         if(!site) {
-            site = GLOBAL_SITE;
+            site = SiteService.GLOBAL_SITE;
         }
         if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
             if (ACTIVE_PLUGINS[site][pluginUid].services && ACTIVE_PLUGINS[site][pluginUid].services[serviceName]) {
                 return ACTIVE_PLUGINS[site][pluginUid].services[serviceName];
             }
-        } else if (ACTIVE_PLUGINS[GLOBAL_SITE] && ACTIVE_PLUGINS[GLOBAL_SITE][pluginUid]) {
-            if (ACTIVE_PLUGINS[GLOBAL_SITE][pluginUid].services && ACTIVE_PLUGINS[GLOBAL_SITE][pluginUid].services[serviceName]) {
-                return ACTIVE_PLUGINS[GLOBAL_SITE][pluginUid].services[serviceName];
+        } else if (ACTIVE_PLUGINS[SiteService.GLOBAL_SITE] && ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][pluginUid]) {
+            if (ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][pluginUid].services && ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][pluginUid].services[serviceName]) {
+                return ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][pluginUid].services[serviceName];
             }
         }
         throw new Error('Either plugin ['+pluginUid+'] or the service ['+serviceName+'] does not exist for site ['+site+']');
@@ -1226,8 +1227,8 @@ module.exports = function PluginServiceModule(pb) {
                 break;
             }
             catch(e) {
-                if (pb.log.isDebug()) {
-                    pb.log.warn('PluginService: Failed to load main module at %s: %s', paths[i], e.stack);
+                if (log.isDebug()) {
+                    log.warn('PluginService: Failed to load main module at %s: %s', paths[i], e.stack);
                 }
             }
         }
@@ -1277,7 +1278,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.loadDetailsFile = function(filePath, cb) {
         fs.readFile(filePath, function(err, data){
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 cb(err, null);
                 return;
             }
@@ -1317,14 +1318,14 @@ module.exports = function PluginServiceModule(pb) {
      * TRUE if the details object passes validation, FALSE if not.
      */
     PluginService.validateDetails = function(details, pluginDirName, cb) {
-        if (!util.isObject(details)) {
+        if (!_.isObject(details)) {
             cb(new Error("Details cannot be null and must be an object"), false);
             return;
         }
 
         var validationService = new pb.PluginValidationService({});
         validationService.validate(details, {}, function(err, validationErrors) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
@@ -1385,7 +1386,7 @@ module.exports = function PluginServiceModule(pb) {
         var v      = pb.validation;
 
         //validate object
-        if (util.isObject(setting)) {
+        if (_.isObject(setting)) {
 
             //validate name
             if (!v.isNonEmptyStr(setting.name, true)) {
@@ -1428,7 +1429,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(error, servicesHash);
      */
     PluginService.getServices = function(pathToPlugin, cb) {
-        pb.log.warn('PluginService: getServices is deprecated. Use PluginServiceLoader.getAll');
+        log.warn('PluginService: getServices is deprecated. Use PluginServiceLoader.getAll');
 
         var pathParts = pathToPlugin.split(path.sep);
 
@@ -1447,7 +1448,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param {Function} cb A callback that provides two parameters: cb(error, initializedService)
      */
     PluginService.loadService = function(pathToService, cb) {
-        pb.log.warn('PluginService: loadService is deprecated. Use PluginServiceLoader.get');
+        log.warn('PluginService: loadService is deprecated. Use PluginServiceLoader.get');
 
         var service = new pb.PluginServiceLoader({});
         service.get(pathToService, function(err, serviceWrapper) {
@@ -1489,9 +1490,9 @@ module.exports = function PluginServiceModule(pb) {
             }
         };
         util.getFiles(controllersDir, options, function(err, files) {
-            if (util.isError(err)) {
-                pb.log.debug('PluginService[INIT]: The controllers directory [%s] does not exist or could not be read.', controllersDir);
-                pb.log.silly('PluginService[INIT]: %s', err.stack);
+            if (_.isError(err)) {
+                log.debug('PluginService[INIT]: The controllers directory [%s] does not exist or could not be read.', controllersDir);
+                log.silly('PluginService[INIT]: %s', err.stack);
                 cb(null, []);
                 return;
             }
@@ -1503,10 +1504,10 @@ module.exports = function PluginServiceModule(pb) {
                     var pathToController = files[index];
                     PLUGIN_INIT_CACHE[pluginUid].controllerPaths.push(pathToController);
                     PluginService.loadController(pathToController, pluginUid, site, function(err/*, service*/) {
-                        if (util.isError(err)) {
-                            pb.log.warn('PluginService: Failed to load controller at [%s]: %s', pathToController, err.stack);
+                        if (_.isError(err)) {
+                            log.warn('PluginService: Failed to load controller at [%s]: %s', pathToController, err.stack);
                         }
-                        callback(null, util.isError(err));
+                        callback(null, _.isError(err));
                     });
                 };
             });
@@ -1531,16 +1532,16 @@ module.exports = function PluginServiceModule(pb) {
             var ControllerPrototype = require(pathToController)(pb);
 
             //ensure we can get the routes
-            if (!util.isFunction(ControllerPrototype.getRoutes)){
+            if (!_.isFunction(ControllerPrototype.getRoutes)){
                 return cb(new Error('Controller at ['+pathToController+'] does not implement function "getRoutes"'));
             }
 
             //get the routes
             ControllerPrototype.getRoutes(function(err, routes) {
-                if (util.isError(err)) {
+                if (_.isError(err)) {
                     return cb(err, null);
                 }
-                else if (!util.isArray(routes)) {
+                else if (!Array.isArray(routes)) {
                     return cb(new Error('Controller at ['+pathToController+'] did not return an array of routes'), null);
                 }
 
@@ -1552,7 +1553,7 @@ module.exports = function PluginServiceModule(pb) {
 
                     //verify registration
                     if (!result) {
-                        pb.log.warn('PluginService: Failed to register route [%s] for controller at [%s]', util.inspect(route), pathToController);
+                        log.warn('PluginService: Failed to register route [%s] for controller at [%s]', util.inspect(route), pathToController);
                     }
                 }
 
@@ -1578,7 +1579,7 @@ module.exports = function PluginServiceModule(pb) {
      * @return {String} The derived service name
      */
     PluginService.getServiceName = function(pathToService, service) {
-        pb.log.warn('PluginService: getServiceName is deprecated. Use PluginServiceLoader.getServiceName');
+        log.warn('PluginService: getServiceName is deprecated. Use PluginServiceLoader.getServiceName');
         pb.PluginServiceLoader.getServiceName(pathToService, service);
     };
 
@@ -1595,8 +1596,8 @@ module.exports = function PluginServiceModule(pb) {
      * process is intended to join.
      */
     PluginService.onUninstallPluginCommandReceived = function(command) {
-        if (!util.isObject(command)) {
-            pb.log.error('PluginService: an invalid uninstall plugin command object was passed. %s', util.inspect(command));
+        if (!_.isObject(command)) {
+            log.error('PluginService: an invalid uninstall plugin command object was passed. %s', util.inspect(command));
             return;
         }
 
@@ -1629,8 +1630,8 @@ module.exports = function PluginServiceModule(pb) {
      * process is intended to join.
      */
     PluginService.onIsPluginAvailableCommandReceived = function(command) {
-        if (!util.isObject(command)) {
-            pb.log.error('PluginService: an invalid is_plugin_available command object was passed. %s', util.inspect(command));
+        if (!_.isObject(command)) {
+            log.error('PluginService: an invalid is_plugin_available command object was passed. %s', util.inspect(command));
             return;
         }
 
@@ -1661,8 +1662,8 @@ module.exports = function PluginServiceModule(pb) {
      * process is intended to join.
      */
     PluginService.onInstallPluginDependenciesCommandReceived = function(command) {
-        if (!util.isObject(command)) {
-            pb.log.error('PluginService: an invalid install_plugin_dependencies command object was passed. %s', util.inspect(command));
+        if (!_.isObject(command)) {
+            log.error('PluginService: an invalid install_plugin_dependencies command object was passed. %s', util.inspect(command));
             return;
         }
 
@@ -1693,8 +1694,8 @@ module.exports = function PluginServiceModule(pb) {
      * process is intended to join.
      */
     PluginService.onInitializePluginCommandReceived = function(command) {
-        if (!util.isObject(command)) {
-            pb.log.error('PluginService: an invalid initialize_plugin command object was passed. %s', util.inspect(command));
+        if (!_.isObject(command)) {
+            log.error('PluginService: an invalid initialize_plugin command object was passed. %s', util.inspect(command));
             return;
         }
 
