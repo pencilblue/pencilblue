@@ -17,20 +17,16 @@
 'use strict';
 
 //dependencies
-var url = require('url');
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
+const url = require('url');
 
-module.exports = function TrinketMediaRendererModule(pb) {
-
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     *
-     * @class TrinketMediaRenderer
-     * @constructor
-     */
-    function TrinketMediaRenderer(){}
+/**
+ *
+ * @class TrinketMediaRenderer
+ * @constructor
+ */
+class TrinketMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -39,7 +35,9 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'trinket';
+    static get TYPE() {
+        return 'trinket';
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -48,22 +46,24 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            width: "100%"
-        },
+            view: {
+                width: "100%"
+            },
 
-        editor: {
-            width: "600px",
-            height: "400px"
-        },
+            editor: {
+                width: "600px",
+                height: "400px"
+            },
 
-        post: {
-            width: "600px",
-            height: "400px"
-        }
-    });
+            post: {
+                width: "600px",
+                height: "400px"
+            }
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -71,9 +71,9 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    TrinketMediaRenderer.getSupportedExtensions = function() {
+    static getSupportedExtensions() {
         return [];
-    };
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -82,9 +82,9 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    TrinketMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle(viewType) {
+        return TrinketMediaRenderer.STYLES[viewType] || TrinketMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -92,11 +92,11 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    TrinketMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes() {
         var types = {};
-        types[TYPE] = true;
+        types[TrinketMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -104,9 +104,9 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    TrinketMediaRenderer.getName = function() {
+    static getName() {
         return 'TrinketMediaRenderer';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -115,10 +115,10 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    TrinketMediaRenderer.isSupported = function(urlStr) {
+    static isSupported(urlStr) {
         var details = url.parse(urlStr, true, true);
         return TrinketMediaRenderer.isFullSite(details);
-    };
+    }
 
     /**
      * Indicates if the passed URL to a media resource points to the main website
@@ -128,12 +128,12 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @param {Object|String} parsedUrl The URL string or URL object
      * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
      */
-    TrinketMediaRenderer.isFullSite = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
+    static isFullSite(parsedUrl) {
+        if (_.isString(parsedUrl)) {
+            parsedUrl = url.parse(parsedUrl, true, true);
         }
         return parsedUrl.host && parsedUrl.host.indexOf('trinket.io') >= 0 && (parsedUrl.pathname.indexOf('/python/') === 0 || parsedUrl.pathname.indexOf('/embed/') === 0 || parsedUrl.pathname.indexOf('/library/trinkets/') === 0);
-    };
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -142,9 +142,9 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    TrinketMediaRenderer.getType = function(urlStr) {
-        return TrinketMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType(urlStr) {
+        return TrinketMediaRenderer.isSupported(urlStr) ? TrinketMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -154,9 +154,9 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    TrinketMediaRenderer.getIcon = function(type) {
+    static getIcon(type) {
         return 'key fa-flip-horizontal';
-    };
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -172,14 +172,14 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    TrinketMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        TrinketMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl(urlStr, options, cb) {
+        TrinketMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             TrinketMediaRenderer.render({location: mediaId}, options, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -199,15 +199,15 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    TrinketMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render(media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var embedUrl = TrinketMediaRenderer.getEmbedUrl(media.location);
         cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -217,9 +217,9 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    TrinketMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl(mediaId) {
         return mediaId.indexOf('http') === 0 ? mediaId : 'https://trinket.io/embed/python/' + mediaId;
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -228,11 +228,11 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    TrinketMediaRenderer.getMediaId = function(urlStr, cb) {
+    static getMediaId(urlStr, cb) {
         var details = url.parse(urlStr, true, true);
         var parts = details.pathname.split('/');
         cb(null, parts[3]);
-    };
+    }
 
     /**
      * Retrieves any meta data about the media represented by the URL.
@@ -244,11 +244,11 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    TrinketMediaRenderer.getMeta = function(urlStr, isFile, cb) {
+    static getMeta(urlStr, isFile, cb) {
         var details = url.parse(urlStr, true, true);
         var meta = details.query;
         cb(null, meta);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -259,9 +259,9 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    TrinketMediaRenderer.getThumbnail = function(urlStr, cb) {
+    static getThumbnail(urlStr, cb) {
         cb(null, '');
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -269,10 +269,10 @@ module.exports = function TrinketMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    TrinketMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl(media) {
         return 'http://trinket.io/python/' + media.location;
-    };
+    }
+}
 
-    //exports
-    return TrinketMediaRenderer;
-};
+//exports
+module.exports = TrinketMediaRenderer;

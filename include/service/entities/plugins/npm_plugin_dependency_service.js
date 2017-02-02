@@ -17,25 +17,25 @@
 'use strict';
 
 //dependencies
-var npm = require('npm');
-var semver = require('semver');
-var path = require('path');
+const _ = require('lodash');
+const BaseObjectService = require('../../base_object_service');
+const Configuration = require('../../../config');
+const log = require('../../../utils/logging').newInstance('NpmPluginDependencyService');
+const npm = require('npm');
+const path = require('path');
+const PluginDependencyService = require('./plugin_dependency_service');
+const PluginService = require('../plugin_service');
+const semver = require('semver');
 
-module.exports = function (pb) {
-
-    //pb dependencies
-    var util = pb.util;
-    var PluginService = pb.PluginService;
-    var BaseObjectService = pb.BaseObjectService;
-    var PluginDependencyService = pb.PluginDependencyService;
-
-    /**
-     * @class NpmPluginDependencyService
-     * @constructor
-     * @extends PluginDependencyService
-     */
-    function NpmPluginDependencyService(){}
-    util.inherits(NpmPluginDependencyService, PluginDependencyService);
+/**
+ * @class NpmPluginDependencyService
+ * @constructor
+ * @extends PluginDependencyService
+ */
+class NpmPluginDependencyService extends PluginDependencyService {
+    constructor() {
+        super();
+    }
 
     /**
      * Responsible for describing the type of dependency represented.  This helps with identifying lock keys and
@@ -43,9 +43,9 @@ module.exports = function (pb) {
      * @method getType
      * @return {string} 'npm'
      */
-    NpmPluginDependencyService.prototype.getType = function() {
+    getType() {
         return 'npm';
-    };
+    }
 
     /**
      * Verifies that a plugin has all of the required dependencies installed from NPM
@@ -56,8 +56,8 @@ module.exports = function (pb) {
      * @param {object} options
      * @param {Function} cb (Error, Boolean)
      */
-    NpmPluginDependencyService.prototype.hasDependencies = function(plugin, options, cb) {
-        if (!util.isObject(plugin.dependencies) || plugin.dependencies === {}) {
+    hasDependencies(plugin, options, cb) {
+        if (!_.isObject(plugin.dependencies) || plugin.dependencies === {}) {
             //no dependencies were declared so we're good
             return cb(null, true);
         }
@@ -66,7 +66,7 @@ module.exports = function (pb) {
             pluginUid: plugin.uid
         };
         this.areSatisfied(plugin.dependencies, context, PluginDependencyService.getResultReducer(plugin.uid, cb));
-    };
+    }
 
     /**
      * Checks to see if the module exists and its package definition is available.  It will first check the root level
@@ -79,7 +79,7 @@ module.exports = function (pb) {
      * @param {string} context.pluginUid
      * @param {function} cb (Error, {{success: boolean, validationFailures: Array}})
      */
-    NpmPluginDependencyService.prototype.isSatisfied = function(context, cb) {
+    isSatisfied(context, cb) {
 
         //get the paths necessary
         var possiblePaths = [
@@ -100,7 +100,7 @@ module.exports = function (pb) {
             catch (e) {
                 continue;
             }
-            if ( (dependencyFound = semver.satisfies(packageJson.version, context.versionExpression)) ) {
+            if ((dependencyFound = semver.satisfies(packageJson.version, context.versionExpression))) {
                 break;
             }
         }
@@ -109,15 +109,15 @@ module.exports = function (pb) {
         var validationErrors = [];
         if (!dependencyFound) {
             validationErrors.push(BaseObjectService.validationFailure(context.moduleName,
-                'Failed to find an existing module to satisfy dependency '+context.moduleName+':'+context.versionExpression));
+                'Failed to find an existing module to satisfy dependency ' + context.moduleName + ':' + context.versionExpression));
         }
 
         //build validation errors
         var result = PluginDependencyService.buildResult(context.moduleName, dependencyFound, validationErrors);
-        process.nextTick(function() {
+        process.nextTick(function () {
             cb(null, result);
         });
-    };
+    }
 
     /**
      * Responsible for ensuring that all dependencies for a plugin are installed by iterating over the "dependencies"
@@ -130,17 +130,17 @@ module.exports = function (pb) {
      * @param {object} options.configuration
      * @param {function} cb (Error, Boolean)
      */
-    NpmPluginDependencyService.prototype._installAll = function(dependencies, options, cb) {
+    _installAll(dependencies, options, cb) {
 
-        var command = Object.keys(dependencies).map(function(moduleName) {
-            return moduleName+'@'+dependencies[moduleName];
+        var command = Object.keys(dependencies).map(function (moduleName) {
+            return moduleName + '@' + dependencies[moduleName];
         });
-        npm.commands.install(command, function(err, result) {
+        npm.commands.install(command, function (err, result) {
             npm.removeListener('log', options.configuration.logListener);
 
             cb(err, {result: result, logOutput: options.configuration.logOutput});
         });
-    };
+    }
 
     /**
      * Configures NPM to emit log statements as well as set the installation directory for the plugin.
@@ -150,7 +150,7 @@ module.exports = function (pb) {
      * @param {string} options.pluginUid
      * @param {function} cb (Error, Object)
      */
-    NpmPluginDependencyService.prototype.configure = function(options, cb) {
+    configure(options, cb) {
 
         //ensure the node_modules directory exists
         var prefixPath = path.join(PluginService.getPluginsDir(), options.pluginUid);
@@ -159,8 +159,8 @@ module.exports = function (pb) {
         var config = {
             prefix: prefixPath
         };
-        npm.load(config, function(err) {
-            if (util.isError(err)) {
+        npm.load(config, function (err) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
@@ -168,7 +168,7 @@ module.exports = function (pb) {
             var statements = [];
             var context = {
                 logOutput: statements,
-                logListener: function(message) {
+                logListener: function (message) {
                     statements.push(message);
                 }
             };
@@ -182,7 +182,7 @@ module.exports = function (pb) {
 
             cb(err, context);
         });
-    };
+    }
 
     /**
      * Generates the path to a NPM module for the specified plugin
@@ -192,9 +192,9 @@ module.exports = function (pb) {
      * @param {string} npmPackageName
      * @return {string} An absolute path
      */
-    NpmPluginDependencyService.getPluginPathToPackageJson = function(pluginUid, npmPackageName) {
+    static getPluginPathToPackageJson(pluginUid, npmPackageName) {
         return path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', npmPackageName, 'package.json');
-    };
+    }
 
     /**
      * Generates the path to a NPM module for the platform
@@ -203,9 +203,9 @@ module.exports = function (pb) {
      * @param {string} npmPackageName
      * @return {string} An absolute path
      */
-    NpmPluginDependencyService.getRootPathToPackageJson = function(npmPackageName) {
-        return path.join(pb.config.docRoot, 'node_modules', npmPackageName, 'package.json');
-    };
+    static getRootPathToPackageJson(npmPackageName) {
+        return path.join(Configuration.active.docRoot, 'node_modules', npmPackageName, 'package.json');
+    }
 
     /**
      * Loads a module dependency for the specified plugin.  The function will attempt to load it from the plugin
@@ -217,18 +217,18 @@ module.exports = function (pb) {
      * @param {String} moduleName The name of the NPM module to load
      * @return {*} The entity returned by the "require" call.
      */
-    NpmPluginDependencyService.require = function(pluginUid, moduleName) {
+    static require(pluginUid, moduleName) {
         var modulePath = null;
         try {
             modulePath = path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', moduleName);
             return require(modulePath);
         }
-        catch(e) {
-            pb.log.debug('NpmPluginDependencyService:%s Failed to find module %s at path %s.  Attempting to retrieve from PB context: %s',
+        catch (e) {
+            log.debug('NpmPluginDependencyService:%s Failed to find module %s at path %s.  Attempting to retrieve from PB context: %s',
                 pluginUid, moduleName, modulePath, e.stack);
         }
         return require(moduleName);
-    };
+    }
+}
 
-    return NpmPluginDependencyService;
-};
+module.exports = NpmPluginDependencyService;

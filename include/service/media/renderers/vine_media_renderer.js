@@ -17,20 +17,16 @@
 'use strict';
 
 //dependencies
-var url = require('url');
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
+const url = require('url');
 
-module.exports = function VineMediaRendererModule(pb) {
-
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     *
-     * @class VineMediaRenderer
-     * @constructor
-     */
-    function VineMediaRenderer(){}
+/**
+ *
+ * @class VineMediaRenderer
+ * @constructor
+ */
+class VineMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -39,7 +35,9 @@ module.exports = function VineMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'vine';
+    static get TYPE() {
+        return 'vine';
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -48,23 +46,25 @@ module.exports = function VineMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            'max-width': "100%",
-            'max-height': "400px"
-        },
+            view: {
+                'max-width': "100%",
+                'max-height': "400px"
+            },
 
-        editor: {
-            width: "400px",
-            height: "400px"
-        },
+            editor: {
+                width: "400px",
+                height: "400px"
+            },
 
-        post: {
-            width: "400px",
-            height: "400px"
-        }
-    });
+            post: {
+                width: "400px",
+                height: "400px"
+            }
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -72,9 +72,9 @@ module.exports = function VineMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    VineMediaRenderer.getSupportedExtensions = function() {
+    static getSupportedExtensions  () {
         return [];
-    };
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -83,9 +83,9 @@ module.exports = function VineMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    VineMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle  (viewType) {
+        return VineMediaRenderer.STYLES[viewType] || VineMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -93,11 +93,11 @@ module.exports = function VineMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    VineMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes  () {
         var types = {};
-        types[TYPE] = true;
+        types[VineMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -105,9 +105,9 @@ module.exports = function VineMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    VineMediaRenderer.getName = function() {
+    static getName  () {
         return 'VineMediaRenderer';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -116,10 +116,10 @@ module.exports = function VineMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    VineMediaRenderer.isSupported = function(urlStr) {
+    static isSupported  (urlStr) {
         var details = url.parse(urlStr, true, true);
         return VineMediaRenderer.isFullSite(details);
-    };
+    }
 
     /**
      * Indicates if the passed URL to a media resource points to the main website
@@ -129,12 +129,12 @@ module.exports = function VineMediaRendererModule(pb) {
      * @param {Object|String} parsedUrl The URL string or URL object
      * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
      */
-    VineMediaRenderer.isFullSite = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
+    static isFullSite  (parsedUrl) {
+        if (_.isString(parsedUrl)) {
+            parsedUrl = url.parse(parsedUrl, true, true);
         }
         return parsedUrl.host && parsedUrl.host.indexOf('vine.co') >= 0 && parsedUrl.pathname.indexOf('/v/') >= 0;
-    };
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -143,9 +143,9 @@ module.exports = function VineMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    VineMediaRenderer.getType = function(urlStr) {
-        return VineMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType  (urlStr) {
+        return VineMediaRenderer.isSupported(urlStr) ? VineMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -155,9 +155,9 @@ module.exports = function VineMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    VineMediaRenderer.getIcon = function(type) {
+    static getIcon  (type) {
         return 'vine';
-    };
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -173,14 +173,14 @@ module.exports = function VineMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    VineMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        VineMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl  (urlStr, options, cb) {
+        VineMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             VineMediaRenderer.render({location: mediaId}, options, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -200,15 +200,15 @@ module.exports = function VineMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    VineMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render  (media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var embedUrl = VineMediaRenderer.getEmbedUrl(media.location);
         cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -218,9 +218,9 @@ module.exports = function VineMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    VineMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl  (mediaId) {
         return 'https://vine.co/v/' + mediaId + '/embed/simple';
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -229,11 +229,11 @@ module.exports = function VineMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    VineMediaRenderer.getMediaId = function(urlStr, cb) {
+    static getMediaId  (urlStr, cb) {
         var details = url.parse(urlStr, true, true);
         var parts = details.pathname.split('/');
         cb(null, parts[2]);
-    };
+    }
     /**
      * Retrieves any meta data about the media represented by the URL.
      * @static
@@ -244,10 +244,10 @@ module.exports = function VineMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    VineMediaRenderer.getMeta = function(urlStr, isFile, cb) {
+    static getMeta  (urlStr, isFile, cb) {
         var details = url.parse(urlStr, true, true);
         cb(null, details.query);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -258,9 +258,9 @@ module.exports = function VineMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    VineMediaRenderer.getThumbnail = function(urlStr, cb) {
+    static getThumbnail  (urlStr, cb) {
         cb(null, '');
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -268,10 +268,10 @@ module.exports = function VineMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    VineMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl  (media) {
         return 'https://vine.co/v/' + media.location;
-    };
+    }
+}
 
-    //exports
-    return VineMediaRenderer;
-};
+//exports
+module.exports = VineMediaRenderer;

@@ -17,20 +17,16 @@
 'use strict';
 
 //dependencies
-var url = require('url');
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
+const url = require('url');
 
-module.exports = function YouTubeMediaRendererModule(pb) {
-
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     *
-     * @class YouTubeMediaRenderer
-     * @constructor
-     */
-    function YouTubeMediaRenderer(){}
+/**
+ *
+ * @class YouTubeMediaRenderer
+ * @constructor
+ */
+class YouTubeMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -39,7 +35,9 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'youtube';
+    static get TYPE() {
+        return 'youtube';
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -48,22 +46,24 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            'max-width': "100%"
-        },
+            view: {
+                'max-width': "100%"
+            },
 
-        editor: {
-            width: "560px",
-            height: "315px"
-        },
+            editor: {
+                width: "560px",
+                height: "315px"
+            },
 
-        post: {
-            width: "560px",
-            height: "315px"
-        }
-    });
+            post: {
+                width: "560px",
+                height: "315px"
+            }
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -71,9 +71,9 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    YouTubeMediaRenderer.getSupportedExtensions = function() {
+    static getSupportedExtensions() {
         return [];
-    };
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -82,9 +82,9 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    YouTubeMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle(viewType) {
+        return YouTubeMediaRenderer.STYLES[viewType] || YouTubeMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -92,11 +92,11 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    YouTubeMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes() {
         var types = {};
-        types[TYPE] = true;
+        types[YouTubeMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -104,9 +104,9 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    YouTubeMediaRenderer.getName = function() {
+    static getName() {
         return 'YouTubeMediaRenderer';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -115,10 +115,10 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    YouTubeMediaRenderer.isSupported = function(urlStr) {
+    static isSupported(urlStr) {
         var details = url.parse(urlStr, true, true);
         return YouTubeMediaRenderer.isFullSite(details) || YouTubeMediaRenderer.isBelgiumDomain(details);
-    };
+    }
 
     /**
      * Indicates if the passed URL to a media resource points to the main website
@@ -128,12 +128,12 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {Object|String} parsedUrl The URL string or URL object
      * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
      */
-    YouTubeMediaRenderer.isFullSite = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
+    static isFullSite(parsedUrl) {
+        if (_.isString(parsedUrl)) {
+            parsedUrl = url.parse(parsedUrl, true, true);
         }
         return parsedUrl.host && parsedUrl.host.indexOf('youtube.com') >= 0 && parsedUrl.query.v;
-    };
+    }
 
     /**
      * Indicates if the passed URL to a media resource points to the website
@@ -144,12 +144,12 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {Object|String} parsedUrl The URL string or URL object
      * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
      */
-    YouTubeMediaRenderer.isBelgiumDomain = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
+    static isBelgiumDomain(parsedUrl) {
+        if (_.isString(parsedUrl)) {
+            parsedUrl = url.parse(parsedUrl, true, true);
         }
         return parsedUrl.host && parsedUrl.host.indexOf('youtu.be') >= 0 && parsedUrl.pathname.indexOf('/') >= 0;
-    };
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -158,9 +158,9 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    YouTubeMediaRenderer.getType = function(urlStr) {
-        return YouTubeMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType(urlStr) {
+        return YouTubeMediaRenderer.isSupported(urlStr) ? YouTubeMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -170,9 +170,9 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    YouTubeMediaRenderer.getIcon = function(type) {
-        return TYPE;
-    };
+    static getIcon(type) {
+        return YouTubeMediaRenderer.TYPE;
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -188,14 +188,14 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    YouTubeMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        YouTubeMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl(urlStr, options, cb) {
+        YouTubeMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             YouTubeMediaRenderer.render({location: mediaId}, options, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -215,15 +215,15 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    YouTubeMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render(media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var embedUrl = YouTubeMediaRenderer.getEmbedUrl(media.location);
         cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -233,9 +233,9 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    YouTubeMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl(mediaId) {
         return '//www.youtube.com/embed/' + mediaId;
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -244,7 +244,7 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    YouTubeMediaRenderer.getMediaId = function(urlStr, cb) {
+    static getMediaId(urlStr, cb) {
         var details = url.parse(urlStr, true, true);
         if (YouTubeMediaRenderer.isFullSite(details)) {
             return cb(null, details.query.v);
@@ -252,7 +252,7 @@ module.exports = function YouTubeMediaRendererModule(pb) {
 
         //we now know that it has to be the belgium domain
         cb(null, details.pathname.substr(details.pathname.lastIndexOf('/') + 1));
-    };
+    }
 
     /**
      * Retrieves any meta data about the media represented by the URL.
@@ -264,12 +264,12 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    YouTubeMediaRenderer.getMeta = function(urlStr, isFile, cb) {
+    static getMeta(urlStr, isFile, cb) {
         var details = url.parse(urlStr, true, true);
 
         var meta = details.query;
         cb(null, meta);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -280,11 +280,11 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    YouTubeMediaRenderer.getThumbnail = function(urlStr, cb) {
-        YouTubeMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
+    static getThumbnail(urlStr, cb) {
+        YouTubeMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
             cb(err, 'http://img.youtube.com/vi/' + mediaId + '/0.jpg');
         });
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -292,10 +292,10 @@ module.exports = function YouTubeMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    YouTubeMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl(media) {
         return 'https://www.youtube.com/watch?v=' + media.location;
-    };
+    }
+}
 
-    //exports
-    return YouTubeMediaRenderer;
-};
+//exports
+module.exports = YouTubeMediaRenderer;

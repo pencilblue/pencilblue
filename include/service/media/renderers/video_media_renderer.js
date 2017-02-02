@@ -17,20 +17,17 @@
 'use strict';
 
 //dependencies
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
+const FileUtils = require('../../../../lib/utils/fileUtils');
 var HtmlEncoder = require('htmlencode');
 
-module.exports = function VideoMediaRendererModule(pb) {
-
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     *
-     * @class VideoMediaRenderer
-     * @constructor
-     */
-    function VideoMediaRenderer(){}
+/**
+ *
+ * @class VideoMediaRenderer
+ * @constructor
+ */
+class VideoMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -39,7 +36,9 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'video';
+    static get TYPE() {
+        return 'video';
+    }
 
     /**
      * The list of supported extensions
@@ -49,20 +48,22 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @property SUPPORTED
      * @type {Object}
      */
-    var SUPPORTED = Object.freeze({
-        mp4: {
-            mime: 'video/mp4'
-        },
-        ogg: {
-            mime: 'video/ogg'
-        },
-        ogv: {
-            mime: 'video/ogg'
-        },
-        webm: {
-            mime: 'video/webm'
-        }
-    });
+    static get SUPPORTED() {
+        return Object.freeze({
+            mp4: {
+                mime: 'video/mp4'
+            },
+            ogg: {
+                mime: 'video/ogg'
+            },
+            ogv: {
+                mime: 'video/ogg'
+            },
+            webm: {
+                mime: 'video/webm'
+            }
+        });
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -71,23 +72,25 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            'max-width': "100%",
-            'max-height': "500px"
-        },
+            view: {
+                'max-width': "100%",
+                'max-height': "500px"
+            },
 
-        editor: {
-            width: "560px",
-            height: "315px"
-        },
+            editor: {
+                width: "560px",
+                height: "315px"
+            },
 
-        post: {
-            width: "560px",
-            height: "315px"
-        }
-    });
+            post: {
+                width: "560px",
+                height: "315px"
+            }
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -95,9 +98,9 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    VideoMediaRenderer.getSupportedExtensions = function() {
-        return Object.keys(SUPPORTED);
-    };
+    static getSupportedExtensions  () {
+        return Object.keys(VideoMediaRenderer.SUPPORTED);
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -106,9 +109,9 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    VideoMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle  (viewType) {
+        return VideoMediaRenderer.STYLES[viewType] || VideoMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -116,11 +119,11 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    VideoMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes  () {
         var types = {};
-        types[TYPE] = true;
+        types[VideoMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -128,9 +131,9 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    VideoMediaRenderer.getName = function() {
+    static getName  () {
         return 'VideoMediaProvider';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -139,10 +142,10 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    VideoMediaRenderer.isSupported = function(urlStr) {
-        var ext = util.getExtension(urlStr, {lower: true, sep: '/'});
-        return SUPPORTED[ext] ? true : false;
-    };
+    static isSupported  (urlStr) {
+        var ext = FileUtils.getExtension(urlStr, {lower: true, sep: '/'});
+        return VideoMediaRenderer.SUPPORTED[ext] ? true : false;
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -151,9 +154,9 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    VideoMediaRenderer.getType = function(urlStr) {
-        return VideoMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType  (urlStr) {
+        return VideoMediaRenderer.isSupported(urlStr) ? VideoMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -163,9 +166,9 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    VideoMediaRenderer.getIcon = function(type) {
+    static getIcon  (type) {
         return 'film';
-    };
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -181,14 +184,14 @@ module.exports = function VideoMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    VideoMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        VideoMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl  (urlStr, options, cb) {
+        VideoMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             VideoMediaRenderer.render({location: mediaId}, options, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -208,8 +211,8 @@ module.exports = function VideoMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    VideoMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render  (media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
@@ -218,7 +221,7 @@ module.exports = function VideoMediaRendererModule(pb) {
         var mime = media.mime;
         if (!mime) {
 
-            var extension = SUPPORTED[util.getExtension(media.location, {lower: true})];
+            var extension = VideoMediaRenderer.SUPPORTED[FileUtils.getExtension(media.location, {lower: true})];
             if (extension) {
                 mime = extension.mime;
             }
@@ -236,7 +239,7 @@ module.exports = function VideoMediaRendererModule(pb) {
         html += '/></video>';
 
         cb(null, html);
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -246,9 +249,9 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    VideoMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl  (mediaId) {
         return BaseMediaRenderer.getEmbedUrl(mediaId);
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -257,9 +260,9 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    VideoMediaRenderer.getMediaId = function(urlStr, cb) {
+    static getMediaId  (urlStr, cb) {
         cb(null, urlStr);
-    };
+    }
 
     /**
      * Retrieves any meta data about the media represented by the URL.
@@ -271,11 +274,11 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    VideoMediaRenderer.getMeta = function(urlStr, isFile, cb) {
-        var ext = util.getExtension(urlStr, {lower: true});
-        var meta = util.clone(SUPPORTED[ext]);
+    static getMeta  (urlStr, isFile, cb) {
+        var ext = FileUtils.getExtension(urlStr, {lower: true});
+        var meta = _.clone(VideoMediaRenderer.SUPPORTED[ext]);
         cb(null, meta);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -286,9 +289,9 @@ module.exports = function VideoMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    VideoMediaRenderer.getThumbnail = function(urlStr, cb) {
+    static getThumbnail  (urlStr, cb) {
         cb(null, '');
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -296,10 +299,10 @@ module.exports = function VideoMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    VideoMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl  (media) {
         return media.location;
-    };
+    }
+}
 
-    //exports
-    return VideoMediaRenderer;
-};
+//exports
+module.exports = VideoMediaRenderer;

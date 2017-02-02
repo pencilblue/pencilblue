@@ -17,21 +17,17 @@
 'use strict';
 
 //dependencies
-var url   = require('url');
-var https = require('https');
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
+const https = require('https');
+const url   = require('url');
 
-module.exports = function SlideShareMediaRendererModule(pb) {
-
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     *
-     * @class SlideShareMediaRenderer
-     * @constructor
-     */
-    function SlideShareMediaRenderer(){}
+/**
+ *
+ * @class SlideShareMediaRenderer
+ * @constructor
+ */
+class SlideShareMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -40,7 +36,9 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'slideshare';
+    static get TYPE() {
+        return 'slideshare';
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -49,22 +47,24 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            width: "100%"
-        },
+            view: {
+                width: "100%"
+            },
 
-        editor: {
-            width: "427px",
-            height: "356px"
-        },
+            editor: {
+                width: "427px",
+                height: "356px"
+            },
 
-        post: {
-            width: "427px",
-            height: "356px"
-        }
-    });
+            post: {
+                width: "427px",
+                height: "356px"
+            }
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -72,9 +72,9 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    SlideShareMediaRenderer.getSupportedExtensions = function() {
+    static getSupportedExtensions  () {
         return [];
-    };
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -83,9 +83,9 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    SlideShareMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle  (viewType) {
+        return SlideShareMediaRenderer.STYLES[viewType] || SlideShareMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -93,11 +93,11 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    SlideShareMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes  () {
         var types = {};
-        types[TYPE] = true;
+        types[SlideShareMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -105,9 +105,9 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    SlideShareMediaRenderer.getName = function() {
+    static getName  () {
         return 'SlideShareMediaRenderer';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -116,10 +116,10 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    SlideShareMediaRenderer.isSupported = function(urlStr) {
+    static isSupported  (urlStr) {
         var details = url.parse(urlStr, true, true);
         return SlideShareMediaRenderer.isFullSite(details);
-    };
+    }
 
     /**
      * Indicates if the passed URL to a media resource points to the main website
@@ -129,12 +129,12 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @param {Object|String} parsedUrl The URL string or URL object
      * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
      */
-    SlideShareMediaRenderer.isFullSite = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
+    static isFullSite  (parsedUrl) {
+        if (_.isString(parsedUrl)) {
+            parsedUrl = url.parse(parsedUrl, true, true);
         }
         return parsedUrl.host && (parsedUrl.host.indexOf('slideshare.com') >= 0 || parsedUrl.host.indexOf('slideshare.net') >= 0) && parsedUrl.pathname.indexOf('/') >= 0;
-    };
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -143,9 +143,9 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    SlideShareMediaRenderer.getType = function(urlStr) {
-        return SlideShareMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType  (urlStr) {
+        return SlideShareMediaRenderer.isSupported(urlStr) ? SlideShareMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -155,9 +155,9 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    SlideShareMediaRenderer.getIcon = function(type) {
+    static getIcon  (type) {
         return 'list-alt';
-    };
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -173,14 +173,14 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    SlideShareMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        SlideShareMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl  (urlStr, options, cb) {
+        SlideShareMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             SlideShareMediaRenderer.render({location: mediaId}, options, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -200,15 +200,15 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    SlideShareMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render  (media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var embedUrl = SlideShareMediaRenderer.getEmbedUrl(media.location);
         cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -218,9 +218,9 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    SlideShareMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl  (mediaId) {
         return '//www.slideshare.net/slideshow/embed_code/' + mediaId;
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -229,14 +229,14 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    SlideShareMediaRenderer.getMediaId = function(urlStr, cb) {
-        SlideShareMediaRenderer.getDetails(urlStr, function(err, details) {
-            if (util.isError(err)) {
+    static getMediaId  (urlStr, cb) {
+        SlideShareMediaRenderer.getDetails(urlStr, function (err, details) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             cb(null, details.slideshow_id);
         });
-    };
+    }
 
     /**
      * Retrieves any meta data about the media represented by the URL.
@@ -248,11 +248,11 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    SlideShareMediaRenderer.getMeta = function(urlStr, isFile, cb) {
+    static getMeta  (urlStr, isFile, cb) {
         var details = url.parse(urlStr, true, true);
         var meta = details.query;
         cb(null, meta);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -263,14 +263,14 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    SlideShareMediaRenderer.getThumbnail = function(urlStr, cb) {
-        SlideShareMediaRenderer.getDetails(urlStr, function(err, details) {
-            if (util.isError(err)) {
+    static getThumbnail  (urlStr, cb) {
+        SlideShareMediaRenderer.getDetails(urlStr, function (err, details) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             cb(null, details.thumbnail);
         });
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -278,9 +278,9 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    SlideShareMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl  (media) {
         return 'http://slideshare.net/slideshow/embed_code/' + media.location;
-    };
+    }
 
     /**
      * Retrieves details about the media resource via SlideShare's API because they
@@ -291,12 +291,12 @@ module.exports = function SlideShareMediaRendererModule(pb) {
      * @param {Function} cb Provides two parameters. First is an Error if occurred
      * and the second is an object with the data returned by the SlideShare API
      */
-    SlideShareMediaRenderer.getDetails = function(urlStr, cb) {
+    static getDetails  (urlStr, cb) {
         var options = {
             host: 'www.slideshare.net',
             path: '/api/oembed/2?url=' + encodeURIComponent(urlStr) + '&format=jsonp&callback=?'
         };
-        var callback = function(response) {
+        var callback = function (response) {
             var str = '';
 
             //another chunk of data has been recieved, so append it to `str`
@@ -311,14 +311,14 @@ module.exports = function SlideShareMediaRendererModule(pb) {
                     var data = JSON.parse(str);
                     cb(null, data);
                 }
-                catch(err) {
+                catch (err) {
                     cb(err);
                 }
             });
         };
         https.request(options, callback).end();
-    };
+    }
+}
 
-    //exports
-    return SlideShareMediaRenderer;
-};
+//exports
+module.exports = SlideShareMediaRenderer;

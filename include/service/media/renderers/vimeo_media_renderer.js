@@ -17,21 +17,17 @@
 'use strict';
 
 //dependencies
-var url  = require('url');
-var http = require('http');
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
+const http = require('http');
+const url  = require('url');
 
-module.exports = function VimeoMediaRendererModule(pb) {
-
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     *
-     * @class VimeoMediaRenderer
-     * @constructor
-     */
-    function VimeoMediaRenderer(){}
+/**
+ *
+ * @class VimeoMediaRenderer
+ * @constructor
+ */
+class VimeoMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -40,7 +36,9 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'vimeo';
+    static get TYPE() {
+        return 'vimeo';
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -49,23 +47,25 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            'max-width': "100%",
-            'max-height': "500px"
-        },
+            view: {
+                'max-width': "100%",
+                'max-height': "500px"
+            },
 
-        editor: {
-            width: "500px",
-            height: "281px"
-        },
+            editor: {
+                width: "500px",
+                height: "281px"
+            },
 
-        post: {
-            width: "500px",
-            height: "281px"
-        }
-    });
+            post: {
+                width: "500px",
+                height: "281px"
+            }
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -73,9 +73,9 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    VimeoMediaRenderer.getSupportedExtensions = function() {
+    static getSupportedExtensions() {
         return [];
-    };
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -84,9 +84,9 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    VimeoMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle(viewType) {
+        return VimeoMediaRenderer.STYLES[viewType] || VimeoMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -94,11 +94,11 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    VimeoMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes() {
         var types = {};
-        types[TYPE] = true;
+        types[VimeoMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -106,9 +106,9 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    VimeoMediaRenderer.getName = function() {
+    static getName() {
         return 'VimeoMediaRenderer';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -117,10 +117,10 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    VimeoMediaRenderer.isSupported = function(urlStr) {
+    static isSupported(urlStr) {
         var details = url.parse(urlStr, true, true);
         return VimeoMediaRenderer.isFullSite(details);
-    };
+    }
 
     /**
      * Indicates if the passed URL to a media resource points to the main website
@@ -130,12 +130,12 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @param {Object|String} parsedUrl The URL string or URL object
      * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
      */
-    VimeoMediaRenderer.isFullSite = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
+    static isFullSite(parsedUrl) {
+        if (_.isString(parsedUrl)) {
+            parsedUrl = url.parse(parsedUrl, true, true);
         }
         return parsedUrl.host && parsedUrl.host.indexOf('vimeo.com') >= 0 && parsedUrl.pathname.indexOf('/') >= 0;
-    };
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -144,9 +144,9 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    VimeoMediaRenderer.getType = function(urlStr) {
-        return VimeoMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType(urlStr) {
+        return VimeoMediaRenderer.isSupported(urlStr) ? VimeoMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -156,9 +156,9 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    VimeoMediaRenderer.getIcon = function(type) {
+    static getIcon(type) {
         return 'vimeo-square';
-    };
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -174,14 +174,14 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    VimeoMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        VimeoMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl(urlStr, options, cb) {
+        VimeoMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             VimeoMediaRenderer.render({location: mediaId}, options, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -201,15 +201,15 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    VimeoMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render(media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var embedUrl = VimeoMediaRenderer.getEmbedUrl(media.location);
         cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -219,9 +219,9 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    VimeoMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl(mediaId) {
         return '//player.vimeo.com/video/' + mediaId;
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -230,10 +230,10 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    VimeoMediaRenderer.getMediaId = function(urlStr, cb) {
+    static getMediaId(urlStr, cb) {
         var details = url.parse(urlStr, true, true);
         cb(null, details.pathname.substr(details.pathname.lastIndexOf('/') + 1));
-    };
+    }
 
     /**
      * Retrieves any meta data about the media represented by the URL.
@@ -245,10 +245,10 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    VimeoMediaRenderer.getMeta = function(urlStr, isFile, cb) {
+    static getMeta(urlStr, isFile, cb) {
         var details = url.parse(urlStr, true, true);
         cb(null, details.query);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -259,9 +259,9 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    VimeoMediaRenderer.getThumbnail = function(urlStr, cb) {
-        VimeoMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static getThumbnail(urlStr, cb) {
+        VimeoMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
@@ -269,7 +269,7 @@ module.exports = function VimeoMediaRendererModule(pb) {
                 host: 'vimeo.com',
                 path: '/api/v2/video/' + mediaId + '.json'
             };
-            var callback = function(response) {
+            var callback = function (response) {
                 var str = '';
 
                 //another chunk of data has been recieved, so append it to `str`
@@ -284,14 +284,14 @@ module.exports = function VimeoMediaRendererModule(pb) {
                         var data = JSON.parse(str);
                         cb(null, data[0].thumbnail_medium);
                     }
-                    catch(err) {
+                    catch (err) {
                         cb(err);
                     }
                 });
             };
             http.request(options, callback).end();
         });
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -299,10 +299,10 @@ module.exports = function VimeoMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    VimeoMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl(media) {
         return 'http://vimeo.com/' + media.location;
-    };
+    }
+}
 
-    //exports
-    return VimeoMediaRenderer;
-};
+//exports
+module.exports = VimeoMediaRenderer;

@@ -17,17 +17,23 @@
 'use strict';
 
 //dependencies
-var async = require('async');
-var semver = require('semver');
-var path = require('path');
-var domain = require('domain');
-
-module.exports = function (pb) {
-
-    //pb dependencies
-    var util = pb.util;
-    var PluginService = pb.PluginService;
-    var SiteService = pb.SiteService;
+const _ = require('lodash');
+const ArrayUtils = require('../../../../lib/utils/array_utils');
+const async = require('async');
+const BowerPluginDependencyService = require('./bower_plugin_dependency_service');
+const Configuration = require('../../../config');
+const domain = require('domain');
+const log = require('../../../utils/logging').newInstance('PluginInitializationService');
+const NpmPluginDependencyService = require('./npm_plugin_dependency_service');
+const path = require('path');
+const PluginControllerLoader = require('./loaders/plugin_controller_loader');
+const PluginLocalizationLoader = require('./loaders/plugin_localization_loader');
+const PluginService = require('../plugin_service');
+const PluginServiceLoader = require('./loaders/plugin_service_loader');
+const PluginValidationService = require('./plugin_validation_service');
+const semver = require('semver');
+const SiteService = require('../site_service');
+const util = require('util');
 
     /**
      * Initializes a plugin
@@ -73,23 +79,23 @@ module.exports = function (pb) {
          * @param {function} cb
          */
         initialize (plugin, options, cb) {
-            if (!util.isObject(plugin)) {
+            if (!_.isObject(plugin)) {
                 return cb(new Error('The plugin object must be passed in order to initialize the plugin'));
             }
-            if (!util.isObject(options)) {
+            if (!_.isObject(options)) {
                 return cb(new Error('The options argument must be an object'));
             }
 
-            pb.log.debug("PluginInitializationService:[%s] Initializing plugin for site=%s", plugin.uid, plugin.site);
+            log.debug("PluginInitializationService:[%s] Initializing plugin for site=%s", plugin.uid, plugin.site);
 
             var concurrency = options.concurrency || PluginInitializationService.DEFAULT_CONCURRENCY;
             var tasks = this.getTasks(plugin);
             async.auto(tasks, concurrency, function(err/*, results*/) {
-                if (util.isError(err)) {
+                if (_.isError(err)) {
                     PluginInitializationService.handleInitializationError(plugin, err);
                 }
                 else {
-                    pb.log.debug('PluginInitializationService:[%s] successfully initialized', plugin.uid);
+                    log.debug('PluginInitializationService:[%s] successfully initialized', plugin.uid);
                 }
 
                 cb(err);
@@ -208,13 +214,13 @@ module.exports = function (pb) {
          */
         static getNpmDependencyCheckHandler (context) {
             return PluginInitializationService.buildNoActionOnCachedTask(context, ['pluginCacheSync'], function(callback, results) {
-                if (!util.isObject(results.details.dependencies) || Object.keys(results.details.dependencies).length === 0) {
+                if (!_.isObject(results.details.dependencies) || Object.keys(results.details.dependencies).length === 0) {
                     //no dependencies were declared so we're good
                     return callback();
                 }
 
                 //iterate over dependencies to ensure that they exist
-                var npmService = new pb.NpmPluginDependencyService();
+                var npmService = new NpmPluginDependencyService();
                 npmService.installAll(context.plugin.dependencies, {pluginUid: context.plugin.uid}, callback);
             });
         }
@@ -233,12 +239,12 @@ module.exports = function (pb) {
          */
         static getBowerDependencyCheckHandler (context) {
             return PluginInitializationService.buildNoActionOnCachedTask(context, ['pluginCacheSync'], function(callback, results) {
-                if (!util.isObject(results.details.bowerDependencies) || Object.keys(results.details.bowerDependencies).length === 0) {
+                if (!_.isObject(results.details.bowerDependencies) || Object.keys(results.details.bowerDependencies).length === 0) {
                     //no bower dependencies declared so we're good
                     return callback();
                 }
 
-                var bowerService = new pb.BowerPluginDependencyService();
+                var bowerService = new BowerPluginDependencyService();
                 bowerService.installAll(results.details.bowerDependencies, {pluginUid: results.details.uid}, callback);
             });
         }
@@ -260,13 +266,13 @@ module.exports = function (pb) {
                 if (!results.details.pb_version) {
                     // pb version was not specified
                     // assumes plugin is compatible with all pb versions
-                    pb.log.warn('PluginInitializationService:[%s] The plugin does not specify a pb version.', results.details.uid);
+                    log.warn('PluginInitializationService:[%s] The plugin does not specify a pb version.', results.details.uid);
                     return callback();
                 }
 
                 var err = null;
-                if (!semver.satisfies(pb.config.version, results.details.pb_version)) {
-                    err = new Error('PB version '+pb.config.version+' does not satisfy plugin version expression '+results.details.pb_version+'for plugin '+results.details.uid);
+                if (!semver.satisfies(Configuration.active.version, results.details.pb_version)) {
+                    err = new Error('PB version '+Configuration.active.version+' does not satisfy plugin version expression '+results.details.pb_version+'for plugin '+results.details.uid);
                 }
                 callback(err);
             });
@@ -286,7 +292,7 @@ module.exports = function (pb) {
          */
         static getValidationErrorsHandler (context) {
             return PluginInitializationService.buildNoActionOnCachedTask(context, ['details'], function(callback, results) {
-                var validationService = new pb.PluginValidationService({});
+                var validationService = new PluginValidationService({});
                 validationService.validate(results.details, {}, callback);
             });
         }
@@ -350,11 +356,11 @@ module.exports = function (pb) {
                 if (context.plugin.permissions) {
 
                     Object.keys(context.plugin.permissions).forEach(function(role) {
-                        map[role] = util.arrayToHash(context.plugin.permissions[role]);
+                        map[role] = ArrayUtils.toLookup(context.plugin.permissions[role]);
                     });
                 }
                 else {
-                    pb.log.debug('PluginInitializationService:[%s] Skipping permission set load. None were found.', context.plugin.uid);
+                    log.debug('PluginInitializationService:[%s] Skipping permission set load. None were found.', context.plugin.uid);
                 }
 
                 //create cached active plugin structure
@@ -398,7 +404,7 @@ module.exports = function (pb) {
             return ['loadMainModule', function(callback/*, results*/) {
 
                 var mainModule = context.pluginSpec.main_module;
-                if (!util.isFunction(mainModule.onStartupWithContext) && !util.isFunction(mainModule.onStartup)) {
+                if (!_.isFunction(mainModule.onStartupWithContext) && !_.isFunction(mainModule.onStartup)) {
                     return callback(new Error('Plugin '+context.plugin.uid+' did not provide an "onStartupWithContext" function.'));
                 }
 
@@ -438,10 +444,10 @@ module.exports = function (pb) {
                 d.run(function () {
 
                     //check to see if main modules are instance based
-                    if (util.isFunction(mainModule.prototype.onStartup)) {
+                    if (_.isFunction(mainModule.prototype.onStartup)) {
                         mainModule = new mainModule(context.site);
                     }
-                    if (util.isFunction(mainModule.onStartupWithContext)) {
+                    if (_.isFunction(mainModule.onStartupWithContext)) {
                         mainModule.onStartupWithContext({site: context.site}, startupCallback);
                     }
                     else {
@@ -473,18 +479,18 @@ module.exports = function (pb) {
                 }
 
                 //plugin wasn't cached so go lookup all the services
-                var service = new pb.PluginServiceLoader({pluginUid: context.plugin.uid});
+                var service = new PluginServiceLoader({pluginUid: context.plugin.uid});
                 service.getAll({}, function(err, services) {
-                    if (util.isError(err)) {
-                        pb.log.debug("PluginInitializationService:[%s] No services directory was found", context.plugin.uid);
+                    if (_.isError(err)) {
+                        log.debug("PluginInitializationService:[%s] No services directory was found", context.plugin.uid);
                     }
                     if (!services) {
-                        pb.log.debug("PluginInitializationService:[%s] No services were found", context.plugin.uid);
+                        log.debug("PluginInitializationService:[%s] No services were found", context.plugin.uid);
                         services = {};
                     }
                     context.pluginSpec.services = services;
                     context.plugin.services = services;
-                    callback(null, !util.isError(err));
+                    callback(null, !_.isError(err));
                 });
             }];
         }
@@ -521,7 +527,7 @@ module.exports = function (pb) {
          */
         static getLoadRoutesHandler (context) {
             return ['setActive', function(callback/*, results*/) {
-                var controllerLoader = new pb.PluginControllerLoader({pluginUid: context.plugin.uid, site: context.site});
+                var controllerLoader = new PluginControllerLoader({pluginUid: context.plugin.uid, site: context.site});
                 controllerLoader.getAll({register: true}, callback);
             }];
         }
@@ -540,7 +546,7 @@ module.exports = function (pb) {
          */
         static getLoadLocalizationsHandler (context) {
             return ['setActive', function(callback/*, results*/) {
-                var service = new pb.PluginLocalizationLoader({pluginUid: context.plugin.uid, site: context.site});
+                var service = new PluginLocalizationLoader({pluginUid: context.plugin.uid, site: context.site});
                 service.getAll({register: true}, callback);
             }];
         }
@@ -591,10 +597,10 @@ module.exports = function (pb) {
 
             //log it all
             var hasValidationErrs = !!err.validationErrors;
-            pb.log.error('PluginInitializationService:[%s] failed to initialize: %s', plugin.uid, hasValidationErrs ? err.message : err.stack);
+            log.error('PluginInitializationService:[%s] failed to initialize: %s', plugin.uid, hasValidationErrs ? err.message : err.stack);
             if (hasValidationErrs) {
                 err.validationErrors.forEach(function(validationError) {
-                    pb.log.error('PluginInitializationService:[%s] details.json validation error FIELD=%s MSG=%s', plugin.uid, validationError.field, validationError.message);
+                    log.error('PluginInitializationService:[%s] details.json validation error FIELD=%s MSG=%s', plugin.uid, validationError.field, validationError.message);
                 });
             }
         }
@@ -628,5 +634,4 @@ module.exports = function (pb) {
         loadLocalization: PluginInitializationService.getLoadLocalizationsHandler
     };
 
-    return PluginInitializationService;
-};
+    module.exports = PluginInitializationService;

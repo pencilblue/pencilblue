@@ -17,28 +17,28 @@
 'use strict';
 
 //dependencies
-var npm = require('npm');
-var semver = require('semver');
-var path = require('path');
-var fs = require('fs');
+const _ = require('lodash');
+const FileUtils = require('../../../../../lib/utils/fileUtils');
+const fs = require('fs');
+const log = require('../../../../utils/logging').newInstance('PluginControllerLoader');
+const npm = require('npm');
+const path = require('path');
+const PluginResourceLoader = require('./plugin_resource_loader');
+const PluginService = require('../../plugin_service');
+const RequestHandler = require('../../../../http/request_handler');
+const semver = require('semver');
+const util = require('util');
 
-module.exports = function (pb) {
-
-    //pb dependencies
-    var util = pb.util;
-    var PluginService = pb.PluginService;
-    var PluginResourceLoader = pb.PluginResourceLoader;
-    var RequestHandler = pb.RequestHandler;
-
-    /**
-     * @class PluginControllerLoader
-     * @extends PluginResourceLoader
-     * @constructor
-     * @param {object} context
-     * @param {string} context.pluginUid
-     * @param {string} context.site
-     */
-    function PluginControllerLoader(context){
+/**
+ * @class PluginControllerLoader
+ * @extends PluginResourceLoader
+ * @constructor
+ * @param {object} context
+ * @param {string} context.pluginUid
+ * @param {string} context.site
+ */
+class PluginControllerLoader extends PluginResourceLoader {
+    constructor(context) {
 
         /**
          * @property site
@@ -46,9 +46,16 @@ module.exports = function (pb) {
          */
         this.site = context.site;
 
-        PluginControllerLoader.super_.call(this, context);
+        super(context);
     }
-    util.inherits(PluginControllerLoader, PluginResourceLoader);
+
+    /**
+     * The name of the directory where controllers are located within a plugin's directory structure
+     * @returns {string}
+     */
+    static get CONTROLLERS_DIR () {
+        return 'controllers';
+    }
 
     /**
      * Responsible for initializing the resource.  Calls the init function after extracting the prototype from the
@@ -59,17 +66,17 @@ module.exports = function (pb) {
      * @param {boolean} [context.register=false]
      * @param {function} cb (Error, ControllerPrototype)
      */
-    PluginControllerLoader.prototype.initResource = function(resource, context, cb) {
-        var ControllerPrototype = resource(pb);
+    initResource(resource, context, cb) {
+        var ControllerPrototype = resource;
         if (!context.register) {
             return cb(null, ControllerPrototype);
         }
 
         //we made it this far so we need to register the controller with the RequestHandler
-        this.register(ControllerPrototype, context, function(err) {
+        this.register(ControllerPrototype, context, function (err) {
             cb(err, ControllerPrototype);
         });
-    };
+    }
 
     /**
      * Responsible for initializing the resource.  Calls the init function after extracting the prototype from the
@@ -80,36 +87,36 @@ module.exports = function (pb) {
      * @param {string} context.path
      * @param {function} cb (Error)
      */
-    PluginControllerLoader.prototype.register = function(ControllerPrototype, context, cb) {
+    register(ControllerPrototype, context, cb) {
         //ensure we can get the routes
-        if (!util.isFunction(ControllerPrototype.getRoutes)){
+        if (!_.isFunction(ControllerPrototype.getRoutes)) {
             return cb(new Error('Controller at [' + context.path + '] does not implement function "getRoutes"'));
         }
 
         //get the routes
         var self = this;
-        ControllerPrototype.getRoutes(function(err, routes) {
-            if (util.isError(err)) {
+        ControllerPrototype.getRoutes(function (err, routes) {
+            if (_.isError(err)) {
                 return cb(err);
             }
-            else if (!util.isArray(routes)) {
+            else if (!Array.isArray(routes)) {
                 return cb(new Error('Controller at [' + context.path + '] did not return an array of routes'));
             }
 
             //attempt to register route
-            for(var i = 0; i < routes.length; i++) {
+            for (var i = 0; i < routes.length; i++) {
                 var route = routes[i];
                 route.controller = context.path;
 
                 //register and verify
                 if (!RequestHandler.registerRoute(route, self.pluginUid, self.site)) {
-                    pb.log.warn('PluginControllerLoaderService: Failed to register route [%s] for controller at [%s]', util.inspect(route), context.path);
+                    log.warn('PluginControllerLoaderService: Failed to register route [%s] for controller at [%s]', util.inspect(route), context.path);
                 }
             }
 
             cb();
         });
-    };
+    }
 
     /**
      * Derives the unique name of the resource
@@ -118,9 +125,9 @@ module.exports = function (pb) {
      * @param {object} resource
      * @return {string}
      */
-    PluginControllerLoader.prototype.getResourceName = function(pathToResource/*, resource*/) {
+    getResourceName(pathToResource/*, resource*/) {
         return pathToResource;
-    };
+    }
 
     /**
      * Creates the function that will be used to filter through the files in the resource directory.  This is most
@@ -128,18 +135,18 @@ module.exports = function (pb) {
      * @method getFileFilter
      * @return {function} (string, object)
      */
-    PluginControllerLoader.prototype.getFileFilter = function() {
-        return util.getFileExtensionFilter('js');
-    };
+    getFileFilter() {
+        return FileUtils.getFileExtensionFilter('js');
+    }
 
     /**
      * Derives the absolute path to the directory that contains all of the resources that are to be loaded
      * @method getBaseResourcePath
      * @return {string}
      */
-    PluginControllerLoader.prototype.getBaseResourcePath = function() {
+    getBaseResourcePath() {
         return PluginControllerLoader.getPathToControllers(this.pluginUid);
-    };
+    }
 
     /**
      * Creates an absolute path pointing to the directory where a plugin's controllers live
@@ -148,9 +155,9 @@ module.exports = function (pb) {
      * @param {string} pluginUid
      * @return {string}
      */
-    PluginControllerLoader.getPathToControllers = function(pluginUid) {
-        return path.join(PluginService.getPluginsDir(), pluginUid, 'controllers');
-    };
+    static getPathToControllers(pluginUid) {
+        return path.join(PluginService.getPluginsDir(), pluginUid, PluginControllerLoader.CONTROLLERS_DIR);
+    }
+}
 
-    return PluginControllerLoader;
-};
+module.exports = PluginControllerLoader;

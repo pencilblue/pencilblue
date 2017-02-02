@@ -17,21 +17,16 @@
 'use strict';
 
 //dependencies
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
 var url = require('url');
-var HtmlEncoder = require('htmlencode');
 
-module.exports = function StorifyMediaRendererModule(pb) {
-
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     *
-     * @class StorifyMediaRenderer
-     * @constructor
-     */
-    function StorifyMediaRenderer(){}
+/**
+ *
+ * @class StorifyMediaRenderer
+ * @constructor
+ */
+class StorifyMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -40,7 +35,9 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'storify';
+    static get TYPE() {
+        return 'storify';
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -49,22 +46,24 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            width: "100%"
-        },
+            view: {
+                width: "100%"
+            },
 
-        editor: {
-            width: "100%",
-            height: "750px"
-        },
+            editor: {
+                width: "100%",
+                height: "750px"
+            },
 
-        post: {
-            width: "100%",
-            height: "750px"
-        }
-    });
+            post: {
+                width: "100%",
+                height: "750px"
+            }
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -72,9 +71,9 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    StorifyMediaRenderer.getSupportedExtensions = function() {
+    static getSupportedExtensions() {
         return [];
-    };
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -83,9 +82,9 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    StorifyMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle(viewType) {
+        return StorifyMediaRenderer.STYLES[viewType] || StorifyMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -93,11 +92,11 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    StorifyMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes() {
         var types = {};
-        types[TYPE] = true;
+        types[StorifyMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -105,9 +104,9 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    StorifyMediaRenderer.getName = function() {
+    static getName() {
         return 'StorifyMediaRenderer';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -116,10 +115,10 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    StorifyMediaRenderer.isSupported = function(urlStr) {
+    static isSupported(urlStr) {
         var details = url.parse(urlStr, true, true);
         return StorifyMediaRenderer.isFullSite(details);
-    };
+    }
 
     /**
      * Indicates if the passed URL to a media resource points to the main website
@@ -129,12 +128,12 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @param {Object|String} parsedUrl The URL string or URL object
      * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
      */
-    StorifyMediaRenderer.isFullSite = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
+    static isFullSite(parsedUrl) {
+        if (_.isString(parsedUrl)) {
+            parsedUrl = url.parse(parsedUrl, true, true);
         }
         return parsedUrl.host && parsedUrl.host.indexOf('storify.com') >= 0 && parsedUrl.pathname.indexOf('/') >= 0;
-    };
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -143,9 +142,9 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    StorifyMediaRenderer.getType = function(urlStr) {
-        return StorifyMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType(urlStr) {
+        return StorifyMediaRenderer.isSupported(urlStr) ? StorifyMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -155,9 +154,9 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    StorifyMediaRenderer.getIcon = function(type) {
+    static getIcon(type) {
         return 'arrow-circle-right';
-    };
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -173,14 +172,14 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    StorifyMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        StorifyMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl(urlStr, options, cb) {
+        StorifyMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             StorifyMediaRenderer.render({location: mediaId}, options, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -200,15 +199,15 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    StorifyMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render(media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var embedUrl = StorifyMediaRenderer.getEmbedUrl(media.location);
         cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -218,9 +217,9 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    StorifyMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl(mediaId) {
         return '//storify.com/' + mediaId + '/embed?header=false&border=false';
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -229,14 +228,14 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    StorifyMediaRenderer.getMediaId = function(urlStr, cb) {
+    static getMediaId(urlStr, cb) {
         var details = url.parse(urlStr, true, true);
         var mediaId = details.pathname;
         if (mediaId.indexOf('/') === 0) {
             mediaId = mediaId.substring(1);
         }
         cb(null, mediaId);
-    };
+    }
 
     /**
      * Retrieves any meta data about the media represented by the URL.
@@ -248,11 +247,11 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    StorifyMediaRenderer.getMeta = function(urlStr, isFile, cb) {
+    static getMeta(urlStr, isFile, cb) {
         var details = url.parse(urlStr, true, true);
         var meta = details.query;
         cb(null, meta);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -263,9 +262,9 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    StorifyMediaRenderer.getThumbnail = function(urlStr, cb) {
+    static getThumbnail(urlStr, cb) {
         cb(null, '');
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -273,10 +272,10 @@ module.exports = function StorifyMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    StorifyMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl(media) {
         return 'https://storify.com/' + media.location;
-    };
+    }
+}
 
-    //exports
-    return StorifyMediaRenderer;
-};
+//exports
+module.exports = StorifyMediaRenderer;

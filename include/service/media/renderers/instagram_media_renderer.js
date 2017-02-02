@@ -17,20 +17,16 @@
 'use strict';
 
 //dependencies
-var url = require('url');
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
+const url = require('url');
 
-module.exports = function InstagramMediaRendererModule(pb) {
-
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     *
-     * @class InstagramMediaRenderer
-     * @constructor
-     */
-    function InstagramMediaRenderer(){}
+/**
+ *
+ * @class InstagramMediaRenderer
+ * @constructor
+ */
+class InstagramMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -39,7 +35,9 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'instagram';
+    static get TYPE() {
+        return 'instagram';
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -48,22 +46,24 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            width: "100%"
-        },
+            view: {
+                width: "100%"
+            },
 
-        editor: {
-            width: "400px",
-            height: "475px"
-        },
+            editor: {
+                width: "400px",
+                height: "475px"
+            },
 
-        post: {
-            width: "400px",
-            height: "475px"
-        }
-    });
+            post: {
+                width: "400px",
+                height: "475px"
+            }
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -71,9 +71,9 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    InstagramMediaRenderer.getSupportedExtensions = function() {
+    static getSupportedExtensions() {
         return [];
-    };
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -82,9 +82,9 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    InstagramMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle(viewType) {
+        return InstagramMediaRenderer.STYLES[viewType] || InstagramMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -92,11 +92,11 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    InstagramMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes() {
         var types = {};
-        types[TYPE] = true;
+        types[InstagramMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -104,9 +104,9 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    InstagramMediaRenderer.getName = function() {
+    static getName() {
         return 'InstagramMediaRenderer';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -115,10 +115,10 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    InstagramMediaRenderer.isSupported = function(urlStr) {
+    static isSupported(urlStr) {
         var details = url.parse(urlStr, true, true);
         return InstagramMediaRenderer.isFullSite(details);
-    };
+    }
 
     /**
      * Indicates if the passed URL to a media resource points to the main website
@@ -128,12 +128,12 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @param {Object|String} parsedUrl The URL string or URL object
      * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
      */
-    InstagramMediaRenderer.isFullSite = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
+    static isFullSite(parsedUrl) {
+        if (_.isString(parsedUrl)) {
+            parsedUrl = url.parse(parsedUrl, true, true);
         }
         return parsedUrl.host && parsedUrl.host.indexOf('instagram.com') >= 0 && parsedUrl.pathname.indexOf('/p/') === 0;
-    };
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -142,9 +142,9 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    InstagramMediaRenderer.getType = function(urlStr) {
-        return InstagramMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType(urlStr) {
+        return InstagramMediaRenderer.isSupported(urlStr) ? InstagramMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -154,9 +154,9 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    InstagramMediaRenderer.getIcon = function(type) {
-        return TYPE;
-    };
+    static getIcon(type) {
+        return InstagramMediaRenderer.TYPE;
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -172,14 +172,14 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    InstagramMediaRenderer.renderByUrl = function(urlStr, options, cb) {
-        InstagramMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl(urlStr, options, cb) {
+        InstagramMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             InstagramMediaRenderer.render({location: mediaId}, options, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -199,15 +199,15 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    InstagramMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render(media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var embedUrl = InstagramMediaRenderer.getEmbedUrl(media.location);
         cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -217,9 +217,9 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    InstagramMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl(mediaId) {
         return '//instagram.com/p/' + mediaId + '/embed/';
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -228,11 +228,11 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    InstagramMediaRenderer.getMediaId = function(urlStr, cb) {
+    static getMediaId(urlStr, cb) {
         var details = url.parse(urlStr, true, true);
         var parts = details.pathname.split('/');
         cb(null, parts[2]);
-    };
+    }
 
     /**
      * Retrieves any meta data about the media represented by the URL.
@@ -244,11 +244,11 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    InstagramMediaRenderer.getMeta = function(urlStr, isFile, cb) {
+    static getMeta(urlStr, isFile, cb) {
         var details = url.parse(urlStr, true, true);
         var meta = details.query;
         cb(null, meta);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -259,9 +259,9 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    InstagramMediaRenderer.getThumbnail = function(urlStr, cb) {
+    static getThumbnail(urlStr, cb) {
         cb(null, '');
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -269,10 +269,10 @@ module.exports = function InstagramMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    InstagramMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl(media) {
         return 'http://instagram.com/p/' + media.location;
-    };
+    }
+}
 
-    //exports
-    return InstagramMediaRenderer;
-};
+//exports
+module.exports = InstagramMediaRenderer;

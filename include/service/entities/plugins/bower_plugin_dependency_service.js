@@ -17,27 +17,26 @@
 'use strict';
 
 //dependencies
-var bower = require('bower');
-var semver = require('semver');
-var async = require('async');
-var path = require('path');
+const _ = require('lodash');
+const async = require('async');
+const BaseObjectService = require('../../base_object_service');
+const bower = require('bower');
+const Configuration = require('../../../config');
+const path = require('path');
+const PluginDependencyService = require('./plugin_dependency_service');
+const PluginService = require('../plugin_service');
+const semver = require('semver');
 
-module.exports = function (pb) {
-
-    //pb dependencies
-    var util = pb.util;
-    var PluginService = pb.PluginService;
-    var BaseObjectService = pb.BaseObjectService;
-    var PluginDependencyService = pb.PluginDependencyService;
-
-    /**
-     * Provides methods to ensure that bower dependencies are available to plugins
-     * @class BowerPluginDependencyService
-     * @constructor
-     * @extends PluginDependencyService
-     */
-    function BowerPluginDependencyService(){}
-    util.inherits(BowerPluginDependencyService, PluginDependencyService);
+/**
+ * Provides methods to ensure that bower dependencies are available to plugins
+ * @class BowerPluginDependencyService
+ * @constructor
+ * @extends PluginDependencyService
+ */
+class BowerPluginDependencyService extends PluginDependencyService {
+    constructor() {
+        super();
+    }
 
     /**
      * Responsible for describing the type of dependency represented.  This helps with identifying lock keys and
@@ -45,9 +44,9 @@ module.exports = function (pb) {
      * @method getType
      * @return {string} 'bower'
      */
-    BowerPluginDependencyService.prototype.getType = function() {
+    getType() {
         return 'bower';
-    };
+    }
 
     /**
      * Verifies that a plugin has all of the required dependencies installed from Bower
@@ -58,8 +57,8 @@ module.exports = function (pb) {
      * @param {object} options
      * @param {Function} cb (Error, Boolean)
      */
-    BowerPluginDependencyService.prototype.hasDependencies = function(plugin, options, cb) {
-        if (!util.isObject(plugin.bowerDependencies) || plugin.bowerDependencies === {}) {
+    hasDependencies(plugin, options, cb) {
+        if (!_.isObject(plugin.bowerDependencies) || plugin.bowerDependencies === {}) {
             //no dependencies were declared so we're good
             return cb(null, true);
         }
@@ -68,7 +67,7 @@ module.exports = function (pb) {
             pluginUid: plugin.uid
         };
         this.areSatisfied(plugin.bowerDependencies, context, PluginDependencyService.getResultReducer(plugin.uid, cb));
-    };
+    }
 
     /**
      * Checks to see if the module exists and its package definition is available.  It will first check the root level
@@ -81,7 +80,7 @@ module.exports = function (pb) {
      * @param {string} context.pluginUid
      * @param {function} cb (Error, {{success: boolean, validationFailures: Array}})
      */
-    BowerPluginDependencyService.prototype.isSatisfied = function(context, cb) {
+    isSatisfied(context, cb) {
 
         //get the paths necessary
         var possiblePaths = [
@@ -102,7 +101,7 @@ module.exports = function (pb) {
             catch (e) {
                 continue;
             }
-            if ( (dependencyFound = semver.satisfies(jsonObj.version, context.versionExpression)) ) {
+            if ((dependencyFound = semver.satisfies(jsonObj.version, context.versionExpression))) {
                 break;
             }
         }
@@ -111,15 +110,15 @@ module.exports = function (pb) {
         var validationErrors = [];
         if (!dependencyFound) {
             validationErrors.push(BaseObjectService.validationFailure(context.moduleName,
-                'Failed to find an existing bower module to satisfy dependency '+context.moduleName+':'+context.versionExpression));
+                'Failed to find an existing bower module to satisfy dependency ' + context.moduleName + ':' + context.versionExpression));
         }
 
         //build validation errors
         var result = PluginDependencyService.buildResult(context.moduleName, dependencyFound, validationErrors);
-        process.nextTick(function() {
+        process.nextTick(function () {
             cb(null, result);
         });
-    };
+    }
 
     /**
      * Responsible for ensuring that all dependencies for a plugin are installed by iterating over the "bowerDependencies"
@@ -132,18 +131,18 @@ module.exports = function (pb) {
      * @param {object} options.configuration
      * @param {function} cb (Error, Boolean)
      */
-    BowerPluginDependencyService.prototype._installAll = function(dependencies, options, cb) {
+    _installAll(dependencies, options, cb) {
 
-        var command = Object.keys(dependencies).map(function(moduleName) {
-            return moduleName+'#'+dependencies[moduleName];
+        var command = Object.keys(dependencies).map(function (moduleName) {
+            return moduleName + '#' + dependencies[moduleName];
         });
         bower.commands.install(command, {save: false}, options.configuration.bowerRc)
             .on('log', options.configuration.logListener)
-            .once('end', function(result) {
+            .once('end', function (result) {
                 cb(null, {result: result, logOutput: options.configuration.logOutput});
             })
             .once('error', cb);
-    };
+    }
 
     /**
      * Configures Bower to emit log statements as well as set the installation directory for the plugin.
@@ -153,31 +152,31 @@ module.exports = function (pb) {
      * @param {object} options.pluginUid
      * @param {function} cb (Error, {logOutput: Array, logListener: function, bowerRc: object})
      */
-    BowerPluginDependencyService.prototype.configure = function(options, cb) {
+    configure(options, cb) {
         var bowerRc = {
             directory: path.join(PluginService.getPluginsDir(), options.pluginUid, 'public', 'bower_components'),
             ignoredDependencies: []
         };
-        bower.commands.list().on('end', function(list) {
+        bower.commands.list().on('end', function (list) {
 
-            //add pencilblue bower dependencies to ignored dependency list, because we do not want to have them installed in the plugins bower_components folder
-            util.forEach(list.pkgMeta.dependencies, function (packageVersion, packageName) {
-                bowerRc.ignoredDependencies.push(packageName);
-            });
+                //add pencilblue bower dependencies to ignored dependency list, because we do not want to have them installed in the plugins bower_components folder
+                _.forEach(list.pkgMeta.dependencies, function (packageVersion, packageName) {
+                    bowerRc.ignoredDependencies.push(packageName);
+                });
 
-            //prepare a context object
-            var statements = [];
-            var context = {
-                logOutput: statements,
-                logListener: function(message) {
-                    statements.push(message);
-                },
-                bowerRc: bowerRc
-            };
-            cb(null, context);
-        })
-        .once('error', cb);
-    };
+                //prepare a context object
+                var statements = [];
+                var context = {
+                    logOutput: statements,
+                    logListener: function (message) {
+                        statements.push(message);
+                    },
+                    bowerRc: bowerRc
+                };
+                cb(null, context);
+            })
+            .once('error', cb);
+    }
 
     /**
      * Generates the path to a Bower module for the specified plugin
@@ -187,9 +186,9 @@ module.exports = function (pb) {
      * @param {string} bowerPackageName
      * @return {string} An absolute path
      */
-    BowerPluginDependencyService.getPluginPathToBowerJson = function(pluginUid, bowerPackageName) {
+    static getPluginPathToBowerJson(pluginUid, bowerPackageName) {
         return path.join(PluginService.getPluginsDir(), pluginUid, 'public', 'bower_components', bowerPackageName, '.bower.json');
-    };
+    }
 
     /**
      * Generates the path to a Bower module for the platform
@@ -198,9 +197,9 @@ module.exports = function (pb) {
      * @param {string} bowerPackageName
      * @return {string} An absolute path
      */
-    BowerPluginDependencyService.getRootPathToBowerJson = function(bowerPackageName) {
-        return path.join(pb.config.docRoot, 'public', 'bower_components', bowerPackageName, '.bower.json');
-    };
+    static getRootPathToBowerJson(bowerPackageName) {
+        return path.join(Configuration.active.docRoot, 'public', 'bower_components', bowerPackageName, '.bower.json');
+    }
+}
 
-    return BowerPluginDependencyService;
-};
+module.exports = BowerPluginDependencyService;

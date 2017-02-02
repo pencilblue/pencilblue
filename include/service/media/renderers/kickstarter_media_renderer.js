@@ -17,20 +17,16 @@
 'use strict';
 
 //dependencies
+const _ = require('lodash');
+const BaseMediaRenderer = require('./base_media_renderer');
 var url = require('url');
 
-module.exports = function KickStarterMediaRendererModule(pb) {
-
-    //pb dependencies
-    var util              = pb.util;
-    var BaseMediaRenderer = pb.media.renderers.BaseMediaRenderer;
-
-    /**
-     *
-     * @class KickStarterMediaRenderer
-     * @constructor
-     */
-    function KickStarterMediaRenderer(){}
+/**
+ *
+ * @class KickStarterMediaRenderer
+ * @constructor
+ */
+class KickStarterMediaRenderer {
 
     /**
      * The media type supported by the provider
@@ -39,7 +35,9 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @property TYPE
      * @type {String}
      */
-    var TYPE = 'kickstarter';
+    static get TYPE() {
+        return 'kickstarter';
+    }
 
     /**
      * Provides the styles used by each type of view
@@ -48,22 +46,24 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @property STYLES
      * @type {Object}
      */
-    var STYLES = Object.freeze({
+    static get STYLES() {
+        return Object.freeze({
 
-        view: {
-            width: "100%"
-        },
+            view: {
+                width: "100%"
+            },
 
-        editor: {
-            width: "500px",
-            height: "281px"
-        },
+            editor: {
+                width: "500px",
+                height: "281px"
+            },
 
-        post: {
-            width: "500px",
-            height: "281px"
-        }
-    });
+            post: {
+                width: "500px",
+                height: "281px"
+            }
+        });
+    }
 
     /**
      * Retrieves the supported extension types for the renderer.
@@ -71,9 +71,9 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @method getSupportedExtensions
      * @return {Array}
      */
-    KickStarterMediaRenderer.getSupportedExtensions = function() {
+    static getSupportedExtensions() {
         return [];
-    };
+    }
 
     /**
      * Retrieves the style for the specified type of view
@@ -82,9 +82,9 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @param {String} viewType The view type calling for a styling
      * @return {Object} a hash of style properties
      */
-    KickStarterMediaRenderer.getStyle = function(viewType) {
-        return STYLES[viewType] || STYLES.view;
-    };
+    static getStyle(viewType) {
+        return KickStarterMediaRenderer.STYLES[viewType] || KickStarterMediaRenderer.STYLES.view;
+    }
 
     /**
      * Retrieves the supported media types as a hash.
@@ -92,11 +92,11 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @method getSupportedTypes
      * @return {Object}
      */
-    KickStarterMediaRenderer.getSupportedTypes = function() {
+    static getSupportedTypes() {
         var types = {};
-        types[TYPE] = true;
+        types[KickStarterMediaRenderer.TYPE] = true;
         return types;
-    };
+    }
 
     /**
      * Retrieves the name of the renderer.
@@ -104,9 +104,9 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @method getName
      * @return {String}
      */
-    KickStarterMediaRenderer.getName = function() {
+    static getName() {
         return 'KickStarterMediaRenderer';
-    };
+    }
 
     /**
      * Determines if the URL to a media object is supported by this renderer
@@ -115,10 +115,10 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {Boolean} TRUE if the URL is supported by the renderer, FALSE if not
      */
-    KickStarterMediaRenderer.isSupported = function(urlStr) {
+    static isSupported(urlStr) {
         var details = url.parse(urlStr, true, true);
         return KickStarterMediaRenderer.isFullSite(details);
-    };
+    }
 
     /**
      * Indicates if the passed URL to a media resource points to the main website
@@ -128,12 +128,12 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @param {Object|String} parsedUrl The URL string or URL object
      * @return {Boolean} TRUE if URL points to the main domain and media resource, FALSE if not
      */
-    KickStarterMediaRenderer.isFullSite = function(parsedUrl) {
-        if (util.isString(parsedUrl)) {
-            parsedUrl = url.parse(urlStr, true, true);
+    static isFullSite(parsedUrl) {
+        if (_.isString(parsedUrl)) {
+            parsedUrl = url.parse(parsedUrl, true, true);
         }
         return parsedUrl.host && parsedUrl.host.indexOf('kickstarter.com') >= 0 && parsedUrl.pathname.indexOf('/') >= 0;
-    };
+    }
 
     /**
      * Gets the specific type of the media resource represented by the provided URL
@@ -142,9 +142,9 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @param {String} urlStr
      * @return {String}
      */
-    KickStarterMediaRenderer.getType = function(urlStr) {
-        return KickStarterMediaRenderer.isSupported(urlStr) ? TYPE : null;
-    };
+    static getType(urlStr) {
+        return KickStarterMediaRenderer.isSupported(urlStr) ? KickStarterMediaRenderer.TYPE : null;
+    }
 
     /**
      * Retrieves the Font Awesome icon class.  It is safe to assume that the type
@@ -154,9 +154,9 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @param {String} type
      * @return {String}
      */
-    KickStarterMediaRenderer.getIcon = function(type) {
+    static getIcon(type) {
         return 'dollar';
-    };
+    }
 
     /**
      * Renders the media resource via the raw URL to the resource
@@ -172,14 +172,14 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    KickStarterMediaRenderer.renderByUrl = function(urlStr, props, cb) {
-        KickStarterMediaRenderer.getMediaId(urlStr, function(err, mediaId) {
-            if (util.isError(err)) {
+    static renderByUrl(urlStr, props, cb) {
+        KickStarterMediaRenderer.getMediaId(urlStr, function (err, mediaId) {
+            if (_.isError(err)) {
                 return cb(err);
             }
             KickStarterMediaRenderer.render({location: mediaId}, props, cb);
         });
-    };
+    }
 
     /**
      * Renders the media resource via the media descriptor object.  It is only
@@ -199,15 +199,15 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * occurred and the second is the rendering of the media resource as a HTML
      * formatted string
      */
-    KickStarterMediaRenderer.render = function(media, options, cb) {
-        if (util.isFunction(options)) {
+    static render(media, options, cb) {
+        if (_.isFunction(options)) {
             cb = options;
             options = {};
         }
 
         var embedUrl = KickStarterMediaRenderer.getEmbedUrl(media.location);
         cb(null, BaseMediaRenderer.renderIFrameEmbed(embedUrl, options.attrs, options.style));
-    };
+    }
 
     /**
      * Retrieves the source URI that will be used when generating the rendering
@@ -217,9 +217,9 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @return {String} A properly formatted URI string that points to the resource
      * represented by the media Id
      */
-    KickStarterMediaRenderer.getEmbedUrl = function(mediaId) {
+    static getEmbedUrl(mediaId) {
         return 'https://www.kickstarter.com/' + mediaId + '/widget/video.html';
-    };
+    }
 
     /**
      * Retrieves the unique identifier from the URL provided.  The value should
@@ -228,7 +228,7 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @static
      * @method getMediaId
      */
-    KickStarterMediaRenderer.getMediaId = function(urlStr, cb) {
+    static getMediaId(urlStr, cb) {
         var details = url.parse(urlStr, true, true);
         var mediaId = details.pathname;
         if (mediaId.indexOf('/') === 0) {
@@ -238,7 +238,7 @@ module.exports = function KickStarterMediaRendererModule(pb) {
             mediaId = mediaId.substring(0, mediaId.length - 2);
         }
         cb(null, mediaId);
-    };
+    }
 
     /**
      * Retrieves any meta data about the media represented by the URL.
@@ -250,11 +250,11 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @param {Function} cb A callback that provides an Error if occurred and an
      * Object if meta was collected.  NULL if no meta was collected
      */
-    KickStarterMediaRenderer.getMeta = function(urlStr, isFile, cb) {
+    static getMeta(urlStr, isFile, cb) {
         var details = url.parse(urlStr, true, true);
         var meta = details.query;
         cb(null, meta);
-    };
+    }
 
     /**
      * Retrieves a URI to a thumbnail for the media resource
@@ -265,9 +265,9 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * occurred and the second is the URI string to the thumbnail.  Empty string or
      * NULL if no thumbnail is available
      */
-    KickStarterMediaRenderer.getThumbnail = function(urlStr, cb) {
+    static getThumbnail(urlStr, cb) {
         cb(null, '');
-    };
+    }
 
     /**
      * Retrieves the native URL for the media resource.  This can be the raw page
@@ -275,10 +275,10 @@ module.exports = function KickStarterMediaRendererModule(pb) {
      * @static
      * @method getNativeUrl
      */
-    KickStarterMediaRenderer.getNativeUrl = function(media) {
+    static getNativeUrl(media) {
         return 'https://kickstarter.com/' + media.location;
-    };
+    }
+}
 
-    //exports
-    return KickStarterMediaRenderer;
-};
+//exports
+module.exports = KickStarterMediaRenderer;

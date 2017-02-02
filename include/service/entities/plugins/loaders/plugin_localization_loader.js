@@ -14,28 +14,27 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-"use strict";
+'use strict';
 
 //dependencies
-var path = require('path');
+const _ = require('lodash');
+const FileUtils = require('../../../../../lib/utils/fileUtils');
+const Localization = require('../../../../localization');
+const log = require('../../../../utils/logging').newInstance('PluginLocalizationLoader');
+const path = require('path');
+const PluginResourceLoader = require('./plugin_resource_loader');
+const PluginService = require('../../plugin_service');
 
-module.exports = function (pb) {
-
-    //pb dependencies
-    var util = pb.util;
-    var PluginService = pb.PluginService;
-    var PluginResourceLoader = pb.PluginResourceLoader;
-    var Localization = pb.Localization;
-
-    /**
-     * @class PluginLocalizationLoader
-     * @extends PluginResourceLoader
-     * @constructor
-     * @param {object} context
-     * @param {string} context.pluginUid
-     * @param {string} context.site
-     */
-    function PluginLocalizationLoader(context){
+/**
+ * @class PluginLocalizationLoader
+ * @extends PluginResourceLoader
+ * @constructor
+ * @param {object} context
+ * @param {string} context.pluginUid
+ * @param {string} context.site
+ */
+class PluginLocalizationLoader extends PluginResourceLoader {
+    constructor(context) {
 
         /**
          * @property site
@@ -43,9 +42,8 @@ module.exports = function (pb) {
          */
         this.site = context.site;
 
-        PluginLocalizationLoader.super_.call(this, context);
+        super(context);
     }
-    util.inherits(PluginLocalizationLoader, PluginResourceLoader);
 
     /**
      * Responsible for initializing the resource.  Calls the init function after extracting the prototype from the
@@ -56,16 +54,16 @@ module.exports = function (pb) {
      * @param {boolean} [context.register=false]
      * @param {function} cb (Error, ControllerPrototype)
      */
-    PluginLocalizationLoader.prototype.initResource = function(resource, context, cb) {
+    initResource(resource, context, cb) {
         if (!context.register) {
             return cb(null, resource);
         }
 
         //we made it this far so we need to register the controller with the RequestHandler
-        this.register(resource, context, function(err) {
+        this.register(resource, context, function (err) {
             cb(err, resource);
         });
-    };
+    }
 
     /**
      * Responsible for initializing the resource.  Calls the init function after extracting the prototype from the
@@ -76,19 +74,19 @@ module.exports = function (pb) {
      * @param {string} context.path
      * @param {function} cb (Error)
      */
-    PluginLocalizationLoader.prototype.register = function(localization, context, cb) {
+    register(localization, context, cb) {
         var locale = this.getResourceName(context.path, localization);
-        pb.log.debug('PluginLocalizationLoader:[%s] Registering localizations for locale [%s]', this.pluginUid, locale);
+        log.debug('PluginLocalizationLoader:[%s] Registering localizations for locale [%s]', this.pluginUid, locale);
 
         var opts = {
             site: this.site,
             plugin: this.pluginUid
         };
         if (!Localization.registerLocale(locale, localization, opts)) {
-            pb.log.debug('PluginLocalizationLoader:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', this.pluginUid, locale);
+            log.debug('PluginLocalizationLoader:[%s] Failed to register localizations for locale [%s].  Is the locale supported in your configuration?', this.pluginUid, locale);
         }
         process.nextTick(cb);
-    };
+    }
 
     /**
      * Derives the unique name of the resource
@@ -97,9 +95,9 @@ module.exports = function (pb) {
      * @param {object} resource
      * @return {string}
      */
-    PluginLocalizationLoader.prototype.getResourceName = function(pathToResource, resource) {
+    getResourceName(pathToResource, resource) {
         return PluginResourceLoader.getResourceName(pathToResource);
-    };
+    }
 
     /**
      * Creates the function that will be used to filter through the files in the resource directory.  This is most
@@ -107,18 +105,18 @@ module.exports = function (pb) {
      * @method getFileFilter
      * @return {function} (string, object)
      */
-    PluginLocalizationLoader.prototype.getFileFilter = function() {
-        return util.getFileExtensionFilter('json');
-    };
+    getFileFilter() {
+        return FileUtils.getFileExtensionFilter('json');
+    }
 
     /**
      * Derives the absolute path to the directory that contains all of the resources that are to be loaded
      * @method getBaseResourcePath
      * @return {string}
      */
-    PluginLocalizationLoader.prototype.getBaseResourcePath = function() {
+    getBaseResourcePath() {
         return PluginLocalizationLoader.getPathToLocalizations(this.pluginUid);
-    };
+    }
 
     /**
      * Creates an absolute path pointing to the directory where a plugin's localizations live
@@ -127,9 +125,9 @@ module.exports = function (pb) {
      * @param {string} pluginUid
      * @return {string}
      */
-    PluginLocalizationLoader.getPathToLocalizations = function(pluginUid) {
+    static getPathToLocalizations(pluginUid) {
         return path.join(PluginService.getPublicPath(pluginUid), 'localization');
-    };
+    }
+}
 
-    return PluginLocalizationLoader;
-};
+module.exports = PluginLocalizationLoader;

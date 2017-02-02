@@ -17,18 +17,23 @@
 'use strict';
 
 //dependencies
-const util  = require('../../../util.js');
 const _ = require('lodash');
+const ArrayUtils = require('../../../../lib/utils/array_utils');
 const async = require('async');
 const BaseObjectService = require('../../base_object_service');
+const Configuration = require('../../../config');
 const DAO = require('../../../dao/dao');
 const fs = require('fs');
+const FsMediaProvider = require('../../media/fs_media_provider');
 const log = require('../../../utils/logging').newInstance('MediaServiceV2');
+const mime = require('mime');
+const MongoMediaProvider = require('../../media/mongo_media_provider');
 const path = require('path');
+const TaskUtils = require('../../../../lib/utils/taskUtils');
+const TopicService = require('../topic_service');
+const UrlUtils = require('../../../../lib/utils/urlUtils');
+const uuid = require('uuid');
 const ValidationService = require('../../../validation/validation_service');
-
-//TODO [1.0] remove wrapper
-module.exports = function(pb) {
 
     /**
      * Provides functions to interact with media objects.  This also includes interacting with the media contents
@@ -48,7 +53,7 @@ module.exports = function(pb) {
              * @property topicService
              * @type {TopicService}
              */
-            this.topicService = new pb.TopicService(Object.assign({}, context));
+            this.topicService = new TopicService(Object.assign({}, context));
 
             /**
              * @property provider
@@ -76,8 +81,8 @@ module.exports = function(pb) {
          */
         static get MEDIA_PROVIDERS() {
             return Object.freeze({
-                fs: pb.media.providers.FsMediaProvider,
-                mongo: pb.media.providers.MongoMediaProvider
+                fs: FsMediaProvider,
+                mongo: MongoMediaProvider
             });
         }
 
@@ -120,7 +125,7 @@ module.exports = function(pb) {
                     self.provider.getStream(media.location, function (err, stream) {
                         callback(err, stream ? {
                             stream: stream,
-                            mime: media.mime || pb.RequestHandler.getMimeFromPath(media.location)
+                            mime: media.mime || mime.lookup(media.location)
                         } : null);
                     });
                 }
@@ -180,7 +185,7 @@ module.exports = function(pb) {
             var self = this;
 
             this.dao.loadById(id, MediaServiceV2.TYPE, function (err, media) {
-                if (util.isError(err) || !media) {
+                if (_.isError(err) || !media) {
                     return cb(err, null);
                 }
 
@@ -234,7 +239,7 @@ module.exports = function(pb) {
             var errors = context.validationErrors;
 
             //ensure we have a request body
-            if (!util.isObject(obj)) {
+            if (!_.isObject(obj)) {
                 errors.push(BaseObjectService.validationFailure('', 'The descriptor must be an object'));
                 return cb(null, errors);
             }
@@ -252,8 +257,8 @@ module.exports = function(pb) {
 
             //validate other stuff
             var tasks = [
-                util.wrapTask(this, this.validateName, [context]),
-                util.wrapTask(this, this.validateTopicReferences, [context])
+                TaskUtils.wrapTask(this, this.validateName, [context]),
+                TaskUtils.wrapTask(this, this.validateTopicReferences, [context])
             ];
             async.series(tasks, cb);
         }
@@ -271,7 +276,7 @@ module.exports = function(pb) {
             var obj = context.data;
             var errors = context.validationErrors;
 
-            if (!util.isArray(obj.media_topics)) {
+            if (!Array.isArray(obj.media_topics)) {
                 errors.push(BaseObjectService.validationFailure('media_topics', 'A valid array of topic IDs must be provided'));
                 return cb();
             }
@@ -287,13 +292,13 @@ module.exports = function(pb) {
                 where: DAO.getIdInWhere(obj.media_topics)
             };
             this.topicService.getAll(opts, function (err, topics) {
-                if (util.isError(err)) {
+                if (_.isError(err)) {
                     return cb(err);
                 }
 
                 //convert to map
-                var map = util.arrayToObj(topics, function (topics, i) {
-                    return topics[i].id.toString();
+                var map = ArrayUtils.toObject(topics, function (topic) {
+                    return topic.id.toString();
                 });
 
                 //find the ones that don't exist
@@ -327,7 +332,7 @@ module.exports = function(pb) {
             //ensure the media name is unique
             var where = {name: obj.name};
             this.dao.unique(MediaServiceV2.TYPE, where, obj[DAO.getIdField()], function (err, isUnique) {
-                if (util.isError(err)) {
+                if (_.isError(err)) {
                     return cb(err);
                 }
                 else if (!isUnique) {
@@ -376,7 +381,7 @@ module.exports = function(pb) {
             if (ValidationService.isNonEmptyStr(dto.media_topics, true)) {
                 dto.media_topics = dto.media_topics.split(',');
             }
-            else if (util.isNullOrUndefined(dto.media_topics) || dto.media_topics === '') {
+            else if (_.isNil(dto.media_topics) || dto.media_topics === '') {
                 dto.media_topics = [];
             }
             cb(null);
@@ -408,7 +413,7 @@ module.exports = function(pb) {
 
             //check to see if we have a file handle
             var mediaUrl;
-            if ((obj.isFile = util.isObject(dto.content))) {
+            if ((obj.isFile = _.isObject(dto.content))) {
 
                 //ensure the content is available for validation
                 obj.content = dto.content;
@@ -418,7 +423,7 @@ module.exports = function(pb) {
                 obj.meta.fileSize = obj.content.size;
                 mediaUrl = MediaServiceV2.generateMediaPath(obj.content.name);
             }
-            else if (util.isString(dto.content)) {
+            else if (_.isString(dto.content)) {
                 //we were given a link, clear out any old refs to a file based media obj
                 mediaUrl = dto.content;
                 obj.meta = {};
@@ -453,7 +458,7 @@ module.exports = function(pb) {
                     obj.icon = renderer.getIcon(result.type);
                     obj.thumbnail = taskResult.thumbnail;
                     obj.location = taskResult.mediaId;
-                    util.merge(taskResult.meta, obj.meta);
+                    Object.assign(obj.meta, taskResult.meta);
                 }
                 cb(err);
             });
@@ -559,7 +564,7 @@ module.exports = function(pb) {
             if (!mid) {
                 throw new Error('The media id is required but [' + mid + '] was provided');
             }
-            else if (!util.isObject(options)) {
+            else if (!_.isObject(options)) {
                 options = {};
             }
 
@@ -593,7 +598,7 @@ module.exports = function(pb) {
          * @return {Object} An object that contains the information about the parsed media flag.
          */
         static extractNextMediaFlag(content) {
-            if (!util.isString(content)) {
+            if (!_.isString(content)) {
                 return null;
             }
 
@@ -634,7 +639,7 @@ module.exports = function(pb) {
          * @return {Object} An object that contains the information about the parsed media flag.
          */
         static parseMediaFlag(flag) {
-            if (!util.isString(flag)) {
+            if (!_.isString(flag)) {
                 return null;
             }
 
@@ -676,14 +681,14 @@ module.exports = function(pb) {
             MediaServiceV2.REGISTERED_MEDIA_RENDERERS.forEach(function (provider) {
 
                 //for backward compatibility check for existence of extension retrieval
-                if (!util.isFunction(provider.getSupportedExtensions)) {
+                if (!_.isFunction(provider.getSupportedExtensions)) {
                     log.warn('MediaServiceV2: Renderer %s does provide an implementation for getSupportedExtensions', provider.getName());
                     return;
                 }
 
                 //retrieve the extensions
                 var exts = provider.getSupportedExtensions();
-                if (!util.isArray(exts)) {
+                if (!Array.isArray(exts)) {
                     return;
                 }
 
@@ -749,8 +754,8 @@ module.exports = function(pb) {
          * provider can be loaded.
          */
         static loadMediaProvider(context) {
-            var ProviderType = MediaServiceV2.MEDIA_PROVIDERS[pb.config.media.provider];
-            if (util.isNullOrUndefined(ProviderType)) {
+            var ProviderType = MediaServiceV2.MEDIA_PROVIDERS[Configuration.active.media.provider];
+            if (_.isNil(ProviderType)) {
                 ProviderType = MediaServiceV2.findProviderType();
             }
             return !!ProviderType ? new ProviderType(context) : null;
@@ -763,10 +768,10 @@ module.exports = function(pb) {
          * @return {MediaProvider}
          */
         static findProviderType() {
-            var paths = [path.join(pb.config.docRoot, pb.config.media.provider), pb.config.media.provider];
+            var paths = [path.join(Configuration.active.docRoot, Configuration.active.media.provider), Configuration.active.media.provider];
             for (var i = 0; i < paths.length; i++) {
                 try {
-                    return require(paths[i])(pb);
+                    return require(paths[i]);
                 }
                 catch (e) {
                     log.silly(e.stack);
@@ -804,7 +809,7 @@ module.exports = function(pb) {
         static generateMediaPath(originalFilename) {
             var now = new Date();
             var filename = MediaServiceV2.generateFilename(originalFilename);
-            return pb.UrlService.urlJoin('/media', now.getFullYear() + '', (now.getMonth() + 1) + '', filename);
+            return UrlUtils.join('/media', now.getFullYear() + '', (now.getMonth() + 1) + '', filename);
         }
 
         /**
@@ -825,7 +830,7 @@ module.exports = function(pb) {
             }
 
             //build file name
-            return util.uniqueId() + '-' + now.getTime() + ext;
+            return uuid.v4() + '-' + now.getTime() + ext;
         }
 
         /**
@@ -860,7 +865,7 @@ module.exports = function(pb) {
                 if (!renderer) {
                     var result = MediaServiceV2.getRendererByType(item.media_type);
                     if (!result) {
-                        log.warn('MediaService: Media item [%s] contains an unsupported media type.', media[pb.DAO.getIdField()]);
+                        log.warn('MediaService: Media item [%s] contains an unsupported media type.', media[DAO.getIdField()]);
                     }
                     else {
                         quickLookup[item.media_type] = renderer = result.renderer;
@@ -890,8 +895,8 @@ module.exports = function(pb) {
             }
 
             var base = renderer.getStyle(view);
-            var clone = util.clone(base);
-            util.merge(overrides, clone);
+            var clone = _.clone(base);
+            Object.assign(clone, overrides);
             return clone;
         }
 
@@ -908,18 +913,18 @@ module.exports = function(pb) {
     }
 
     var registeredMediaRenderers = [
-        pb.media.renderers.ImageMediaRenderer,
-        pb.media.renderers.VideoMediaRenderer,
-        pb.media.renderers.YouTubeMediaRenderer,
-        pb.media.renderers.DailyMotionMediaRenderer,
-        pb.media.renderers.VimeoMediaRenderer,
-        pb.media.renderers.VineMediaRenderer,
-        pb.media.renderers.InstagramMediaRenderer,
-        pb.media.renderers.SlideShareMediaRenderer,
-        pb.media.renderers.TrinketMediaRenderer,
-        pb.media.renderers.StorifyMediaRenderer,
-        pb.media.renderers.KickStarterMediaRenderer,
-        pb.media.renderers.PdfMediaRenderer
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/image_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/video_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/youtube_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/daily_motion_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/vimeo_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/vine_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/instagram_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/slideshare_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/trinket_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/storify_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/kickstarter_media_renderer.js')),
+        require(path.join(Configuration.active.docRoot, '/include/service/media/renderers/pdf_media_renderer.js'))
     ];
 
     //Event Registries
@@ -929,5 +934,4 @@ module.exports = function(pb) {
     BaseObjectService.on(MediaServiceV2.TYPE + '.' + BaseObjectService.BEFORE_SAVE, MediaServiceV2.onBeforeSave);
 
     //exports
-    return MediaServiceV2;
-};
+    module.exports = MediaServiceV2;

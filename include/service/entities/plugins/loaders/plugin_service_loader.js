@@ -14,32 +14,37 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-"use strict";
+'use strict';
 
 //dependencies
-var npm = require('npm');
-var semver = require('semver');
-var path = require('path');
-var fs = require('fs');
+const _ = require('lodash');
+const FileUtils = require('../../../../../lib/utils/fileUtils');
+const fs = require('fs');
+const npm = require('npm');
+const path = require('path');
+const PluginResourceLoader = require('./plugin_resource_loader');
+const PluginService = require('../../plugin_service');
+const semver = require('semver');
 
-module.exports = function (pb) {
-
-    //pb dependencies
-    var util = pb.util;
-    var PluginService = pb.PluginService;
-    var PluginResourceLoader = pb.PluginResourceLoader;
+/**
+ * @class PluginServiceLoader
+ * @extends PluginResourceLoader
+ * @constructor
+ * @param {object} context
+ * @param {string} context.pluginUid
+ */
+class PluginServiceLoader extends PluginResourceLoader {
+    constructor(context) {
+        super(context);
+    }
 
     /**
-     * @class PluginServiceLoader
-     * @extends PluginResourceLoader
-     * @constructor
-     * @param {object} context
-     * @param {string} context.pluginUid
+     * The name of the directory where services are located within a plugin's directory structure
+     * @returns {string}
      */
-    function PluginServiceLoader(context){
-        PluginServiceLoader.super_.call(this, context);
+    static get SERVICES_DIR () {
+        return 'services';
     }
-    util.inherits(PluginServiceLoader, PluginResourceLoader);
 
     /**
      * Responsible for initializing the resource.  Calls the init function after extracting the prototype from the
@@ -49,12 +54,12 @@ module.exports = function (pb) {
      * @param {object} options
      * @param {function} cb (Error)
      */
-    PluginServiceLoader.prototype.initResource = function(resource, options, cb) {
-        var service = resource(pb);
-        service.init(function(err) {
+    initResource(resource, options, cb) {
+        var service = resource;
+        service.init(function (err) {
             cb(err, service);
         });
-    };
+    }
 
     /**
      * Derives the unique name of the resource
@@ -63,9 +68,9 @@ module.exports = function (pb) {
      * @param {object} resource
      * @return {string}
      */
-    PluginServiceLoader.prototype.getResourceName = function(pathToResource, resource) {
+    getResourceName(pathToResource, resource) {
         return PluginServiceLoader.getServiceName(pathToResource, resource);
-    };
+    }
 
     /**
      * Creates the function that will be used to filter through the files in the resource directory.  This is most
@@ -73,18 +78,18 @@ module.exports = function (pb) {
      * @method getFileFilter
      * @return {function} (string, object)
      */
-    PluginServiceLoader.prototype.getFileFilter = function() {
-        return util.getFileExtensionFilter('js');
-    };
+    getFileFilter() {
+        return FileUtils.getFileExtensionFilter('js');
+    }
 
     /**
      * Derives the absolute path to the directory that contains all of the resources that are to be loaded
      * @method getBaseResourcePath
      * @return {string}
      */
-    PluginServiceLoader.prototype.getBaseResourcePath = function() {
+    getBaseResourcePath() {
         return PluginServiceLoader.getPathToServices(this.pluginUid);
-    };
+    }
 
     /**
      * Creates an absolute path pointing to the directory where a plugin's services live
@@ -93,9 +98,9 @@ module.exports = function (pb) {
      * @param {string} pluginUid
      * @return {string}
      */
-    PluginServiceLoader.getPathToServices = function(pluginUid) {
-        return path.join(PluginService.getPluginsDir(), pluginUid, 'services');
-    };
+    static getPathToServices(pluginUid) {
+        return path.join(PluginService.getPluginsDir(), pluginUid, PluginServiceLoader.SERVICES_DIR);
+    }
 
     /**
      * Derives the name of a plugin service instance.  The function attempts to get
@@ -108,9 +113,9 @@ module.exports = function (pb) {
      * @param service The service prototype
      * @return {String} The derived service name
      */
-    PluginServiceLoader.getServiceName = function(pathToService, service) {
-        return service && util.isFunction(service.getName) ? service.getName() : PluginResourceLoader.getResourceName(pathToService);
-    };
+    static getServiceName(pathToService, service) {
+        return service && _.isFunction(service.getName) ? service.getName() : PluginResourceLoader.getResourceName(pathToService);
+    }
+}
 
-    return PluginServiceLoader;
-};
+module.exports = PluginServiceLoader;
