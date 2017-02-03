@@ -16,10 +16,9 @@
  */
 
 //dependencies
-var _ = require('lodash');
-var Configuration = require('../../config');
-var formidable = require('formidable');
-var util       = require('../../util.js');
+const _ = require('lodash');
+const Configuration = require('../../config');
+const formidable = require('formidable');
 
 /**
  * Provides function to construct the structure needed to display the navigation

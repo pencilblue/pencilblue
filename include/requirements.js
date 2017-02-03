@@ -165,7 +165,7 @@ module.exports = function PB() {
     pb.TokenService       = require(path.join(config.docRoot, '/include/service/entities/token_service.js'));
 
     //create plugin service
-    pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);
+    pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'));
     Object.defineProperty(pb, 'plugins', {
         get: function() {
             pb.log.warn('PencilBlue: pb.plugins is deprecated.  Use new pb.PluginService instead');

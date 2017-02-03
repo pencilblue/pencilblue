@@ -19,644 +19,645 @@
 //dependencies
 var _ = require('lodash');
 var async = require('async');
+const BaseObjectService = require('../base_object_service');
+const CommandService = require('../../system/command/command_service');
 var Configuration = require('../../config');
 var DAO = require('../../dao/dao');
 var Localization = require('../../localization');
 var log = require('../../utils/logging').newInstance('SiteService');
 var RegExpUtils = require('../../utils/reg_exp_utils');
+const RequestHandler = require('../../http/request_handler');
+const SiteActivateJob = require('../jobs/sites/site_activate_job');
+const SiteCreateEditJob = require('../jobs/sites/site_create_edit_job');
+const SiteDeactivateJob = require('../jobs/sites/site_deactivate_job');
+const SiteQueryService = require('./site_query_service');
 var url = require('url');
-var util  = require('../../util.js');
 var uuid = require('uuid');
 
-module.exports = function (pb) {
+/**
+ * Service for performing site specific operations.
+ * @param {object} context
+ */
+class SiteService extends BaseObjectService {
+    constructor(context) {
 
-    var BaseObjectService = pb.BaseObjectService;
+        context.type = SiteService.TYPE;
+
+        //call parent constructor
+        super(context);
+
+        //override DAO with non-site specific DAO
+        this.dao = new DAO();
+    }
 
     /**
-     * Service for performing site specific operations.
-     * @param {object} context
+     * The name of the DB collection where the resources are persisted
+     * @readonly
+     * @type {String}
      */
-    class SiteService extends pb.BaseObjectService {
-        constructor(context) {
+    static get TYPE() {
+        return 'site';
+    }
 
-            context.type = SiteService.TYPE;
+    /**
+     * represents default configuration, not actually a full site
+     * @readonly
+     * @type {String}
+     */
+    static get GLOBAL_SITE() {
+        return 'global';
+    }
 
-            //call parent constructor
-            super(context);
+    /**
+     * represents a site that doesn't exist
+     * @static
+     * @readonly
+     * @property NO_SITE
+     * @type {String}
+     */
+    static get NO_SITE() {
+        return 'no-site';
+    }
 
-            //override DAO with non-site specific DAO
-            this.dao = new DAO();
+    /**
+     *
+     * @static
+     * @readonly
+     * @property SITE_FIELD
+     * @type {String}
+     */
+    static get SITE_FIELD() {
+        return 'site';
+    }
+
+    /**
+     *
+     * @static
+     * @readonly
+     * @property SITE_COLLECTION
+     * @type {String}
+     */
+    static get SITE_COLLECTION() {
+        return 'site';
+    }
+
+    /**
+     * Load full site config from the database using the unique id.
+     * @method getByUid
+     * @param {String} uid - unique id of site
+     * @param {Function} cb - the callback function
+     */
+    getByUid(uid, cb) {
+        if (!uid || uid === SiteService.GLOBAL_SITE) {
+            cb(null, {
+                displayName: Configuration.active.siteName,
+                hostname: Configuration.active.siteRoot,
+                uid: SiteService.GLOBAL_SITE,
+                defaultLocale: Localization.getDefaultLocale(),
+                supportedLocales: {}
+            });
+        }
+        else {
+            var dao = new DAO();
+            var where = {uid: uid};
+            dao.loadByValues(where, SiteService.SITE_COLLECTION, cb);
+        }
+    }
+
+    /**
+     * Get all of the site objects in the database
+     * @method getAllSites
+     * @param {Function} cb - the callback function
+     */
+    getAllSites(cb) {
+        var dao = new DAO();
+        dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {}}, cb);
+    }
+
+    /**
+     * Get all site objects where activated is true.
+     * @method getActiveSites
+     * @param {Function} cb - the callback function
+     */
+    getActiveSites(cb) {
+        var dao = new DAO();
+        dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {active: true}}, cb);
+    }
+
+    /**
+     * Get all site objects where activated is false.
+     * @method getInactiveSites
+     * @param {Function} cb - the callback function
+     */
+    getInactiveSites(cb) {
+        var dao = new DAO();
+        dao.q(SiteService.SITE_COLLECTION, {where: {active: false}}, cb);
+    }
+
+    /**
+     * Get all site objects segmented by active status.
+     * @method getSiteMap
+     * @param {Function} cb - the callback function
+     */
+    getSiteMap(cb) {
+        var self = this;
+        var tasks = {
+            active: function (callback) {
+                self.getActiveSites(callback);
+            },
+
+            inactive: function (callback) {
+                self.getInactiveSites(callback);
+            }
+        };
+        async.series(tasks, cb);
+    }
+
+    /**
+     * Get site name given a unique id.
+     * @method getSiteNameByUid
+     * @param {String} uid - unique id
+     * @param {Function} cb - the callback function
+     */
+    getSiteNameByUid(uid, cb) {
+        var dao = new DAO();
+        dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {uid: uid}}, function (err, result) {
+            var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
+
+            if (_.isError(err)) {
+                log.error(err);
+                return cb(err);
+            }
+            else if (result && result.length > 0) {
+                siteName = result[0].displayName;
+            }
+            cb(null, siteName);
+        });
+    }
+
+    /**
+     * Checks to see if a proposed site display name or hostname is already in the system
+     * @method isDisplayNameOrHostnameTaken
+     * @param {String}   displayName - desired name to display
+     * @param {String}   hostname - hostname of the site
+     * @param {String}   id - Site object Id to exclude from the search
+     * @param {Function} cb - Callback function
+     */
+    isDisplayNameOrHostnameTaken (displayName, hostname, id, cb) {
+        this.getExistingDisplayNameHostnameCounts(displayName, hostname, id, function (err, results) {
+
+            var result = results === null;
+            if (!result) {
+                result = results.reduce(function (reduction, value) {
+                    return reduction || (value > 0);
+                }, result);
+            }
+            cb(err, result);
+        });
+    }
+
+    /**
+     * Gets the total counts of a display name and hostname in the site collection
+     *
+     * @method getExistingDisplayNameHostnameCounts
+     * @param {String}   displayName - site display name
+     * @param {String}   hostname - site hostname
+     * @param {String}   id - Site object Id to exclude from the search
+     * @param {Function} cb - Callback function
+     */
+    getExistingDisplayNameHostnameCounts (displayName, hostname, id, cb) {
+        if (_.isFunction(id)) {
+            cb = id;
+            id = null;
         }
 
-        /**
-         * The name of the DB collection where the resources are persisted
-         * @readonly
-         * @type {String}
-         */
-        static get TYPE() {
-            return 'site';
-        }
+        var getWhere = function (where) {
+            if (id) {
+                where[DAO.getIdField()] = DAO.getNotIdField(id);
+            }
+            return where;
+        };
+        var dao = new DAO();
+        var tasks = {
+            displayName: function (callback) {
+                var exp = RegExpUtils.getCaseInsensitiveExact(displayName);
+                dao.count('site', getWhere({displayName: exp}), callback);
+            },
+            hostname: function (callback) {
+                dao.count('site', getWhere({hostname: hostname.toLowerCase()}), callback);
+            }
+        };
+        async.parallel(tasks, cb);
+    }
 
-        /**
-         * represents default configuration, not actually a full site
-         * @readonly
-         * @type {String}
-         */
-        static get GLOBAL_SITE() {
-            return 'global';
-        }
+    /**
+     * Run a job to activate a site so that all of its routes are available.
+     * @method activateSite
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback to run after job is completed
+     * @return {String} the job id
+     */
+    activateSite(siteUid, cb) {
 
-        /**
-         * represents a site that doesn't exist
-         * @static
-         * @readonly
-         * @property NO_SITE
-         * @type {String}
-         */
-        static get NO_SITE() {
-            return 'no-site';
-        }
+        var name = util.format("ACTIVATE_SITE_%s", siteUid);
+        var job = new SiteActivateJob({ siteService: this });
+        job.setRunAsInitiator(true);
+        job.init(name);
+        job.setSite({uid: siteUid});
+        job.run(cb);
+        return job.getId();
+    }
 
-        /**
-         *
-         * @static
-         * @readonly
-         * @property SITE_FIELD
-         * @type {String}
-         */
-        static get SITE_FIELD() {
-            return 'site';
-        }
+    /**
+     * Run a job to set a site inactive so that only the admin routes are available.
+     * @method deactivateSite
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback to run after job is completed
+     * @return {String} the job id
+     */
+    deactivateSite(siteUid, cb) {
 
-        /**
-         *
-         * @static
-         * @readonly
-         * @property SITE_COLLECTION
-         * @type {String}
-         */
-        static get SITE_COLLECTION() {
-            return 'site';
-        }
+        var name = util.format("DEACTIVATE_SITE_%s", siteUid);
+        var job = new SiteDeactivateJob();
+        job.setRunAsInitiator(true);
+        job.init(name);
+        job.setSite({uid: siteUid});
+        job.run(cb);
+        return job.getId();
+    }
 
-        /**
-         * Load full site config from the database using the unique id.
-         * @method getByUid
-         * @param {String} uid - unique id of site
-         * @param {Function} cb - the callback function
-         */
-        getByUid(uid, cb) {
-            if (!uid || uid === SiteService.GLOBAL_SITE) {
-                cb(null, {
-                    displayName: Configuration.active.siteName,
-                    hostname: Configuration.active.siteRoot,
-                    uid: SiteService.GLOBAL_SITE,
-                    defaultLocale: Localization.getDefaultLocale(),
-                    supportedLocales: {}
-                });
+    /**
+     * Run a job to update a site's hostname and/or displayname.
+     * @method editSite
+     * @param {Object} options - object containing site fields
+     * @param {String} options.uid - site uid
+     * @param {String} options.hostname - result of site hostname edit/create
+     * @param {String} options.displayName - result of site display name edit/create
+     * @param {Function} cb - callback to run after job is completed
+     * @return {String} the job id
+     */
+    editSite(options, cb) {
+        var name = util.format("EDIT_SITE%s", options.uid);
+        var job = new SiteCreateEditJob();
+        job.setRunAsInitiator(true);
+        job.init(name);
+        job.setSite(options);
+        job.run(cb);
+        return job.getId();
+    }
+
+    /**
+     * Creates a site and saves it to the database.
+     * @method createSite
+     * @param {Object} options - object containing site fields
+     * @param {String} options.hostname - result of site hostname edit/create
+     * @param {String} options.displayName - result of site display name edit/create
+     * @param {Function} cb - callback function
+     */
+    createSite(options, cb) {
+        options.active = false;
+        options.uid = uuid.v4();
+        return this.editSite(options, cb);
+    }
+
+    /**
+     * Given a site uid, activate if the site exists so that user facing routes are on.
+     * @method startAcceptingSiteTraffic
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback function
+     */
+    startAcceptingSiteTraffic(siteUid, cb) {
+        var dao = new DAO();
+        dao.loadByValue('uid', siteUid, 'site', function (err, site) {
+            if (_.isError(err)) {
+                cb(err, null);
+            }
+            else if (!site) {
+                cb(new Error('Site not found'), null);
+            }
+            else if (!site.active) {
+                cb(new Error('Site not active'), null);
             }
             else {
-                var dao = new DAO();
-                var where = {uid: uid};
-                dao.loadByValues(where, SiteService.SITE_COLLECTION, cb);
+                RequestHandler.activateSite(site);
+                cb(err, site);
             }
+        });
+    }
+
+    /**
+     * Given a site uid, deactivate if the site exists so that user facing routes are off.
+     * @method stopAcceptingSiteTraffic
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback function
+     */
+    stopAcceptingSiteTraffic(siteUid, cb) {
+        var dao = new DAO();
+        dao.loadByValue('uid', siteUid, 'site', function (err, site) {
+            if (_.isError(err)) {
+                cb(err, null);
+            }
+            else if (!site) {
+                cb(new Error('Site not found'), null);
+            }
+            else if (site.active) {
+                cb(new Error('Site not deactivated'), null);
+            }
+            else {
+                RequestHandler.deactivateSite(site);
+                cb(err, site);
+            }
+        });
+    }
+
+    /**
+     * Load all sites into memory.
+     * @method initSites
+     * @param {Function} cb
+     */
+    initSites(cb) {
+        var config = Configuration.active;
+        if (config.multisite.enabled && !config.multisite.globalRoot) {
+            return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
+        }
+        this.getAllSites(function (err, results) {
+            if (err) {
+                return cb(err);
+            }
+
+            var defaultLocale = Localization.getDefaultLocale();
+            var defaultSupportedLocales = {};
+            defaultSupportedLocales[defaultLocale] = true;
+            //only load the sites when we are in multi-site mode
+            if (config.multisite.enabled) {
+                results.forEach(function (site) {
+                    site.defaultLocale = site.defaultLocale || defaultLocale;
+                    site.supportedLocales = site.supportedLocales || defaultSupportedLocales;
+                    site.prevHostnames = site.prevHostnames || [];
+                    RequestHandler.loadSite(site);
+                });
+            }
+
+            // To remain backwards compatible, hostname is siteRoot for single tenant
+            // and active allows all routes to be hit.
+            // When multisite, use the configured hostname for global, turn off public facing routes,
+            // and maintain admin routes (active is false).
+            RequestHandler.loadSite(SiteService.getGlobalSiteContext());
+            cb(err, true);
+        });
+    }
+
+    /**
+     * Runs a site activation job when command is received.
+     * @static
+     * @method onActivateSiteCommandReceived
+     * @param {Object} command - the command to react to.
+     */
+    static onActivateSiteCommandReceived(command) {
+        if (!_.isObject(command)) {
+            log.error('SiteService: an invalid activate_site command object was passed. %s', util.inspect(command));
+            return;
         }
 
-        /**
-         * Get all of the site objects in the database
-         * @method getAllSites
-         * @param {Function} cb - the callback function
-         */
-        getAllSites(cb) {
-            var dao = new DAO();
-            dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {}}, cb);
-        }
-
-        /**
-         * Get all site objects where activated is true.
-         * @method getActiveSites
-         * @param {Function} cb - the callback function
-         */
-        getActiveSites(cb) {
-            var dao = new DAO();
-            dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {active: true}}, cb);
-        }
-
-        /**
-         * Get all site objects where activated is false.
-         * @method getInactiveSites
-         * @param {Function} cb - the callback function
-         */
-        getInactiveSites(cb) {
-            var dao = new DAO();
-            dao.q(SiteService.SITE_COLLECTION, {where: {active: false}}, cb);
-        }
-
-        /**
-         * Get all site objects segmented by active status.
-         * @method getSiteMap
-         * @param {Function} cb - the callback function
-         */
-        getSiteMap(cb) {
-            var self = this;
-            var tasks = {
-                active: function (callback) {
-                    self.getActiveSites(callback);
-                },
-
-                inactive: function (callback) {
-                    self.getInactiveSites(callback);
-                }
+        var name = util.format("ACTIVATE_SITE_%s", command.site);
+        var job = new SiteActivateJob();
+        job.setRunAsInitiator(false);
+        job.init(name, command.jobId);
+        job.setSite(command.site);
+        job.run(function (err, result) {
+            var response = {
+                error: err ? err.stack : undefined,
+                result: result ? true : false
             };
-            async.series(tasks, cb);
+            CommandService.getInstance().sendInResponseTo(command, response);
+        });
+    }
+
+    /**
+     * Runs a site deactivation job when command is received.
+     * @static
+     * @method onDeactivateSiteCommandReceived
+     * @param {Object} command - the command to react to.
+     */
+    static onDeactivateSiteCommandReceived(command) {
+        if (!_.isObject(command)) {
+            log.error('SiteService: an invalid deactivate_site command object was passed. %s', util.inspect(command));
+            return;
         }
 
-        /**
-         * Get site name given a unique id.
-         * @method getSiteNameByUid
-         * @param {String} uid - unique id
-         * @param {Function} cb - the callback function
-         */
-        getSiteNameByUid(uid, cb) {
-            var dao = new DAO();
-            dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {uid: uid}}, function (err, result) {
-                var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
+        var name = util.format("DEACTIVATE_SITE_%s", command.site);
+        var job = new SiteDeactivateJob();
+        job.setRunAsInitiator(false);
+        job.init(name, command.jobId);
+        job.setSite(command.site);
+        job.run(function (err, result) {
+            var response = {
+                error: err ? err.stack : undefined,
+                result: result ? true : false
+            };
+            CommandService.getInstance().sendInResponseTo(command, response);
+        });
+    }
 
+    /**
+     * Runs a site deactivation job when command is received.
+     * @static
+     * @method onCreateEditSiteCommandReceived
+     * @param {Object} command - the command to react to.
+     */
+    static onCreateEditSiteCommandReceived(command) {
+        if (!_.isObject(command)) {
+            log.error('SiteService: an invalid create_edit_site command object was passed. %s', util.inspect(command));
+            return;
+        }
+
+        var name = util.format("CREATE_EDIT_SITE%s", command.site);
+        var job = new SiteCreateEditJob();
+        job.setRunAsInitiator(false);
+        job.init(name, command.jobId);
+        job.setSite(command.site);
+        job.run(function (err, result) {
+            var response = {
+                error: err ? err.stack : undefined,
+                result: result ? true : false
+            };
+            CommandService.getInstance().sendInResponseTo(command, response);
+        });
+    }
+
+    /**
+     * Register activate and deactivate commands on initialization
+     * @static
+     * @method init
+     */
+    static init() {
+        var commandService = CommandService.getInstance();
+        commandService.registerForType('activate_site', SiteService.onActivateSiteCommandReceived);
+        commandService.registerForType('deactivate_site', SiteService.onDeactivateSiteCommandReceived);
+        commandService.registerForType('create_edit_site', SiteService.onCreateEditSiteCommandReceived);
+    }
+
+    /**
+     * Returns true if siteId given is global or non-existent (to remain backwards compatible)
+     * @method isGlobal
+     * @param {String} siteId - the site id to check
+     * @return {Boolean} true if global or does not exist
+     */
+    static isGlobal(siteId) {
+        return (!siteId || siteId === SiteService.GLOBAL_SITE);
+    }
+
+    /**
+     * Returns true if both site ids given are equal
+     * @method areEqual
+     * @param {String} siteA - first site id to compare
+     * @param {String} siteB - second site id to compare
+     * @return {Boolean} true if equal, false otherwise
+     */
+    static areEqual(siteA, siteB) {
+        if (SiteService.isGlobal(siteA) && SiteService.isGlobal(siteB)) {
+            return true;
+        }
+        return siteA === siteB;
+    }
+
+    /**
+     * Returns true if actual is not set (falsey) or logically equivalent to expected in terms of sites
+     * @method isNotSetOrEqual
+     * @param {String} actual - site to check
+     * @param {String} expected - site you expect to be equal
+     * @return {Boolean} true if actual exists and equals expected
+     */
+    static isNotSetOrEqual(actual, expected) {
+        return !actual || SiteService.areEqual(actual, expected);
+    }
+
+    /**
+     * Central place to get the current site. Backwards compatible cleansing
+     * @method getCurrentSite
+     * @param {String} siteid - site is to cleanse
+     * @return {String} SiteService.GLOBAL_SITE if not specified, or siteid otherwise
+     */
+    static getCurrentSite (siteid) {
+        return siteid || SiteService.GLOBAL_SITE;
+    }
+
+    /**
+     * Return site field from object.
+     * @method getSiteFromObject
+     * @param {Object} object
+     * @return {String} the value of the object's site field key
+     */
+    static getSiteFromObject (object) {
+        if (!object) {
+            return SiteService.NO_SITE;
+        }
+        return object[SiteService.SITE_FIELD];
+    }
+
+    /**
+     * Determine whether http or https is being used for the site and return hostname attached to http(s)
+     * @method getHostWithProtocol
+     * @param {String} hostname
+     * @return {String} hostname with protocol attached
+     */
+    static getHostWithProtocol (hostname) {
+        hostname = hostname.match(/^http/g) ? hostname : '//' + hostname;
+        var urlObject = url.parse(hostname, false, true);
+        urlObject.protocol = Configuration.active.server.ssl.enabled ? 'https' : 'http';
+        return url.format(urlObject).replace(/\/$/, '');
+    }
+
+    /**
+     * @method deleteSiteSpecificContent
+     * @param {String} siteId
+     * @param {Function} cb
+     */
+    deleteSiteSpecificContent (siteId, cb) {
+        var siteQueryService = new SiteQueryService();
+        siteQueryService.getCollections(function (err, allCollections) {
+            var dao = new DAO();
+
+            var tasks = allCollections.map(function (collection) {
+                return function (taskCallback) {
+                    dao.delete({site: siteId}, collection.name, function (err, commandResult) {
+                        if (_.isError(err) || !commandResult) {
+                            return taskCallback(err);
+                        }
+
+                        taskCallback(null, {collection: collection.name});
+                    });
+                };
+            });
+            async.parallel(tasks, function (err, results) {
                 if (_.isError(err)) {
                     log.error(err);
                     return cb(err);
                 }
-                else if (result && result.length > 0) {
-                    siteName = result[0].displayName;
-                }
-                cb(null, siteName);
+                log.silly('Successfully deleted site %s from database', siteId);
+                cb(null, results);
             });
-        }
-
-        /**
-         * Checks to see if a proposed site display name or hostname is already in the system
-         * @method isDisplayNameOrHostnameTaken
-         * @param {String}   displayName - desired name to display
-         * @param {String}   hostname - hostname of the site
-         * @param {String}   id - Site object Id to exclude from the search
-         * @param {Function} cb - Callback function
-         */
-        isDisplayNameOrHostnameTaken (displayName, hostname, id, cb) {
-            this.getExistingDisplayNameHostnameCounts(displayName, hostname, id, function (err, results) {
-
-                var result = results === null;
-                if (!result) {
-                    result = results.reduce(function (reduction, value) {
-                        return reduction || (value > 0);
-                    }, result);
-                }
-                cb(err, result);
-            });
-        }
-
-        /**
-         * Gets the total counts of a display name and hostname in the site collection
-         *
-         * @method getExistingDisplayNameHostnameCounts
-         * @param {String}   displayName - site display name
-         * @param {String}   hostname - site hostname
-         * @param {String}   id - Site object Id to exclude from the search
-         * @param {Function} cb - Callback function
-         */
-        getExistingDisplayNameHostnameCounts (displayName, hostname, id, cb) {
-            if (_.isFunction(id)) {
-                cb = id;
-                id = null;
-            }
-
-            var getWhere = function (where) {
-                if (id) {
-                    where[DAO.getIdField()] = DAO.getNotIdField(id);
-                }
-                return where;
-            };
-            var dao = new DAO();
-            var tasks = {
-                displayName: function (callback) {
-                    var exp = RegExpUtils.getCaseInsensitiveExact(displayName);
-                    dao.count('site', getWhere({displayName: exp}), callback);
-                },
-                hostname: function (callback) {
-                    dao.count('site', getWhere({hostname: hostname.toLowerCase()}), callback);
-                }
-            };
-            async.parallel(tasks, cb);
-        }
-
-        /**
-         * Run a job to activate a site so that all of its routes are available.
-         * @method activateSite
-         * @param {String} siteUid - site unique id
-         * @param {Function} cb - callback to run after job is completed
-         * @return {String} the job id
-         */
-        activateSite(siteUid, cb) {
-
-            var name = util.format("ACTIVATE_SITE_%s", siteUid);
-            var job = new pb.SiteActivateJob({ siteService: this });
-            job.setRunAsInitiator(true);
-            job.init(name);
-            job.setSite({uid: siteUid});
-            job.run(cb);
-            return job.getId();
-        }
-
-        /**
-         * Run a job to set a site inactive so that only the admin routes are available.
-         * @method deactivateSite
-         * @param {String} siteUid - site unique id
-         * @param {Function} cb - callback to run after job is completed
-         * @return {String} the job id
-         */
-        deactivateSite(siteUid, cb) {
-
-            var name = util.format("DEACTIVATE_SITE_%s", siteUid);
-            var job = new pb.SiteDeactivateJob();
-            job.setRunAsInitiator(true);
-            job.init(name);
-            job.setSite({uid: siteUid});
-            job.run(cb);
-            return job.getId();
-        }
-
-        /**
-         * Run a job to update a site's hostname and/or displayname.
-         * @method editSite
-         * @param {Object} options - object containing site fields
-         * @param {String} options.uid - site uid
-         * @param {String} options.hostname - result of site hostname edit/create
-         * @param {String} options.displayName - result of site display name edit/create
-         * @param {Function} cb - callback to run after job is completed
-         * @return {String} the job id
-         */
-        editSite(options, cb) {
-            var name = util.format("EDIT_SITE%s", options.uid);
-            var job = new pb.SiteCreateEditJob();
-            job.setRunAsInitiator(true);
-            job.init(name);
-            job.setSite(options);
-            job.run(cb);
-            return job.getId();
-        }
-
-        /**
-         * Creates a site and saves it to the database.
-         * @method createSite
-         * @param {Object} options - object containing site fields
-         * @param {String} options.hostname - result of site hostname edit/create
-         * @param {String} options.displayName - result of site display name edit/create
-         * @param {Function} cb - callback function
-         */
-        createSite(options, cb) {
-            options.active = false;
-            options.uid = uuid.v4();
-            return this.editSite(options, cb);
-        }
-
-        /**
-         * Given a site uid, activate if the site exists so that user facing routes are on.
-         * @method startAcceptingSiteTraffic
-         * @param {String} siteUid - site unique id
-         * @param {Function} cb - callback function
-         */
-        startAcceptingSiteTraffic(siteUid, cb) {
-            var dao = new DAO();
-            dao.loadByValue('uid', siteUid, 'site', function (err, site) {
-                if (_.isError(err)) {
-                    cb(err, null);
-                }
-                else if (!site) {
-                    cb(new Error('Site not found'), null);
-                }
-                else if (!site.active) {
-                    cb(new Error('Site not active'), null);
-                }
-                else {
-                    pb.RequestHandler.activateSite(site);
-                    cb(err, site);
-                }
-            });
-        }
-
-        /**
-         * Given a site uid, deactivate if the site exists so that user facing routes are off.
-         * @method stopAcceptingSiteTraffic
-         * @param {String} siteUid - site unique id
-         * @param {Function} cb - callback function
-         */
-        stopAcceptingSiteTraffic(siteUid, cb) {
-            var dao = new DAO();
-            dao.loadByValue('uid', siteUid, 'site', function (err, site) {
-                if (_.isError(err)) {
-                    cb(err, null);
-                }
-                else if (!site) {
-                    cb(new Error('Site not found'), null);
-                }
-                else if (site.active) {
-                    cb(new Error('Site not deactivated'), null);
-                }
-                else {
-                    pb.RequestHandler.deactivateSite(site);
-                    cb(err, site);
-                }
-            });
-        }
-
-        /**
-         * Load all sites into memory.
-         * @method initSites
-         * @param {Function} cb
-         */
-        initSites(cb) {
-            var config = Configuration.active;
-            if (config.multisite.enabled && !config.multisite.globalRoot) {
-                return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
-            }
-            this.getAllSites(function (err, results) {
-                if (err) {
-                    return cb(err);
-                }
-
-                var defaultLocale = pb.Localization.getDefaultLocale();
-                var defaultSupportedLocales = {};
-                defaultSupportedLocales[defaultLocale] = true;
-                //only load the sites when we are in multi-site mode
-                if (config.multisite.enabled) {
-                    results.forEach(function (site) {
-                        site.defaultLocale = site.defaultLocale || defaultLocale;
-                        site.supportedLocales = site.supportedLocales || defaultSupportedLocales;
-                        site.prevHostnames = site.prevHostnames || [];
-                        pb.RequestHandler.loadSite(site);
-                    });
-                }
-
-                // To remain backwards compatible, hostname is siteRoot for single tenant
-                // and active allows all routes to be hit.
-                // When multisite, use the configured hostname for global, turn off public facing routes,
-                // and maintain admin routes (active is false).
-                pb.RequestHandler.loadSite(SiteService.getGlobalSiteContext());
-                cb(err, true);
-            });
-        }
-
-        /**
-         * Runs a site activation job when command is received.
-         * @static
-         * @method onActivateSiteCommandReceived
-         * @param {Object} command - the command to react to.
-         */
-        static onActivateSiteCommandReceived(command) {
-            if (!_.isObject(command)) {
-                log.error('SiteService: an invalid activate_site command object was passed. %s', util.inspect(command));
-                return;
-            }
-
-            var name = util.format("ACTIVATE_SITE_%s", command.site);
-            var job = new pb.SiteActivateJob();
-            job.setRunAsInitiator(false);
-            job.init(name, command.jobId);
-            job.setSite(command.site);
-            job.run(function (err, result) {
-                var response = {
-                    error: err ? err.stack : undefined,
-                    result: result ? true : false
-                };
-                pb.CommandService.getInstance().sendInResponseTo(command, response);
-            });
-        }
-
-        /**
-         * Runs a site deactivation job when command is received.
-         * @static
-         * @method onDeactivateSiteCommandReceived
-         * @param {Object} command - the command to react to.
-         */
-        static onDeactivateSiteCommandReceived(command) {
-            if (!_.isObject(command)) {
-                log.error('SiteService: an invalid deactivate_site command object was passed. %s', util.inspect(command));
-                return;
-            }
-
-            var name = util.format("DEACTIVATE_SITE_%s", command.site);
-            var job = new pb.SiteDeactivateJob();
-            job.setRunAsInitiator(false);
-            job.init(name, command.jobId);
-            job.setSite(command.site);
-            job.run(function (err, result) {
-                var response = {
-                    error: err ? err.stack : undefined,
-                    result: result ? true : false
-                };
-                pb.CommandService.getInstance().sendInResponseTo(command, response);
-            });
-        }
-
-        /**
-         * Runs a site deactivation job when command is received.
-         * @static
-         * @method onCreateEditSiteCommandReceived
-         * @param {Object} command - the command to react to.
-         */
-        static onCreateEditSiteCommandReceived(command) {
-            if (!_.isObject(command)) {
-                log.error('SiteService: an invalid create_edit_site command object was passed. %s', util.inspect(command));
-                return;
-            }
-
-            var name = util.format("CREATE_EDIT_SITE%s", command.site);
-            var job = new pb.SiteCreateEditJob();
-            job.setRunAsInitiator(false);
-            job.init(name, command.jobId);
-            job.setSite(command.site);
-            job.run(function (err, result) {
-                var response = {
-                    error: err ? err.stack : undefined,
-                    result: result ? true : false
-                };
-                pb.CommandService.getInstance().sendInResponseTo(command, response);
-            });
-        }
-
-        /**
-         * Register activate and deactivate commands on initialization
-         * @static
-         * @method init
-         */
-        static init() {
-            var commandService = pb.CommandService.getInstance();
-            commandService.registerForType('activate_site', SiteService.onActivateSiteCommandReceived);
-            commandService.registerForType('deactivate_site', SiteService.onDeactivateSiteCommandReceived);
-            commandService.registerForType('create_edit_site', SiteService.onCreateEditSiteCommandReceived);
-        }
-
-        /**
-         * Returns true if siteId given is global or non-existent (to remain backwards compatible)
-         * @method isGlobal
-         * @param {String} siteId - the site id to check
-         * @return {Boolean} true if global or does not exist
-         */
-        static isGlobal(siteId) {
-            return (!siteId || siteId === SiteService.GLOBAL_SITE);
-        }
-
-        /**
-         * Returns true if both site ids given are equal
-         * @method areEqual
-         * @param {String} siteA - first site id to compare
-         * @param {String} siteB - second site id to compare
-         * @return {Boolean} true if equal, false otherwise
-         */
-        static areEqual(siteA, siteB) {
-            if (SiteService.isGlobal(siteA) && SiteService.isGlobal(siteB)) {
-                return true;
-            }
-            return siteA === siteB;
-        }
-
-        /**
-         * Returns true if actual is not set (falsey) or logically equivalent to expected in terms of sites
-         * @method isNotSetOrEqual
-         * @param {String} actual - site to check
-         * @param {String} expected - site you expect to be equal
-         * @return {Boolean} true if actual exists and equals expected
-         */
-        static isNotSetOrEqual(actual, expected) {
-            return !actual || SiteService.areEqual(actual, expected);
-        }
-
-        /**
-         * Central place to get the current site. Backwards compatible cleansing
-         * @method getCurrentSite
-         * @param {String} siteid - site is to cleanse
-         * @return {String} SiteService.GLOBAL_SITE if not specified, or siteid otherwise
-         */
-        static getCurrentSite (siteid) {
-            return siteid || SiteService.GLOBAL_SITE;
-        }
-
-        /**
-         * Return site field from object.
-         * @method getSiteFromObject
-         * @param {Object} object
-         * @return {String} the value of the object's site field key
-         */
-        static getSiteFromObject (object) {
-            if (!object) {
-                return SiteService.NO_SITE;
-            }
-            return object[SiteService.SITE_FIELD];
-        }
-
-        /**
-         * Determine whether http or https is being used for the site and return hostname attached to http(s)
-         * @method getHostWithProtocol
-         * @param {String} hostname
-         * @return {String} hostname with protocol attached
-         */
-        static getHostWithProtocol (hostname) {
-            hostname = hostname.match(/^http/g) ? hostname : '//' + hostname;
-            var urlObject = url.parse(hostname, false, true);
-            urlObject.protocol = Configuration.active.server.ssl.enabled ? 'https' : 'http';
-            return url.format(urlObject).replace(/\/$/, '');
-        }
-
-        /**
-         * @method deleteSiteSpecificContent
-         * @param {String} siteId
-         * @param {Function} cb
-         */
-        deleteSiteSpecificContent (siteId, cb) {
-            var siteQueryService = new pb.SiteQueryService();
-            siteQueryService.getCollections(function (err, allCollections) {
-                var dao = new DAO();
-
-                var tasks = allCollections.map(function (collection) {
-                    return function (taskCallback) {
-                        dao.delete({site: siteId}, collection.name, function (err, commandResult) {
-                            if (_.isError(err) || !commandResult) {
-                                return taskCallback(err);
-                            }
-
-                            taskCallback(null, {collection: collection.name});
-                        });
-                    };
-                });
-                async.parallel(tasks, function (err, results) {
-                    if (_.isError(err)) {
-                        log.error(err);
-                        return cb(err);
-                    }
-                    log.silly('Successfully deleted site %s from database', siteId);
-                    cb(null, results);
-                });
-            });
-        }
-
-        /**
-         * Retrieves the global site context
-         * @static
-         * @method getGlobalSiteContext
-         * @return {Object}
-         */
-        static getGlobalSiteContext () {
-            var config = Configuration.active;
-
-            var supportedLocales = pb.Localization.getSupported().reduce(function (map, supportedLocale) {
-                map[supportedLocale] = true;
-                return map;
-            }, {});
-
-            return {
-                displayName: config.siteName,
-                uid: pb.SiteService.GLOBAL_SITE,
-                hostname: config.multisite.enabled ? url.parse(config.multisite.globalRoot).host : url.parse(config.siteRoot).host,
-                active: !config.multisite.enabled,
-                defaultLocale: pb.Localization.getDefaultLocale(),
-                supportedLocales: supportedLocales,
-                prevHostnames: []
-            };
-        }
-
-        static buildPrevHostnames (data, object) {
-            var prevHostname = object.hostname;
-            var newHostname = data.hostname;
-            // If this site's hostname has been changed, save off a redirectHost
-            if ((prevHostname && newHostname) && (prevHostname !== newHostname)) {
-                // Check for circular hostname references
-                data.prevHostnames = data.prevHostnames.filter(function (hostname) {
-                    return hostname !== newHostname;
-                });
-                data.prevHostnames.push(prevHostname);
-                pb.RequestHandler.redirectHosts[prevHostname] = newHostname;
-                pb.RequestHandler.sites[prevHostname] = null;
-            }
-            return data;
-        }
-
-        static merge (context, cb) {
-            if (!context.data.prevHostnames) {
-                context.data.prevHostnames = [];
-            }
-            context.data = SiteService.buildPrevHostnames(context.data, context.object);
-
-            Object.assign(context.object, context.data);
-            cb(null);
-        }
-
-        static beforeDelete(context, cb) {
-            var siteid = context.data.uid;
-            context.service.deleteSiteSpecificContent(siteid, cb);
-        }
+        });
     }
 
-    pb.BaseObjectService.on(SiteService.TYPE + '.' + pb.BaseObjectService.MERGE, SiteService.merge);
-    pb.BaseObjectService.on(SiteService.TYPE + '.' + pb.BaseObjectService.BEFORE_DELETE, SiteService.beforeDelete);
+    /**
+     * Retrieves the global site context
+     * @static
+     * @method getGlobalSiteContext
+     * @return {Object}
+     */
+    static getGlobalSiteContext () {
+        var config = Configuration.active;
 
-    return SiteService;
-};
+        var supportedLocales = Localization.getSupported().reduce(function (map, supportedLocale) {
+            map[supportedLocale] = true;
+            return map;
+        }, {});
+
+        return {
+            displayName: config.siteName,
+            uid: SiteService.GLOBAL_SITE,
+            hostname: config.multisite.enabled ? url.parse(config.multisite.globalRoot).host : url.parse(config.siteRoot).host,
+            active: !config.multisite.enabled,
+            defaultLocale: Localization.getDefaultLocale(),
+            supportedLocales: supportedLocales,
+            prevHostnames: []
+        };
+    }
+
+    static buildPrevHostnames (data, object) {
+        var prevHostname = object.hostname;
+        var newHostname = data.hostname;
+        // If this site's hostname has been changed, save off a redirectHost
+        if ((prevHostname && newHostname) && (prevHostname !== newHostname)) {
+            // Check for circular hostname references
+            data.prevHostnames = data.prevHostnames.filter(function (hostname) {
+                return hostname !== newHostname;
+            });
+            data.prevHostnames.push(prevHostname);
+            RequestHandler.redirectHosts[prevHostname] = newHostname;
+            RequestHandler.sites[prevHostname] = null;
+        }
+        return data;
+    }
+
+    static merge (context, cb) {
+        if (!context.data.prevHostnames) {
+            context.data.prevHostnames = [];
+        }
+        context.data = SiteService.buildPrevHostnames(context.data, context.object);
+
+        Object.assign(context.object, context.data);
+        cb(null);
+    }
+
+    static beforeDelete(context, cb) {
+        var siteid = context.data.uid;
+        context.service.deleteSiteSpecificContent(siteid, cb);
+    }
+}
+
+BaseObjectService.on(SiteService.TYPE + '.' + BaseObjectService.MERGE, SiteService.merge);
+BaseObjectService.on(SiteService.TYPE + '.' + BaseObjectService.BEFORE_DELETE, SiteService.beforeDelete);
+
+module.exports = SiteService;
