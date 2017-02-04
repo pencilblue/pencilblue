@@ -672,7 +672,7 @@ module.exports = function RequestHandlerModule(pb) {
             if (err) {
 
                 //TODO [1.0] change default content type to JSON and refactor public file serving so it falls inline with other controller functions
-                self.themeRoute = self.themeRoute || {};
+                self.themeRoute = !!self.themeRoute ? Object.assign({}, self.themeRoute) : {};
                 self.themeRoute.content_type = 'application/json';
                 return self.serve404();
             }
