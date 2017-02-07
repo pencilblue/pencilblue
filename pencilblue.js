@@ -20,21 +20,20 @@
 
 //dependencies
 var _ = require('lodash');
+var async       = require('async');
+var Configuration = require('./include/config.js');
 var fs          = require('fs');
+var HtmlEncoder = require('htmlencode');
 var http        = require('http');
 var https       = require('https');
-var async       = require('async');
-var npm         = require('npm');
-var uuid = require('uuid');
-var Q = require('q');
-var Configuration = require('./include/config.js');
-var System = require('./include/system/system');
-var LogFactory = require('./include/utils/logging');
-var ServerInitializer = require('./include/http/server_initializer.js');
 var Lib = require('./lib');
+var LogFactory = require('./include/utils/logging');
+var npm         = require('npm');
+var Q = require('q');
+var ServerInitializer = require('./include/http/server_initializer.js');
+var System = require('./include/system/system');
 var TaskUtils = require('./lib/utils/taskUtils');
-var HtmlEncoder = require('htmlencode');
-
+var uuid = require('uuid');
 
 /**
  * The main driver file for PencilBlue.  Provides the function necessary to
@@ -77,7 +76,7 @@ class PencilBlue {
             TaskUtils.wrapTimedTask(this, this.initModules, 'initModules'),
             TaskUtils.wrapTimedTask(this, this.initRequestHandler, 'initRequestHandler'),
             TaskUtils.wrapTimedPromiseTask(this, this.initDBConnections, 'initDBConnections'),
-            TaskUtils.wrapTimedTask(this, this.initDBIndices, 'initDBIndices'),
+            TaskUtils.wrapTimedPromiseTask(this, this.initDBIndices, 'initDBIndices'),
             TaskUtils.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
             TaskUtils.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
             TaskUtils.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
@@ -92,6 +91,7 @@ class PencilBlue {
         var self = this;
         async.series(tasks, function(err, results) {
             if (_.isError(err)) {
+                console.log(err.stack);
                 throw err;
             }
             self.log.info('Ready to run!');
@@ -171,7 +171,7 @@ class PencilBlue {
      */
     initSiteMigration (cb) {
         this.pb.SiteService.init();
-        this.pb.dbm.processMigration(cb);
+        this.pb.DbManager.processMigration(cb);
     }
 
     /**
@@ -195,10 +195,11 @@ class PencilBlue {
         var self = this;
 
         //setup database connection to core database
-        this.pb.dbm.init();
-        return this.pb.dbm.getDb(Configuration.active.db.name).then(function(result){
+        this.pb.DbManager.init();
+        return this.pb.DbManager.getDb(Configuration.active.db.name).then(function(result){
             if (!result.databaseName) {
-                return Q.reject(new Error('Failed to establish a connection to: ' + Configuration.active.db.name), false);
+                var err = new Error('Failed to establish a connection to: ' + Configuration.active.db.name);
+                return Q.reject(err, false);
             }
 
             self.log.debug('PencilBlue: Established connection to DB: %s', result.databaseName);
@@ -213,17 +214,18 @@ class PencilBlue {
      * @method initDBIndices
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
-    initDBIndices (cb) {
+    initDBIndices () {
         var config = Configuration.active;
         if (config.db.skip_index_check || !Array.isArray(config.db.indices)) {
             this.log.info('Skipping indices check');
-            return cb(null, true);
+            return Q.resolve(true);
         }
 
         this.log.info('Verifying indices...');
-        this.pb.dbm.processIndices(config.db.indices, function(err/*, results*/) {
-            cb(err, !_.isError(err));
-        });
+        return this.pb.DbManager.processIndices(config.db.indices)
+            .then(function() {
+                return Q.resolve(true);
+            });
     }
 
     /**

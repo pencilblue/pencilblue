@@ -18,7 +18,6 @@
 
 //dependencies
 const _ = require('lodash');
-const util  = require('../../../util.js');
 const async = require('async');
 const BaseObjectService = require('../../base_object_service');
 const ContentObjectService = require('./content_object_service');

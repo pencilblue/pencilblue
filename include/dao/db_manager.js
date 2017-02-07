@@ -24,7 +24,7 @@ var MongoClient = require('mongodb').MongoClient;
 var Q = require('q');
 var util = require('util');
 var log = require('../utils/logging').newInstance('DbManager');
-var config = require('../config').active;
+var Configuration = require('../config');
 var IndexService = require('../../lib/dao/mongo/indexService');
 var PromiseUtils = require('../../lib/utils/promiseUtils');
 var UrlUtils = require('../../lib/utils/urlUtils');
@@ -80,7 +80,7 @@ class DbManager {
             name = null;
         }
         if(!name){
-            name = config.db.name;
+            name = Configuration.active.db.name;
         }
 
         var deferred = Q.defer();
@@ -92,11 +92,11 @@ class DbManager {
         }
 
         //clone the config and set the name that is being asked for
-        var configClone  = _.cloneDeep(config);
+        var configClone  = _.cloneDeep(Configuration.active);
         configClone.db.name = name;
 
         //build the connection string for the mongo cluster
-        var dbURL   = DbManager.buildConnectionStr(config);
+        var dbURL   = DbManager.buildConnectionStr(Configuration.active);
         var options = configClone.db.options;
 
         log.debug("Attempting connection to: %s with options: %s", dbURL, JSON.stringify(options));
@@ -105,7 +105,7 @@ class DbManager {
             return done(new Error(message));
         })
         .then(function(db) {
-            return DbManager.authenticate(config.db.authentication, db).catch(function(err) {
+            return DbManager.authenticate(Configuration.active.db.authentication, db).catch(function(err) {
                 return done(new Error(err.name + ': ' + err.message));
             }).then(function(didAuthenticate) {
                 if (!didAuthenticate) {
@@ -131,7 +131,7 @@ class DbManager {
     static authenticate (auth, db) {
         if (!_.isObject(auth) || !_.isString(auth.un) || !_.isString(auth.pw)) {
             log.debug('DBManager: An empty auth object was passed for DB [%s]. Skipping authentication.', db.databaseName);
-            return Q.resolve();
+            return Q.resolve(true);
         }
 
         return db.authenticate(auth.un, auth.pw, auth.options ? auth.options : {});
@@ -224,7 +224,7 @@ class DbManager {
                 }
 
                 var filteredIndex = procedures.filter(function (procedure) {
-                    var ns = config.db.name + '.' + procedure.collection;
+                    var ns = Configuration.active.db.name + '.' + procedure.collection;
                     return ns === index.ns && DbManager.compareIndices(index, procedure);
                 });
                 var indexCollection = index.ns.split('.')[1];

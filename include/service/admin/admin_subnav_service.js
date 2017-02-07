@@ -19,7 +19,6 @@
 var _ = require('lodash');
 var Configuration = require('../../config');
 var SiteService = require('../entities/site_service');
-var util = require('../../util.js');
 var ValidationService = require('../../validation/validation_service');
 
 /**
@@ -55,7 +54,7 @@ class AdminSubnavService {
             return false;
         }
 
-        if (util.isNullOrUndefined(CALLBACKS[key])) {
+        if (_.isNil(CALLBACKS[key])) {
             CALLBACKS[key] = [];
         }
         else if (CALLBACKS[key].indexOf(getSubNavItems) > -1) {

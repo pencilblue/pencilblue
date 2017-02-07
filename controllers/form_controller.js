@@ -14,11 +14,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+'use strict';
 
 //dependencies
-var util = require('../include/util.js');
-
-module.exports = function(pb) {
+const _ = require('lodash');
+const BaseController = require('./base_controller');
+const log = require('../include/utils/logging').newInstance('FormController');
+const util = require('util');
 
     /**
      * Provides the basic functionality for implementing a controller that
@@ -28,7 +30,7 @@ module.exports = function(pb) {
      * @constructor
      */
     function FormController(){}
-    util.inherits(FormController, pb.BaseController);
+    util.inherits(FormController, BaseController);
 
     /**
      * Instructs the controller to automatically sanitize any incoming post data
@@ -50,7 +52,7 @@ module.exports = function(pb) {
     FormController.prototype.render = function(cb) {
         var self = this;
         this.getPostParams(function(err, params) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 self.onPostParamsError(err, cb);
                 return;
             }
@@ -87,7 +89,7 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     FormController.prototype.onPostParamsError = function(err, cb) {
-        pb.log.silly("FormController: Error processing form parameters"+err);
+        log.silly("FormController: Error processing form parameters"+err);
         cb({content: err, code: 400});
     };
 
@@ -104,5 +106,4 @@ module.exports = function(pb) {
         cb({content: JSON.stringify(params), content_type:'application/json'});
     };
 
-    return FormController;
-};
+    module.exports = FormController;

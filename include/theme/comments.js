@@ -17,7 +17,6 @@
 'use strict';
 
 //dependencies
-const util  = require('../util.js');
 const _ = require('lodash');
 const ArticleServiceV2 = require('../service/entities/content/article_service_v2');
 const async = require('async');

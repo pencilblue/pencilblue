@@ -91,9 +91,9 @@ module.exports = function PB() {
 
         UserService: require(config.docRoot + '/include/service/entities/user_service.js'),
 
-        BaseBodyParser: require(config.docRoot + 'include/http/parsers').BaseBodyParser,
-        JsonBodyParser: require(config.docRoot + 'include/http/parsers').JsonBodyParser,
-        FormBodyParser: require(config.docRoot + 'include/http/parsers').FormBodyParser,
+        BaseBodyParser: require(config.docRoot + '/include/http/parsers').BaseBodyParser,
+        JsonBodyParser: require(config.docRoot + '/include/http/parsers').JsonBodyParser,
+        FormBodyParser: require(config.docRoot + '/include/http/parsers').FormBodyParser,
 
         BaseController: require(path.join(config.docRoot, '/controllers/base_controller.js')),
         BaseApiController: require(path.join(config.docRoot, '/controllers/api/base_api_controller.js')),
@@ -112,7 +112,7 @@ module.exports = function PB() {
 
         MongoRegistrationProvider: require(config.docRoot + '/include/system/registry/mongo_registration_provider.js'),
         RedisRegistrationProvider: require(config.docRoot + '/include/system/registry/redis_registration_provider.js'),
-        ServerRegistration: require(config.docRoot, '/include/system/server_registration.js'),
+        ServerRegistration: require(config.docRoot + '/include/system/server_registration.js'),
 
         RedisCommandBroker: require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js')),
         MongoCommandBroker: require(path.join(config.docRoot, '/include/system/command/mongo_command_broker.js')),

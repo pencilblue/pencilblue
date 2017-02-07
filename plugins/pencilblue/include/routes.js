@@ -17,11 +17,11 @@
 'use strict';
 
 //dependencies
-var path = require('path');
+const pb = require('../../../lib')();
+const path = require('path');
 
 //exports
-module.exports = function Routes(pb){
-    return [
+    module.exports = [
         {
             method: 'get',
             path: '/media/*',
@@ -1657,4 +1657,3 @@ module.exports = function Routes(pb){
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user/role_api_controller.js')
         }
     ];
-};

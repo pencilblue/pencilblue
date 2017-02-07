@@ -17,10 +17,11 @@
 'use strict';
 
 //dependencies
-var util  = require('../../util.js');
-var async = require('async');
-
-module.exports = function(pb) {
+const _ = require('lodash');
+const async = require('async');
+const DAO = require('../../dao/dao');
+const LockService = require('../../service/locks/lock_service');
+const log = require('../../utils/logging').newInstance('TTLIndexHelper');
 
     /**
      *
@@ -35,7 +36,7 @@ module.exports = function(pb) {
          * @property lockService
          * @type {LockService}
          */
-        this.lockService = new pb.LockService();
+        this.lockService = new LockService();
     }
 
     /**
@@ -67,7 +68,7 @@ module.exports = function(pb) {
         var indexName = null;
         var acquiredLock = false;
         var key = INDEX_MOD_KEY_PREFIX + collection;
-        var dao = new pb.DAO();
+        var dao = new DAO();
         var tasks = [
 
             //ensure the index is there
@@ -87,7 +88,7 @@ module.exports = function(pb) {
                     return callback(null, null);
                 }
 
-                pb.log.silly('TTLIndexHelper:[%s:%s] An incorrect TTL index was detected.  Attempting to acquire lock to modify it.', collection, indexName);
+                log.silly('TTLIndexHelper:[%s:%s] An incorrect TTL index was detected.  Attempting to acquire lock to modify it.', collection, indexName);
                 self.lockService.acquire(key, callback);
             },
 
@@ -98,11 +99,11 @@ module.exports = function(pb) {
                     return callback(null, null);
                 }
                 else if (acquiredLock === false) {
-                    pb.log.silly('TTLIndexHelper:[%s:%s] Failed to acquire index mod lock.  Assuming another PB instance is handling it', collection, indexName);
+                    log.silly('TTLIndexHelper:[%s:%s] Failed to acquire index mod lock.  Assuming another PB instance is handling it', collection, indexName);
                     return callback(null, null);
                 }
 
-                pb.log.silly('TTLIndexHelper:[%s:%s] Lock acquired, dropping the index before recreating it', collection, indexName);
+                log.silly('TTLIndexHelper:[%s:%s] Lock acquired, dropping the index before recreating it', collection, indexName);
                 acquiredLock = true;
                 dao.dropIndex(collection, indexName, callback);
             },
@@ -113,7 +114,7 @@ module.exports = function(pb) {
                     return callback(null, true);
                 }
 
-                pb.log.silly('TTLIndexHelper:[%s:%s] Rebuilding TTL index', collection, indexName);
+                log.silly('TTLIndexHelper:[%s:%s] Rebuilding TTL index', collection, indexName);
                 dao.ensureIndex(procedure, callback);
             },
 
@@ -123,15 +124,15 @@ module.exports = function(pb) {
                     return callback(null, indexName);
                 }
 
-                pb.log.silly('TTLIndexHelper:[%s:%s] Dropping index modification lock', collection, indexName);
+                log.silly('TTLIndexHelper:[%s:%s] Dropping index modification lock', collection, indexName);
                 self.lockService.release(key, function(err, result) {
                     callback(err, indexName);
                 });
             },
         ];
         async.waterfall(tasks, function(err, result) {
-            pb.log.silly('TTLIndexHelper: Attempted to ensure the TTL index for collection %s. RESULT=[%s] ERROR=[%s]', collection, result, err ? err.message : 'NONE');
-            cb(err, !util.isNullOrUndefined(result));
+            log.silly('TTLIndexHelper: Attempted to ensure the TTL index for collection %s. RESULT=[%s] ERROR=[%s]', collection, result, err ? err.message : 'NONE');
+            cb(err, !_.isNil(result));
         });
     };
 
@@ -147,9 +148,9 @@ module.exports = function(pb) {
      */
     TTLIndexHelper.prototype.hasCorrectTTLIndex = function(collection, indexName, expectedExpiry, cb) {
 
-        var dao = new pb.DAO();
+        var dao = new DAO();
         dao.indexInfo(collection, {full: true}, function(err, indexes) {
-            if (util.isError(err)) {
+            if (_.isError(err)) {
                 return cb(err);
             }
 
@@ -164,5 +165,4 @@ module.exports = function(pb) {
         });
     };
 
-    return TTLIndexHelper;
-};
+    module.export = TTLIndexHelper;

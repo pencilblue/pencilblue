@@ -20,7 +20,7 @@
 var AdminSubnavService = require('../../include/service/admin/admin_subnav_service');
 var BaseController = require('../base_controller');
 var SettingServiceFactory = require('../../include/system/settings');
-var SiteQueryService = require('../../include/');
+var SiteQueryService = require('../../include/service/entities/site_query_service');
 
 /**
  * This class serves as a base class for all the controllers used in the admin control panel

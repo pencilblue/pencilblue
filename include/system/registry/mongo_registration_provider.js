@@ -17,11 +17,11 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var Configuration = require('../../config');
-var DAO = require('../../dao/dao');
-var log = require('../../utils/logging').newInstance('MongoRegistrationProvider');
-var util = require('../../util.js');
+const _ = require('lodash');
+const Configuration = require('../../config');
+const DAO = require('../../dao/dao');
+const DateUtils = require('../../../lib/utils/dateUtils');
+const log = require('../../utils/logging').newInstance('MongoRegistrationProvider');
 
 /**
  * Implements the necessary functions in order to be able to create and manage
@@ -90,7 +90,7 @@ class MongoRegistrationProvider {
     init(cb) {
 
         //prepare index values
-        var expiry = Math.floor(Configuration.active.registry.update_interval / util.TIME.MILLIS_PER_SEC);
+        var expiry = Math.floor(Configuration.active.registry.update_interval / DateUtils.MILLIS_PER_SEC);
         var procedure = {
             collection: Configuration.active.registry.key,
             spec: {last_modified: 1},

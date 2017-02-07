@@ -19,7 +19,6 @@
 //dependencies
 var _ = require('lodash');
 var DAO = require('../../dao/dao');
-var util = require('../../util.js');
 var RegExpUtils = require('../../utils/reg_exp_utils');
 var SecurityService = require('../../access_management');
 var SiteQueryService = require('../../service/entities/site_query_service');

@@ -692,7 +692,7 @@ class UserService extends BaseObjectService {
      * @param {object} context.data
      * @param {Function} cb (Error) A callback that takes a single parameter: an error if occurred
      */
-    format(context, cb) {
+    static onFormat(context, cb) {
         var dto = context.data;
         dto.first_name = BaseObjectService.sanitize(dto.first_name);
         dto.last_name = BaseObjectService.sanitize(dto.last_name);
@@ -719,7 +719,7 @@ class UserService extends BaseObjectService {
      * @param {object} context.object The entity object to be persisted
      * @param {Function} cb (Error) A callback that takes a single parameter: an error if occurred
      */
-    merge(context, cb) {
+    static onMerge(context, cb) {
         var dto = context.data;
         var obj = context.object;
 
@@ -747,7 +747,7 @@ class UserService extends BaseObjectService {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    static validate(context, cb) {
+    static onValidate(context, cb) {
         context.service.validate(context, cb);
     }
 
@@ -780,8 +780,8 @@ class UserService extends BaseObjectService {
 BaseObjectService.on(UserService.TYPE + '.' + BaseObjectService.AFTER_SAVE, UserService.removePassword);
 BaseObjectService.on(UserService.TYPE + '.' + BaseObjectService.GET, UserService.removePassword);
 BaseObjectService.on(UserService.TYPE + '.' + BaseObjectService.GET_ALL, UserService.removePassword);
-BaseObjectService.on(UserService.TYPE + '.' + BaseObjectService.FORMAT, UserService.format);
-BaseObjectService.on(UserService.TYPE + '.' + BaseObjectService.MERGE, UserService.merge);
-BaseObjectService.on(UserService.TYPE + '.' + BaseObjectService.VALIDATE, UserService.validate);
+BaseObjectService.on(UserService.TYPE + '.' + BaseObjectService.FORMAT, UserService.onFormat);
+BaseObjectService.on(UserService.TYPE + '.' + BaseObjectService.MERGE, UserService.onMerge);
+BaseObjectService.on(UserService.TYPE + '.' + BaseObjectService.VALIDATE, UserService.onValidate);
 
 module.exports = UserService;

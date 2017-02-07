@@ -902,7 +902,7 @@ class Localization {
         if (!_.isString(language)) {
             throw new Error('language parameter is required');
         }
-        if (!_.isNullOrUndefined(countryCode) && !_.isString(countryCode)) {
+        if (!_.isNil(countryCode) && !_.isString(countryCode)) {
             throw new Error('countryCode parameter must be a string');
         }
 

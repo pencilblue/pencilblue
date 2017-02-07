@@ -17,96 +17,15 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async   = require('async');
-var cluster = require('cluster');
-var Configuration = require('../config');
-var domain  = require('domain');
-var log = require('../utils/logging').newInstance('ServerRegistration');
-var os      = require('os');
-var util = require('util');
-
-/**
- * Singleton instance
- * @private
- * @static
- * @property INSTANCE
- * @type {ServerRegistration}
- */
-var INSTANCE = null;
-
-/**
- * The default set of functions that gather the default set of information.
- * @private
- * @property ITEM_CALLBACKS
- * @type {Object}
- */
-var ITEM_CALLBACKS = {
-
-    //ip address
-    ip: function(cb) {
-        cb(null, ServerRegistration.getIp());
-    },
-
-    is_master: function(cb) {
-        cb(null, cluster.isMaster);
-    },
-
-    //TODO [1.0] move the naming and ID convention to a utils class for workers so it can be shared between here and System
-    process_type: function(cb) {
-        cb(null, cluster.worker ? 'Worker' : 'Master');
-    },
-
-    worker_id: function(cb) {
-        cb(null, cluster.worker ? cluster.worker.id : 'M');
-    },
-
-    port: function(cb) {
-        cb(null, Configuration.active.sitePort);
-    },
-
-    host: function(cb) {
-        cb(null, os.hostname());
-    },
-
-    pid: function(cb) {
-        cb(null, process.pid);
-    },
-
-    node_version: function(cb) {
-        cb(null, process.version);
-    },
-
-    //TODO move this to an init method in plugin service.  We need to do this because this low level service should not be responsible for tracking active plugins.  Each service should register the items that are needed
-    // active_plugins: function(cb) {
-    //     var pluginService = new pb.PluginService();
-    //     cb(null, pluginService.getAllActivePluginNames());
-    // },
-
-    uptime: function(cb) {
-        cb(null, process.uptime());
-    },
-
-    mem_usage: function(cb) {
-        cb(null, process.memoryUsage());
-    },
-
-    cwd: function(cb) {
-        cb(null, process.cwd());
-    },
-
-    type: function(cb) {
-        cb(null, 'pencilblue');
-    },
-
-    pb_version: function(cb) {
-        cb(null, Configuration.active.version);
-    },
-
-    update_interval: function(cb) {
-        cb(null, Configuration.active.registry.update_interval);
-    }
-};
+const _ = require('lodash');
+const async   = require('async');
+const cluster = require('cluster');
+const Configuration = require('../config');
+const domain  = require('domain');
+const log = require('../utils/logging').newInstance('ServerRegistration');
+const os = require('os');
+const util = require('util');
+const ValidationService = require('../validation/validation_service');
 
 /**
  * Service that provides the ability for the process/node to register itself so
@@ -316,16 +235,16 @@ class ServerRegistration {
      */
     static getIp() {
         var interfaces = os.networkInterfaces();
+        var interfaceKeys = Object.keys(interfaces);
         var address = null;
-        for (var k in interfaces) {
-            for (var k2 in interfaces[k]) {
+        Object.keys(interfaces).forEach(function(k) {
+            Object.keys(interfaces[k]).forEach(function(k2) {
                 var addr = interfaces[k][k2];
                 if (addr.family === 'IPv4' && !addr.internal) {
-                    address = addr.address;
-                    break;
+                    return addr.address;
                 }
-            }
-        }
+            });
+        });
         return address;
     }
 
@@ -360,5 +279,87 @@ class ServerRegistration {
         return (INSTANCE = new ServerRegistration(provider));
     }
 }
+
+/**
+ * Singleton instance
+ * @private
+ * @static
+ * @property INSTANCE
+ * @type {ServerRegistration}
+ */
+var INSTANCE = null;
+
+/**
+ * The default set of functions that gather the default set of information.
+ * @private
+ * @property ITEM_CALLBACKS
+ * @type {Object}
+ */
+var ITEM_CALLBACKS = {
+
+    //ip address
+    ip: function(cb) {
+        cb(null, ServerRegistration.getIp());
+    },
+
+    is_master: function(cb) {
+        cb(null, cluster.isMaster);
+    },
+
+    //TODO [1.0] move the naming and ID convention to a utils class for workers so it can be shared between here and System
+    process_type: function(cb) {
+        cb(null, cluster.worker ? 'Worker' : 'Master');
+    },
+
+    worker_id: function(cb) {
+        cb(null, cluster.worker ? cluster.worker.id : 'M');
+    },
+
+    port: function(cb) {
+        cb(null, Configuration.active.sitePort);
+    },
+
+    host: function(cb) {
+        cb(null, os.hostname());
+    },
+
+    pid: function(cb) {
+        cb(null, process.pid);
+    },
+
+    node_version: function(cb) {
+        cb(null, process.version);
+    },
+
+    //TODO move this to an init method in plugin service.  We need to do this because this low level service should not be responsible for tracking active plugins.  Each service should register the items that are needed
+    // active_plugins: function(cb) {
+    //     var pluginService = new pb.PluginService();
+    //     cb(null, pluginService.getAllActivePluginNames());
+    // },
+
+    uptime: function(cb) {
+        cb(null, process.uptime());
+    },
+
+    mem_usage: function(cb) {
+        cb(null, process.memoryUsage());
+    },
+
+    cwd: function(cb) {
+        cb(null, process.cwd());
+    },
+
+    type: function(cb) {
+        cb(null, 'pencilblue');
+    },
+
+    pb_version: function(cb) {
+        cb(null, Configuration.active.version);
+    },
+
+    update_interval: function(cb) {
+        cb(null, Configuration.active.registry.update_interval);
+    }
+};
 
 module.exports = ServerRegistration;
