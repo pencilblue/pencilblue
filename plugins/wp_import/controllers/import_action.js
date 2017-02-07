@@ -72,7 +72,13 @@ module.exports = function (pb) {
 
                 self.wpXmlParse.parse(data.toString(), self.session.authentication.user_id, function(err, users) {
                     if(util.isError(err)) {
-                        self.session.error = err.stack;
+                        var errStr = err.stack;
+                        if (err.validationErrors) {
+                            errStr = err.validationErrors.reduce(function(str, v, i) {
+                                return str + (i === 0 ? '' : '\n') + (v.item ? v.item + ':' : '') + v.field + ': ' + v.message;
+                            }, '');
+                        }
+                        self.session.error = errStr;
                         return cb({content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.ERROR_SAVING'))});
                     }
 
