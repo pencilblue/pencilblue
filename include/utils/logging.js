@@ -57,15 +57,12 @@ class LogFactory {
         options = options || Configuration.active.logging;
         options.level = options.level || 'info';
 
-        if (!Array.isArray(options.transports)) {
-
-            //initialize transports with console by default
-            options.transports = LogFactory.getTransports(label, options.level, options.file);
-        }
+        var transports = Array.isArray(options.transports) ? options.transports :
+            LogFactory.getTransports(label, options.level, options.file);
 
         //configure winston
         var logger =  new winston.Logger({
-            transports: options.transports,
+            transports: transports,
             level: options.level,
             padLevels: false
         });

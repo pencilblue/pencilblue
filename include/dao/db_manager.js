@@ -187,16 +187,16 @@ class DbManager {
         return DbManager.getDb().then(function(db) {
 
             //create the task list for executing indices.
-            var tasks = procedures.map(function(procedure) {
-                return IndexService.ensureIndex(db, procedure).then(function(result) {
-                    log.silly('DBManager: Attempted to create INDEX=[%s] RESULT=[%s]', JSON.stringify(procedure), util.inspect(result));
-                    return result;
-                }).catch(function(err) {
+            var tasks = procedures.map(function(procedure, i) {
+                return IndexService.ensureIndex(db, procedure).catch(function(err) {
                     log.error('DBManager: Failed to create INDEX=[%s] ERROR=%s', JSON.stringify(procedure), err.stack);
                     return Q.reject(err);
+                })
+                .then(function(result) {
+                    log.silly('DBManager: Attempted to create INDEX=[%s] RESULT=[%s]', JSON.stringify(procedure), util.inspect(result));
+                    return result;
                 });
             });
-
             return Q.allSettled(tasks);
         });
     }

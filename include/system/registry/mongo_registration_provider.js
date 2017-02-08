@@ -103,7 +103,7 @@ class MongoRegistrationProvider {
         //When it doesn't match we must create a system lock, drop the index, and
         //recreate it.  Due to the permissions levels of some mongo hosting
         //providers the collMod command cannot be used.
-        var TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js')(pb);
+        var TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js');
         var helper = new TTLIndexHelper();
         helper.ensureIndex(procedure, cb);
     }
