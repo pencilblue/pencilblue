@@ -19,7 +19,9 @@
 //dependencies
 const _ = require('lodash');
 const async = require('async');
-const DAO = require('../../dao/dao');
+const DAO = require('../dao');
+const DbManager = require('../db_manager');
+const IndexService = require('../../../lib/dao/mongo/indexService');
 const LockService = require('../../service/locks/lock_service');
 const log = require('../../utils/logging').newInstance('TTLIndexHelper');
 
@@ -73,7 +75,9 @@ const log = require('../../utils/logging').newInstance('TTLIndexHelper');
 
             //ensure the index is there
             function(callback) {
-                dao.ensureIndex(procedure, callback);
+                DbManager.getDb().then(function(db) {
+                    return IndexService.ensureIndex(db, procedure);
+                }).then(function(result) { callback(null, result); }, callback);
             },
 
             //check to see if the index has the correct expiry
@@ -128,7 +132,7 @@ const log = require('../../utils/logging').newInstance('TTLIndexHelper');
                 self.lockService.release(key, function(err, result) {
                     callback(err, indexName);
                 });
-            },
+            }
         ];
         async.waterfall(tasks, function(err, result) {
             log.silly('TTLIndexHelper: Attempted to ensure the TTL index for collection %s. RESULT=[%s] ERROR=[%s]', collection, result, err ? err.message : 'NONE');

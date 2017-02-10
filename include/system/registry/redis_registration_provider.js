@@ -93,7 +93,7 @@ class RedisRegistrationProvider {
                 //do data transform
                 var statuses = [];
                 if (_.isObject(statusObj)) {
-                    for (var key in statusObj) {
+                    statuses = Object.keys(statusObj).map(function(key) {
                         try {
                             var status = JSON.parse(statusObj[key]);
                             status._id = status.id || key;
@@ -101,7 +101,7 @@ class RedisRegistrationProvider {
                         }
                         catch (e) {
                         }
-                    }
+                    });
                 }
                 cb(err, statuses);
             });
@@ -121,7 +121,7 @@ class RedisRegistrationProvider {
         }
 
         var key = RedisRegistrationProvider.getKey(id);
-        var expiry = Math.floor(Configuration.activee.registry.update_interval / DateUtils.MILLIS_PER_SEC);
+        var expiry = Math.floor(Configuration.active.registry.update_interval / DateUtils.MILLIS_PER_SEC);
         CLIENT.setex(key, expiry, JSON.stringify(status), cb);
     }
 
@@ -151,7 +151,7 @@ class RedisRegistrationProvider {
     init(cb) {
 
         CLIENT = CacheFactory.createInstance();
-        CLIENT.select(REGISTRY_DB, cb);
+        CLIENT.select(RedisRegistrationProvider.REGISTRY_DB, cb);
     }
 
     /**
@@ -179,7 +179,7 @@ class RedisRegistrationProvider {
      * @return {String} The cache key to be used for storing the update
      */
     static getKey(id) {
-        return [Configuration.activee.registry.key, id].join(SEP);
+        return [Configuration.active.registry.key, id].join(RedisRegistrationProvider.SEP);
     }
 
     /**
@@ -189,7 +189,7 @@ class RedisRegistrationProvider {
      * @return {String} The glob patern to be used to find all status updates
      */
     static getPattern() {
-        return Configuration.activee.registry.key + '*';
+        return Configuration.active.registry.key + '*';
     }
 }
 
