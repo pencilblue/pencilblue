@@ -169,4 +169,4 @@ const log = require('../../utils/logging').newInstance('TTLIndexHelper');
         });
     };
 
-    module.export = TTLIndexHelper;
+    module.exports = TTLIndexHelper;

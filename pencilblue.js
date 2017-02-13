@@ -144,7 +144,8 @@ class PencilBlue {
      * @param {Function} cb
      */
     initSessions (cb) {
-        this.pb.session.start(cb);
+        var handler = new this.pb.SessionHandler();
+        handler.start(cb);
     }
 
     /**

@@ -121,7 +121,7 @@ class CommandService {
      * @method init
      * @param {Function} cb A callback that takes two parameters: cb(Error, TRUE/FALSE)
      */
-    static init(cb) {
+    init(cb) {
         if (INITIALIZED) {
             return cb(null, true);
         }
