@@ -551,7 +551,7 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.syncSettings = function(plugin, details, cb) {
         var self = this;
-        this.getSettingsKV(plugin.uid, function(err, settings) {
+        this.getSettings(plugin.uid, function(err, settings) {
             var isError = util.isError(err);
             if (isError || !settings) {
                 if (isError) {
@@ -559,6 +559,12 @@ module.exports = function PluginServiceModule(pb) {
                 }
                 return cb(err, !isError);
             }
+            
+            //create lookup
+            settings = settings.reduce(function(rv, setting) {
+                rv[setting.name] = setting;
+                return rv;
+            }, {});
 
             var discrepancy = false;
             var formattedSettings = [];
@@ -570,10 +576,10 @@ module.exports = function PluginServiceModule(pb) {
                 if (typeof val === 'undefined') {
                     discrepancy = true;
                     val = setting.value;
-                    formattedSettings.push({name: settingName, value: val});
+                    formattedSettings.push({name: settingName, value: val, displayName: setting.displayName, group: setting.group});
                 }
                 else {
-                    formattedSettings.push({name: settingName, value: val});
+                    formattedSettings.push(val);
                 }
             });
 
@@ -1085,7 +1091,7 @@ module.exports = function PluginServiceModule(pb) {
         }
 
         var service = new pb.PluginInitializationService({
-            pluginService: this,
+            pluginService: this.site === plugin.site ? this : new PluginService({ site: plugin.site }),
             pluginCache: PLUGIN_INIT_CACHE
         });
         service.initialize(plugin, {}, function(err, result) {
