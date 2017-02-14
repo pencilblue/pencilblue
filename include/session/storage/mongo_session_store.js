@@ -17,11 +17,12 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var Configuration = require('../../config');
+const _ = require('lodash');
+const Configuration = require('../../config');
 const DAO = require('../../dao/dao');
-var log = require('../../utils/logging').newInstance('MongoSessionStore');
-var DateUtils = require('../../../lib/utils/dateUtils');
+const DateUtils = require('../../../lib/utils/dateUtils');
+const log = require('../../utils/logging').newInstance('MongoSessionStore');
+const TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js');
 
 /**
  * Session storage backed by MongoDB
@@ -119,7 +120,7 @@ class MongoSessionStore {
      * active.
      * @method start
      */
-    start(cb) {
+    start (cb) {
         var self = this;
 
         //prepare index values
@@ -136,7 +137,6 @@ class MongoSessionStore {
         //When it doesn't match we must create a system lock, drop the index, and
         //recreate it.  Due to the permissions levels of some mongo hosting
         //providers the collMod command cannot be used.
-        var TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js');
         var helper = new TTLIndexHelper();
         helper.ensureIndex(procedure, cb);
     }

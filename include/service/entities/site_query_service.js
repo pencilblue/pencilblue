@@ -43,7 +43,7 @@ const SiteService = require('./site_service');
               };
           }
 
-          super();
+          super(options);
 
           /**
            * @property siteUid
