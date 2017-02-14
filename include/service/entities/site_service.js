@@ -17,22 +17,23 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async = require('async');
+const _ = require('lodash');
+const async = require('async');
 const BaseObjectService = require('../base_object_service');
 const CommandService = require('../../system/command/command_service');
-var Configuration = require('../../config');
-var DAO = require('../../dao/dao');
-var Localization = require('../../localization');
-var log = require('../../utils/logging').newInstance('SiteService');
-var RegExpUtils = require('../../utils/reg_exp_utils');
+const Configuration = require('../../config');
+const DAO = require('../../dao/dao');
+const Localization = require('../../localization');
+const log = require('../../utils/logging').newInstance('SiteService');
+const RegExpUtils = require('../../utils/reg_exp_utils');
 const RequestHandler = require('../../http/request_handler');
 const SiteActivateJob = require('../jobs/sites/site_activate_job');
 const SiteCreateEditJob = require('../jobs/sites/site_create_edit_job');
 const SiteDeactivateJob = require('../jobs/sites/site_deactivate_job');
 const SiteQueryService = require('./site_query_service');
-var url = require('url');
-var uuid = require('uuid');
+const url = require('url');
+const util = require('util');
+const uuid = require('uuid');
 
 /**
  * Service for performing site specific operations.
@@ -41,6 +42,12 @@ var uuid = require('uuid');
 class SiteService extends BaseObjectService {
     constructor(context) {
 
+        //the site service is never concerned with site specifics so we can default the options.
+        if (!_.isObject(context)) {
+            context = {};
+        }
+        context.site = SiteService.GLOBAL_SITE;
+        context.onlyThisSite = false;
         context.type = SiteService.TYPE;
 
         //call parent constructor

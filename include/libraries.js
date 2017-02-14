@@ -133,14 +133,14 @@ class LibrariesService {
      */
     getSettings(cb) {
         var settingService = SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache);
-        settingService.get(LIBRARIES_SETTINGS_REF, function (err, settings) {
+        settingService.get(LibrariesService.LIBRARIES_SETTINGS_REF, function (err, settings) {
             if (settings) {
                 return cb(err, settings);
             }
 
             //set default settings if they don't exist
-            settings = LibrariesService.getCDNDefaults();
-            settingService.set(LIBRARIES_SETTINGS_REF, settings, function (err/*, result*/) {
+            settings = LibrariesService.CDN_DEFAULTS;
+            settingService.set(LibrariesService.LIBRARIES_SETTINGS_REF, settings, function (err/*, result*/) {
                 cb(err, settings);
             });
         });
@@ -175,7 +175,7 @@ class LibrariesService {
      * @return {Object} CDN defaults
      */
     static getCDNDefaults() {
-        return _.clone(CDN_DEFAULTS);
+        return _.clone(LibrariesService.CDN_DEFAULTS);
     }
 
     /**
@@ -186,7 +186,7 @@ class LibrariesService {
      * @return {Object} Bower defaults
      */
     static getBowerDefaults() {
-        return _.clone(BOWER_DEFAULTS);
+        return _.clone(LibrariesService.BOWER_DEFAULTS);
     }
 }
 

@@ -126,7 +126,7 @@ class DAO {
             cb = opts;
             opts = null;
         }
-        if (typeof opts !== 'object') {
+        if (!_.isObject(opts)) {
             opts = {};
         }
 

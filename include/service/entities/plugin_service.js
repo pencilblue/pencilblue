@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ArrayUtils = require('../../../lib/utils/array_utils');
 const async   = require('async');
 const CacheEntityService = require('../cache_entity_service');
 const CommandService = require('../../system/command/command_service');
@@ -25,6 +26,7 @@ const Configuration = require('../../config');
 const DAO = require('../../dao/dao');
 const DbEntityService = require('../db_entity_service');
 const domain  = require('domain');
+const FileUtils = require('../../../lib/utils/fileUtils');
 const fs      = require('fs');
 const log = require('../../utils/logging').newInstance('PluginService');
 const MemoryEntityService = require('../memory_entity_service');
@@ -50,6 +52,7 @@ const SettingServiceFactory = require('../../system/settings');
 const SimpleLayeredService = require('../simple_layered_service');
 const SiteQueryService = require('./site_query_service');
 const SiteService = require('./site_service');
+const TaskUtils = require('../../../lib/utils/taskUtils');
 const util = require('util');
 const UrlUtils = require('../../../lib/utils/urlUtils');
 const ValidationService = require('../../validation/validation_service');
@@ -227,7 +230,7 @@ class PluginService {
         if (ACTIVE_PLUGINS[this.site]) {
             sitePlugins = Object.keys(ACTIVE_PLUGINS[this.site]);
         }
-        return util.dedupeArray(sitePlugins.concat(globalPlugins));
+        return _.uniq(sitePlugins.concat(globalPlugins));
     }
 
     /**
@@ -695,7 +698,7 @@ class PluginService {
 
                     var permsAtLevel = permissions[role];
                     if (permsAtLevel) {
-                        util.merge(permsAtLevel, perms);
+                        Object.assign(perms, permsAtLevel);
                     }
                 }
             });
@@ -845,24 +848,20 @@ class PluginService {
      */
     getAvailablePlugins(active, inactive, cb) {
         if (Array.isArray(active)) {
-            active = util.arrayToHash(active, function (active, i) {
-                return active[i] ? active[i].uid : '';
+            active = ArrayUtils.toObject(active, function(val) {
+                return val ? val.uid : '';
             });
         }
         if (Array.isArray(inactive)) {
-            inactive = util.arrayToHash(inactive, function (inactive, i) {
-                return inactive[i] ? inactive[i].uid : '';
+            inactive = ArrayUtils.toObject(inactive, function(val) {
+                return val ? val.uid : '';
             });
         }
 
-        util.getDirectories(PluginService.getPluginsDir(), function (err, directories) {
-            if (_.isError(err)) {
-                cb(err, null);
-                return;
-            }
+        FileUtils.getDirectories(PluginService.getPluginsDir()).catch(cb).then(function (directories) {
 
             var plugins = [];
-            var tasks = util.getTasks(directories, function (directories, i) {
+            var tasks = directories.map(function (directory, i, directories) {
                 return function (callback) {
 
                     //skip pencilblue
@@ -967,7 +966,7 @@ class PluginService {
             options = {};
         }
         if (!_.isFunction(cb)) {
-            cb = util.cb;
+            cb = function(){};
         }
 
         //log start of operation
@@ -1011,7 +1010,7 @@ class PluginService {
      */
     installPlugin(pluginDirName, cb) {
 
-        cb = cb || util.cb;
+        cb = cb || function(){};
         var name = util.format('INSTALL_PLUGIN_%s', pluginDirName);
         var job = new PluginInstallJob();
         job.init(name);
@@ -1032,13 +1031,13 @@ class PluginService {
 
         var self = this;
         async.waterfall([
-            util.wrapTask(this._pluginRepository, this._pluginRepository.loadPluginsAcrossAllSites),
+            TaskUtils.wrapTask(this._pluginRepository, this._pluginRepository.loadPluginsAcrossAllSites),
             function (plugins, callback) {
                 if (plugins.length === 0) {
                     log.debug('PluginService: No plugins are installed');
                     return callback(null, []);
                 }
-                var tasks = util.getTasks(plugins, function (plugins, i) {
+                var tasks = plugins.map(function (plugin, i, plugins) {
                     return function (callback) {
 
                         try {
@@ -1454,7 +1453,7 @@ class PluginService {
     static loadControllers(pathToPlugin, pluginUid, site, cb) {
         var knownControllerPaths = PLUGIN_INIT_CACHE[pluginUid].controllerPaths;
         if (knownControllerPaths && knownControllerPaths.length > 0) {
-            var tasks = util.getTasks(knownControllerPaths, function (knownControllerPaths, index) {
+            var tasks = knownControllerPaths.map(function (knownControllerPath, index, knownControllerPaths) {
                 return function (callback) {
                     PluginService.loadController(knownControllerPaths[index], pluginUid, site, callback);
                 };
@@ -1470,16 +1469,14 @@ class PluginService {
                 return fullPath.lastIndexOf('.js') === (fullPath.length - '.js'.length);
             }
         };
-        util.getFiles(controllersDir, options, function (err, files) {
-            if (_.isError(err)) {
-                log.debug('PluginService[INIT]: The controllers directory [%s] does not exist or could not be read.', controllersDir);
-                log.silly('PluginService[INIT]: %s', err.stack);
-                cb(null, []);
-                return;
-            }
+        FileUtils.getFiles(controllersDir, options).catch(function(err) {
+            log.debug('PluginService[INIT]: The controllers directory [%s] does not exist or could not be read.', controllersDir);
+            log.silly('PluginService[INIT]: %s', err.stack);
+            cb(null, []);
+        }).then(function (files) {
 
             PLUGIN_INIT_CACHE[pluginUid].controllerPaths = PLUGIN_INIT_CACHE[pluginUid].controllerPaths || [];
-            var tasks = util.getTasks(files, function (files, index) {
+            var tasks = files.map(function (file, index, files) {
                 return function (callback) {
 
                     var pathToController = files[index];

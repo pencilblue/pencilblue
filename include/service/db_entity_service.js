@@ -111,7 +111,7 @@ DbEntityService.prototype.set = function(key, value, cb) {
                 rawVal = result;
             }
             rawVal[self.valueField] = value;
-            val                     = rawVal;
+            val = rawVal;
         }
 
         //set into cache

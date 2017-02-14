@@ -144,7 +144,8 @@ class PencilBlue {
      * @param {Function} cb
      */
     initSessions (cb) {
-        this.pb.session.start(cb);
+        var handler = new this.pb.SessionHandler();
+        handler.start(cb);
     }
 
     /**
@@ -187,9 +188,7 @@ class PencilBlue {
 
     /**
      * Attempts to initialize a connection pool to the core database
-     * @static
-     * @method initDBConnections
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
+     * @return {Promise}
      */
     initDBConnections () {
         var self = this;
@@ -254,7 +253,7 @@ class PencilBlue {
                 self.onHttpConnectForHandoff(req, res);
             }
         };
-        var Initializer = Configuration.active.config.server.initializer || ServerInitializer;
+        var Initializer = Configuration.active.server.initializer || ServerInitializer;
         var initializer = new Initializer(this.pb);
         initializer.init(context, function(err, servers) {
             if (_.isError(err)) {

@@ -43,6 +43,8 @@ const SiteService = require('./site_service');
               };
           }
 
+          super();
+
           /**
            * @property siteUid
            * @type {String}
@@ -54,8 +56,6 @@ const SiteService = require('./site_service');
            * @type {Boolean}
            */
           this.onlyThisSite = options.onlyThisSite;
-
-          super();
       }
 
       /**

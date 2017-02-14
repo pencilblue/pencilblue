@@ -758,7 +758,12 @@ class Localization {
      * @return {Array}
      */
     static getSupported() {
-        return _.clone(Localization.supported);
+        var val = _.clone(Localization.supported);
+        var returnVal = [];
+        for (var i = 0; i < val.length; i++) {
+            returnVal.push(val[i]);
+        }
+        return returnVal;
     }
 
     /**

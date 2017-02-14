@@ -17,18 +17,18 @@
 'use strict';
 
 //requirements
-var _ = require('lodash');
-var async = require('async');
-var domain = require('domain');
-var MongoClient = require('mongodb').MongoClient;
-var Q = require('q');
-var util = require('util');
-var log = require('../utils/logging').newInstance('DbManager');
-var Configuration = require('../config');
-var IndexService = require('../../lib/dao/mongo/indexService');
-var PromiseUtils = require('../../lib/utils/promiseUtils');
-var UrlUtils = require('../../lib/utils/urlUtils');
-var System = require('../system/system');
+const _ = require('lodash');
+const async = require('async');
+const domain = require('domain');
+const MongoClient = require('mongodb').MongoClient;
+const Q = require('q');
+const util = require('util');
+const log = require('../utils/logging').newInstance('DbManager');
+const Configuration = require('../config');
+const IndexService = require('../../lib/dao/mongo/indexService');
+const PromiseUtils = require('../../lib/utils/promiseUtils');
+const UrlUtils = require('../../lib/utils/urlUtils');
+const System = require('../system/system');
 
 /**
  * Keeps track of all active DBs with active connection pools.
@@ -276,8 +276,10 @@ class DbManager {
         });
     }
 
-    static processMigration (cb) {var pb = {};
-        var DBMigrate = require('./db_migrate.js')(pb);
+    static processMigration (cb) {
+        //TODO [1.0] understand the problem that is created when this is added as a dependency.
+        //I think it is circular with DAO
+        var DBMigrate = require('./db_migrate.js');
         new DBMigrate().run(cb);
     }
 
