@@ -183,6 +183,10 @@ module.exports = function RequestHandlerModule(pb) {
                 RequestHandler.redirectHosts[oldHostname] = site.hostname;
             });
         }
+        // If maintenance is enabled, added to site informations
+        if (site.maintenance) {
+          RequestHandler.sites[site.hostname].maintenance = site.maintenance
+        }
     };
 
     /**
@@ -201,6 +205,24 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.deactivateSite = function(site) {
         RequestHandler.sites[site.hostname].active = false;
+    };
+
+    /**
+     * @static
+     * @method activateMaintenance
+     * @param {Object} site
+     */
+    RequestHandler.activateMaintenance = function(site) {
+        RequestHandler.sites[site.hostname].maintenance = true;
+    };
+
+    /**
+     * @static
+     * @method deactivateMaintenance
+     * @param {Object} site
+     */
+    RequestHandler.deactivateMaintenance = function(site) {
+        RequestHandler.sites[site.hostname].maintenance = false;
     };
 
     /**
@@ -691,6 +713,17 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
+     * Serves up a maintenance page when this mode is enabled.
+     * This function <b>WILL</b> close the connection.
+     * @method serveMaintenance
+     */
+    RequestHandler.prototype.serveMaintenance = function() {
+        var error = new Error('Maintenance');
+        error.code = 503;
+        this.serveError(error);
+    };
+
+    /**
      * Serves up an error page.  The page is responsible for displaying an error page
      * TODO Church this up a bit.  Make it a template and controller like 404.
      * TODO install an encoder entity since node prints out function names in angle brackets
@@ -970,6 +1003,14 @@ module.exports = function RequestHandlerModule(pb) {
             }
             else {
                 return this.serve404();
+            }
+        }
+
+        // Check maintenance mode, use the same inactiveSiteAccess to see which routes are denied for normal users
+        if (this.siteObj.maintenance && !inactiveSiteAccess) {
+            //Check if is not an admin, admin could access as normal
+            if (this.session.authentication.admin_level !== 4) {
+                return this.serveMaintenance();
             }
         }
 

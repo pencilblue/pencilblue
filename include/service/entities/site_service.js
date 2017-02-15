@@ -278,6 +278,44 @@ module.exports = function SiteServiceModule(pb) {
         return job.getId();
     };
 
+
+    /**
+     * Run a job to set a site in Maintenance mode so only admin can access.
+     * @method activeMaintenance
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback to run after job is completed
+     * @return {String} the job id
+     */
+    SiteService.prototype.activateMaintenance = function(siteUid, cb) {
+        cb = cb || util.cb;
+        var name = util.format("ACTIVE_MAINTENANCE_%s", siteUid);
+        var job = new pb.MaintenanceActivateJob();
+        job.setRunAsInitiator(true);
+        job.init(name);
+        job.setSite({uid: siteUid});
+        job.run(cb);
+        return job.getId();
+    };
+
+
+    /**
+     * Run a job to unset a site in Maintenance mode so normal routing is enabled.
+     * @method deactiveMaintenance
+     * @param {String} siteUid - site unique id
+     * @param {Function} cb - callback to run after job is completed
+     * @return {String} the job id
+     */
+    SiteService.prototype.deactivateMaintenance = function(siteUid, cb) {
+        cb = cb || util.cb;
+        var name = util.format("DEACTIVE_MAINTENANCE_%s", siteUid);
+        var job = new pb.MaintenanceDeactivateJob();
+        job.setRunAsInitiator(true);
+        job.init(name);
+        job.setSite({uid: siteUid});
+        job.run(cb);
+        return job.getId();
+    };
+
     /**
      * Run a job to update a site's hostname and/or displayname.
      * @method editSite

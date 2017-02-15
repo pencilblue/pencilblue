@@ -44,6 +44,8 @@
                     <td style="text-align: right">
                         <div class="btn-group" style="text-align: left">
                             <a class="btn btn-sm btn-default" ng-click="deactivateSite(active)"><i class="fa fa-remove"></i>&nbsp;^loc_DEACTIVATE^</a>
+                            <a ng-if="active.maintenance" class="btn btn-sm btn-default" ng-click="deactiveMaintenance(active)">^loc_DEACTIVE_MAINTENANCE^</a>
+                            <a ng-if="!active.maintenance" class="btn btn-sm btn-default" ng-click="activeMaintenance(active)">^loc_ACTIVE_MAINTENANCE^</a>
                             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-sm fa-chevron-down"></i>
                             </button>

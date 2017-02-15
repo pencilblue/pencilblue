@@ -1182,6 +1182,22 @@ module.exports = function Routes(pb){
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'deactivate_site.js')
         },
+        {
+            method: 'post',
+            path: "/actions/admin/sites/maintenance/activate/:id",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'activate_maintenance.js')
+        },
+        {
+            method: 'post',
+            path: "/actions/admin/sites/maintenance/deactivate/:id",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'deactivate_maintenance.js')
+        },
 
         //**********************API************************
 
