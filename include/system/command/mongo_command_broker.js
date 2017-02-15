@@ -17,15 +17,16 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async   = require('async');
-var Configuration = require('../../config');
-var DAO = require('../../dao/dao');
-var DbManager = require('../../dao/db_manager');
-var domain  = require('domain');
-var ErrorsOverTime = require('../../error/errors_over_time');
-var log = require('../../utils/logging').newInstance('MongoCommandBroker');
-var ValidationService = require('../../validation/validation_service');
+const _ = require('lodash');
+const async   = require('async');
+const Configuration = require('../../config');
+const DAO = require('../../dao/dao');
+const DbManager = require('../../dao/db_manager');
+const domain  = require('domain');
+const ErrorsOverTime = require('../../error/errors_over_time');
+const log = require('../../utils/logging').newInstance('MongoCommandBroker');
+const Q = require('q');
+const ValidationService = require('../../validation/validation_service');
 
 /**
  * The hash of handlers for each channel subscribed to
@@ -137,8 +138,7 @@ class MongoCommandBroker {
      */
     shutdown(cb) {
         log.debug('MongoCommandBroker: Shutting down...');
-        //TODO [1.0] implement
-        cb(null, true);
+        return Q.resolve(true);
     }
 
     /**

@@ -17,10 +17,11 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var CacheFactory = require('../../dao/cache');
-var log = require('../../utils/logging').newInstance('RedisCommandBroker');
-var ValidationService = require('../../validation/validation_service');
+const _ = require('lodash');
+const CacheFactory = require('../../dao/cache');
+const log = require('../../utils/logging').newInstance('RedisCommandBroker');
+const Q = require('q');
+const ValidationService = require('../../validation/validation_service');
 
 /**
  * The hash of handlers for each channel subscribed to
@@ -83,7 +84,7 @@ class RedisCommandBroker {
     shutdown(cb) {
         log.debug('RedisCommandBroker: Shutting down...');
 
-        var clients = [this.subscribeClient, this.publishClient,];
+        var clients = [this.subscribeClient, this.publishClient];
         for (var i = 0; i < clients.length; i++) {
             try {
                 clients[i].quit();
@@ -92,7 +93,7 @@ class RedisCommandBroker {
                 log.silly('RedisCommandBroker: Error shutting down client: %s', e.stack);
             }
         }
-        cb(null, true);
+        return Q.resolve(true);
     }
 
     /**

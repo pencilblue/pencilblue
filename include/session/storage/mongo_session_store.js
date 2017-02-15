@@ -22,6 +22,7 @@ const Configuration = require('../../config');
 const DAO = require('../../dao/dao');
 const DateUtils = require('../../../lib/utils/dateUtils');
 const log = require('../../utils/logging').newInstance('MongoSessionStore');
+const Q = require('q');
 const TTLIndexHelper = require('../../dao/mongo/ttl_index_helper.js');
 
 /**
@@ -110,9 +111,9 @@ class MongoSessionStore {
      * @method shutdown
      * @param {Function} cb
      */
-    shutdown(cb) {
+    shutdown() {
         log.debug('MongoSessionStore: Shutting down...');
-        cb(null, true);
+        return Q.resolve(true);
     }
 
     /**

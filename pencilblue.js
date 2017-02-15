@@ -71,7 +71,7 @@ class PencilBlue {
      * connection pool to the core DB.
      * @method init
      */
-    init (){
+    init (){ //TODO [1.0] ensure error handling for bad behavior
         var tasks = [
             TaskUtils.wrapTimedTask(this, this.initModules, 'initModules'),
             TaskUtils.wrapTimedTask(this, this.initRequestHandler, 'initRequestHandler'),

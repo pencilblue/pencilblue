@@ -195,9 +195,8 @@ class SessionHandler {
     }
 
     /**
-     * Shuts down the sesison handler and the associated session store
-     * @method shutdown
-     * @param {Function} cb
+     * Shuts down the session handler and the associated session store
+     * @returns {Promise}
      */
     shutdown() {
         return this.sessionStore.shutdown();

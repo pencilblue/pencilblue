@@ -17,18 +17,19 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async = require('async');
-var Configuration = require('../../config');
-var domain = require('domain');
-var log = require('../../utils/logging').newInstance('CommandService');
-var MongoCommandBroker = require('./mongo_command_broker');
-var RedisCommandBroker = require('./redis_command_broker');
-var ServerRegistration = require('../server_registration');
-var System = require('../../system/system');
-var TaskUtils = require('../../../lib/utils/taskUtils');
-var uuid = require('uuid');
-var ValidationService = require('../../validation/validation_service');
+const _ = require('lodash');
+const async = require('async');
+const Configuration = require('../../config');
+const domain = require('domain');
+const log = require('../../utils/logging').newInstance('CommandService');
+const MongoCommandBroker = require('./mongo_command_broker');
+const Q = require('q');
+const RedisCommandBroker = require('./redis_command_broker');
+const ServerRegistration = require('../server_registration');
+const System = require('../../system/system');
+const TaskUtils = require('../../../lib/utils/taskUtils');
+const uuid = require('uuid');
+const ValidationService = require('../../validation/validation_service');
 
 /**
  * The singleton instance
@@ -149,14 +150,14 @@ class CommandService {
      * @method shutdown
      * @param {Function} cb A callback that takes two parameters: cb(Error, TRUE/FALSE)
      */
-    shutdown(cb) {
+    shutdown() {
         log.debug('Shutting down...');
 
         this.registrants = {};
         if (!this.broker) {
-            return cb(null, true);
+            return Q.resolve(true);
         }
-        this.broker.shutdown(cb);
+        return this.broker.shutdown();
     }
 
     /**

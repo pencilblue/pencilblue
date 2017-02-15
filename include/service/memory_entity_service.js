@@ -17,10 +17,11 @@
 'use strict';
 
 //dependencies
-var CommandService = require('../system/command/command_service');
-var log = require('../utils/logging').newInstance('MemoryEntityService');
-var SiteService = require('./entities/site_service');
-var System = require('../system/system');
+const CommandService = require('../system/command/command_service');
+const log = require('../utils/logging').newInstance('MemoryEntityService');
+const Q = require('q');
+const SiteService = require('./entities/site_service');
+const System = require('../system/system');
 
 /**
  * Memory storage service
@@ -347,9 +348,8 @@ MemoryEntityService.startReaper = function() {
  * Disposes of the storage and timers.  It also terminates the reaping of expired keys.
  * @static
  * @method dispose
- * @param {Function} cb
  */
-MemoryEntityService.dispose = function(cb) {
+MemoryEntityService.dispose = function() {
 
     //release data and timeout hashes
     STORAGE = {};
@@ -363,7 +363,7 @@ MemoryEntityService.dispose = function(cb) {
     //clean up by un registering the change handler to prevent memory leaks
     CommandService.getInstance().unregisterForType(MemoryEntityService.getOnChangeType(), MemoryEntityService.changeHandler);
 
-    cb(null, true);
+    return Q.resolve(true);
 };
 
 module.exports = MemoryEntityService;

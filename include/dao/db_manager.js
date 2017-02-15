@@ -289,7 +289,6 @@ class DbManager {
      * @return {Promise} Fulfills Array of objects, one for each db connection that was closed
      */
     static shutdown () {
-
         var tasks = Object.keys(dbs).map(function(key) {
             return dbs[key].close(true);
         });

@@ -189,11 +189,21 @@ class System {
         log.debug('Shutting down...');
 
         //call shutdown hooks
-        return SHUTDOWN_PRIORITY.reverse().reduce(function(chain, key) {
-            return chain.then(function() {
-                return Q.timeout(SHUTDOWN_HOOKS[key](), 100);
-            });
-        }, Q()).then(function() {
+        var logError = function(key, err) {
+            log.error('Failed to execute shutdown hook %s: %s', key, err.stack);
+            return Q.resolve(true);
+        };
+        var shutdownPromises = SHUTDOWN_PRIORITY.reverse().map(function(key) {
+            try {
+                return Q.timeout(SHUTDOWN_HOOKS[key](), 100).catch(function (err) {
+                    return logError(key, err);
+                });
+            }
+            catch (err) {
+                return logError(key, err);
+            }
+        });
+        return Q.allSettled(shutdownPromises).then(function(results) {
             log.info('Shutdown Complete');
 
             //kill off the process when instructed
@@ -217,7 +227,7 @@ class System {
 
         // listen for TERM signal .e.g. kill
         process.on ('SIGTERM', function() {
-            log.debug('SIGTERM detected %s', System.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
+            log.debug('SIGTERM detected %s', IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
             if (!IS_SHUTTING_DOWN) {
                 System.shutdown(killProcess);
             }
@@ -225,14 +235,14 @@ class System {
 
         // listen for INT signal e.g. Ctrl-C
         process.on ('SIGINT', function() {
-            log.debug('SIGINT detected %s', System.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
+            log.debug('SIGINT detected %s', IS_SHUTTING_DOWN ? 'but is already shutting down' : '');
             if (!IS_SHUTTING_DOWN) {
                 System.shutdown(killProcess);
             }
         });
 
         process.on ('uncaughtException', function(err) {
-            log.error('Uncaught Exception detected %s: %s', System.getWorkerId(), IS_SHUTTING_DOWN ? 'but is already shutting down' : '', err.stack);
+            log.error('Uncaught Exception detected: %s', IS_SHUTTING_DOWN ? 'but is already shutting down' : '', err.stack);
             if (!IS_SHUTTING_DOWN) {
                 System.shutdown(killProcess);
             }

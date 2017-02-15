@@ -80,16 +80,14 @@ CacheFactory.createInstance = function(config) {
  * Shuts down the Redis or FakeRedis instance
  *
  * @method shutdown
- * @param  {Function} cb Callback function
  */
-CacheFactory.shutdown = function(cb) {
-//TODO [1.0] does quit return a promise
+CacheFactory.shutdown = function() {
     if (CLIENT !== null) {
         try {
             CLIENT.quit();
         }
         catch(err) {
-            return cb(err);
+            return Q.reject(err);
         }
     }
     return Q.resolve();
