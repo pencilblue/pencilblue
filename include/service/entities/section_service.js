@@ -27,6 +27,7 @@ const SecurityService = require('../../access_management');
 const SettingServiceFactory = require('../../system/settings');
 const SiteQueryService = require('./site_query_service');
 const SiteService = require('./site_service');
+const SiteUtils = require('../../../lib/utils/siteUtils');
 const UrlService = require('./url_service');
 const UrlUtils = require('../../../lib/utils/urlUtils');
 const UserService = require('./user_service');
@@ -42,7 +43,7 @@ const ValidationService = require('../../validation/validation_service');
      */
     class SectionService {
         constructor(options) {
-            this.site = SiteService.getCurrentSite(options.site) || SiteService.GLOBAL_SITE;
+            this.site = SiteService.getCurrentSite(options.site) || SiteUtils.GLOBAL_SITE;
             this.onlyThisSite = options.onlyThisSite || false;
             this.settings = SettingServiceFactory.getServiceBySite(this.site, this.onlyThisSite);
             this.siteQueryService = new SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});

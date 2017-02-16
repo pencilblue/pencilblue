@@ -64,7 +64,7 @@ module.exports = function(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['settings', 'site_settings'], self.ls, self.site),
                 pills: self.getAdminPills(SUB_NAV_KEY, self.ls, 'configuration', {site: self.site}),
                 config: config,
-                isGlobalSite: pb.SiteService.isGlobal(self.site)
+                isGlobalSite: pb.SiteUtils.isGlobal(self.site)
             });
 
             self.setPageName(self.ls.g('site_settings.CONFIGURATION'));
@@ -93,7 +93,7 @@ module.exports = function(pb) {
             href: '/admin/site_settings/email'
         }];
 
-        if(data && data.site === pb.SiteService.GLOBAL_SITE) {
+        if(data && data.site === pb.SiteUtils.GLOBAL_SITE) {
             pills.push({
                 name: 'libraries',
                 title: ls.g('site_settings.LIBRARIES'),

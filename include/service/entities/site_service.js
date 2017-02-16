@@ -31,6 +31,7 @@ const SiteActivateJob = require('../jobs/sites/site_activate_job');
 const SiteCreateEditJob = require('../jobs/sites/site_create_edit_job');
 const SiteDeactivateJob = require('../jobs/sites/site_deactivate_job');
 const SiteQueryService = require('./site_query_service');
+const SiteUtils = require('../../../lib/utils/siteUtils');
 const url = require('url');
 const util = require('util');
 const uuid = require('uuid');
@@ -46,7 +47,7 @@ class SiteService extends BaseObjectService {
         if (!_.isObject(context)) {
             context = {};
         }
-        context.site = SiteService.GLOBAL_SITE;
+        context.site = SiteUtils.GLOBAL_SITE;
         context.onlyThisSite = false;
         context.type = SiteService.TYPE;
 
@@ -67,15 +68,6 @@ class SiteService extends BaseObjectService {
     }
 
     /**
-     * represents default configuration, not actually a full site
-     * @readonly
-     * @type {String}
-     */
-    static get GLOBAL_SITE() {
-        return 'global';
-    }
-
-    /**
      * represents a site that doesn't exist
      * @static
      * @readonly
@@ -84,17 +76,6 @@ class SiteService extends BaseObjectService {
      */
     static get NO_SITE() {
         return 'no-site';
-    }
-
-    /**
-     *
-     * @static
-     * @readonly
-     * @property SITE_FIELD
-     * @type {String}
-     */
-    static get SITE_FIELD() {
-        return 'site';
     }
 
     /**
@@ -115,11 +96,11 @@ class SiteService extends BaseObjectService {
      * @param {Function} cb - the callback function
      */
     getByUid(uid, cb) {
-        if (!uid || uid === SiteService.GLOBAL_SITE) {
+        if (!uid || uid === SiteUtils.GLOBAL_SITE) {
             cb(null, {
                 displayName: Configuration.active.siteName,
                 hostname: Configuration.active.siteRoot,
-                uid: SiteService.GLOBAL_SITE,
+                uid: SiteUtils.GLOBAL_SITE,
                 defaultLocale: Localization.getDefaultLocale(),
                 supportedLocales: {}
             });
@@ -189,7 +170,7 @@ class SiteService extends BaseObjectService {
     getSiteNameByUid(uid, cb) {
         var dao = new DAO();
         dao.q(SiteService.SITE_COLLECTION, {select: DAO.PROJECT_ALL, where: {uid: uid}}, function (err, result) {
-            var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
+            var siteName = (!uid || uid === SiteUtils.GLOBAL_SITE) ? 'global' : '';
 
             if (_.isError(err)) {
                 log.error(err);
@@ -409,7 +390,7 @@ class SiteService extends BaseObjectService {
             // and active allows all routes to be hit.
             // When multisite, use the configured hostname for global, turn off public facing routes,
             // and maintain admin routes (active is false).
-            RequestHandler.loadSite(SiteService.getGlobalSiteContext());
+            RequestHandler.loadSite(SiteUtils.getGlobalSiteContext());
             cb(err, true);
         });
     }
@@ -505,16 +486,6 @@ class SiteService extends BaseObjectService {
     }
 
     /**
-     * Returns true if siteId given is global or non-existent (to remain backwards compatible)
-     * @method isGlobal
-     * @param {String} siteId - the site id to check
-     * @return {Boolean} true if global or does not exist
-     */
-    static isGlobal(siteId) {
-        return (!siteId || siteId === SiteService.GLOBAL_SITE);
-    }
-
-    /**
      * Returns true if both site ids given are equal
      * @method areEqual
      * @param {String} siteA - first site id to compare
@@ -522,7 +493,7 @@ class SiteService extends BaseObjectService {
      * @return {Boolean} true if equal, false otherwise
      */
     static areEqual(siteA, siteB) {
-        if (SiteService.isGlobal(siteA) && SiteService.isGlobal(siteB)) {
+        if (SiteUtils.isGlobal(siteA) && SiteUtils.isGlobal(siteB)) {
             return true;
         }
         return siteA === siteB;
@@ -543,10 +514,10 @@ class SiteService extends BaseObjectService {
      * Central place to get the current site. Backwards compatible cleansing
      * @method getCurrentSite
      * @param {String} siteid - site is to cleanse
-     * @return {String} SiteService.GLOBAL_SITE if not specified, or siteid otherwise
+     * @return {String} SiteUtils.GLOBAL_SITE if not specified, or siteid otherwise
      */
     static getCurrentSite (siteid) {
-        return siteid || SiteService.GLOBAL_SITE;
+        return siteid || SiteUtils.GLOBAL_SITE;
     }
 
     /**
@@ -559,20 +530,7 @@ class SiteService extends BaseObjectService {
         if (!object) {
             return SiteService.NO_SITE;
         }
-        return object[SiteService.SITE_FIELD];
-    }
-
-    /**
-     * Determine whether http or https is being used for the site and return hostname attached to http(s)
-     * @method getHostWithProtocol
-     * @param {String} hostname
-     * @return {String} hostname with protocol attached
-     */
-    static getHostWithProtocol (hostname) {
-        hostname = hostname.match(/^http/g) ? hostname : '//' + hostname;
-        var urlObject = url.parse(hostname, false, true);
-        urlObject.protocol = Configuration.active.server.ssl.enabled ? 'https' : 'http';
-        return url.format(urlObject).replace(/\/$/, '');
+        return object[SiteUtils.SITE_FIELD];
     }
 
     /**
@@ -605,31 +563,6 @@ class SiteService extends BaseObjectService {
                 cb(null, results);
             });
         });
-    }
-
-    /**
-     * Retrieves the global site context
-     * @static
-     * @method getGlobalSiteContext
-     * @return {Object}
-     */
-    static getGlobalSiteContext () {
-        var config = Configuration.active;
-
-        var supportedLocales = Localization.getSupported().reduce(function (map, supportedLocale) {
-            map[supportedLocale] = true;
-            return map;
-        }, {});
-
-        return {
-            displayName: config.siteName,
-            uid: SiteService.GLOBAL_SITE,
-            hostname: config.multisite.enabled ? url.parse(config.multisite.globalRoot).host : url.parse(config.siteRoot).host,
-            active: !config.multisite.enabled,
-            defaultLocale: Localization.getDefaultLocale(),
-            supportedLocales: supportedLocales,
-            prevHostnames: []
-        };
     }
 
     static buildPrevHostnames (data, object) {

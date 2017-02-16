@@ -17,16 +17,16 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var Configuration = require('./config');
-var FileUtils = require('../lib/utils/fileUtils');
-var fs = require('fs');
-var Locale = require('locale');
-var log = require('./utils/logging').newInstance('LocalizationService');
-var path = require('path');
-var SiteService = require('./service/entities/site_service');
-var util   = require('util');
-var ValidationService = require('./validation/validation_service');
+const _ = require('lodash');
+const Configuration = require('./config');
+const FileUtils = require('../lib/utils/fileUtils');
+const fs = require('fs');
+const Locale = require('locale');
+const log = require('./utils/logging').newInstance('LocalizationService');
+const path = require('path');
+const SiteUtils = require('../lib/utils/siteUtils');
+const util   = require('util');
+const ValidationService = require('./validation/validation_service');
 
 /**
  * Provides functions to translate items based on keys.  Also
@@ -162,7 +162,7 @@ class Localization {
      */
     g(key, options) {
         options = options || {
-                site: SiteService.GLOBAL_SITE,
+                site: SiteUtils.GLOBAL_SITE,
                 params: {}
             };
 

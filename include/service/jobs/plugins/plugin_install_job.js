@@ -17,14 +17,14 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async = require('async');
-var PluginAvailableJob = require('./plugin_available_job');
-var PluginInitializeJob = require('./plugin_initialize_job');
-var PluginJobRunner = require('./plugin_job_runner');
-var PluginService = require('../../entities/plugin_service');
-var SiteService = require('../../entities/site_service');
-var util  = require('util');
+const _ = require('lodash');
+const async = require('async');
+const PluginAvailableJob = require('./plugin_available_job');
+const PluginInitializeJob = require('./plugin_initialize_job');
+const PluginJobRunner = require('./plugin_job_runner');
+const PluginService = require('../../entities/plugin_service');
+const SiteUtils = require('../../../../lib/utils/siteUtils');
+const util  = require('util');
 
 /**
  * A system job that coordinates the install of a plugin across the cluster.
@@ -47,7 +47,7 @@ class PluginInstallJob extends PluginJobRunner {
     constructor(options) {
         options = options || {};
 
-        this.site = options.site || SiteService.GLOBAL_SITE;
+        this.site = options.site || SiteUtils.GLOBAL_SITE;
 
         super();
 
@@ -168,7 +168,7 @@ class PluginInstallJob extends PluginJobRunner {
                 var clone = _.clone(details);
                 clone.dirName = pluginUid;
                 clone.object_type = 'plugin';
-                clone.site = site || SiteService.GLOBAL_SITE;
+                clone.site = site || SiteUtils.GLOBAL_SITE;
                 self.dao.save(clone, callback);
             },
 

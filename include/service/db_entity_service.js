@@ -17,11 +17,11 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var DAO = require('../dao/dao');
-var log = require('../utils/logging').newInstance('DbEntityService');
-var SiteQueryService = require('./entities/site_query_service');
-var SiteService = require('./entities/site_service');
+const _ = require('lodash');
+const DAO = require('../dao/dao');
+const log = require('../utils/logging').newInstance('DbEntityService');
+const SiteQueryService = require('./entities/site_query_service');
+const SiteUtils = require('../../lib/utils/siteUtils');
 
 /**
  * Database storage service
@@ -42,7 +42,7 @@ function DbEntityService(options){
     this.objType = options.objType;
     this.keyField = options.keyField;
     this.valueField = options.valueField ? options.valueField : null;
-    this.site = options.site || SiteService.GLOBAL_SITE;
+    this.site = options.site || SiteUtils.GLOBAL_SITE;
     this.onlyThisSite = !!options.onlyThisSite;
     this.type = 'DB-'+this.site+'-'+this.onlyThisSite;
     this.sqs = new SiteQueryService({site: this.site, onlyThisSite: this.onlyThisSite});
@@ -132,18 +132,18 @@ DbEntityService.prototype.purge = function(key, cb) {
     where[this.keyField] = key;
 
     var hasNoSite = {};
-    hasNoSite[SiteService.SITE_FIELD] = { $exists : false};
+    hasNoSite[SiteUtils.SITE_FIELD] = { $exists : false};
 
     var siteIsGlobal = {};
-    siteIsGlobal[SiteService.SITE_FIELD] = SiteService.GLOBAL_SITE;
+    siteIsGlobal[SiteUtils.SITE_FIELD] = SiteUtils.GLOBAL_SITE;
 
-    if(!this.site || this.site === SiteService.GLOBAL_SITE) {
+    if(!this.site || this.site === SiteUtils.GLOBAL_SITE) {
         where.$or = [
             hasNoSite,
             siteIsGlobal
         ];
     } else {
-        where[SiteService.SITE_FIELD] = this.site;
+        where[SiteUtils.SITE_FIELD] = this.site;
     }
     dao.delete(where, this.objType, cb);
 };

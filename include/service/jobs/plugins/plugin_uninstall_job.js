@@ -17,16 +17,16 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var Configuration = require('../../../config');
-var DAO = require('../../../dao/dao');
-var domain  = require('domain');
-var Localization = require('../../../localization');
-var PluginJobRunner = require('./plugin_job_runner');
-var PluginService = require('../../entities/plugin_service');
-var RequestHandler = require('../../../http/request_handler');
-var SettingServiceFactory = require('../../../system/settings');
-var SiteService = require('../../entities/site_service');
+const _ = require('lodash');
+const Configuration = require('../../../config');
+const DAO = require('../../../dao/dao');
+const domain  = require('domain');
+const Localization = require('../../../localization');
+const PluginJobRunner = require('./plugin_job_runner');
+const PluginService = require('../../entities/plugin_service');
+const RequestHandler = require('../../../http/request_handler');
+const SettingServiceFactory = require('../../../system/settings');
+const SiteUtils = require('../../../../lib/utils/siteUtils');
 
 /**
  * A system job that coordinates the uninstall of a plugin across the cluster.
@@ -198,18 +198,18 @@ class PluginUninstallJob extends PluginJobRunner {
                 };
 
                 var hasNoSite = {};
-                hasNoSite[SiteService.SITE_FIELD] = {$exists: false};
+                hasNoSite[SiteUtils.SITE_FIELD] = {$exists: false};
 
                 var siteIsGlobal = {};
-                siteIsGlobal[SiteService.SITE_FIELD] = SiteService.GLOBAL_SITE;
+                siteIsGlobal[SiteUtils.SITE_FIELD] = SiteUtils.GLOBAL_SITE;
 
-                if (!site || site === SiteService.GLOBAL_SITE) {
+                if (!site || site === SiteUtils.GLOBAL_SITE) {
                     where.$or = [
                         hasNoSite,
                         siteIsGlobal
                     ];
                 } else {
-                    where[SiteService.SITE_FIELD] = site;
+                    where[SiteUtils.SITE_FIELD] = site;
                 }
 
                 var dao = new DAO();

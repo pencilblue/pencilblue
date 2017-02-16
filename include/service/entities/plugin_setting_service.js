@@ -17,17 +17,17 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var ArrayUtils = require('../../../lib/utils/array_utils');
-var CacheEntityService = require('../cache_entity_service');
-var Configuration = require('../../config');
-var DAO = require('../../dao/dao');
-var DbEntityService = require('../db_entity_service');
-var MemoryEntityService = require('../memory_entity_service');
-var PluginService = require('./plugin_service');
-var SimpleLayeredService = require('../simple_layered_service');
-var SiteService = require('./site_service');
-var ValidationService = require('../../validation/validation_service');
+const _ = require('lodash');
+const ArrayUtils = require('../../../lib/utils/array_utils');
+const CacheEntityService = require('../cache_entity_service');
+const Configuration = require('../../config');
+const DAO = require('../../dao/dao');
+const DbEntityService = require('../db_entity_service');
+const MemoryEntityService = require('../memory_entity_service');
+const PluginService = require('./plugin_service');
+const SimpleLayeredService = require('../simple_layered_service');
+const SiteUtils = require('../../../lib/utils/siteUtils');
+const ValidationService = require('../../validation/validation_service');
 
 /**
  * Constructor for service that retrieves plugin settings from the database.
@@ -51,7 +51,7 @@ class PluginSettingService {
          * @property site
          * @type {String}
          */
-        this.site = Configuration.active.multisite.enabled && siteUID ? siteUID : SiteService.GLOBAL_SITE;
+        this.site = Configuration.active.multisite.enabled && siteUID ? siteUID : SiteUtils.GLOBAL_SITE;
 
         /**
          *
@@ -431,7 +431,7 @@ class PluginSettingService {
                     plugin_id: plugin[DAO.getIdField()].toString(),
                     settings: details.settings
                 };
-                baseDoc[SiteService.SITE_FIELD] = self.site;
+                baseDoc[SiteUtils.SITE_FIELD] = self.site;
                 baseDoc.object_type = 'plugin_settings';
                 var settings = baseDoc;
 
@@ -483,7 +483,7 @@ class PluginSettingService {
                     plugin_id: plugin[DAO.getIdField()].toString(),
                     settings: details.theme.settings
                 };
-                baseDoc[SiteService.SITE_FIELD] = self.site;
+                baseDoc[SiteUtils.SITE_FIELD] = self.site;
                 baseDoc.object_type = 'theme_settings';
                 var settings = baseDoc;
 

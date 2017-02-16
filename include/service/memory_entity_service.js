@@ -20,7 +20,7 @@
 const CommandService = require('../system/command/command_service');
 const log = require('../utils/logging').newInstance('MemoryEntityService');
 const Q = require('q');
-const SiteService = require('./entities/site_service');
+const SiteUtils = require('../../lib/utils/siteUtils');
 const System = require('../system/system');
 
 /**
@@ -45,7 +45,7 @@ function MemoryEntityService(options){
     this.keyField   = options.keyField;
     this.valueField = options.valueField ? options.valueField : null;
     this.timeout    = options.timeout || 0;
-    this.site       = options.site || SiteService.GLOBAL_SITE;
+    this.site       = options.site || SiteUtils.GLOBAL_SITE;
     this.onlyThisSite = options.onlyThisSite ? true : false;
 
     //ensure we are cleaning up after ourselves

@@ -24,6 +24,8 @@ const log = require('../utils/logging').newInstance('TopMenuService');
 const SectionService = require('../service/entities/section_service');
 const SecurityService = require('../access_management');
 const SettingServiceFactory = require('../system/settings');
+const SiteService = require('../service/entities/site_service');
+const SiteUtils = require('../../lib/utils/siteUtils');
 const TemplateService = require('../service/entities/template_service');
 
 /**
@@ -111,7 +113,7 @@ class TopMenuService {
 
         if (_.isFunction(site)) {
             cb = site;
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
 
         var contentService = new ContentService({site: site});

@@ -17,17 +17,17 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async = require('async');
-var BaseObjectService = require('../base_object_service');
-var DAO = require('../../dao/dao');
-var ErrorUtils = require('../../error/error_utils');
-var SiteService = require('./site_service');
-var TaskUtils = require ('../../../lib/utils/taskUtils');
-var UrlUtils = require ('../../../lib/utils/urlUtils');
-var util = require('util');
-var uuid = require('uuid');
-var ValidationService = require('../../validation/validation_service');
+const _ = require('lodash');
+const async = require('async');
+const BaseObjectService = require('../base_object_service');
+const DAO = require('../../dao/dao');
+const ErrorUtils = require('../../error/error_utils');
+const SiteUtils = require('../../../lib/utils/siteUtils');
+const TaskUtils = require ('../../../lib/utils/taskUtils');
+const UrlUtils = require ('../../../lib/utils/urlUtils');
+const util = require('util');
+const uuid = require('uuid');
+const ValidationService = require('../../validation/validation_service');
 
 /**
  * Provides interactions with topics
@@ -137,7 +137,7 @@ class PasswordResetService extends BaseObjectService {
         var tasks = [
             TaskUtils.wrapTask(this.siteService, this.siteService.getByUid, [this.context.site]),
             function (siteInfo, callback) {
-                var root = SiteService.getHostWithProtocol(siteInfo.hostname);
+                var root = SiteUtils.getHostWithProtocol(siteInfo.hostname);
                 var verificationUrl = UrlUtils.urlJoin(root, '/actions/user/reset_password') +
                     util.format('?email=%s&code=%s', encodeURIComponent(user.email), encodeURIComponent(passwordReset.verificationCode));
 

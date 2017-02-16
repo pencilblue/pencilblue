@@ -21,7 +21,7 @@ const _ = require('lodash');
 const Configuration = require('../../config');
 const DAO = require('./../../dao/dao.js');
 const log = require('../../utils/logging').newInstance('SiteQueryService');
-const SiteService = require('./site_service');
+const SiteUtils = require('../../../lib/utils/siteUtils');
 
   /**
    * Create an instance of the site query service specific to the given site
@@ -31,14 +31,14 @@ const SiteService = require('./site_service');
    * @constructor
    * @extends DAO
    * @param {Object} options
-   * @param {String} [options.site=SiteService.GLOBAL_SITE] UID of site, should already be sanitized by SiteService
+   * @param {String} [options.site=SiteUtils.GLOBAL_SITE] UID of site, should already be sanitized by SiteService
    * @param {Boolean} [options.onlyThisSite=false] onlyThisSite for q, return results specific to this site instead of also looking in global
    */
     class SiteQueryService extends DAO {
       constructor(options) {
           if (!_.isObject(options)) {
               options = {
-                  site: SiteService.GLOBAL_SITE,
+                  site: SiteUtils.GLOBAL_SITE,
                   onlyThisSite: false
               };
           }
@@ -118,15 +118,15 @@ const SiteService = require('./site_service');
   function modifyLoadWhere(site, where) {
     if (Configuration.active.multisite.enabled) {
       where = _.clone(where);
-      if (site === SiteService.GLOBAL_SITE) {
+      if (site === SiteUtils.GLOBAL_SITE) {
         var siteDoesNotExist = {}, siteEqualToSpecified = {};
-        siteDoesNotExist[SiteService.SITE_FIELD] = {$exists: false};
-        siteEqualToSpecified[SiteService.SITE_FIELD] = site;
+        siteDoesNotExist[SiteUtils.SITE_FIELD] = {$exists: false};
+        siteEqualToSpecified[SiteUtils.SITE_FIELD] = site;
 
         addToOr(where, [siteDoesNotExist, siteEqualToSpecified]);
       }
       else {
-        where[SiteService.SITE_FIELD] = site;
+        where[SiteUtils.SITE_FIELD] = site;
       }
     }
     return where;
@@ -213,7 +213,7 @@ const SiteService = require('./site_service');
                     callback(err, cursor);
                 }
                 else {
-                    delegate(SiteService.GLOBAL_SITE, callback);
+                    delegate(SiteUtils.GLOBAL_SITE, callback);
                 }
             });
         });
@@ -236,7 +236,7 @@ const SiteService = require('./site_service');
      * @return {Boolean}
      */
     function isGlobal(siteUid) {
-        return !siteUid || siteUid === SiteService.GLOBAL_SITE;
+        return !siteUid || siteUid === SiteUtils.GLOBAL_SITE;
     }
 
     /**
@@ -247,8 +247,8 @@ const SiteService = require('./site_service');
      * @return {Object} The object to save
      */
     function modifySave(site, objectToSave) {
-        if (Configuration.active.multisite.enabled && !(SiteService.SITE_FIELD in objectToSave)) {
-            objectToSave[SiteService.SITE_FIELD] = site;
+        if (Configuration.active.multisite.enabled && !(SiteUtils.SITE_FIELD in objectToSave)) {
+            objectToSave[SiteUtils.SITE_FIELD] = site;
         }
         // else do nothing
         return objectToSave;

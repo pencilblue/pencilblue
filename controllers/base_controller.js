@@ -25,7 +25,7 @@ var ClientJs = require('../include/client_js');
 var Configuration = require('../include/config');
 var log = require('../include/utils/logging').newInstance('BaseController');
 var RequestHandler = require('../include/http/request_handler');
-var SiteService = require('../include/service/entities/site_service');
+const SiteUtils = require('../lib/utils/siteUtils');
 var TemplateService = require('../include/service/entities/template_service').TemplateService;
 var TemplateValue = require('../include/service/entities/template_service').TemplateValue;
 var url  = require('url');
@@ -192,7 +192,7 @@ var uuid = require('uuid');
         this.siteObj             = props.siteObj;
         this.site                = props.site;
         this.siteName            = props.siteName;
-        this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || Configuration.active.siteRoot;
+        this.hostname            = SiteUtils.getHostWithProtocol(self.siteObj.hostname) || Configuration.active.siteRoot;
 
         /**
          * The referring URL

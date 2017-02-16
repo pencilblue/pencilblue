@@ -101,9 +101,9 @@ module.exports = function PB() {
         ViewController: require(path.join(config.docRoot, '/controllers/view_controller.js')),
         FormController: require(path.join(config.docRoot, '/controllers/form_controller.js')),
         ErrorViewController: require(path.join(config.docRoot, '/controllers/error_controller.js')),
+        Router: require(path.join(config.docRoot, '/include/http/router.js')),
         RequestHandler: require(path.join(config.docRoot, '/include/http/request_handler.js')),
         Middleware: require(path.join(config.docRoot, '/include/http/middleware')),
-        Router: require(path.join(config.docRoot, '/include/http/router.js')),
 
         ErrorsOverTime: require(path.join(config.docRoot, '/include/error/errors_over_time.js')),
         ErrorFormatters: require(path.join(config.docRoot, '/include/error/formatters/error_formatters.js')),

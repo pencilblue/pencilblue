@@ -52,6 +52,7 @@ const SettingServiceFactory = require('../../system/settings');
 const SimpleLayeredService = require('../simple_layered_service');
 const SiteQueryService = require('./site_query_service');
 const SiteService = require('./site_service');
+const SiteUtils = require('../../../lib/utils/siteUtils');
 const TaskUtils = require('../../../lib/utils/taskUtils');
 const util = require('util');
 const UrlUtils = require('../../../lib/utils/urlUtils');
@@ -78,7 +79,7 @@ class PluginService {
          * @property site
          * @type {String}
          */
-        this.site = options.site || SiteService.GLOBAL_SITE;
+        this.site = options.site || SiteUtils.GLOBAL_SITE;
 
         /**
          * @property _pluginRepository
@@ -164,7 +165,7 @@ class PluginService {
         }
 
         if (!site) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
 
         if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
@@ -210,7 +211,7 @@ class PluginService {
      */
     static getActiveMainModule(pluginUid, site) {
         if (!site) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
         return (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) ? ACTIVE_PLUGINS[site][pluginUid].main_module : null;
     }
@@ -223,8 +224,8 @@ class PluginService {
      */
     getActivePluginNames() {
         var globalPlugins = [];
-        if (ACTIVE_PLUGINS[SiteService.GLOBAL_SITE]) {
-            globalPlugins = Object.keys(ACTIVE_PLUGINS[SiteService.GLOBAL_SITE]);
+        if (ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE]) {
+            globalPlugins = Object.keys(ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE]);
         }
         var sitePlugins = [];
         if (ACTIVE_PLUGINS[this.site]) {
@@ -736,7 +737,7 @@ class PluginService {
      */
     static isActivePlugin(uid, site) {
         if (!site) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
         return !!PluginService.getPluginForSite(uid, site);
     }
@@ -750,8 +751,8 @@ class PluginService {
     static getPluginForSite(theme, site) {
         if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][theme]) {
             return ACTIVE_PLUGINS[site][theme];
-        } else if (ACTIVE_PLUGINS[SiteService.GLOBAL_SITE] && ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][theme]) {
-            return ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][theme];
+        } else if (ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE] && ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][theme]) {
+            return ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][theme];
         }
         return null;
     }
@@ -766,7 +767,7 @@ class PluginService {
      */
     static isPluginActiveBySite(uid, site) {
         if (!site) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
         return ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][uid];
     }
@@ -1171,15 +1172,15 @@ class PluginService {
      */
     static getService(serviceName, pluginUid, site) {
         if (!site) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
         if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
             if (ACTIVE_PLUGINS[site][pluginUid].services && ACTIVE_PLUGINS[site][pluginUid].services[serviceName]) {
                 return ACTIVE_PLUGINS[site][pluginUid].services[serviceName];
             }
-        } else if (ACTIVE_PLUGINS[SiteService.GLOBAL_SITE] && ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][pluginUid]) {
-            if (ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][pluginUid].services && ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][pluginUid].services[serviceName]) {
-                return ACTIVE_PLUGINS[SiteService.GLOBAL_SITE][pluginUid].services[serviceName];
+        } else if (ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE] && ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][pluginUid]) {
+            if (ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][pluginUid].services && ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][pluginUid].services[serviceName]) {
+                return ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][pluginUid].services[serviceName];
             }
         }
         throw new Error('Either plugin [' + pluginUid + '] or the service [' + serviceName + '] does not exist for site [' + site + ']');

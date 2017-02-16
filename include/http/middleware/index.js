@@ -17,17 +17,17 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var Configuration = require('../../config');
-var Cookies = require('cookies');
-var ErrorUtils = require('../../error/error_utils');
-var HttpStatus = require('http-status-codes');
-var log = require('../../utils/logging').newInstance('Middleware');
-var RequestHandler = require('../request_handler');
-var SessionHandler = require('../../session/session');
-var SettingServiceFactory = require('../../system/settings');
-var SiteService = require('../../service/entities/site_service');
-var url = require('url');
+const _ = require('lodash');
+const Configuration = require('../../config');
+const Cookies = require('cookies');
+const ErrorUtils = require('../../error/error_utils');
+const HttpStatus = require('http-status-codes');
+const log = require('../../utils/logging').newInstance('Middleware');
+const RequestHandler = require('../request_handler');
+const SessionHandler = require('../../session/session');
+const SettingServiceFactory = require('../../system/settings');
+const SiteUtils = require('../../../lib/utils/siteUtils');
+const url = require('url');
 
 /**
  * @private
@@ -73,7 +73,7 @@ class Middleware {
      */
     static urlParse (req, res, next) {
         req.handler.url = url.parse(req.url, true);
-        req.handler.hostname = req.headers.host || SiteService.getGlobalSiteContext().hostname;
+        req.handler.hostname = req.headers.host || SiteUtils.getGlobalSiteContext().hostname;
         next();
     }
 
@@ -146,7 +146,7 @@ class Middleware {
 
         // If we need to redirect to a different host
         if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
-            return req.router.redirect(SiteService.getHostWithProtocol(redirectHost), HttpStatus.MOVED_PERMANENTLY);
+            return req.router.redirect(SiteUtils.getHostWithProtocol(redirectHost), HttpStatus.MOVED_PERMANENTLY);
         }
         req.handler.siteObj = req.siteObj = siteObj;
 
@@ -260,7 +260,7 @@ class Middleware {
     static inactiveAccessCheck (req, res, next) {
         var inactiveSiteAccess = req.themeRoute.inactive_site_access;
         if (!req.siteObj.active && !inactiveSiteAccess) {
-            if (req.siteObj.uid === SiteService.GLOBAL_SITE) {
+            if (req.siteObj.uid === SiteUtils.GLOBAL_SITE) {
                 return req.router.redirect('/admin');
             }
             return next(ErrorUtils.notFound());

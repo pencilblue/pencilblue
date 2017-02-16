@@ -406,7 +406,7 @@ describe('Middleware', function() {
         it('should redirect to the admin home page when: the site is inactive, inactive access is not allowed for the route, and the site is global', function(done) {
             req.siteObj.active = false;
             req.themeRoute.inactive_site_access = false;
-            req.siteObj.uid = this.pb.SiteService.GLOBAL_SITE;
+            req.siteObj.uid = this.pb.SiteUtils.GLOBAL_SITE;
 
             req.router.redirect = sandbox.stub().withArgs('/admin');
             this.pb.Middleware.inactiveAccessCheck(req, res, null);

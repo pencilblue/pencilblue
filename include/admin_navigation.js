@@ -22,7 +22,7 @@ var ArrayUtils = require('../lib/utils/array_utils');
 var Configuration = require('./config');
 var log = require('./utils/logging').newInstance('AdminNavigation');
 var SecurityService = require('./access_management');
-var SiteService = require('./service/entities/site_service');
+const SiteUtils = require('../lib/utils/siteUtils');
 
 /**
  * Provides function to construct the structure needed to display the navigation
@@ -37,10 +37,7 @@ class AdminNavigation {
 
     /**
      *
-     * @private
-     * @static
      * @readonly
-     * @property MULTISITE_NAV
      * @return {Array}
      */
     static get MULTISITE_NAV() {
@@ -57,11 +54,8 @@ class AdminNavigation {
 
     /**
      *
-     * @private
-     * @static
      * @readonly
-     * @property CONTENT_NAV
-     * @return {Array}
+     * @return {object}
      */
     static get CONTENT_NAV() {
         return Object.freeze({
@@ -124,6 +118,11 @@ class AdminNavigation {
         });
     }
 
+    /**
+     *
+     * @readonly
+     * @returns {Object}
+     */
     static get PLUGINS_NAV() {
         return Object.freeze({
             id: 'plugins',
@@ -149,6 +148,11 @@ class AdminNavigation {
         });
     }
 
+    /**
+     *
+     * @readonly
+     * @returns {Object}
+     */
     static get USERS_NAV() {
         return Object.freeze({
             id: 'users',
@@ -175,6 +179,11 @@ class AdminNavigation {
         });
     }
 
+    /**
+     *
+     * @readonly
+     * @returns {Object}
+     */
     static get VIEW_SITE_NAV() {
         return Object.freeze({
             id: 'view_site',
@@ -185,6 +194,11 @@ class AdminNavigation {
         });
     }
 
+    /**
+     *
+     * @readonly
+     * @returns {Object}
+     */
     static get LOGOUT_NAV() {
         return Object.freeze({
             id: 'logout',
@@ -212,11 +226,11 @@ class AdminNavigation {
         );
 
         return localizeNavigation(navigation, ls);
-    };
+    }
 
     static addChild (parentId, node) {
-        AdminNavigation.addChildToSite(parentId, node, SiteService.GLOBAL_SITE);
-    };
+        AdminNavigation.addChildToSite(parentId, node, SiteUtils.GLOBAL_SITE);
+    }
 
     /**
      * Adds a new child node to an existing top level node
@@ -229,7 +243,7 @@ class AdminNavigation {
      */
     static addChildToSite (parentId, node, site) {
         if (_.isNil(site)) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
         if (exists(node.id, site)) {
             return false;
@@ -248,7 +262,7 @@ class AdminNavigation {
 
         additionsMap[parentId].push(node);
         return true;
-    };
+    }
 
     /**
      * Adds a new top level node
@@ -260,7 +274,7 @@ class AdminNavigation {
      */
     static add (node, site) {
         if (_.isNil(site)) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
         if (exists(node.id, site)) {
             return false;
@@ -271,7 +285,7 @@ class AdminNavigation {
         }
         AdminNavigation.additions[site].push(node);
         return true;
-    };
+    }
 
     /**
      * Adds a new top level node
@@ -283,7 +297,7 @@ class AdminNavigation {
      */
     static addToSite (node, site) {
         return AdminNavigation.add(node, site);
-    };
+    }
 
     /**
      * Remove a navigation node
@@ -295,7 +309,7 @@ class AdminNavigation {
      */
     static remove (id, site) {
         if (_.isNil(site)) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
         if (!isDuplicate(id, buildNavigation(site))) {
             return false;
@@ -453,7 +467,7 @@ function buildSettingsNavigation(site) {
         ]
     };
 
-    if (SiteService.isGlobal(site)) {
+    if (SiteUtils.isGlobal(site)) {
         settingsNav.children.push({
             id: 'library_settings',
             title: 'site_settings.LIBRARIES',
@@ -466,15 +480,15 @@ function buildSettingsNavigation(site) {
 }
 
 function getDefaultNavigation(site) {
-    return _.clone([CONTENT_NAV, PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
+    return _.clone([AdminNavigation.CONTENT_NAV, AdminNavigation.PLUGINS_NAV, AdminNavigation.USERS_NAV, buildSettingsNavigation(site), AdminNavigation.VIEW_SITE_NAV, AdminNavigation.LOGOUT_NAV]);
 }
 
 function getMultiSiteNavigation() {
-    return _.clone([MULTISITE_NAV]);
+    return _.clone([AdminNavigation.MULTISITE_NAV]);
 }
 
 function getGlobalScopeNavigation(site) {
-    return _.clone([PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
+    return _.clone([AdminNavigation.PLUGINS_NAV, AdminNavigation.USERS_NAV, buildSettingsNavigation(site), AdminNavigation.LOGOUT_NAV]);
 }
 
 
@@ -510,8 +524,8 @@ function getAdditionsInScope(additions, site) {
     if (additions[site]) {
         return _.clone(additions[site]);
     }
-    else if (additions[SiteService.GLOBAL_SITE]) {
-        return _.clone(additions[SiteService.GLOBAL_SITE]);
+    else if (additions[SiteUtils.GLOBAL_SITE]) {
+        return _.clone(additions[SiteUtils.GLOBAL_SITE]);
     }
     return _.clone(additions);
 }
@@ -534,7 +548,7 @@ function buildNavigation(site) {
         ArrayUtils.pushAll(multiSiteAdditions, navigation);
     }
 
-    if (Configuration.active.multisite.enabled && SiteService.isGlobal(site)) {
+    if (Configuration.active.multisite.enabled && SiteUtils.isGlobal(site)) {
         // Don't include content or view site in the nav for multitenancy global scope.
         ArrayUtils.pushAll(getGlobalScopeNavigation(site), navigation);
     }
@@ -619,10 +633,10 @@ function isDuplicate(id, navigation, site) {
 }
 
 function exists(id, site) {
-    var isGlobal = SiteService.isGlobal(site);
+    var isGlobal = SiteUtils.isGlobal(site);
     var nav = buildNavigation(site);
     return isDuplicate(id, nav) ||
-        (!isGlobal && isDuplicate(id, buildNavigation(SiteService.GLOBAL_SITE)));
+        (!isGlobal && isDuplicate(id, buildNavigation(SiteUtils.GLOBAL_SITE)));
 }
 
 /**

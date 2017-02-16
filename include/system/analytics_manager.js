@@ -17,15 +17,15 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async  = require('async');
-var Configuration = require('../config');
-var domain = require('domain');
-var log = require('../utils/logging').newInstance('AnalyticsManager');
-var RequestHandler = require('../http/request_handler');
-var SiteService = require('../service/entities/site_service');
-var TemplateValue = require('../service/entities/template_service').TemplateValue;
-var ValidationService = require('../validation/validation_service');
+const _ = require('lodash');
+const async  = require('async');
+const Configuration = require('../config');
+const domain = require('domain');
+const log = require('../utils/logging').newInstance('AnalyticsManager');
+const RequestHandler = require('../http/request_handler');
+const SiteUtils = require('../../lib/utils/siteUtils');
+const TemplateValue = require('../service/entities/template_service').TemplateValue;
+const ValidationService = require('../validation/validation_service');
 //TODO [1.0] convert to es6
     /**
      * Provides functionality to render HTML snippets to report metrics back to
@@ -44,7 +44,7 @@ var ValidationService = require('../validation/validation_service');
          * @property site
          * @type {String}
          */
-        this.site = options.site || SiteService.GLOBAL_SITE;
+        this.site = options.site || SiteUtils.GLOBAL_SITE;
 
         /**
          * The amount of time, in milliseconds, that the manager will wait for
@@ -176,7 +176,7 @@ var ValidationService = require('../validation/validation_service');
                 opts.start = new Date().getTime();
                 opts.th = setTimeout(AnalyticsManager.buildTimeoutHandler(opts), timeout);
 
-                var provider = PROVIDER_HOOKS[SiteService.GLOBAL_SITE] || [];
+                var provider = PROVIDER_HOOKS[SiteUtils.GLOBAL_SITE] || [];
                 if (PROVIDER_HOOKS[site] && PROVIDER_HOOKS[site][key]) {
                     provider = PROVIDER_HOOKS[site];
                 }
@@ -326,7 +326,7 @@ var ValidationService = require('../validation/validation_service');
     AnalyticsManager.registerProvider = function(name, site, onPageRendering) {
         if (_.isFunction(site)) {
             onPageRendering = site;
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
 
         if (!ValidationService.validateNonEmptyStr(name, true) ||
@@ -359,7 +359,7 @@ var ValidationService = require('../validation/validation_service');
      */
     AnalyticsManager.unregisterProvider = function(name, site) {
         if (!_.isString(site)) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
         if (!AnalyticsManager.isRegistered(name, site)) {
             return false;
@@ -379,7 +379,7 @@ var ValidationService = require('../validation/validation_service');
      */
     AnalyticsManager.isRegistered = function(name, site) {
         if (!_.isString(site)) {
-            site = SiteService.GLOBAL_SITE;
+            site = SiteUtils.GLOBAL_SITE;
         }
         return !_.isNil(PROVIDER_HOOKS[site]) &&
             _.isFunction(PROVIDER_HOOKS[site][name]);
@@ -418,12 +418,12 @@ var ValidationService = require('../validation/validation_service');
         var keyFunc = keyHandler(keyHash);
 
         //check for global keys.  They apply to all sites
-        if (PROVIDER_HOOKS[SiteService.GLOBAL_SITE]) {
-            (Object.keys(PROVIDER_HOOKS[SiteService.GLOBAL_SITE]) || []).forEach(keyFunc);
+        if (PROVIDER_HOOKS[SiteUtils.GLOBAL_SITE]) {
+            (Object.keys(PROVIDER_HOOKS[SiteUtils.GLOBAL_SITE]) || []).forEach(keyFunc);
         }
 
         //check for non-global site keys
-        if(PROVIDER_HOOKS[site] && site !== SiteService.GLOBAL_SITE) {
+        if(PROVIDER_HOOKS[site] && site !== SiteUtils.GLOBAL_SITE) {
             Object.keys(PROVIDER_HOOKS[site]).forEach(keyFunc);
         }
         return Object.keys(keyHash);

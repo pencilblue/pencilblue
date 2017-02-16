@@ -144,7 +144,7 @@ module.exports = function(pb) {
             topics: data.topics,
             media: data.media,
             article: data.article,
-            siteKey: pb.SiteService.SITE_FIELD,
+            siteKey: pb.SiteUtils.SITE_FIELD,
             site: self.site
         };
         if(data.availableAuthors) {

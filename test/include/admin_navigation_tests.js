@@ -7,14 +7,14 @@ describe('AdminNavigation', function() {
 
     var pb = null;
     var AdminNavigation = null;
-    var SiteService = null;
+    var SiteUtils = null;
     before('Initialize the Environment with the default configuration', function() {
         //travis gets slow so we bump the timeout just a little here to get around the BS
         this.timeout(10000);
 
         pb = new Lib(Configuration.getBaseConfig());
         AdminNavigation = pb.AdminNavigation;
-        SiteService = pb.SiteService;
+        SiteUtils = pb.SiteUtils;
     });
 
     describe('AdminNavigation.add', function() {
@@ -23,7 +23,7 @@ describe('AdminNavigation', function() {
             var node = { id: getNextId() };
             var result = AdminNavigation.add(node);
             result.should.be.ok();
-            AdminNavigation.additions[SiteService.GLOBAL_SITE][0].should.eql(node);
+            AdminNavigation.additions[SiteUtils.GLOBAL_SITE][0].should.eql(node);
         });
 
         it('should return false when the node already exists with no site provided', function() {
@@ -57,7 +57,7 @@ describe('AdminNavigation', function() {
             var node = { id: getNextId() };
             var result = AdminNavigation.addToSite(node);
             result.should.be.ok();
-            AdminNavigation.additions[SiteService.GLOBAL_SITE][0].should.eql(node);
+            AdminNavigation.additions[SiteUtils.GLOBAL_SITE][0].should.eql(node);
         });
 
         it('should return false when the node already exists with no site provided', function() {

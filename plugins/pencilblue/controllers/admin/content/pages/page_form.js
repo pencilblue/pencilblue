@@ -130,7 +130,7 @@ module.exports = function(pb) {
             topics: data.topics,
             media: data.media,
             page: data.page,
-            siteKey: pb.SiteService.SITE_FIELD,
+            siteKey: pb.SiteUtils.SITE_FIELD,
             site: self.site
         };
         if(data.availableAuthors) {

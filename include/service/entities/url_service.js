@@ -17,12 +17,13 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var RegExpUtils = require('../../utils/reg_exp_utils');
-var RequestHandler = require('../../http/request_handler');
-var SiteQueryService = require('./site_query_service');
-var SiteService = require('./site_service');
-var url  = require('url');
+const _ = require('lodash');
+const RegExpUtils = require('../../utils/reg_exp_utils');
+const RequestHandler = require('../../http/request_handler');
+const SiteQueryService = require('./site_query_service');
+const SiteService = require('./site_service');
+const SiteUtils = require('../../../lib/utils/siteUtils');
+const url  = require('url');
 
 /**
  * A service that provides insight into the system's routes (URLs) along with
@@ -95,7 +96,7 @@ class UrlService {
             url: new RegExp(pattern, "i")
         };
         if (site !== undefined) {
-            where[SiteService.SITE_FIELD] = site;
+            where[SiteUtils.SITE_FIELD] = site;
         }
         this.siteQueryService.unique(type, where, id, function (err, isUnique) {
             cb(err, !isUnique);

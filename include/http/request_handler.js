@@ -17,29 +17,29 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async   = require('async');
-var AsyncEventEmitter = require('../utils/async_event_emitter');
-var Configuration = require('../config');
-var Cookies = require('cookies');
-var DAO = require('../dao/dao');
-var domain  = require('domain');
-var ErrorFormatters = require('../error/formatters/error_formatters');
-var FormBodyParser = require('../http/parsers').FormBodyParser;
-var fs      = require('fs');
-var HttpStatusCodes = require('http-status-codes');
-var JsonBodyParser = require('../http/parsers').JsonBodyParser;
-var Localization = require('../localization');
-var log = require('../utils/logging').newInstance('RequestHandler');
-var mime = require('mime');
-var path = require('path');
-var SecurityService = require('../access_management');
-var SessionHandler = require('../session/session');
-var SettingServiceFactory = require('../system/settings');
-var SiteService = require('../service/entities/site_service');
-var url     = require('url');
-var UrlUtils = require('../../lib/utils/urlUtils');
-var ValidationService = require('../validation/validation_service');
+const _ = require('lodash');
+const async   = require('async');
+const AsyncEventEmitter = require('../utils/async_event_emitter');
+const Configuration = require('../config');
+const Cookies = require('cookies');
+const DAO = require('../dao/dao');
+const domain  = require('domain');
+const ErrorFormatters = require('../error/formatters/error_formatters');
+const FormBodyParser = require('../http/parsers').FormBodyParser;
+const fs      = require('fs');
+const HttpStatusCodes = require('http-status-codes');
+const JsonBodyParser = require('../http/parsers').JsonBodyParser;
+const Localization = require('../localization');
+const log = require('../utils/logging').newInstance('RequestHandler');
+const mime = require('mime');
+const path = require('path');
+const SecurityService = require('../access_management');
+const SessionHandler = require('../session/session');
+const SettingServiceFactory = require('../system/settings');
+const SiteUtils = require('../../lib/utils/siteUtils');
+const url     = require('url');
+const UrlUtils = require('../../lib/utils/urlUtils');
+const ValidationService = require('../validation/validation_service');
 
     /**
      * Responsible for processing a single req by delegating it to the correct controllers
@@ -91,7 +91,7 @@ var ValidationService = require('../validation/validation_service');
          * @property hostname
          * @type {String}
          */
-        this.hostname  = req.headers.host || SiteService.getGlobalSiteContext().hostname;
+        this.hostname  = req.headers.host || SiteUtils.getGlobalSiteContext().hostname;
 
         /**
          * @property activeTheme
@@ -158,7 +158,7 @@ var ValidationService = require('../validation/validation_service');
     RequestHandler.index   = {};
     RequestHandler.sites = {};
     RequestHandler.redirectHosts = {};
-    var GLOBAL_SITE = SiteService.GLOBAL_SITE;
+    var GLOBAL_SITE = SiteUtils.GLOBAL_SITE;
     /**
      * The internal storage of static routes after they are validated and processed.
      * @protected
@@ -758,7 +758,7 @@ var ValidationService = require('../validation/validation_service');
                 return cb(null, self.activeTheme);
             }
 
-            self.siteObj = self.siteObj || SiteService.getGlobalSiteContext();
+            self.siteObj = self.siteObj || SiteUtils.getGlobalSiteContext();
             var settingsService = SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, self.siteObj.uid);
             settingsService.get('active_theme', function(err, activeTheme){
                 self.activeTheme = activeTheme || Configuration.active.plugins.default;
@@ -825,7 +825,7 @@ var ValidationService = require('../validation/validation_service');
 
         // If we need to redirect to a different host
         if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
-            return this.doRedirect(SiteService.getHostWithProtocol(redirectHost), HttpStatusCodes.MOVED_PERMANENTLY);
+            return this.doRedirect(SiteUtils.getHostWithProtocol(redirectHost), HttpStatusCodes.MOVED_PERMANENTLY);
         }
         this.siteObj = siteObj;
 
@@ -967,8 +967,8 @@ var ValidationService = require('../validation/validation_service');
             if (this.siteObj.uid in route.themes) {
                 themesToCheck.push.apply(Object.keys(route.themes[this.siteObj.uid]));
             }
-            if (!SiteService.isGlobal(this.siteObj.uid) && (SiteService.GLOBAL_SITE in route.themes)) {
-                themesToCheck.push.apply(Object.keys(route.themes[SiteService.GLOBAL_SITE]));
+            if (!SiteUtils.isGlobal(this.siteObj.uid) && (SiteUtils.GLOBAL_SITE in route.themes)) {
+                themesToCheck.push.apply(Object.keys(route.themes[SiteUtils.GLOBAL_SITE]));
             }
             themesToCheck = _.uniq(themesToCheck);
             for (var j = 0; j < themesToCheck.length; j++) {
@@ -1019,7 +1019,7 @@ var ValidationService = require('../validation/validation_service');
 
             var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
             if (!self.siteObj.active && !inactiveSiteAccess) {
-                if (self.siteObj.uid === SiteService.GLOBAL_SITE) {
+                if (self.siteObj.uid === SiteUtils.GLOBAL_SITE) {
                     return self.doRedirect('/admin');
                 }
                 else {

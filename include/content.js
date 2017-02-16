@@ -17,9 +17,10 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var SettingServiceFactory = require('./system/settings');
-var SiteService = require('./service/entities/site_service');
+const _ = require('lodash');
+const SettingServiceFactory = require('./system/settings');
+const SiteService = require('./service/entities/site_service');
+const SiteUtils = require('../lib/utils/siteUtils');
 
 /**
  * Service for content settings retrieval
@@ -31,10 +32,10 @@ var SiteService = require('./service/entities/site_service');
 class ContentService {
     constructor(options) {
         if (options) {
-            this.siteUid = SiteService.getCurrentSite(options.site) || SiteService.GLOBAL_SITE;
+            this.siteUid = SiteService.getCurrentSite(options.site) || SiteUtils.GLOBAL_SITE;
             this.onlyThisSite = options.onlyThisSite || false;
         } else {
-            this.siteUid = SiteService.GLOBAL_SITE;
+            this.siteUid = SiteUtils.GLOBAL_SITE;
             this.onlyThisSite = false;
         }
         this.settingService = SettingServiceFactory.getServiceBySite(this.siteUid, this.onlyThisSite);

@@ -120,7 +120,7 @@ module.exports = function SetupActionControllerModule(pb) {
         //do setup events
         var tasks = [
             function(callback) {
-                var userService = new pb.UserService({site: pb.SiteService.GLOBAL_SITE});
+                var userService = new pb.UserService({site: pb.SiteUtils.GLOBAL_SITE});
                 userService.add(post, callback);
             },
             function(callback) {

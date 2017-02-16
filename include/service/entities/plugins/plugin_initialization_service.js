@@ -32,7 +32,7 @@ const PluginService = require('../plugin_service');
 const PluginServiceLoader = require('./loaders/plugin_service_loader');
 const PluginValidationService = require('./plugin_validation_service');
 const semver = require('semver');
-const SiteService = require('../site_service');
+const SiteUtils = require('../../../../lib/utils/siteUtils');
 const util = require('util');
 
     /**
@@ -118,7 +118,7 @@ const util = require('util');
                 pluginService: this.pluginService,
                 cachedPlugin: this.pluginCache[plugin.uid],
                 isCachedPlugin: !!this.pluginCache[plugin.uid],
-                site: plugin.site || SiteService.GLOBAL_SITE,
+                site: plugin.site || SiteUtils.GLOBAL_SITE,
                 plugin: plugin
             };
 

@@ -1,10 +1,10 @@
 'use strict';
 
 //dependencies
-var domain = require('domain');
-var log = require('../utils/logging').newInstance('Router');
-var RequestHandler = require('./request_handler');
-var util = require('util');
+const domain = require('domain');
+const log = require('../utils/logging').newInstance('Router');
+const RequestHandler = require('./request_handler');console.log('r-rh: ', RequestHandler);
+const util = require('util');
 
 /**
  * Responsible for routing a request through the registered middleware to serve up a response

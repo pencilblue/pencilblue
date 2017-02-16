@@ -17,10 +17,10 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var CacheFactory = require('../dao/cache');
-var log = require('../utils/logging').newInstance('CacheEntityService');
-var SiteService = require('./entities/site_service');
+const _ = require('lodash');
+const CacheFactory = require('../dao/cache');
+const log = require('../utils/logging').newInstance('CacheEntityService');
+const SiteUtils = require('../../lib/utils/siteUtils');
 
 /**
  * In-cache storage service
@@ -42,7 +42,7 @@ function CacheEntityService(options){
     this.objType = options.objType;
     this.keyField = options.keyField;
     this.valueField = options.valueField ? options.valueField : null;
-    this.site = options.site || SiteService.GLOBAL_SITE;
+    this.site = options.site || SiteUtils.GLOBAL_SITE;
     this.onlyThisSite = !!options.onlyThisSite;
     this.timeout = options.timeout || 0;
     this.type = 'Cache-'+this.site+'-'+this.onlyThisSite;
@@ -66,11 +66,11 @@ CacheEntityService.prototype.get = function(key, cb){
         //site specific value doesn't exist in cache
         if (result === null) {
 
-            if (self.site === SiteService.GLOBAL_SITE || self.onlyThisSite) {
+            if (self.site === SiteUtils.GLOBAL_SITE || self.onlyThisSite) {
                 return cb(null, null);
             }
 
-            CacheFactory.getInstance().get(keyValue(key, SiteService.GLOBAL_SITE), function(err, result){
+            CacheFactory.getInstance().get(keyValue(key, SiteUtils.GLOBAL_SITE), function(err, result){
                 if (_.isError(err)) {
                     return cb(err, null);
                 }

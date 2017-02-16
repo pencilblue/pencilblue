@@ -20,7 +20,7 @@ module.exports = function(pb) {
 
     //pb dependencies
     var util = pb.util;
-    var SiteService = pb.SiteService;
+    var SiteUtils = pb.SiteUtils;
 
     /**
      * Interface for the site's email settings
@@ -84,7 +84,7 @@ module.exports = function(pb) {
             href: '/admin/site_settings/content'
         }];
 
-        if(data && data.site === SiteService.GLOBAL_SITE) {
+        if(data && data.site === SiteUtils.GLOBAL_SITE) {
             pills.push({
                 name: 'libraries',
                 title: ls.g('site_settings.LIBRARIES'),

@@ -21,7 +21,7 @@ var _ = require('lodash');
 var Configuration = require('../../config');
 var HttpStatusCodes = require('http-status-codes');
 var path = require('path');
-var SiteService = require('../../service/entities/site_service');
+const SiteUtils = require('../../../lib/utils/siteUtils');
 var XmlErrorFormatter = require('./xml_error_formatter');
 
 /**
@@ -147,7 +147,7 @@ ErrorFormatters.html = function(params, cb) {
     params.request.controllerInstance.error = params.error;
     params.request.themeRoute = params.request.themeRoute || {};
     params.request.routeTheme = params.request.routeTheme || {};
-    params.request.siteObj = params.request.siteObj || SiteService.getGlobalSiteContext();
+    params.request.siteObj = params.request.siteObj || SiteUtils.getGlobalSiteContext();
     params.request.themeRoute.handler = 'render';
     params.request.router.continueAfter('parseRequestBody');
 };

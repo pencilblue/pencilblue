@@ -30,6 +30,7 @@ var RegExpUtils = require('../../utils/reg_exp_utils');
 var SecurityService = require('../../access_management');
 var SiteQueryService = require('./site_query_service');
 var SiteService = require('./site_service');
+const SiteUtils = require('../../../lib/utils/siteUtils');
 var ValidationService = require('../../validation/validation_service');
 
 /**
@@ -162,7 +163,7 @@ class UserService extends BaseObjectService {
 
         //in multi-site deployments non-global sites are limited to user roles: READER, WRITER, EDITOR.
         //Admin roles (ADMINISTRATOR and MANAGING_EDITOR) are resevered for the global site.
-        if (!Configuration.active.multisite.enabled || !SiteService.isGlobal(this.context.site)) {
+        if (!Configuration.active.multisite.enabled || !SiteUtils.isGlobal(this.context.site)) {
             adminOptions.push(
                 {name: ls.g('generic.READER'), value: SecurityService.ACCESS_USER},
                 {name: ls.g('generic.WRITER'), value: SecurityService.ACCESS_WRITER},
@@ -172,7 +173,7 @@ class UserService extends BaseObjectService {
 
         //we want these included for single site deployments too.  However, we
         //can guarantee that the site will be global in single site mode.
-        if (SiteService.isGlobal(this.context.site)) {
+        if (SiteUtils.isGlobal(this.context.site)) {
             if (session.authentication.user.admin >= SecurityService.ACCESS_MANAGING_EDITOR) {
                 adminOptions.push({
                     name: ls.g('generic.MANAGING_EDITOR'),
@@ -232,7 +233,7 @@ class UserService extends BaseObjectService {
                 },
                 $or: [
                     {site: self.context.site},
-                    {site: SiteService.GLOBAL_SITE},
+                    {site: SiteUtils.GLOBAL_SITE},
                     {site: {$exists: false}}
                 ]
             }
@@ -313,7 +314,7 @@ class UserService extends BaseObjectService {
                 var options = {
                     to: user.email,
                     replacements: {
-                        'verification_url': SiteService.getHostWithProtocol(siteInfo.hostname) + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verificationCode,
+                        'verification_url': SiteUtils.getHostWithProtocol(siteInfo.hostname) + '/actions/user/verify_email?email=' + user.email + '&code=' + user.verificationCode,
                         'first_name': user.first_name,
                         'last_name': user.last_name
                     }
@@ -399,7 +400,7 @@ class UserService extends BaseObjectService {
             return where;
         };
 
-        var dao = (SiteService.isGlobal(self.context.site)) ? new DAO() : new SiteQueryService({
+        var dao = (SiteUtils.isGlobal(self.context.site)) ? new DAO() : new SiteQueryService({
             site: self.context.site,
             onlyThisSite: false
         });
@@ -557,9 +558,9 @@ class UserService extends BaseObjectService {
     determineUserSiteScope(accessLevel, siteId) {
         if (accessLevel === SecurityService.ACCESS_MANAGING_EDITOR ||
             accessLevel === SecurityService.ACCESS_ADMINISTRATOR) {
-            return SiteService.GLOBAL_SITE;
+            return SiteUtils.GLOBAL_SITE;
         }
-        else if (siteId === SiteService.GLOBAL_SITE) {
+        else if (siteId === SiteUtils.GLOBAL_SITE) {
             return null;
         }
         return siteId;

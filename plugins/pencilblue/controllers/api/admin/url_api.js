@@ -109,7 +109,7 @@ module.exports = function(pb) {
             url: this.query.url
         };
         var service;
-        var SITE_FIELD = pb.SiteService.SITE_FIELD;
+        var SITE_FIELD = pb.SiteUtils.SITE_FIELD;
         if (SITE_FIELD in this.query) {
             service = new UrlService(this.query[SITE_FIELD], true);
         } else {

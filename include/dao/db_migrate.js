@@ -22,6 +22,7 @@ const Configuration = require('../config');
 const DAO = require('./dao');
 const SecurityService = require('../access_management');
 const SiteService = require('../service/entities/site_service');
+const SiteUtils = require('../../lib/utils/siteUtils');
 const TaskUtils = require('../../lib/utils/taskUtils');
 const url = require('url');
 
@@ -86,7 +87,7 @@ class DBMigrate {
     constructor () {
 
         this.siteService = new SiteService({
-            site: SiteService.GLOBAL_SITE,
+            site: SiteUtils.GLOBAL_SITE,
             onlyThisSite: false
         });
     }
@@ -176,7 +177,7 @@ class DBMigrate {
         dao.q(collection, function(err, results) {
             var tasks = results.map(function(result, i, results) {
                 return function(callback) {
-                  var uid = siteSpecificArr.indexOf(results[i][compareTo]) > -1? self.siteUid : SiteService.GLOBAL_SITE;
+                  var uid = siteSpecificArr.indexOf(results[i][compareTo]) > -1? self.siteUid : SiteUtils.GLOBAL_SITE;
                   self.applySiteToDocument(results[i], uid, callback);
                 };
             });
@@ -212,7 +213,7 @@ class DBMigrate {
      * @param {Function} callback
      */
     applySiteToDocument  (document, siteUid, callback) {
-        document[SiteService.SITE_FIELD] = siteUid;
+        document[SiteUtils.SITE_FIELD] = siteUid;
         var dao = new DAO();
         dao.save(document, callback);
     }

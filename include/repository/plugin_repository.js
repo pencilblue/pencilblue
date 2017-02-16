@@ -17,10 +17,10 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async = require('async');
-var DAO = require('../dao/dao');
-var SiteService = require('../service/entities/site_service');
+const _ = require('lodash');
+const async = require('async');
+const DAO = require('../dao/dao');
+const SiteUtils = require('../../lib/utils/siteUtils');
 
 /**
  * Empty constructor because this object uses static methods.
@@ -48,7 +48,7 @@ class PluginRepository {
         var dao = new DAO();
         var hasATheme = getHasThemeQuery();
         var belongsToSite = getBelongsToSiteQuery(site);
-        var belongsToGlobal = getBelongsToSiteQuery(SiteService.GLOBAL_SITE);
+        var belongsToGlobal = getBelongsToSiteQuery(SiteUtils.GLOBAL_SITE);
         var siteWhere = {
             $and: [hasATheme, belongsToSite]
         };
@@ -128,8 +128,8 @@ class PluginRepository {
             }
 
             if (!plugin) {
-                if (site && site !== SiteService.GLOBAL_SITE) {
-                    PluginRepository.loadPluginOwnedByThisSite(pluginID, SiteService.GLOBAL_SITE, cb);
+                if (site && site !== SiteUtils.GLOBAL_SITE) {
+                    PluginRepository.loadPluginOwnedByThisSite(pluginID, SiteUtils.GLOBAL_SITE, cb);
                     return;
                 }
                 cb(err, null);
@@ -230,12 +230,12 @@ function getCorrectIdQuery(pluginID) {
 
 function getBelongsToSiteQuery(site) {
     var belongsToThisSite = {};
-    if (!site || site === SiteService.GLOBAL_SITE) {
+    if (!site || site === SiteUtils.GLOBAL_SITE) {
         var hasNoSite = {};
-        hasNoSite[SiteService.SITE_FIELD] = {$exists: false};
+        hasNoSite[SiteUtils.SITE_FIELD] = {$exists: false};
 
         var siteIsGlobal = {};
-        siteIsGlobal[SiteService.SITE_FIELD] = SiteService.GLOBAL_SITE;
+        siteIsGlobal[SiteUtils.SITE_FIELD] = SiteUtils.GLOBAL_SITE;
 
         belongsToThisSite = {
             $or: [
@@ -245,7 +245,7 @@ function getBelongsToSiteQuery(site) {
         };
     } else {
         belongsToThisSite = {};
-        belongsToThisSite[SiteService.SITE_FIELD] = site;
+        belongsToThisSite[SiteUtils.SITE_FIELD] = site;
     }
     return belongsToThisSite;
 }
