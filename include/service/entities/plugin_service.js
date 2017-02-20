@@ -587,7 +587,7 @@ module.exports = function PluginServiceModule(pb) {
                         val.displayName = setting.displayName;
                         discrepancy = true;
                     }
-		    formattedSettings.push(val);
+		            formattedSettings.push(val);
                 }
             });
 
