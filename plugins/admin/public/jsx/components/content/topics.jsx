@@ -24,8 +24,13 @@ class Topics extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      topics: null
+      topics: null,
+      topicToDelete: null,
+      deleting: false
     };
+
+    this.confirmDeletion = this.confirmDeletion.bind(this);
+    this.performDeletion = this.performDeletion.bind(this);
   }
 
   componentDidMount() {
@@ -54,9 +59,50 @@ class Topics extends React.Component {
   }
 
   /**
+   * Opens the confirm deletion modal for a topic.
+   *
+   * @param  {Object} topic The topic to be deleted.
+   */
+  confirmDeletion(topic) {
+    this.setState({
+      topicToDelete: topic
+    });
+
+    $('.deletion-modal').modal('show');
+  }
+
+  /**
+   * Calls the API to delete a topic.
+   */
+  performDeletion() {
+    let self = this;
+
+    self.setState({
+      deleting: true
+    });
+
+    $.ajax({
+      url: '/api/content/topics/' + getUid(this.state.topicToDelete),
+      type: 'DELETE',
+      success: (result) => {
+        self.setState({
+          topicToDelete: null,
+          deleting: false
+        });
+
+        $('.deletion-modal').modal('hide');
+      }
+    });
+  }
+
+  /**
    * Renders the topics page components.
    */
   render() {
+    let self = this;
+    let confirmDeletionString = this.state.topicToDelete ? loc.generic.CONFIRM_DELETE + ' ' + this.state.topicToDelete.name + '?' : '';
+    let spinnerPartial = this.state.deleting ? <i className="fa fa-fw fa-spinner fa-pulse"></i> : '';
+
     if(!this.state.topics) {
       return (
         <div>
@@ -80,18 +126,36 @@ class Topics extends React.Component {
             let uid = getUid(topic);
             let editHref = '/admin-new/content/topics/' + uid;
 
+            let confirmDeletion = function() {
+              self.confirmDeletion(topic);
+            }
+
             return (
               <div className="btn-group" key={uid} style={{marginRight: '.5rem', marginBottom: '.5rem'}}>
                 <a className="btn btn-sm btn-secondary" href={editHref}>{topic.name}</a>
                 <button type="button" className="btn btn-sm btn-secondary btn-sm-padding">
                   <i className="fa fa-fw fa-info-circle"></i>
                 </button>
-                <button type="button" className="btn btn-sm btn-secondary btn-sm-padding">
+                <button type="button" className="btn btn-sm btn-secondary btn-sm-padding" onClick={confirmDeletion}>
                   <i className="fa fa-fw fa-trash"></i>
                 </button>
               </div>
             )
           })}
+        </div>
+        <div className="deletion-modal modal fade">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-body">{confirmDeletionString}</div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-danger btn" onClick={this.performDeletion} disabled={this.state.deleting}>
+                  {loc.generic.DELETE}
+                  {spinnerPartial}
+                </button>
+                <button type="button" className="btn btn-secondary" data-dismiss="modal" disabled={this.state.deleting}>{loc.generic.CANCEL}</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )

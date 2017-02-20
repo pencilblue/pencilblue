@@ -5025,6 +5025,17 @@ a:hover {
 .alert-warning {
   background: #FFB50B; }
 
+.modal {
+  color: #33373A; }
+  .modal .modal-content {
+    border-radius: 0.125rem; }
+    .modal .modal-content .modal-body {
+      padding: 0.5rem; }
+    .modal .modal-content .modal-footer {
+      padding: 0.5rem; }
+      .modal .modal-content .modal-footer .btn-secondary {
+        margin-left: 0.25rem; }
+
 .form-group {
   margin-bottom: 0.5rem; }
   .form-group label {

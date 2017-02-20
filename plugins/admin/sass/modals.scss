@@ -1,0 +1,19 @@
+.modal {
+  color: $darker-gray;
+
+  .modal-content {
+    border-radius: 0.125rem;
+
+    .modal-body {
+      padding: 0.5rem;
+    }
+
+    .modal-footer {
+      padding: 0.5rem;
+
+      .btn-secondary {
+        margin-left: 0.25rem;
+      }
+    }
+  }
+}
