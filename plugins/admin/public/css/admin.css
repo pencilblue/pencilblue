@@ -5036,18 +5036,41 @@ a:hover {
       .modal .modal-content .modal-footer .btn-secondary {
         margin-left: 0.25rem; }
 
-form .form-group {
+.form-group {
   margin-bottom: 0.5rem; }
-  form .form-group label {
+  .form-group label {
     margin-bottom: 0.25rem; }
-  form .form-group .form-control {
-    border-radius: 0.125rem !important;
+  .form-group .form-control {
+    border-radius: 0.125rem;
     border: none;
-    padding: 0.375rem 0.75rem;
+    padding: 0.375rem 0.5rem;
     color: #55595C; }
-
-form .btn-secondary {
-  margin-left: 0.25rem; }
+  .form-group select.form-control {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none; }
+  .form-group select.form-control:not([size]):not([multiple]) {
+    height: auto; }
+  .form-group .input-group .input-group-addon {
+    padding: 0 0.5rem;
+    border: none; }
+  .form-group .input-group .input-group-addon:first-child {
+    border-bottom-left-radius: 0.125rem;
+    border-top-left-radius: 0.125rem; }
+  .form-group .input-group .input-group-addon:last-child {
+    border-bottom-right-radius: 0.125rem;
+    border-top-right-radius: 0.125rem; }
+  .form-group .input-group .input-group-btn > .btn {
+    padding: 0.375rem 0.5rem;
+    border-left: 1px solid #026981; }
+  .form-group .input-group .form-control:not(:first-child) {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0; }
+  .form-group .input-group .form-control:not(:last-child) {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0; }
+  .form-group .btn-group .btn {
+    padding: 0.375rem 0.75rem; }
 
 .table-container {
   background: white;

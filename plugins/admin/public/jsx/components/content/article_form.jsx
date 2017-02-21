@@ -29,6 +29,7 @@ class ArticleForm extends React.Component {
 
     this.handleValueChange = this.handleValueChange.bind(this);
     this.setDraft = this.setDraft.bind(this);
+    this.setAllowComments = this.setAllowComments.bind(this);
     this.saveArticle = this.saveArticle.bind(this);
   }
 
@@ -83,6 +84,13 @@ class ArticleForm extends React.Component {
     this.setState(newState);
   }
 
+  setAllowComments(event) {
+    let newState = JSON.parse(JSON.stringify(this.state));
+    newState.article.allow_comments = event.target.value === 'true' ? true : false;
+
+    this.setState(newState);
+  }
+
   /**
    * Adds or updates the article with the API.
    *
@@ -130,8 +138,10 @@ class ArticleForm extends React.Component {
 
     let self = this;
     let articleName = itemId ? loc.generic.EDIT + ' ' + this.state.article.originalName : loc.articles.NEW_ARTICLE;
-    let draftClasses = 'btn btn-sm btn-secondary ' + (this.state.article.draft ? 'active' : '');
-    let publishClasses = 'btn btn-sm btn-secondary ' + (!this.state.article.draft ? 'active' : '');
+    let draftClasses = 'btn btn-secondary ' + (this.state.article.draft ? 'active' : '');
+    let publishClasses = 'btn btn-secondary ' + (!this.state.article.draft ? 'active' : '');
+    let allowCommentsClasses = 'btn btn-secondary ' + (this.state.article.allow_comments ? 'active' : '');
+    let noCommentsClasses = 'btn btn-secondary ' + (!this.state.article.allow_comments ? 'active' : '');
 
     return (
       <div>
@@ -140,6 +150,37 @@ class ArticleForm extends React.Component {
           <div className="form-group">
             <label htmlFor="headline">{loc.articles.HEADLINE}</label>
             <input type="text" className="form-control" id="headline" value={this.state.article.headline} onChange={this.handleValueChange} required></input>
+          </div>
+          <div className="form-group">
+            <label htmlFor="subheading">{loc.articles.SUBHEADING}</label>
+            <input type="text" className="form-control" id="subheading" value={this.state.article.subheading} onChange={this.handleValueChange} required></input>
+          </div>
+          <div className="form-group">
+            <label htmlFor="url">{loc.articles.ARTICLE_URL}</label>
+            <div className="input-group">
+              <span className="input-group-addon">/article/</span>
+              <input type="url" className="form-control" id="url" value={this.state.article.url} onChange={this.handleValueChange} required></input>
+              <span className="input-group-btn">
+                <button className="btn btn-secondary" type="button">{loc.users.GENERATE}</button>
+              </span>
+              <span className="input-group-btn">
+                <button className="btn btn-secondary" type="button">{loc.generic.CHECK}</button>
+              </span>
+            </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="template">{loc.articles.STANDALONE_TEMPLATE}</label>
+            <select className="form-control" id="template" onChange={this.handleValueChange} required>
+              <option value="1">This is an option</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="allow_comments">{loc.articles.ALLOW_COMMENTS}</label>
+            <br/>
+            <div className="btn-group">
+              <button type="button" className={allowCommentsClasses} value="true" onClick={self.setAllowComments}>{loc.generic.YES}</button>
+              <button type="button" className={noCommentsClasses} value="false" onClick={self.setAllowComments}>{loc.generic.NO}</button>
+            </div>
           </div>
           <div className="form-group">
             <label htmlFor="draft">{loc.articles.DRAFT}</label>
