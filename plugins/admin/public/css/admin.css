@@ -5036,15 +5036,18 @@ a:hover {
       .modal .modal-content .modal-footer .btn-secondary {
         margin-left: 0.25rem; }
 
-.form-group {
+form .form-group {
   margin-bottom: 0.5rem; }
-  .form-group label {
+  form .form-group label {
     margin-bottom: 0.25rem; }
-  .form-group .form-control {
+  form .form-group .form-control {
     border-radius: 0.125rem !important;
     border: none;
     padding: 0.375rem 0.75rem;
     color: #55595C; }
+
+form .btn-secondary {
+  margin-left: 0.25rem; }
 
 .table-container {
   background: white;
