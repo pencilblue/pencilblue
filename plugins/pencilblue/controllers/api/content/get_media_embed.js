@@ -85,7 +85,7 @@ module.exports = function(pb) {
             else if (!html) {
                 return cb({
                     code: 400,
-                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, this.ls.g('generic.UNSUPPORTED_MEDIA'))
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.g('generic.UNSUPPORTED_MEDIA'))
                 });
             }
 
