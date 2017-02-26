@@ -34,10 +34,10 @@ const log = require('../utils/logging').newInstance('RequestHandler');
 const mime = require('mime');
 const path = require('path');
 const SecurityService = require('../access_management');
-const SessionHandler = require('../session/session');
+const SessionHandler = require('../session/session');console.log('rh-sh:', SessionHandler);
 const SettingServiceFactory = require('../system/settings');
 const SiteUtils = require('../../lib/utils/siteUtils');
-const url     = require('url');
+const url = require('url');
 const UrlUtils = require('../../lib/utils/urlUtils');
 const ValidationService = require('../validation/validation_service');
 

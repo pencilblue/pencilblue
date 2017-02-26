@@ -17,12 +17,12 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var Configuration = require('../config');
-var DbManager = require('./db_manager');
-var log = require('../utils/logging').newInstance('DAO');
-var ObjectID = require('mongodb').ObjectID;
-var util = require('util');
+const _ = require('lodash');
+const Configuration = require('../config');
+const DbManager = require('./db_manager');
+const log = require('../utils/logging').newInstance('DAO');
+const ObjectID = require('mongodb').ObjectID;
+const util = require('util');
 
 /**
  * Controls the data model

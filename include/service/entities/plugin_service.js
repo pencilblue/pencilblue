@@ -47,7 +47,6 @@ const PluginUninstallJob = require('../jobs/plugins/plugin_uninstall_job');
 const PluginValidationService = require('./plugins/plugin_validation_service');
 const RequestHandler = require('../../http/request_handler');
 const semver  = require('semver');
-const SecurityService = require('../../access_management');
 const SettingServiceFactory = require('../../system/settings');
 const SimpleLayeredService = require('../simple_layered_service');
 const SiteQueryService = require('./site_query_service');
@@ -683,14 +682,10 @@ class PluginService {
      * inspected.
      * @static
      * @method getPermissionsForRole
-     * @param {Integer|String} role The role to get permissions for
+     * @param {string} role The role to get permissions for
      * @return {Object} A hash of the permissions
      */
     static getPermissionsForRole(role) {
-        if (!isNaN(role)) {
-            role = SecurityService.getRoleName(role);
-        }
-
         var perms = {};
         Object.keys(ACTIVE_PLUGINS).forEach(function (site) {
             Object.keys(ACTIVE_PLUGINS[site]).forEach(function (pluginUid) {

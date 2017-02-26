@@ -17,12 +17,12 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var Configuration = require('../../config');
-var HttpStatusCodes = require('http-status-codes');
-var path = require('path');
+const _ = require('lodash');
+const Configuration = require('../../config');
+const HttpStatusCodes = require('http-status-codes');
+const path = require('path');
 const SiteUtils = require('../../../lib/utils/siteUtils');
-var XmlErrorFormatter = require('./xml_error_formatter');
+const XmlErrorFormatter = require('./xml_error_formatter');
 
 /**
  * Provides functions and mechanisms to serialize errors

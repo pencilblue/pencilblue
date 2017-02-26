@@ -17,12 +17,12 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var crypto = require('crypto');
-var DAO = require('./dao/dao');
-var PluginService = require('./service/entities/plugin_service');
-var util   = require('util');
-var ValidationService = require('./validation/validation_service');
+const _ = require('lodash');
+const crypto = require('crypto');
+const DAO = require('./dao/dao');
+const PluginService = require('./service/entities/plugin_service');
+const util = require('util');
+const ValidationService = require('./validation/validation_service');
 
     /**
      * Service for managing user access
@@ -187,9 +187,9 @@ var ValidationService = require('./validation/validation_service');
 
     /**
      * Returns the constant name of an access level number
-     *
      * @method getRoleName
      * @param {Number} accessLevel
+     * @return {string}
      */
     SecurityService.getRoleName = function(accessLevel) {
         var val = ROLE_VAL_TO_NAME[accessLevel];
@@ -219,9 +219,10 @@ var ValidationService = require('./validation/validation_service');
                 delete user.password;
 
                 //build out session object
-                user.permissions                   = PluginService.getPermissionsForRole(user.admin);
-                session.authentication.user        = user;
-                session.authentication.user_id     = user[DAO.getIdField()].toString();
+                var roleName = SecurityService.getRoleName(user.admin);
+                user.permissions = PluginService.getPermissionsForRole(roleName);
+                session.authentication.user = user;
+                session.authentication.user_id = user[DAO.getIdField()].toString();
                 session.authentication.admin_level = user.admin;
 
                 //set locale if no preference already indicated for the session

@@ -17,15 +17,14 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var Q = require('q');
-var os      = require('os');
-var cluster = require('cluster');
-var async   = require('async');
-var domain  = require('domain');
-var log = require('../utils/logging').newInstance('System');
-var config = require('../config').active;
-
+const _ = require('lodash');
+const async   = require('async');
+const Configuration = require('../config');
+const domain  = require('domain');
+const cluster = require('cluster');
+const log = require('../utils/logging').newInstance('System');
+const os      = require('os');
+const Q = require('q');
 
 /**
  *
@@ -79,11 +78,11 @@ class System {
      * @param {function} onChildRunning
      */
     static onStart (onChildRunning) {
-        if (config.cluster.self_managed && cluster.isMaster) {
+        if (Configuration.active.cluster.self_managed && cluster.isMaster) {
             System.onMasterRunning();
         }
         else {
-            if (!config.cluster.self_managed) {
+            if (!Configuration.active.cluster.self_managed) {
                 log.debug('Running in managed mode');
             }
             onChildRunning();
@@ -96,8 +95,8 @@ class System {
     static onMasterRunning () {
 
         var workerCnt = os.cpus().length;
-        if (config.cluster.workers && config.cluster.workers !== 'auto') {
-            workerCnt = config.cluster.workers;
+        if (Configuration.active.cluster.workers && Configuration.active.cluster.workers !== 'auto') {
+            workerCnt = Configuration.active.cluster.workers;
         }
 
         //spawn workers
@@ -123,18 +122,18 @@ class System {
         DISCONNECTS.push(currTime);
 
         //splice it down if needed.  Remove first element (FIFO)
-        if (DISCONNECTS.length > config.cluster.fatal_error_count) {
+        if (DISCONNECTS.length > Configuration.active.cluster.fatal_error_count) {
             DISCONNECTS.splice(0, 1);
         }
 
         //check for unacceptable failures in specified time frame
-        if (DISCONNECTS.length >= config.cluster.fatal_error_count) {
-            var range = DISCONNECTS[DISCONNECTS.length - 1] - DISCONNECTS[DISCONNECTS.length - config.cluster.fatal_error_count];
-            if (range <= config.cluster.fatal_error_timeout) {
+        if (DISCONNECTS.length >= Configuration.active.cluster.fatal_error_count) {
+            var range = DISCONNECTS[DISCONNECTS.length - 1] - DISCONNECTS[DISCONNECTS.length - Configuration.active.cluster.fatal_error_count];
+            if (range <= Configuration.active.cluster.fatal_error_timeout) {
                 okToFork = false;
             }
             else {
-                log.silly('Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]', System.getWorkerId(), DISCONNECTS_CNT, config.cluster.fatal_error_count, range);
+                log.silly('Still within acceptable fault tolerance.  TOTAL_DISCONNECTS=[%d] RANGE=[%d]', System.getWorkerId(), DISCONNECTS_CNT, Configuration.active.cluster.fatal_error_count, range);
             }
         }
 
@@ -143,7 +142,7 @@ class System {
             log.silly('Forked worker [%d]', System.getWorkerId(), worker ? worker.id : 'FAILED');
         }
         else if (!System.isShuttingDown()){
-            log.error('%d failures have occurred within %sms.  Bailing out.', System.getWorkerId(), config.cluster.fatal_error_count, config.fatal_error_timeout);
+            log.error('%d failures have occurred within %sms.  Bailing out.', System.getWorkerId(), Configuration.active.cluster.fatal_error_count, Configuration.active.fatal_error_timeout);
             process.kill();
         }
     }

@@ -26,7 +26,7 @@ const DAO = require('../../dao/dao');
 const Localization = require('../../localization');
 const log = require('../../utils/logging').newInstance('SiteService');
 const RegExpUtils = require('../../utils/reg_exp_utils');
-const RequestHandler = require('../../http/request_handler');
+const RequestHandler = require('../../http/request_handler');if(typeof RequestHandler !== 'function') { throw new Error('shit');}
 const SiteActivateJob = require('../jobs/sites/site_activate_job');
 const SiteCreateEditJob = require('../jobs/sites/site_create_edit_job');
 const SiteDeactivateJob = require('../jobs/sites/site_deactivate_job');

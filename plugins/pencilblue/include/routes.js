@@ -17,8 +17,13 @@
 'use strict';
 
 //dependencies
-const pb = require('../../../lib')();
+const pb = {
+    config: {
+        docRoot: '/Users/brian/code/pencilblue'
+    }
+};
 const path = require('path');
+const SecurityService = require('../../../include/access_management');
 
 //exports
     module.exports = [
@@ -80,7 +85,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/sites/auth_token/:siteid",
-            access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
+            access_level: SecurityService.ACCESS_MANAGING_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'auth_token.js'),
@@ -116,7 +121,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'index.js'),
@@ -142,7 +147,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/preview/:type/:id",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'preview.js'),
@@ -282,7 +287,7 @@ const path = require('path');
             path: "/admin/users/permissions",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'permissions.js'),
             content_type: 'text/html'
         },
@@ -303,7 +308,7 @@ const path = require('path');
             path: "/api/url/:action",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'url_api.js'),
             content_type: 'application/json'
         },
@@ -312,7 +317,7 @@ const path = require('path');
             path: "/api/content/search",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'content', 'search.js'),
             content_type: 'application/json'
         },
@@ -321,7 +326,7 @@ const path = require('path');
             handler: 'refresh',
             path: "/api/cluster/refresh",
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'system', 'cluster_api.js'),
             content_type: 'application/json'
         },
@@ -331,7 +336,7 @@ const path = require('path');
             path: "/api/cluster",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'system', 'cluster_api.js'),
             content_type: 'application/json'
         },
@@ -340,7 +345,7 @@ const path = require('path');
             path: "/api/jobs/:action/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'jobs', 'job_api_controller.js'),
             content_type: 'application/json'
         },
@@ -349,7 +354,7 @@ const path = require('path');
             path: "/api/admin/site_settings/email/send_test",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'site_settings', 'email', 'send_test.js'),
             content_type: 'application/json'
         },
@@ -360,7 +365,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/navigation",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'navigation', 'nav_map.js'),
@@ -369,7 +374,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/navigation/new",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'navigation', 'nav_item_form.js'),
@@ -378,7 +383,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/navigation/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'navigation', 'nav_item_form.js'),
@@ -387,7 +392,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/navigation/map",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'navigation', 'nav_map.js'),
@@ -397,7 +402,7 @@ const path = require('path');
             method: 'post',
             path: "/actions/admin/content/navigation",
             handler: 'post',
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'navigation', 'new_nav_item.js'),
@@ -407,7 +412,7 @@ const path = require('path');
             method: 'post',
             path: "/actions/admin/content/navigation/:id",
             handler: 'put',
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'navigation', 'new_nav_item.js'),
@@ -416,7 +421,7 @@ const path = require('path');
         {
             method: 'delete',
             path: "/actions/admin/content/navigation/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'navigation', 'delete_nav_item.js'),
@@ -427,7 +432,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/topics",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'topics', 'manage_topics.js'),
@@ -436,7 +441,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/topics/new",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'topics', 'topic_form.js'),
@@ -445,7 +450,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/topics/import",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'topics', 'import_topics.js'),
@@ -454,7 +459,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/topics/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'topics', 'topic_form.js'),
@@ -463,7 +468,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/topics",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'topics', 'new_topic.js'),
             content_type: 'text/html'
@@ -471,7 +476,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/topics/import",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'topics', 'import_topics.js'),
@@ -480,7 +485,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/topics/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'topics', 'edit_topic.js'),
@@ -491,7 +496,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/articles",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'articles', 'manage_articles.js'),
@@ -500,7 +505,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/articles/new",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'articles', 'article_form.js'),
@@ -509,7 +514,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/articles/:id",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'articles', 'article_form.js'),
@@ -518,7 +523,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/articles",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'articles', 'new_article.js'),
@@ -527,7 +532,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/articles/:id",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'articles', 'edit_article.js'),
@@ -538,7 +543,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/pages",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'pages', 'manage_pages.js'),
@@ -547,7 +552,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/pages/new",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'pages', 'page_form.js'),
@@ -556,7 +561,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/pages/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'pages', 'page_form.js'),
@@ -565,7 +570,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/pages",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'pages', 'new_page.js'),
@@ -574,7 +579,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/pages/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'pages', 'edit_page.js'),
@@ -585,7 +590,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/media",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'media', 'manage_media.js'),
@@ -594,7 +599,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/media/new",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'media', 'media_form.js'),
@@ -603,7 +608,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/media/:id",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'media', 'media_form.js'),
@@ -612,7 +617,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/media",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'media', 'new_media.js'),
@@ -621,7 +626,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/media/:id",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'media', 'edit_media.js'),
@@ -631,7 +636,7 @@ const path = require('path');
         {
             method: 'delete',
             path: "/actions/admin/content/media/:id",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'media', 'delete_media.js'),
@@ -640,7 +645,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/api/admin/content/media/upload_media",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'media', 'upload_media.js'),
@@ -649,7 +654,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/api/admin/content/media/get_link",
-            access_level: pb.SecurityService.ACCESS_USER,
+            access_level: SecurityService.ACCESS_USER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'media', 'get_link.js'),
@@ -658,7 +663,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/api/admin/content/media/get_preview",
-            access_level: pb.SecurityService.ACCESS_USER,
+            access_level: SecurityService.ACCESS_USER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'media', 'get_preview.js'),
@@ -671,14 +676,14 @@ const path = require('path');
             path: "/admin/content/comments",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'comments', 'manage_comments.js'),
             content_type: 'text/html'
         },
         {
             method: 'delete',
             path: "/actions/admin/content/comments/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'comments', 'delete_comment.js'),
@@ -689,7 +694,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/objects/types",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'objects', 'types', 'manage_types.js'),
@@ -698,7 +703,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/objects/types/new",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'objects', 'types', 'type_form.js'),
@@ -707,7 +712,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/objects/types/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'objects', 'types', 'type_form.js'),
@@ -716,7 +721,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/api/admin/content/objects/types/available",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'admin', 'content', 'objects', 'types', 'available.js'),
@@ -726,7 +731,7 @@ const path = require('path');
             method: 'post',
             path: "/actions/admin/content/objects/types",
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'new_type.js'),
             content_type: 'text/html',
             request_body: ['application/json']
@@ -734,7 +739,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/objects/types/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'edit_type.js'),
@@ -744,7 +749,7 @@ const path = require('path');
         {
             method: 'delete',
             path: "/actions/admin/content/objects/types/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'types', 'delete_type.js'),
@@ -754,7 +759,7 @@ const path = require('path');
         // CUSTOM OBJECTS
         {
             path: "/admin/content/objects/:type_id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'objects', 'manage_objects.js'),
@@ -762,7 +767,7 @@ const path = require('path');
         },
         {
             path: "/admin/content/objects/:type_id/sort",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'objects', 'sort_objects.js'),
@@ -771,7 +776,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/objects/:type_id/new",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'objects', 'object_form.js'),
@@ -780,7 +785,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/content/objects/:type_id/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'content', 'objects', 'object_form.js'),
@@ -789,7 +794,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/objects/:type_id/sort",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'sort_objects.js'),
@@ -799,7 +804,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/objects/:type_id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'new_object.js'),
@@ -809,7 +814,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/content/objects/:type_id/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'edit_object.js'),
@@ -819,7 +824,7 @@ const path = require('path');
         {
             method: 'delete',
             path: "/actions/admin/content/objects/:id",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'content', 'objects', 'delete_object.js'),
@@ -831,7 +836,7 @@ const path = require('path');
             method: 'get',
             path: "/api/content/customobjecttypes",
             handler: "getAll",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             content_type: 'application/json',
@@ -841,7 +846,7 @@ const path = require('path');
             method: 'get',
             path: "/api/content/customobjecttypes/:id",
             handler: "get",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             content_type: 'application/json',
@@ -853,7 +858,7 @@ const path = require('path');
             method: 'get',
             path: "/api/content/customobjecttypes/:customObjectTypeId/customobjects",
             handler: "getAll",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             content_type: 'application/json',
@@ -863,7 +868,7 @@ const path = require('path');
             method: 'get',
             path: "/api/content/customobjecttypes/:customObjectTypeId/customobjects/:id",
             handler: "get",
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             inactive_site_access: true,
             content_type: 'application/json',
@@ -876,7 +881,7 @@ const path = require('path');
             path: "/admin/plugins",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'plugins', 'manage_plugins.js'),
             content_type: 'text/html'
         },
@@ -885,7 +890,7 @@ const path = require('path');
             path: "/admin/plugins/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'plugins', 'plugin_details.js'),
             content_type: 'text/html'
         },
@@ -895,7 +900,7 @@ const path = require('path');
             handler: 'get',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'plugins', 'plugin_settings.js'),
             content_type: 'text/html'
         },
@@ -905,7 +910,7 @@ const path = require('path');
             handler: 'post',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'plugins', 'plugin_settings.js'),
             content_type: 'application/json',
             request_body: ['application/json']
@@ -915,7 +920,7 @@ const path = require('path');
             path: "/api/plugins/:action/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'api', 'plugins', 'plugin_api.js'),
             content_type: 'application/json'
         },
@@ -926,7 +931,7 @@ const path = require('path');
             path: "/admin/themes",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'themes', 'manage_themes.js'),
             content_type: 'text/html'
         },
@@ -936,7 +941,7 @@ const path = require('path');
             handler: 'get',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'themes', 'theme_settings.js'),
             content_type: 'text/html'
         },
@@ -946,7 +951,7 @@ const path = require('path');
             handler: 'post',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'themes', 'theme_settings.js'),
             content_type: 'application/json',
             request_body: ['application/json']
@@ -956,7 +961,7 @@ const path = require('path');
             path: "/actions/admin/themes/site_logo",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'themes', 'site_logo.js'),
             content_type: 'application/json',
             request_body: ['application/json']
@@ -968,7 +973,7 @@ const path = require('path');
             path: "/admin/users",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'manage_users.js')
         },
         {
@@ -976,7 +981,7 @@ const path = require('path');
             path: "/admin/users/unverified",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'unverified_users.js')
         },
         {
@@ -984,7 +989,7 @@ const path = require('path');
             path: "/admin/users/new",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js')
         },
         {
@@ -992,7 +997,7 @@ const path = require('path');
             path: "/admin/users/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'user_form.js')
         },
         {
@@ -1000,7 +1005,7 @@ const path = require('path');
             path: "/admin/users/password/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'users', 'change_password.js')
         },
         {
@@ -1008,7 +1013,7 @@ const path = require('path');
             path: "/actions/admin/users",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'new_user.js'),
             content_type: 'application/json',
             request_body: ['application/json']
@@ -1018,7 +1023,7 @@ const path = require('path');
             path: "/actions/admin/users/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'edit_user.js'),
             content_type: 'application/json',
             request_body: ['application/json']
@@ -1028,7 +1033,7 @@ const path = require('path');
             path: "/actions/admin/users/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_user.js')
         },
         {
@@ -1036,7 +1041,7 @@ const path = require('path');
             path: "/actions/admin/users/unverified/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'delete_unverified_user.js')
         },
         {
@@ -1044,7 +1049,7 @@ const path = require('path');
             path: "/actions/admin/users/verify/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'verify_user.js')
         },
         {
@@ -1052,7 +1057,7 @@ const path = require('path');
             path: "/actions/admin/users/change_password/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'change_password.js')
         },
         {
@@ -1060,7 +1065,7 @@ const path = require('path');
             path: "/actions/admin/users/send_password_reset/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
+            access_level: SecurityService.ACCESS_MANAGING_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js')
         },
         {
@@ -1068,7 +1073,7 @@ const path = require('path');
             path: "/actions/admin/users/send_password_reset/:id",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
+            access_level: SecurityService.ACCESS_MANAGING_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'users', 'send_password_reset.js')
         },
 
@@ -1076,7 +1081,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/site_settings",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'configuration.js'),
@@ -1085,7 +1090,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/site_settings",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'configuration.js'),
@@ -1094,7 +1099,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/site_settings/content",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'content.js'),
@@ -1103,7 +1108,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/site_settings/content",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'content.js'),
@@ -1112,7 +1117,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/site_settings/email",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'email.js'),
@@ -1121,7 +1126,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/site_settings/email",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'email.js'),
@@ -1130,7 +1135,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/site_settings/libraries",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'libraries.js'),
@@ -1139,7 +1144,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/site_settings/libraries",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'libraries.js'),
@@ -1157,7 +1162,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/sites",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage_sites.js'),
@@ -1166,7 +1171,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/sites/new",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'site_form.js'),
@@ -1176,7 +1181,7 @@ const path = require('path');
         {
             method: 'get',
             path: "/admin/sites/:siteid",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'site_form.js'),
@@ -1186,7 +1191,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/sites/new",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             request_body: ['application/json'],
@@ -1195,7 +1200,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/sites/edit/:siteid",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             request_body: ['application/json'],
@@ -1205,7 +1210,7 @@ const path = require('path');
             method: 'delete',
             path: "/actions/admin/sites/delete/:siteid",
             content_type: 'application/json',
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'delete_site.js')
@@ -1213,7 +1218,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/sites/activate/:id",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'activate_site.js')
@@ -1221,7 +1226,7 @@ const path = require('path');
         {
             method: 'post',
             path: "/actions/admin/sites/deactivate/:id",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'sites', 'deactivate_site.js')
@@ -1232,7 +1237,7 @@ const path = require('path');
       	{
             method: 'get',
             path: "/admin/elements/wysiwyg",
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'elements', 'wysiwyg.js')
@@ -1252,7 +1257,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/navigation_map_api_controller.js')
         },
 
@@ -1264,7 +1269,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js')
         },
         {
@@ -1274,7 +1279,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js')
         },
         {
@@ -1283,7 +1288,7 @@ const path = require('path');
             handler: "delete",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js')
         },
         {
@@ -1293,7 +1298,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js'),
             request_body: ['application/json']
         },
@@ -1303,7 +1308,7 @@ const path = require('path');
             handler: "put",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js'),
             request_body: ['application/json']
         },
@@ -1329,7 +1334,7 @@ const path = require('path');
             path: "/api/content/articles/:articleId/comments/:id",
             handler: "deleteComment",
             content_type: 'application/json',
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             auth_required: true,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/article_api_controller.js')
         },
@@ -1341,7 +1346,7 @@ const path = require('path');
             handler: "get",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js')
         },
         {
@@ -1350,7 +1355,7 @@ const path = require('path');
             handler: "getAll",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js')
         },
         {
@@ -1359,7 +1364,7 @@ const path = require('path');
             handler: "post",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js'),
             request_body: ['application/json']
         },
@@ -1369,7 +1374,7 @@ const path = require('path');
             handler: "put",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js'),
             request_body: ['application/json']
         },
@@ -1379,7 +1384,7 @@ const path = require('path');
             handler: "delete",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/admin/setting_api_controller.js'),
             request_body: ['application/json']
         },
@@ -1391,7 +1396,7 @@ const path = require('path');
             handler: "get",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js')
         },
         {
@@ -1400,7 +1405,7 @@ const path = require('path');
             handler: "getAll",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js')
         },
         {
@@ -1409,7 +1414,7 @@ const path = require('path');
             handler: "delete",
             content_type: 'application/json',
             auth_required: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js')
         },
         {
@@ -1419,7 +1424,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js'),
             request_body: ['application/json']
         },
@@ -1430,7 +1435,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/topic_api_controller.js'),
             request_body: ['application/json']
         },
@@ -1443,7 +1448,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js')
         },
         {
@@ -1453,7 +1458,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js')
         },
         {
@@ -1463,7 +1468,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js')
         },
         {
@@ -1473,7 +1478,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js'),
             request_body: ['application/json']
         },
@@ -1484,7 +1489,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/page_api_controller.js'),
             request_body: ['application/json']
         },
@@ -1497,7 +1502,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
         },
         {
@@ -1506,7 +1511,7 @@ const path = require('path');
             handler: "downloadById",
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
         },
         {
@@ -1516,7 +1521,7 @@ const path = require('path');
             content_type: 'text/html',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
         },
         {
@@ -1526,7 +1531,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
         },
         {
@@ -1536,7 +1541,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
         },
         {
@@ -1546,7 +1551,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js')
         },
         {
@@ -1556,7 +1561,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js'),
             request_body: ['multipart/form-data']
         },
@@ -1567,7 +1572,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/media_api_controller.js'),
             request_body: ['multipart/form-data']
         },
@@ -1589,7 +1594,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
         },
         {
@@ -1599,7 +1604,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
         },
         {
@@ -1609,7 +1614,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            access_level: SecurityService.ACCESS_ADMINISTRATOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user_api_controller.js')
         },
 
@@ -1621,7 +1626,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
         },
         {
@@ -1631,7 +1636,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_WRITER,
+            access_level: SecurityService.ACCESS_WRITER,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
         },
         {
@@ -1641,7 +1646,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_EDITOR,
+            access_level: SecurityService.ACCESS_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/content/comment_api_controller.js')
         },
 
@@ -1653,7 +1658,7 @@ const path = require('path');
             content_type: 'application/json',
             auth_required: true,
             inactive_site_access: true,
-            access_level: pb.SecurityService.ACCESS_MANAGING_EDITOR,
+            access_level: SecurityService.ACCESS_MANAGING_EDITOR,
             controller: path.join(pb.config.docRoot, 'plugins/pencilblue/controllers/api/user/role_api_controller.js')
         }
     ];

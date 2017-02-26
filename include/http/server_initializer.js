@@ -27,9 +27,8 @@ var fs    = require('fs');
  * Creates and initializes the HTTP server
  * @class ServerInitializer
  * @constructor
- * @param {Object} [pb] The PB object
  */
-function ServerInitializer(/*pb*/) {}
+function ServerInitializer() {}
 
 /**
  * Initializes the server.  Depending on the configuration will start an HTTP

@@ -19,21 +19,21 @@
 //TODO [1.0] Hook-up monitoring solution
 
 //dependencies
-var _ = require('lodash');
-var async       = require('async');
-var Configuration = require('./include/config.js');
-var fs          = require('fs');
-var HtmlEncoder = require('htmlencode');
-var http        = require('http');
-var https       = require('https');
-var Lib = require('./lib');
-var LogFactory = require('./include/utils/logging');
-var npm         = require('npm');
-var Q = require('q');
-var ServerInitializer = require('./include/http/server_initializer.js');
-var System = require('./include/system/system');
-var TaskUtils = require('./lib/utils/taskUtils');
-var uuid = require('uuid');
+const _ = require('lodash');
+const async = require('async');
+const Configuration = require('./include/config.js');
+const fs = require('fs');
+const HtmlEncoder = require('htmlencode');
+const http = require('http');
+const https = require('https');
+const Lib = require('./lib');
+const LogFactory = require('./include/utils/logging');
+const npm = require('npm');
+const Q = require('q');
+const ServerInitializer = require('./include/http/server_initializer.js');
+const System = require('./include/system/system');
+const TaskUtils = require('./lib/utils/taskUtils');
+const uuid = require('uuid');
 
 /**
  * The main driver file for PencilBlue.  Provides the function necessary to
@@ -244,7 +244,7 @@ class PencilBlue {
 
         //build server setup
         var context = {
-            config: this.pb.config,
+            config: Configuration.active,
             log: this.log,
             onRequest: function(req, res) {
                 self.onHttpConnect(req, res);

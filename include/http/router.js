@@ -3,7 +3,7 @@
 //dependencies
 const domain = require('domain');
 const log = require('../utils/logging').newInstance('Router');
-const RequestHandler = require('./request_handler');console.log('r-rh: ', RequestHandler);
+const RequestHandler = require('./request_handler');
 const util = require('util');
 
 /**
