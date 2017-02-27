@@ -21,6 +21,7 @@ const _ = require('lodash');
 const async = require('async');
 const PluginAvailableJob = require('./plugin_available_job');
 const PluginInitializeJob = require('./plugin_initialize_job');
+const PluginDetailsLoader = require('../../entities/plugins/loaders/pluginDetailsLoader');
 const PluginJobRunner = require('./plugin_job_runner');
 const PluginService = require('../../entities/plugin_service');
 const SiteUtils = require('../../../../lib/utils/siteUtils');
@@ -152,13 +153,10 @@ class PluginInstallJob extends PluginJobRunner {
 
             //load details file
             function (callback) {
-                var filePath = PluginService.getDetailsPath(pluginUid);
 
-                self.log("Loading details file for install persistence operations from: %s", filePath);
-                PluginService.loadDetailsFile(filePath, function (err, loadedDetails) {
-                    details = loadedDetails;
-                    callback(err, loadedDetails ? true : false);
-                });
+                self.log("Loading details file for install persistence operations for: %s", pluginUid);
+                details = PluginDetailsLoader.load(pluginUid);
+                callback(err, !!details);
             },
 
             //create plugin entry

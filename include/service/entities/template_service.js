@@ -710,13 +710,11 @@ var ValidationService = require('../../validation/validation_service');
                 if (uid === Configuration.active.plugins.default) {
 
                     //load pencilblue plugin
-                    var loader = new PluginDetailsLoader({ pluginUid: Configuration.active.plugins.default} );
-                    loader.getSingle(function(err, pbPlugin) {
-                        if (pbPlugin) {
-                            pbPlugin.dirName = Configuration.active.plugins.default;
-                        }
-                        callback(err, pbPlugin);
-                    });
+                    var pbPlugin = PluginDetailsLoader.load(Configuration.active.plugins.default);
+                    if (pbPlugin) {
+                        pbPlugin.dirName = Configuration.active.plugins.default;
+                    }
+                    callback(null, pbPlugin);
                 }
                 else {
                     //load normal plugin

@@ -36,6 +36,7 @@ const path    = require('path');
 const PluginAvailableJob = require('../jobs/plugins/plugin_available_job');
 const PluginDependenciesJob = require('../jobs/plugins/plugin_dependencies_job');
 const PluginDependencyService = require('./plugins/bower_plugin_dependency_service');
+const PluginDetailsLoader = require('./plugins/loaders/pluginDetailsLoader');
 const PluginInitializeJob = require('../jobs/plugins/plugin_initialize_job');
 const PluginInitializationService = require('./plugins/plugin_initialization_service');
 const PluginInstallJob = require('../jobs/plugins/plugin_install_job');
@@ -883,38 +884,34 @@ class PluginService {
                     }
 
                     var detailsFilePath = path.join(directories[i], PluginService.DETAILS_FILE_NAME);
-                    PluginService.loadDetailsFile(detailsFilePath, function (err, details) {
+                    var details = PluginDetailsLoader.loadByPath(detailsFilePath);
+                    if (!details) {
+                        plugins.push({
+                            uid: dirName,
+                            dirName: dirName,
+                            description: "Failed to load & parse the details.json file.",
+                            validationErrors: ['An invalid details file was provided for plugin. ']
+                        });
+                        return callback(null, false);
+                    }
+
+                    PluginService.validateDetails(details, dirName, function (err/*, result*/) {
                         if (_.isError(err)) {
                             plugins.push({
                                 uid: dirName,
                                 dirName: dirName,
-                                description: "Failed to load & parse the details.json file.",
-                                validationErrors: ['An invalid details file was provided for plugin. ' + err.stack]
+                                version: details.version,
+                                description: "The plugin details file failed validation ",
+                                validationErrors: err.validationErrors
                             });
-                            callback(null, false);
-                            return;
+                            return callback(null, false);
                         }
-
-                        PluginService.validateDetails(details, dirName, function (err/*, result*/) {
-                            if (_.isError(err)) {
-                                plugins.push({
-                                    uid: dirName,
-                                    dirName: dirName,
-                                    version: details.version,
-                                    description: "The plugin details file failed validation ",
-                                    validationErrors: err.validationErrors
-                                });
-                                callback(null, false);
-                                return;
-                            }
-                            else if ((active && active[details.uid]) || (inactive && inactive[details.uid])) {
-                                callback(null, true);
-                                return;
-                            }
-                            details.dirName = dirName;
-                            plugins.push(details);
-                            callback(null, true);
-                        });
+                        else if ((active && active[details.uid]) || (inactive && inactive[details.uid])) {
+                            return callback(null, true);
+                        }
+                        details.dirName = dirName;
+                        plugins.push(details);
+                        callback(null, true);
                     });
                 };
             });

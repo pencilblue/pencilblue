@@ -37,7 +37,7 @@ class PluginMainModuleLoader extends PluginResourceLoader {
      * see if it is an absolute path.
      * @return {Function} The main-module prototype
      */
-    static get (pluginDirName, pathToModule) {
+    static load (pluginDirName, pathToModule) {
         var pluginMM = path.join(PluginUtils.PLUGINS_DIR, pluginDirName, pathToModule);
         var paths = [pluginMM, pathToModule];
 
@@ -49,7 +49,7 @@ class PluginMainModuleLoader extends PluginResourceLoader {
             }
             catch (e) {
                 if (log.isDebug()) {
-                    log.warn('PluginService: Failed to load main module at %s: %s', paths[i], e.stack);
+                    log.warn('Failed to load main module at %s: %s', paths[i], e.stack);
                 }
             }
         }

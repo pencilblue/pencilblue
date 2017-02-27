@@ -18,6 +18,7 @@
 
 //dependencies
 const FileUtils = require('../../../../../lib/utils/fileUtils');
+const fs = require('fs');
 const path = require('path');
 const PluginResourceLoader = require('./plugin_resource_loader');
 const PluginUtils = require('../../../../../lib/utils/pluginUtils');
@@ -25,60 +26,31 @@ const PluginUtils = require('../../../../../lib/utils/pluginUtils');
 /**
  *
  */
-class PluginDetailsLoader extends PluginResourceLoader {
-    constructor(context) {
-        super(context);
-
-        //details file are always on top and in the same place.  No need to waste cycles searching
-        this.recursive = false;
-    }
+class PluginDetailsLoader {
 
     /**
-     * Retrieves the details file for the plugin
-     * @param cb
+     * @param {string} pluginUid
+     * @return {object}
      */
-    getSingle (cb) {
-        this.getAll({}, function(err, detailsObjects) {
-            cb(err, detailsObjects[0]);
-        });
-    }
-
-    /**
-     * Derives the unique name of the resource
-     * @method getResourceName
-     * @param {string} pathToResource
-     * @param {object} resource
-     * @return {string}
-     */
-    getResourceName(pathToResource, resource) {
-        return PluginUtils.DETAILS_FILE_NAME;
-    }
-
-    /**
-     * Creates the function that will be used to filter through the files in the resource directory.  This is most
-     * likely a filter by file extension.
-     * @method getFileFilter
-     * @return {function} (string, object)
-     */
-    getFileFilter() {
-        return FileUtils.getFileNameFilter(PluginUtils.DETAILS_FILE_NAME);
-    }
-
-    /**
-     * Derives the absolute path to the directory that contains all of the resources that are to be loaded
-     * @method getBaseResourcePath
-     * @return {string}
-     */
-    getBaseResourcePath() {
-        return path.join(PluginUtils.PLUGINS_DIR, this.pluginUid);
+    static load (pluginUid) {
+        var detailsFilePath = PluginDetailsLoader.getDetailsPath(pluginUid);
+        
+        //attempt to parse the json
+        var detailsObj = null;
+        try {
+            detailsObj = require(detailsFilePath);
+        }
+        catch (e) {
+            if (log.isDebug()) {
+                log.warn('Failed to load details file at %s: %s', detailsFilePath, e.stack);
+            }
+        }
+        return detailsObj;
     }
 
     /**
      * Constructs the path to a specific plugin's details.json file
-     * @static
-     * @method getDetailsPath
-     * @param {String} pluginDirName The name of the directory that the plugin is
-     * contained within.
+     * @param {String} pluginDirName The name of the directory that the plugin is contained within.
      * @return {string} The absolute file path to the details.json file for a plugin
      */
     static getDetailsPath(pluginDirName) {

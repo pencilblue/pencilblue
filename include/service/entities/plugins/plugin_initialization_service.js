@@ -157,8 +157,7 @@ const util = require('util');
                 }
 
                 //it isn't cached so go load it
-                let pluginDetailsLoader = new PluginDetailsLoader({pluginUid: context.plugin.uid});
-                pluginDetailsLoader.getSingle(callback);
+                callback(null, PluginDetailsLoader.load(context.plugin.uid));
             }];
         }
 
@@ -376,7 +375,7 @@ const util = require('util');
                     });
                 }
 
-                var mainModule = PluginMainModuleLoader.get(context.plugin.uid, results.details.main_module.path);
+                var mainModule = PluginMainModuleLoader.load(context.plugin.uid, results.details.main_module.path);
                 if (!mainModule) {
                     return callback(new Error('Failed to load main module for plugin '+context.plugin.uid+' at '+results.details.main_module.path));
                 }

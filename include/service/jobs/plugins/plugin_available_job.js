@@ -83,8 +83,7 @@ class PluginAvailableJob extends PluginJobRunner {
             function (callback) {
 
                 self.log('Searching disk for details file for plugin %s', pluginUid);
-                let loader = new PluginDetailsLoader({ pluginUid: pluginUid });
-                loader.getSingle(callback);
+                callback(null, PluginDetailsLoader.load(pluginUid));
             }
         ];
         cb(null, tasks);

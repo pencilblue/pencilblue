@@ -21,6 +21,7 @@ module.exports = function(pb) {
     //pb dependencies
     var util = pb.util;
     var PluginService  = pb.PluginService;
+    var PluginDetailsLoader = pb.PluginDetailsLoader;
 
     /**
     * Interface for viewing plugin details
@@ -97,31 +98,30 @@ module.exports = function(pb) {
             //try to load the details file.  We assume the puid variable is the
             //plugin directory name
             var detailsFile = PluginService.getDetailsPath(puid);
-            PluginService.loadDetailsFile(detailsFile, function(err, details) {
-                var obj = {
-                    status: self.ls.g('generic.ERRORED')
+            var details = PluginDetailsLoader.load(puid);
+            var obj = {
+                status: self.ls.g('generic.ERRORED')
+            };
+            if (util.isError(err)) {
+                obj.details = {
+                    name: puid,
+                    uid: puid,
+                    errors: [err.message]
                 };
+                cb(null, obj);
+                return;
+            }
+
+            //validate details
+            PluginService.validateDetails(details, puid, function(err, result) {
+                obj.details = details;
                 if (util.isError(err)) {
-                    obj.details = {
-                        name: puid,
-                        uid: puid,
-                        errors: [err.message]
-                    };
+                    details.errors = err.validationErrors;
                     cb(null, obj);
                     return;
                 }
-
-                //validate details
-                PluginService.validateDetails(details, puid, function(err, result) {
-                    obj.details = details;
-                    if (util.isError(err)) {
-                        details.errors = err.validationErrors;
-                        cb(null, obj);
-                        return;
-                    }
-                    obj.status = self.ls.g('generic.AVAILABLE');
-                    cb(null, obj);
-                });
+                obj.status = self.ls.g('generic.AVAILABLE');
+                cb(null, obj);
             });
         });
     };

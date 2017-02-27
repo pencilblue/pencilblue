@@ -141,15 +141,8 @@ module.exports = function(pb) {
                     }
 
                     var detailsFile = PluginService.getDetailsPath(plugin.dirName);
-                    PluginService.loadDetailsFile(detailsFile, function(err, loadedDetails) {
-                        if (util.isError(err)) {
-                            callback(err, false);
-                            return;
-                        }
-
-                        details = loadedDetails;
-                        callback(null, true);
-                    });
+                    details = PluginDetailsLoader.load(plugin.dirName);
+                    callback(null, !!details);
                 });
             },
 

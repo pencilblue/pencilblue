@@ -19,7 +19,7 @@
 //dependencies
 var _ = require('lodash');
 var PluginJobRunner = require('./plugin_job_runner');
-var PluginService = require('../../entities/plugin_service');
+var PluginDetailsLoader = require('../../entities/plugins/loaders/pluginDetailsLoader');
 
 /**
  * A system job that coordinates the installation of a plugin's dependencies to
@@ -84,16 +84,14 @@ class PluginDependenciesJob extends PluginJobRunner {
 
             //verify plugin is available
             function (callback) {
-                var filePath = PluginService.getDetailsPath(pluginUid);
 
-                self.log("Loading plugin details to extract dependencies from: %s", filePath);
-                PluginService.loadDetailsFile(filePath, function (err, details) {
-                    var didLoad = _.isObject(details);
-                    if (didLoad) {
-                        pluginDetails = details;
-                    }
-                    callback(err, didLoad);
-                });
+                self.log("Loading plugin details for: %s", pluginUid);
+                var details = PluginDetailsLoader.load(pluginUid);
+                var didLoad = _.isObject(details);
+                if (didLoad) {
+                    pluginDetails = details;
+                }
+                callback(err, didLoad);
             },
 
             //load dependencies
