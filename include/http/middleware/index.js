@@ -18,12 +18,14 @@
 
 //dependencies
 const _ = require('lodash');
+const BodyParserService = require('../../../lib/service/bodyParserService');
 const Configuration = require('../../config');
 const Cookies = require('cookies');
 const ErrorUtils = require('../../error/error_utils');
 const HttpStatus = require('http-status-codes');
 const log = require('../../utils/logging').newInstance('Middleware');
 const RequestHandler = require('../request_handler');
+const RouteService = require('../../../lib/service/routeService');
 const SessionHandler = require('../../session/session');
 const SettingServiceFactory = require('../../system/settings');
 const SiteUtils = require('../../../lib/utils/siteUtils');
@@ -72,7 +74,7 @@ class Middleware {
      * @param {function} next (Error) Callback function that takes a single parameter, an error if it occurred
      */
     static urlParse (req, res, next) {
-        req.handler.url = url.parse(req.url, true);
+        req.handler.url = req.parsedUrl = url.parse(req.url, true);
         req.handler.hostname = req.headers.host || SiteUtils.getGlobalSiteContext().hostname;
         next();
     }
@@ -86,9 +88,10 @@ class Middleware {
      * @param {function} next (Error) Callback function that takes a single parameter, an error if it occurred
      */
     static checkPublicRoute (req, res, next) {
-        if (RequestHandler.isPublicRoute(req.handler.url.pathname)) {
+        if (RouteService.isPublicRoute(req.handler.url.pathname)) {
             return req.handler.servePublicContent();
-        }//TODO ensure this still follows through with setting cookie and timings
+        }
+        //TODO [1.0] ensure this still follows through with setting cookie and timings
 
         //only continue when content is not public
         next();
@@ -355,7 +358,7 @@ class Middleware {
      * @param {function} next (Error) Callback function that takes a single parameter, an error if it occurred
      */
     static derivePathVariables (req, res, next) {
-        req.pathVars = req.handler.getPathVariables(req.route);
+        req.pathVars = RouteService.getPathVariables(req.parsedUrl.pathname, req.route);
         next();
     }
 
@@ -411,8 +414,8 @@ class Middleware {
      * @param {function} next (Error) Callback function that takes a single parameter, an error if it occurred
      */
     static parseRequestBody (req, res, next) {
-        req.handler.parseBody(req.themeRoute.request_body, function (err, body) {
-            if (_.isError(err)) {
+        BodyParserService.parse(req.themeRoute.request_body, function (err, body) {
+            if (_.isError(err) && !err.code) {
                 err.code = HttpStatus.BAD_REQUEST;
             }
             req.body = body;

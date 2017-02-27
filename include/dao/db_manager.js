@@ -19,16 +19,16 @@
 //requirements
 const _ = require('lodash');
 const async = require('async');
-const domain = require('domain');
-const MongoClient = require('mongodb').MongoClient;
-const Q = require('q');
-const util = require('util');
-const log = require('../utils/logging').newInstance('DbManager');
 const Configuration = require('../config');
+const domain = require('domain');
 const IndexService = require('../../lib/dao/mongo/indexService');
+const log = require('../utils/logging').newInstance('DbManager');
+const MongoClient = require('mongodb').MongoClient;
 const PromiseUtils = require('../../lib/utils/promiseUtils');
-const UrlUtils = require('../../lib/utils/urlUtils');
+const Q = require('q');
 const System = require('../system/system');
+const UrlUtils = require('../../lib/utils/urlUtils');
+const util = require('util');
 
 /**
  * Keeps track of all active DBs with active connection pools.

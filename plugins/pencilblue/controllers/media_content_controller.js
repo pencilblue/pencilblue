@@ -16,6 +16,8 @@
 */
 'use strict';
 
+const mime = require('mime');
+
 module.exports = function (pb) {
 
     //pb dependencies
@@ -53,9 +55,9 @@ module.exports = function (pb) {
     MediaContentController.prototype.render = function(cb) {
         var self = this;
 
-        var mime = pb.RequestHandler.getMimeFromPath(this.req.url);
-        if (mime) {
-            this.res.setHeader('content-type', mime);
+        var mimeType = mime.lookup(this.req.url);
+        if (mimeType) {
+            this.res.setHeader('content-type', mimeType);
         }
 
         //load the media if available

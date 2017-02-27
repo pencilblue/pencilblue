@@ -23,7 +23,7 @@ const Localization = require('../../../../localization');
 const log = require('../../../../utils/logging').newInstance('PluginLocalizationLoader');
 const path = require('path');
 const PluginResourceLoader = require('./plugin_resource_loader');
-const PluginService = require('../../plugin_service');
+const PluginUtils = require('../../../../../lib/utils/pluginUtils');
 
 /**
  * @class PluginLocalizationLoader
@@ -126,7 +126,7 @@ class PluginLocalizationLoader extends PluginResourceLoader {
      * @return {string}
      */
     static getPathToLocalizations(pluginUid) {
-        return path.join(PluginService.getPublicPath(pluginUid), 'localization');
+        return path.join(PluginUtils.getPublicPath(pluginUid), 'localization');
     }
 }
 

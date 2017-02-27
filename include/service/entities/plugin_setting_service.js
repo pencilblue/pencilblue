@@ -24,20 +24,23 @@ const Configuration = require('../../config');
 const DAO = require('../../dao/dao');
 const DbEntityService = require('../db_entity_service');
 const MemoryEntityService = require('../memory_entity_service');
-const PluginService = require('./plugin_service');
+const PluginValidationService = require('./plugins/plugin_validation_service');
 const SimpleLayeredService = require('../simple_layered_service');
 const SiteUtils = require('../../../lib/utils/siteUtils');
 const ValidationService = require('../../validation/validation_service');
 
 /**
  * Constructor for service that retrieves plugin settings from the database.
- * @class PluginSettingService
- * @constructor
- * @param {string} siteUID - site unique id
+ * @param {object} context
+ * @param {PluginService} context.pluginService
  */
 class PluginSettingService {
-    constructor(siteUID) {
-        //construct settings services
+    constructor(context) {
+
+        /**
+         * @type {PluginService}
+         */
+        this.pluginService = context.pluginService;
 
         /**
          *
@@ -51,14 +54,8 @@ class PluginSettingService {
          * @property site
          * @type {String}
          */
-        this.site = Configuration.active.multisite.enabled && siteUID ? siteUID : SiteUtils.GLOBAL_SITE;
-
-        /**
-         *
-         * @property pluginService
-         * @type {PluginService}
-         */
-        this.pluginService = new PluginService({site: this.site});
+        this.site = Configuration.active.multisite.enabled &&
+            this.pluginService.site ? this.pluginService.site : SiteUtils.GLOBAL_SITE;
 
         /**
          * A setting service that sets and retrieves the settings for plugins
@@ -183,11 +180,11 @@ class PluginSettingService {
         var self = this;
 
         //error checking
-        if (!PluginService.validateSettingValue(value)) {
-            return cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
+        if (!PluginValidationService.validateSettingValue(value)) {
+            return cb(new Error("The setting value is required when modifing a theme setting"), false);
         }
         if (!ValidationService.isNonEmptyStr(name, true)) {
-            return cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
+            return cb(new Error("The setting name is required when modifing a theme setting"), false);
         }
 
         //retrieve the settings to modify
@@ -260,11 +257,11 @@ class PluginSettingService {
         var self = this;
 
         //error checking
-        if (!PluginService.validateSettingValue(value)) {
-            return cb(new Error("PluginService: The setting value is required when modifying a theme setting"), false);
+        if (!PluginValidationService.validateSettingValue(value)) {
+            return cb(new Error('The setting value is required when modifying a theme setting'), false);
         }
         if (!ValidationService.isNonEmptyStr(name, true)) {
-            return cb(new Error("PluginService: The setting name is required when modifying a theme setting"), false);
+            return cb(new Error('The setting name is required when modifying a theme setting'), false);
         }
 
         //retrieve the settings to modify
@@ -305,10 +302,10 @@ class PluginSettingService {
 
         //error checking
         if (!settings) {
-            return cb(new Error("PluginSettingService: The settings object is required when making changes to theme settings"), false);
+            return cb(new Error('The settings object is required when making changes to theme settings'), false);
         }
         if (!pluginName) {
-            return cb(new Error("PluginSettingService: The plugin name is required when making changes to theme settings"), false);
+            return cb(new Error('The plugin name is required when making changes to theme settings'), false);
         }
 
         this.pluginService.isInstalled(pluginName, function (err, isInstalled) {
@@ -461,7 +458,7 @@ class PluginSettingService {
         //error checking
         var pluginName = details.uid;
         if (!details.theme || !details.theme.settings) {
-            return cb(new Error("PluginService: Settings are required when attempting to reset a plugin's theme settings"), false);
+            return cb(new Error("Settings are required when attempting to reset a plugin's theme settings"), false);
         }
 
         //retrieve plugin to prove it exists (plus we need the id)

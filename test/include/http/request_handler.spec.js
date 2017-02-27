@@ -1,5 +1,6 @@
 
 //dependencies
+const mime = require('mime');
 var url = require('url');
 var should = require('should');
 var HttpStatusCodes = require('http-status-codes');
@@ -320,7 +321,7 @@ describe('RequestHandler', function() {
         Object.keys(mimeMap).forEach(function(ext) {
 
             it('should map the extension '+ext+' to mime type '+mimeMap[ext], function() {
-                this.pb.RequestHandler.getMimeFromPath('/file.'+ext).should.eql(mimeMap[ext]);
+                mime.lookup('/file.'+ext).should.eql(mimeMap[ext]);
             });
         });
     });

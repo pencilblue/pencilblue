@@ -26,6 +26,7 @@ var log = require('../../utils/logging').newInstance('TemplateService');
 var MemoryEntityService = require('../memory_entity_service');
 var path = require('path');
 var PluginService = require('./plugin_service');
+const PluginDetailsLoader = require('./plugins/loaders/pluginDetailsLoader');
 var SettingServiceFactory = require('../../system/settings');
 var SimpleLayeredService = require('../simple_layered_service');
 var SiteService = require('./site_service');
@@ -709,8 +710,8 @@ var ValidationService = require('../../validation/validation_service');
                 if (uid === Configuration.active.plugins.default) {
 
                     //load pencilblue plugin
-                    var file = PluginService.getDetailsPath(Configuration.active.plugins.default);
-                    PluginService.loadDetailsFile(file, function(err, pbPlugin) {
+                    var loader = new PluginDetailsLoader({ pluginUid: Configuration.active.plugins.default} );
+                    loader.getSingle(function(err, pbPlugin) {
                         if (pbPlugin) {
                             pbPlugin.dirName = Configuration.active.plugins.default;
                         }

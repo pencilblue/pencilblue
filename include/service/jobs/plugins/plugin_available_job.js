@@ -18,7 +18,7 @@
 
 //dependencies
 var PluginJobRunner = require('./plugin_job_runner');
-var PluginService = require('../../entities/plugin_service');
+const PluginDetailsLoader = require('../../entities/plugins/loaders/pluginDetailsLoader');
 
 /**
  * A system job that coordinates the check to see if a plugin is available for
@@ -81,10 +81,10 @@ class PluginAvailableJob extends PluginJobRunner {
 
             //verify plugin is available
             function (callback) {
-                var filePath = PluginService.getDetailsPath(pluginUid);
 
-                self.log("Inspecting plugin on disk at: %s", filePath);
-                PluginService.loadDetailsFile(filePath, callback);
+                self.log('Searching disk for details file for plugin %s', pluginUid);
+                let loader = new PluginDetailsLoader({ pluginUid: pluginUid });
+                loader.getSingle(callback);
             }
         ];
         cb(null, tasks);

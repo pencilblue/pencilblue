@@ -18,17 +18,14 @@
 
 //dependencies
 const _ = require('lodash');
-const async   = require('async');
+const async = require('async');
 const AsyncEventEmitter = require('../utils/async_event_emitter');
 const Configuration = require('../config');
 const Cookies = require('cookies');
-const DAO = require('../dao/dao');
 const domain  = require('domain');
 const ErrorFormatters = require('../error/formatters/error_formatters');
-const FormBodyParser = require('../http/parsers').FormBodyParser;
-const fs      = require('fs');
+const fs = require('fs');
 const HttpStatusCodes = require('http-status-codes');
-const JsonBodyParser = require('../http/parsers').JsonBodyParser;
 const Localization = require('../localization');
 const log = require('../utils/logging').newInstance('RequestHandler');
 const mime = require('mime');
@@ -116,31 +113,6 @@ const ValidationService = require('../validation/validation_service');
     AsyncEventEmitter.extend(RequestHandler);
 
     /**
-     * A mapping that provides the interface type to parse the body based on the
-     * route specification
-     * @private
-     * @static
-     * @readonly
-     * @property BODY_PARSER_MAP
-     * @type {Object}
-     */
-    var BODY_PARSER_MAP = {
-        'application/json': JsonBodyParser,
-        'application/x-www-form-urlencoded': FormBodyParser,
-        'multipart/form-data': FormBodyParser
-    };
-
-    /**
-     * Provides the list of directories that are publicly available
-     * @private
-     * @static
-     * @readonly
-     * @property PUBLIC_ROUTE_PREFIXES
-     * @type {Array}
-     */
-    var PUBLIC_ROUTE_PREFIXES = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', '/favicon.ico', '/docs/', '/bower_components/'];
-
-    /**
      * The fallback theme (pencilblue)
      * @static
      * @property DEFAULT_THEME
@@ -148,37 +120,9 @@ const ValidationService = require('../validation/validation_service');
      */
     RequestHandler.DEFAULT_THEME = Configuration.active.plugins.default;
 
-    /**
-     * The internal storage of routes after they are validated and processed.
-     * @static
-     * @property storage
-     * @type {Array}
-     */
-    RequestHandler.storage = [];
-    RequestHandler.index   = {};
     RequestHandler.sites = {};
     RequestHandler.redirectHosts = {};
     var GLOBAL_SITE = SiteUtils.GLOBAL_SITE;
-    /**
-     * The internal storage of static routes after they are validated and processed.
-     * @protected
-     * @static
-     * @property staticRoutes
-     * @type {Object}
-     */
-    RequestHandler.staticRoutes = {};
-
-    /**
-     * The list of routes provided by the pencilblue plugin.  These routes are
-     * loaded first to ensure defaults are in place before other plugins are
-     * initialized.  In the future this will change so that all plugins are treated
-     * equally.
-     * @private
-     * @static
-     * @property CORE_ROUTES
-     * @type {Array}
-     */
-    RequestHandler.CORE_ROUTES = require(path.join(Configuration.active.docRoot, '/plugins/pencilblue/include/routes.js'));
 
     /**
      * The event emitted when a route and theme is derived for an incoming request
@@ -188,30 +132,6 @@ const ValidationService = require('../validation/validation_service');
      * @type {string}
      */
     RequestHandler.THEME_ROUTE_RETIEVED = 'themeRouteRetrieved';
-
-    /**
-     * Initializes the request handler prototype by registering the core routes for
-     * the system.  This should only be called once at startup.
-     * @static
-     * @method init
-     */
-    RequestHandler.init = function(){
-
-        //iterate core routes adding them
-        log.debug('RequestHandler: Registering System Routes');
-        RequestHandler.CORE_ROUTES.forEach(function(descriptor) {
-
-            //register the route
-            var result;
-            try {
-                result = RequestHandler.registerRoute(descriptor, RequestHandler.DEFAULT_THEME);
-            }
-            catch(e) {}
-            if (!result) {
-                log.error('RequestHandler: Failed to register PB route: %s %s', descriptor.method, descriptor.path);
-            }
-        });
-    };
 
     /**
      * Generates the controller callback object that will trigger the redirect
@@ -268,26 +188,14 @@ const ValidationService = require('../validation/validation_service');
         RequestHandler.sites[site.hostname].active = false;
     };
 
-    /**
-     * Validates a route descriptor.  The specified object must have a "controller"
-     * property that points to a valid file and the "path" property must specify a
-     * valid URL path structure.
-     * @static
-     * @method isValidRoute
-     * @param {Object} descriptor The object to validate
-     * @param {String} descriptor.controller The file path to the controller file
-     * @param {String} descriptor.path The URL path
-     */
-    RequestHandler.isValidRoute = function(descriptor) {
-        return fs.existsSync(descriptor.controller) &&
-            !_.isNil(descriptor.path);
-    };
+
 
     /**
      * Unregisters all routes associated with a theme
      * @static
      * @method unregisterThemeRoutes
      * @param {String} theme The plugin/theme uid
+     * @param {string} site
      * @return {Integer} The number of routes removed
      */
     RequestHandler.unregisterThemeRoutes = function(theme, site) {
@@ -301,16 +209,16 @@ const ValidationService = require('../validation/validation_service');
 
         //pattern routes
         for (var i = 0; i < RequestHandler.storage.length; i++) {
-            var path   = RequestHandler.storage[i].path;
-            var result = RequestHandler.unregisterRoute(path, theme, site);
+            var pathStr = RequestHandler.storage[i].path;
+            var result = RequestHandler.unregisterRoute(pathStr, theme, site);
             if (result) {
                 routesRemoved++;
             }
         }
 
         //static routes
-        Object.keys(RequestHandler.staticRoutes).forEach(function(path) {
-            var result = RequestHandler.unregisterRoute(path, theme, site);
+        Object.keys(RequestHandler.staticRoutes).forEach(function(pathStr) {
+            var result = RequestHandler.unregisterRoute(pathStr, theme, site);
             if (result) {
                 routesRemoved++;
             }
@@ -319,320 +227,8 @@ const ValidationService = require('../validation/validation_service');
     };
 
     /**
-     * Removes a route based on a URL path and theme UID
-     * @static
-     * @method unregisterRoute
-     * @param {String} The URL path
-     * @param {String} The theme that owns the route
-     * @return {Boolean} TRUE if the route was found and removed, FALSE if not
-     */
-    RequestHandler.unregisterRoute = function(path, theme, site) {
-        //resolve the site
-        if(!site)
-        {
-            site = GLOBAL_SITE;
-        }
-
-
-        //get the pattern to check for
-        var pattern    = null;
-        var patternObj = RequestHandler.getRoutePattern(path);
-        if (patternObj) {
-            pattern = patternObj.pattern;
-        }
-        else {//invalid path provided
-            return false;
-        }
-
-        //check if that pattern is registered for any theme
-        var descriptor;
-        if (RequestHandler.staticRoutes[path]) {
-            descriptor = RequestHandler.staticRoutes[path];
-        }
-        else if (RequestHandler.index[pattern]) {
-            descriptor = RequestHandler.storage[RequestHandler.index[pattern]];
-        }
-        else {
-            //not a static route or pattern route
-            return false;
-        }
-
-        //return false if specified site has no themes registered on that descriptor
-        //return false if theme doesnt exist on descriptor for that site
-        if (!descriptor || !descriptor.themes[site] || !descriptor.themes[site][theme]) {
-            return false;
-        }
-
-        //remove from service
-        delete descriptor.themes[site][theme];
-        descriptor.themes[site].size--;
-        if(descriptor.themes[site].size < 1) {
-            delete descriptor.themes[site];
-        }
-        return true;
-    };
-
-    /**
-     * Registers a route
-     * @static
-     * @method registerRoute
-     * @param {Object} descriptor The route descriptor
-     * @param {String} [descriptor.method='ALL'] The HTTP method associated with
-     * the route
-     * @param {String} descriptor.path The URL path for the route.  The route
-     * supports wild cards a well as path variables (/get/:id)
-     * @param {String} descriptor.controller The file path to the controller to
-     * execute when the path is matched to an incoming request.
-     * @param {Integer} [descriptor.access_level=0] Use global constants:
-     * ACCESS_USER,ACCESS_WRITER,ACCESS_EDITOR,ACCESS_MANAGING_EDITOR,ACCESS_ADMINISTRATOR
-     * @param {Boolean} [descriptor.setup_required=true] If true the system must have gone
-     * through the setup process in order to pass validation
-     * @param {Boolean} [descriptor.auth_required=false] If true, the user making the
-     * request must have successfully authenticated against the system.
-     * @param {String} [descriptor.content_type='text/html'] The content type header sent with the response
-     * @param {Boolean} [descriptor.localization=false]
-     * @param {String} theme The plugin/theme UID
-     * @param {String} site The UID of site that owns the route
-     * @return {Boolean} TRUE if the route was registered, FALSE if not
-     */
-    RequestHandler.registerRoute = function(descriptor, theme, site){
-        //resolve empty site to global
-        if(!site)
-        {
-            site = GLOBAL_SITE;
-        }
-
-        //validate route
-        if (!RequestHandler.isValidRoute(descriptor)) {
-            log.error("RequestHandler: Route Validation Failed for: "+JSON.stringify(descriptor));
-            return false;
-        }
-
-        //standardize http method (if exists) to upper case
-        if (descriptor.method) {
-            descriptor.method = descriptor.method.toUpperCase();
-        }
-        else {
-            descriptor.method = 'ALL';
-        }
-
-        //make sure we get a valid prototype back
-        var Controller = require(descriptor.controller);
-        if (!Controller) {
-            log.error('RequestHandler: Failed to get a prototype back from the controller module. %s', JSON.stringify(descriptor));
-            return false;
-        }
-
-        //register main route
-        var result = _registerRoute(descriptor, theme, site, Controller);
-
-        //now check if we should localize the route
-        if (descriptor.localization) {
-
-            var localizedDescriptor = _.clone(descriptor);
-            localizedDescriptor.path = UrlUtils.urlJoin('/:locale', descriptor.path);
-            result = result && _registerRoute(localizedDescriptor, theme, site, Controller);
-        }
-        return result;
-    };
-
-    /**
-     *
-     * @private
-     * @static
-     * @method _registerRoute
-     * @param {Object} descriptor
-     * @param {String} theme
-     * @param {String} site
-     * @param {Function} Controller
-     * @return {Boolean}
-     */
-    function _registerRoute(descriptor, theme, site, Controller) {
-        //get pattern and path variables
-        var patternObj = RequestHandler.getRoutePattern(descriptor.path);
-        var pathVars   = patternObj.pathVars;
-        var pattern    = patternObj.pattern;
-        var isStatic   = Object.keys(pathVars).length === 0 && !patternObj.hasWildcard;
-
-        //insert it
-        var isNew = false;
-        var routeDescriptor = null;
-        if (isStatic && !_.isNil(RequestHandler.staticRoutes[descriptor.path])) {
-            routeDescriptor = RequestHandler.staticRoutes[descriptor.path];
-        }
-        else if (!isStatic && !_.isNil(RequestHandler.index[pattern])) {
-
-            //exists so find it
-            for (var i = 0; i < RequestHandler.storage.length; i++) {
-                var route = RequestHandler.storage[i];
-                if (route.pattern === pattern) {
-                    routeDescriptor = route;
-                    break;
-                }
-            }
-        }
-        else{//does not exist so create it
-            isNew = true;
-            routeDescriptor = {
-                path: patternObj.path,
-                pattern: pattern,
-                path_vars: pathVars,
-                expression: new RegExp(pattern),
-                themes: {}
-            };
-        }
-
-        //if the site has no themes on this route, add it
-        if(!routeDescriptor.themes[site])
-        {
-            routeDescriptor.themes[site] = {};
-            routeDescriptor.themes[site].size = 0;
-        }
-
-        //set the descriptor for the theme and load the controller type
-        if (!routeDescriptor.themes[site][theme]) {
-            routeDescriptor.themes[site][theme] = {};
-            routeDescriptor.themes[site].size++;
-        }
-        routeDescriptor.themes[site][theme][descriptor.method]            = descriptor;
-        routeDescriptor.themes[site][theme][descriptor.method].controller = Controller;
-
-       //only add the descriptor it is new.  We do it here because we need to
-       //know that the controller is good.
-        if (isNew) {
-            //set them in storage
-            if (isStatic) {
-                RequestHandler.staticRoutes[descriptor.path] = routeDescriptor;
-            }
-            else {
-                RequestHandler.index[pattern] = RequestHandler.storage.length;
-                RequestHandler.storage.push(routeDescriptor);
-            }
-        }
-
-        //log the result
-        if (isStatic) {
-            log.debug('RequestHandler: Registered Static Route - Theme [%s] Path [%s][%s]', theme, descriptor.method, descriptor.path);
-        }
-        else {
-            log.debug('RequestHandler: Registered Route - Theme [%s] Path [%s][%s] Pattern [%s]', theme, descriptor.method, descriptor.path, pattern);
-        }
-        return true;
-    }
-
-    /**
-     * Generates a regular expression based on the specified path.  In addition the
-     * algorithm extracts any path variables that are included in the path.  Paths
-     * can include two types of wild cards.  The traditional glob pattern style of
-     * "/some/api/*" can be used as well as path variables ("/some/api/:action").
-     * The path variables will be passed to the controllers.
-     * @static
-     * @method getRoutePattern
-     * @param {String} path The URL path
-     * @return {Object|null} An object containing three properties: The specified
-     * "path". The generated regular expression "pattern" as a string. Lastly, a
-     * hash of the path variables and their position in the path coorelating to its
-     * depth in the path.
-     */
-    RequestHandler.getRoutePattern = function(path) {
-        if (!path) {
-            return null;
-        }
-
-        //clean up path
-        if (path.indexOf('/') === 0) {
-            path = path.substring(1);
-        }
-        if (path.lastIndexOf('/') === path.length - 1) {
-            path = path.substring(0, path.length - 1);
-        }
-
-        //construct the pattern & extract path variables
-        var pathVars    = {};
-        var pattern     = '^';
-        var hasWildcard = false;
-        var pathPieces  = path.split('/');
-        for (var i = 0; i < pathPieces.length; i++) {
-            var piece = pathPieces[i];
-
-            if (piece.indexOf(':') === 0) {
-                var fieldName = piece.substring(1);
-                pathVars[fieldName] = i + 1;
-                pattern += '\/[^/]+';
-            }
-            else {
-                if (piece.indexOf('*') >= 0) {
-                    piece = piece.replace(/\*/g, '.*');
-
-                    hasWildcard = true;
-                }
-                pattern += '\/'+piece;
-            }
-        }
-        pattern += '[/]{0,1}$';
-
-        return {
-            path: path,
-            pattern: pattern,
-            pathVars: pathVars,
-            hasWildcard: hasWildcard
-        };
-    };
-
-    /**
-     * Processes a request:
-     * <ol>
-     * 	<li>Initialize localization</li>
-     * 	<li>if Public Route:
-     * 		<ol>
-     * 			<li>If Valid Content
-     * 				<ol><li>Serve Public Content</li></ol>
-     * 			</li>
-     * 			<li>Else Serve 404</li>
-     * 		</ol>
-     * 	</li>
-     * 	<li>Else Parse Cookies</li>
-     * 	<li>Open/Create a session</li>
-     * 	<li>Get Route</li>
-     * </ol>
-     * @method handleRequest
-     */
-    RequestHandler.prototype.handleRequest = function(){
-
-        //fist things first check for public resource
-        if (RequestHandler.isPublicRoute(this.url.pathname)) {
-            return this.servePublicContent();
-        }
-
-        //check for session cookie
-        var cookies = RequestHandler.parseCookies(this.req);
-        this.req.headers[SessionHandler.COOKIE_HEADER] = cookies;
-
-        //open session
-        var self = this;
-        this.sessionHandler.open(this.req, function(err, session){
-            if (_.isError(err)) {
-                return self.serveError(err);
-            }
-            if (!session) {
-                return self.serveError(new Error("The session object was not valid.  Unable to generate a session object based on request."));
-            }
-            //set the session id when no session has started or the current one has
-            //expired.
-            var sc = Object.keys(cookies).length === 0;
-            var se = !sc && cookies.session_id !== session.uid;
-            self.setSessionCookie =  sc || se;
-            if (log.isSilly()) {
-                log.silly("RequestHandler: Session ID [%s] Cookie SID [%s] Created [%s] Expired [%s]", session.uid, cookies.session_id, sc, se);
-            }
-
-            //continue processing
-            self.onSessionRetrieved(err, session);
-        });
-    };
-
-    /**
      * Derives the locale and localization instance.
+     * TODO [1.0] Move to Localization service
      * @method deriveLocalization
      * @param {Object} context
      * @param {Object} [context.session]
@@ -695,35 +291,6 @@ const ValidationService = require('../validation/validation_service');
     };
 
     /**
-     * Attempts to derive the MIME type for a resource path based on the extension
-     * of the path.
-     * @deprecated since 0.8.0 Use mime.lookup instead
-     * @static
-     * @method getMimeFromPath
-     * @param {string} resourcePath The file path to a resource
-     * @return {String|undefined} The MIME type or NULL if could not be derived.
-     */
-    RequestHandler.getMimeFromPath = function(resourcePath) {
-        return mime.lookup(resourcePath);
-    };
-
-    /**
-     * Determines if the path is mapped to static resources
-     * @static
-     * @method isPublicRoute
-     * @param {String} path URL path to a resource
-     * @return {Boolean} TRUE if mapped to a public resource directory, FALSE if not
-     */
-    RequestHandler.isPublicRoute = function(path) {
-        for (var i = 0; i < PUBLIC_ROUTE_PREFIXES.length; i++) {
-            if (path.indexOf(PUBLIC_ROUTE_PREFIXES[i]) === 0) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    /**
      * Serves up a 404 page when the path specified by the incoming request does
      * not exist. This function <b>WILL</b> close the connection.
      * @method serve404
@@ -741,6 +308,7 @@ const ValidationService = require('../validation/validation_service');
      * Serves up an error page.  The page is responsible for displaying an error page
      * @method serveError
      * @param {Error} err The failure that was generated by the executed controller
+     * @param {object} options
      * @return {Boolean} TRUE when the error is rendered, FALSE if the request had already been handled
      */
     RequestHandler.prototype.serveError = function(err, options) {
@@ -801,66 +369,6 @@ const ValidationService = require('../validation/validation_service');
         });
 
         return true;
-    };
-
-    /**
-     * Called when the session has been retrieved.  Responsible for checking the
-     * active theme.  It then retrieves the route object and passes it off to onThemeRetrieved.
-     * @method onSessionRetrieved
-     * @param {Error} err Any error that occurred while retrieving the session
-     * @param {Object} session The session for the requesting entity
-     */
-    RequestHandler.prototype.onSessionRetrieved = function(err, session) {
-        if (err) {
-            this.onErrorOccurred(err);
-            return;
-        }
-
-        //set the session
-        this.session = session;
-
-        var hostname = this.hostname;
-        var siteObj = RequestHandler.sites[hostname];
-        var redirectHost = RequestHandler.redirectHosts[hostname];
-
-        // If we need to redirect to a different host
-        if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
-            return this.doRedirect(SiteUtils.getHostWithProtocol(redirectHost), HttpStatusCodes.MOVED_PERMANENTLY);
-        }
-        this.siteObj = siteObj;
-
-        //derive the localization. We do it here so that if the site isn't
-        //available we can still have one available when we error out
-        this.localizationService = this.deriveLocalization({ session: session });
-
-        //make sure we have a site
-        if (!siteObj) {
-            var error = new Error("The host (" + hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + Configuration.active.siteRoot + ").");
-            log.error(error);
-            return this.serveError(error);
-        }
-
-        this.site = this.siteObj.uid;
-        this.siteName = this.siteObj.displayName;
-        //find the controller to hand off to
-        var route = this.getRoute(this.url.pathname);
-        if (route === null) {
-            return this.serve404();
-        }
-        this.route = route;
-
-        //get active theme
-        var self = this;
-        var settings = SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, this.siteObj.uid);
-        settings.get('active_theme', function(err, activeTheme){
-            if (!activeTheme) {
-                log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", RequestHandler.DEFAULT_THEME);
-                activeTheme = RequestHandler.DEFAULT_THEME;
-            }
-
-            self.activeTheme = activeTheme;
-            self.onThemeRetrieved(activeTheme, route);
-        });
     };
 
     /**
@@ -991,59 +499,6 @@ const ValidationService = require('../validation/validation_service');
     };
 
     /**
-     *
-     * @method onThemeRetrieved
-     * @param {String} activeTheme
-     * @param {Object} route
-     */
-    RequestHandler.prototype.onThemeRetrieved = function(activeTheme, route) {
-        var self = this;
-
-        //check for unregistered route for theme
-        var rt = this.routeTheme = this.getRouteTheme(activeTheme, route);
-
-        if (log.isSilly()) {
-            log.silly("RequestHandler: Settling on theme [%s] and method [%s] for URL=[%s:%s]", rt.theme, rt.method, this.req.method, this.url.href);
-        }
-
-        //make sure we let the plugins hook in.
-        this.emitThemeRouteRetrieved(function(err) {
-            if (_.isError(err)) {
-                return self.serveError(err);
-            }
-
-            //sanity check
-            if (rt.theme === null || rt.method === null || rt.site === null) {
-                return self.serve404();
-            }
-
-            var inactiveSiteAccess = route.themes[rt.site][rt.theme][rt.method].inactive_site_access;
-            if (!self.siteObj.active && !inactiveSiteAccess) {
-                if (self.siteObj.uid === SiteUtils.GLOBAL_SITE) {
-                    return self.doRedirect('/admin');
-                }
-                else {
-                    return self.serve404();
-                }
-            }
-
-            //do security checks
-            self.checkSecurity(rt.theme, rt.method, rt.site, function(err, result) {
-                if (log.isSilly()) {
-                    log.silly('RequestHandler: Security Result=[%s] - %s', result.success, JSON.stringify(result.results));
-                }
-                //all good
-                if (result.success) {
-                    return self.onSecurityChecksPassed(activeTheme, rt.theme, rt.method, rt.site, route);
-                }
-
-                //handle failures through bypassing other processing and doing output
-                self.onRenderComplete(err);
-            });
-        });
-    };
-
-    /**
      * Emits the event to let listeners know that a request has derived the route and theme that matches the incoming
      * request
      * @method emitThemeRouteRetrieved
@@ -1060,44 +515,6 @@ const ValidationService = require('../validation/validation_service');
 
     /**
      *
-     * @method onSecurityChecksPassed
-     * @param {String} activeTheme The user set active theme
-     * @param {String} routeTheme The plugin/theme who's controller will handle the request
-     * @param {String} method
-     * @param {String} site
-     * @param {Object} route
-     */
-    RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, routeTheme, method, site, route) {
-
-        //extract path variables
-        var pathVars = this.getPathVariables(route);
-        if (typeof pathVars.locale !== 'undefined') {
-            if (!this.siteObj.supportedLocales[pathVars.locale]) {
-
-                //TODO make this check more general
-                return this.serve404();
-            }
-
-            //update the localization
-            this.localizationService = this.deriveLocalization({ session: this.session, routeLocalization: pathVars.locale });
-        }
-
-        //instantiate controller
-        var ControllerType  = route.themes[site][routeTheme][method].controller;
-        var cInstance       = new ControllerType();
-
-        //execute it
-        var context = {
-            pathVars: pathVars,
-            cInstance: cInstance,
-            themeRoute: route.themes[site][routeTheme][method],
-            activeTheme: activeTheme
-        };
-        this.doRender(context);
-    };
-
-    /**
-     *
      * @method getPathVariables
      * @param {Object} route
      * @param {Object} route.path_vars
@@ -1109,130 +526,6 @@ const ValidationService = require('../validation/validation_service');
             pathVars[field] = pathParts[route.path_vars[field]];
         });
         return pathVars;
-    };
-
-    /**
-     * Begins the rendering process by initializing the controller.  This is done
-     * by gathering all initialization parameters and calling the controller's
-     * "init" function.
-     * @method doRender
-     * @param {object} context
-     * @param {Object} context.pathVars The URL path's variables
-     * @param {BaseController} context.cInstance An instance of the controller to be executed
-     * @param {Object} context.themeRoute
-     * @param {String} context.activeTheme The user set active theme
-     */
-    RequestHandler.prototype.doRender = function(context) {
-        var self  = this;
-
-        //attempt to parse body
-        this.parseBody(context.themeRoute.request_body, function(err, body) {
-            if (_.isError(err)) {
-                err.code = 400;
-                return self.serveError(err);
-            }
-
-            //build out properties & merge in any that are special to this call
-            var props = {
-                request_handler: self,
-                request: self.req,
-                response: self.resp,
-                session: self.session,
-                localization_service: self.localizationService,
-                path_vars: context.pathVars,
-                pathVars: context.pathVars,
-                query: self.url.query,
-                body: body,
-                site: self.site,
-                siteObj: self.siteObj,
-                siteName: self.siteName,
-                activeTheme: context.activeTheme || self.activeTheme,
-                routeLocalized: !!context.themeRoute.localization
-            };
-            if (_.isObject(context.initParams)) {
-                Object.assign(props, context.initParams);
-            }
-            var d = domain.create();
-            d.add(context.cInstance);
-            d.run(function () {
-                process.nextTick(function () {
-                    //initialize the controller
-                    context.cInstance.init(props, function () {
-                        self.onControllerInitialized(context.cInstance, context.themeRoute);
-                    });
-                });
-            });
-            d.on('error', function (err) {
-                log.error("RequestHandler: An error occurred during controller execution. URL=[%s:%s] ROUTE=%s\n%s", self.req.method, self.req.url, JSON.stringify(self.route), err.stack);
-                self.serveError(err);
-            });
-        });
-    };
-
-    /**
-     * Parses the incoming request body when the body type specified matches one of
-     * those explicitly allowed by the rotue.
-     * @method parseBody
-     * @param {Array} mimes An array of allowed MIME strings.
-     * @param {Function} cb A callback that takes 2 parameters: An Error, if
-     * occurred and the parsed body.  The parsed value is often an object but the
-     * value is dependent on the parser selected by the content type.
-     */
-    RequestHandler.prototype.parseBody = function(mimes, cb) {
-
-        //we don't force a mime.  Controllers have the ability to handle this
-        //themselves.
-        if (!Array.isArray(mimes)) {
-            return cb(null, null);
-        }
-
-        //verify that the content type is acceptable
-        var contentType = this.req.headers['content-type'];
-        if (contentType) {
-
-            //we split on ';' to check for multipart encoding since it specifies a
-            //boundary
-            contentType = contentType.split(';')[0];
-            if (mimes.indexOf(contentType) === -1) {
-                //a type was specified but its not accepted by the controller
-                //TODO return HTTP 415
-                return cb(null, null);
-            }
-        }
-
-        //create the parser
-        var BodyParser = BODY_PARSER_MAP[contentType];
-        if (!BodyParser) {
-            log.silly('RequestHandler: no handler was found to parse the body type [%s]', contentType);
-            return cb(null, null);
-        }
-
-        //execute the parsing
-        var self = this;
-        var d = domain.create();
-        d.on('error', cb);
-        d.run(function() {
-            process.nextTick(function() {
-
-                //initialize the parser and parse content
-                var parser = new BodyParser();
-                parser.parse(self.req, cb);
-            });
-        });
-    };
-
-    /**
-     *
-     * @method onControllerInitialized
-     * @param {BaseController} controller
-     * @param {object} themeRoute
-     */
-    RequestHandler.prototype.onControllerInitialized = function (controller, themeRoute) {
-        var self = this;
-
-        controller[themeRoute.handler ? themeRoute.handler : 'render'](function (result) {
-            self.onRenderComplete(result);
-        });
     };
 
     /**
@@ -1339,89 +632,6 @@ const ValidationService = require('../validation/validation_service');
         }
     };
 
-    /**
-     * Creates a cookie string
-     * @method writeCookie
-     * @param {Object} descriptor The pieces of the cookie that are to be included
-     * in the string.  These pieces are represented as key value pairs.  Each value
-     * will be serialized via its implicity "toString" function.
-     * @param {String} [cookieStr=''] The current cookie string if it exists
-     * @return {String} The cookie represented as a string
-     */
-    RequestHandler.prototype.writeCookie = function(descriptor, cookieStr){
-        return Object.keys(descriptor).reduce(function(cs, key) {
-            return cookieStr + key + '=' + descriptor[key]+'; ';
-        }, cookieStr || '');
-    };
-
-    /**
-     * Verifies that the incoming request meets all necessary security critiera
-     * @method checkSecurity
-     * @param {String} activeTheme
-     * @param {String} method
-     * @param {String} site
-     * @param {Function} cb
-     */
-    RequestHandler.prototype.checkSecurity = function(activeTheme, method, site, cb){
-        var self        = this;
-        this.themeRoute = this.route.themes[site][activeTheme][method];
-
-        //verify if setup is needed
-        var checkSystemSetup = function(callback) {
-            var ctx = {
-                themeRoute: self.themeRoute
-            };
-            self.checkSystemSetup(ctx, function(err, result) {
-                callback(result.success ? null : result, result);
-            });
-        };
-
-        var checkRequiresAuth = function(callback) {
-            var ctx = {
-                themeRoute: self.themeRoute,
-                session: self.session,
-                req: self.req,
-                hostname: self.hostname,
-                url: self.url
-            };
-            var result = RequestHandler.checkRequiresAuth(ctx);
-            callback(result.success ? null : result, result);
-        };
-
-        var checkAdminLevel = function(callback) {
-            var ctx = {
-                themeRoute: self.themeRoute,
-                session: self.session
-            };
-            var result = RequestHandler.checkAdminLevel(ctx);
-            callback(result.success ? null : result, result);
-        };
-
-        var checkPermissions = function(callback) {
-            var ctx = {
-                themeRoute: self.themeRoute,
-                session: self.session
-            };
-            var result = RequestHandler.checkPermissions(ctx);
-            callback(result.success ? null : result, result);
-        };
-
-        var tasks = {
-            checkSystemSetup: checkSystemSetup,
-            checkRequiresAuth: checkRequiresAuth,
-            checkAdminLevel: checkAdminLevel,
-            checkPermissions: checkPermissions
-        };
-        async.series(tasks, function(err, results){
-            if (err) {
-                cb(err, {success: false, results: results});
-                return;
-            }
-
-            cb(null, {success: true, results: results});
-        });
-    };
-
     RequestHandler.prototype.checkSystemSetup = function(context, cb) {
         var result = {success: true};
         if (context.themeRoute.setup_required !== undefined && !context.themeRoute.setup_required) {
@@ -1452,15 +662,6 @@ const ValidationService = require('../validation/validation_service');
     };
 
     /**
-     *
-     * @method onErrorOccurred
-     * @param {Error} err
-     */
-    RequestHandler.prototype.onErrorOccurred = function(err){
-        throw err;
-    };
-
-    /**
      * Parses cookies passed for a request
      * @static
      * @method parseCookies
@@ -1483,45 +684,6 @@ const ValidationService = require('../validation/validation_service');
     };
 
     /**
-     * Checks to see if the URL exists in the current context of the system
-     * @static
-     * @method urlExists
-     * @param {String} url
-     * @param {string} id
-     * @param {string} [site]
-     * @param {function} cb (Error, boolean)
-     */
-    RequestHandler.urlExists = function(url, id, site, cb) {
-        var dao = new DAO();
-        if(typeof site === 'function') {
-            cb = site;
-            site = undefined;
-        }
-        var getTask = function(collection) {
-            return function (callback) {
-                var where = {url: url};
-                if(site) {
-                    where.site = site;
-                }
-                if (id) {
-                    where[DAO.getIdField()] = DAO.getNotIdField(id);
-                }
-                dao.count(collection, where, function(err, count) {
-                    if(_.isError(err) || count > 0) {
-                        callback(true, count);
-                    }
-                    else {
-                        callback(null, count);
-                    }
-                });
-            };
-        };
-        async.series([getTask('article'), getTask('page')], function(err/*, results*/){
-            cb(err, err !== null);
-        });
-    };
-
-    /**
      * Determines if the provided URL pathname "/admin/content/articles" is a valid admin URL.
      * @static
      * @method isAdminURL
@@ -1540,56 +702,6 @@ const ValidationService = require('../validation/validation_service');
             return pieces.length > 0 && pieces[0].indexOf('admin') === 0;
         }
         return false;
-    };
-
-    /**
-     *
-     * @static
-     * @method isSystemSafeURL
-     * @param {String} url
-     * @param {String} id
-     * @param {string} [site]
-     * @param {Function} cb
-     */
-    RequestHandler.isSystemSafeURL = function(url, id, site, cb) {
-        if(typeof site === 'function') {
-            cb = site;
-            site = undefined;
-        }
-        if (url === null || RequestHandler.isAdminURL(url)) {
-            return cb(null, false);
-        }
-        RequestHandler.urlExists(url, id, site, function(err, exists){
-            cb(err, !exists);
-        });
-    };
-
-    /**
-     * Registers a body parser prototype for the specified mime
-     * @static
-     * @method registerBodyParser
-     * @param {String} mime A non empty string representing the mime type that the prototype can parse
-     * @param {Function} prototype A prototype that can have an instance created and parse the specified mime type
-     * @return {Boolean} TRUE if the body parser was registered, FALSE if not
-     */
-    RequestHandler.registerBodyParser = function(mime, prototype) {
-        if (!ValidationService.isNonEmptyStr(mime, true) || !_.isFunction(prototype)) {
-            return false;
-        }
-
-        //set the prototype handler
-        BODY_PARSER_MAP[mime] = prototype;
-        return true;
-    };
-
-    /**
-     * Retrieves the body parser mapping
-     * @static
-     * @method getBodyParsers
-     * @return {Object} MIME string as the key and parser as the value
-     */
-    RequestHandler.getBodyParsers = function() {
-        return Object.assign({}, BODY_PARSER_MAP);
     };
 
     /**

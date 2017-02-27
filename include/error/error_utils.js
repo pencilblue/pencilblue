@@ -86,6 +86,15 @@ class ErrorUtils {
     }
 
     /**
+     * 415 An unsupported media type was provided to the server as a request body
+     * @param message
+     * @returns {Error}
+     */
+    static unsupportedMediaType (message) {
+        return ErrorUtils.custom(message, HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    /**
      * Creates a custom error with a specific message and status code
      * @static
      * @method custom

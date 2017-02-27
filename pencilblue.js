@@ -30,6 +30,7 @@ const Lib = require('./lib');
 const LogFactory = require('./include/utils/logging');
 const npm = require('npm');
 const Q = require('q');
+const RouteService = require('./lib/service/routeService');
 const ServerInitializer = require('./include/http/server_initializer.js');
 const System = require('./include/system/system');
 const TaskUtils = require('./lib/utils/taskUtils');
@@ -134,7 +135,15 @@ class PencilBlue {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     initRequestHandler (cb) {
-        this.pb.RequestHandler.init();
+        //this.pb.RequestHandler.init();
+        var self = this;
+        let routes = require(Configuration.active.docRoot + '/plugins/pencilblue/include/routes.js');
+        routes.forEach(function(routeDescriptor) {
+            let result = RouteService.registerRoute(routeDescriptor, Configuration.active.plugins.default);
+            if (!result) {
+                self.log.error('RequestHandler: Failed to register PB route: %s %s', routeDescriptor.method, routeDescriptor.path);
+            }
+        });
         cb(null, true);
     }
 

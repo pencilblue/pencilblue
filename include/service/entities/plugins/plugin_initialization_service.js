@@ -27,9 +27,12 @@ const log = require('../../../utils/logging').newInstance('PluginInitializationS
 const NpmPluginDependencyService = require('./npm_plugin_dependency_service');
 const path = require('path');
 const PluginControllerLoader = require('./loaders/plugin_controller_loader');
+const PluginDetailsLoader = require('./loaders/pluginDetailsLoader');
 const PluginLocalizationLoader = require('./loaders/plugin_localization_loader');
+const PluginMainModuleLoader = require('./loaders/pluginMainModuleLoader');
 const PluginService = require('../plugin_service');
 const PluginServiceLoader = require('./loaders/plugin_service_loader');
+const PluginUtils = require('../../../../lib/utils/pluginUtils');
 const PluginValidationService = require('./plugin_validation_service');
 const semver = require('semver');
 const SiteUtils = require('../../../../lib/utils/siteUtils');
@@ -154,7 +157,8 @@ const util = require('util');
                 }
 
                 //it isn't cached so go load it
-                PluginService.loadDetailsFile(PluginService.getDetailsPath(context.plugin.uid), callback);
+                let pluginDetailsLoader = new PluginDetailsLoader({pluginUid: context.plugin.uid});
+                pluginDetailsLoader.getSingle(callback);
             }];
         }
 
@@ -372,17 +376,17 @@ const util = require('util');
                     });
                 }
 
-                var mainModule = PluginService.loadMainModule(context.plugin.uid, results.details.main_module.path);
+                var mainModule = PluginMainModuleLoader.get(context.plugin.uid, results.details.main_module.path);
                 if (!mainModule) {
                     return callback(new Error('Failed to load main module for plugin '+context.plugin.uid+' at '+results.details.main_module.path));
                 }
 
                 context.pluginSpec = {
                     main_module: mainModule,
-                    public_dir: PluginService.getPublicPath(results.details.uid),
+                    public_dir: PluginUtils.getPublicPath(results.details.uid),
                     permissions: map,
                     templates: templates,
-                    icon: results.details.icon ? PluginService.genPublicPath(context.plugin.uid, results.details.icon) : undefined
+                    icon: results.details.icon ? PluginUtils.genPublicPath(context.plugin.uid, results.details.icon) : undefined
                 };
                 callback();
             }];

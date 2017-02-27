@@ -24,7 +24,7 @@ const bower = require('bower');
 const Configuration = require('../../../config');
 const path = require('path');
 const PluginDependencyService = require('./plugin_dependency_service');
-const PluginService = require('../plugin_service');
+const PluginUtils = require('../../../../lib/utils/pluginUtils');
 const semver = require('semver');
 
 /**
@@ -154,7 +154,7 @@ class BowerPluginDependencyService extends PluginDependencyService {
      */
     configure(options, cb) {
         var bowerRc = {
-            directory: path.join(PluginService.getPluginsDir(), options.pluginUid, 'public', 'bower_components'),
+            directory: path.join(PluginUtils.PLUGINS_DIR, options.pluginUid, 'public', 'bower_components'),
             ignoredDependencies: []
         };
         bower.commands.list().on('end', function (list) {
@@ -187,7 +187,7 @@ class BowerPluginDependencyService extends PluginDependencyService {
      * @return {string} An absolute path
      */
     static getPluginPathToBowerJson(pluginUid, bowerPackageName) {
-        return path.join(PluginService.getPluginsDir(), pluginUid, 'public', 'bower_components', bowerPackageName, '.bower.json');
+        return path.join(PluginUtils.PLUGINS_DIR, pluginUid, 'public', 'bower_components', bowerPackageName, '.bower.json');
     }
 
     /**

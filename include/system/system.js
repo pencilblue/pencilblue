@@ -19,11 +19,11 @@
 //dependencies
 const _ = require('lodash');
 const async   = require('async');
-const Configuration = require('../config');
-const domain  = require('domain');
 const cluster = require('cluster');
+const Configuration = require('../config');
+const domain = require('domain');
 const log = require('../utils/logging').newInstance('System');
-const os      = require('os');
+const os = require('os');
 const Q = require('q');
 
 /**

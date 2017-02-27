@@ -23,7 +23,7 @@ const fs = require('fs');
 const npm = require('npm');
 const path = require('path');
 const PluginResourceLoader = require('./plugin_resource_loader');
-const PluginService = require('../../plugin_service');
+const PluginUtils = require('../../../../../lib/utils/pluginUtils');
 const semver = require('semver');
 
 /**
@@ -99,7 +99,7 @@ class PluginServiceLoader extends PluginResourceLoader {
      * @return {string}
      */
     static getPathToServices(pluginUid) {
-        return path.join(PluginService.getPluginsDir(), pluginUid, PluginServiceLoader.SERVICES_DIR);
+        return path.join(PluginUtils.PLUGINS_DIR, pluginUid, PluginServiceLoader.SERVICES_DIR);
     }
 
     /**

@@ -24,7 +24,7 @@ const BaseObjectService = require('../../base_object_service');
 const Configuration = require('../../../config');
 const fs = require('fs');
 const path = require('path');
-const PluginService = require('../plugin_service');
+const PluginUtils = require('../../../../lib/utils/pluginUtils');
 const SecurityService = require('../../../access_management');
 const semver = require('semver');
 const TaskUtils = require('../../../../lib/utils/taskUtils');
@@ -475,7 +475,7 @@ class PluginValidationService {
      * @return {Boolean} TRUE if the path is valid, FALSE if not
      */
     static validateMainModulePath(mmPath, pluginDirName) {
-        var pluginMM = path.join(PluginService.getPluginsDir(), pluginDirName, mmPath);
+        var pluginMM = path.join(PluginUtils.PLUGINS_DIR, pluginDirName, mmPath);
         var paths = [pluginMM, mmPath];
 
         for (var i = 0; i < paths.length; i++) {
@@ -514,7 +514,7 @@ class PluginValidationService {
      * @return {Boolean} TRUE if the path is valid, FALSE if not
      */
     static validateIconPath(iconPath, pluginDirName) {
-        var pluginPublicIcon = path.join(PluginService.getPublicPath(pluginDirName), iconPath);
+        var pluginPublicIcon = path.join(PluginUtils.getPublicPath(pluginDirName), iconPath);
         var paths = [pluginPublicIcon, iconPath];
 
         for (var i = 0; i < paths.length; i++) {

@@ -24,8 +24,8 @@ const log = require('../../../../utils/logging').newInstance('PluginControllerLo
 const npm = require('npm');
 const path = require('path');
 const PluginResourceLoader = require('./plugin_resource_loader');
-const PluginService = require('../../plugin_service');
-const RequestHandler = require('../../../../http/request_handler');
+const PluginUtils = require('../../../../../lib/utils/pluginUtils');
+const RouteService = require('../../../../../lib/service/routeService');
 const semver = require('semver');
 const util = require('util');
 
@@ -104,12 +104,13 @@ class PluginControllerLoader extends PluginResourceLoader {
             }
 
             //attempt to register route
+            //TODO [1.0] move route registration out.  Not the responsibility of the loader
             for (var i = 0; i < routes.length; i++) {
                 var route = routes[i];
                 route.controller = context.path;
 
                 //register and verify
-                if (!RequestHandler.registerRoute(route, self.pluginUid, self.site)) {
+                if (!RouteService.registerRoute(route, self.pluginUid, self.site)) {
                     log.warn('PluginControllerLoaderService: Failed to register route [%s] for controller at [%s]', util.inspect(route), context.path);
                 }
             }
@@ -156,7 +157,7 @@ class PluginControllerLoader extends PluginResourceLoader {
      * @return {string}
      */
     static getPathToControllers(pluginUid) {
-        return path.join(PluginService.getPluginsDir(), pluginUid, PluginControllerLoader.CONTROLLERS_DIR);
+        return path.join(PluginUtils.PLUGINS_DIR, pluginUid, PluginControllerLoader.CONTROLLERS_DIR);
     }
 }
 

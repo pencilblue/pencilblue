@@ -24,7 +24,7 @@ const log = require('../../../utils/logging').newInstance('NpmPluginDependencySe
 const npm = require('npm');
 const path = require('path');
 const PluginDependencyService = require('./plugin_dependency_service');
-const PluginService = require('../plugin_service');
+const PluginUtils = require('../../../../lib/utils/pluginUtils');
 const semver = require('semver');
 
 /**
@@ -153,7 +153,7 @@ class NpmPluginDependencyService extends PluginDependencyService {
     configure(options, cb) {
 
         //ensure the node_modules directory exists
-        var prefixPath = path.join(PluginService.getPluginsDir(), options.pluginUid);
+        var prefixPath = path.join(PluginUtils.PLUGINS_DIR, options.pluginUid);
 
         //log and load
         var config = {
@@ -193,7 +193,7 @@ class NpmPluginDependencyService extends PluginDependencyService {
      * @return {string} An absolute path
      */
     static getPluginPathToPackageJson(pluginUid, npmPackageName) {
-        return path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', npmPackageName, 'package.json');
+        return path.join(PluginUtils.PLUGINS_DIR, pluginUid, 'node_modules', npmPackageName, 'package.json');
     }
 
     /**
@@ -220,7 +220,7 @@ class NpmPluginDependencyService extends PluginDependencyService {
     static require(pluginUid, moduleName) {
         var modulePath = null;
         try {
-            modulePath = path.join(PluginService.getPluginsDir(), pluginUid, 'node_modules', moduleName);
+            modulePath = path.join(PluginUtils.PLUGINS_DIR, pluginUid, 'node_modules', moduleName);
             return require(modulePath);
         }
         catch (e) {

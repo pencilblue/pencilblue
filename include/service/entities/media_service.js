@@ -233,7 +233,7 @@ module.exports = function MediaServiceModule(pb) {
                 self.provider.getStream(media.location, function(err, stream) {
                     callback(err, stream ? {
                         stream: stream,
-                        mime: pb.RequestHandler.getMimeFromPath(this.req.url)
+                        mime: null
                     } : null);
                 });
             }
@@ -451,8 +451,8 @@ module.exports = function MediaServiceModule(pb) {
     MediaService.prototype.renderByLocation = function(options, cb) {
         var result = options.type ? pb.MediaServiceV2.getRendererByType(options.type) : pb.MediaServiceV2.getRenderer(options.location, options.isFile);
         if (!result) {
-            var failures = [ BaseObjectService.validationFailure('type', 'An invalid type was provided') ];
-            var err = BaseObjectService.validationError(failures);
+            var failures = [ pb.BaseObjectService.validationFailure('type', 'An invalid type was provided') ];
+            var err = pb.BaseObjectService.validationError(failures);
             return cb(err, null);
         }
 

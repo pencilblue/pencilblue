@@ -44,9 +44,9 @@ const PluginRepository = require('../../repository/plugin_repository');
 const PluginServiceLoader = require('./plugins/loaders/plugin_service_loader');
 const PluginSettingService = require('./plugin_setting_service');
 const PluginUninstallJob = require('../jobs/plugins/plugin_uninstall_job');
+const PluginUtils = require('../../../lib/utils/pluginUtils');
 const PluginValidationService = require('./plugins/plugin_validation_service');
-const RequestHandler = require('../../http/request_handler');
-const semver  = require('semver');
+const semver = require('semver');
 const SettingServiceFactory = require('../../system/settings');
 const SimpleLayeredService = require('../simple_layered_service');
 const SiteQueryService = require('./site_query_service');
@@ -854,7 +854,7 @@ class PluginService {
             });
         }
 
-        FileUtils.getDirectories(PluginService.getPluginsDir()).catch(cb).then(function (directories) {
+        FileUtils.getDirectories(PluginUtils.PLUGINS_DIR).catch(cb).then(function (directories) {
 
             var plugins = [];
             var tasks = directories.map(function (directory, i, directories) {
@@ -1213,28 +1213,6 @@ class PluginService {
     }
 
     /**
-     * Retrieves the absolute file path to a plugin's public directory
-     *
-     * @static
-     * @method getPublicPath
-     * @param pluginDirName The name of the directory that contains the intended
-     * plugin
-     * @return {string} the absolute file path to a plugin's public directory
-     */
-    static getPublicPath(pluginDirName) {
-        return path.join(PluginService.PLUGINS_DIR, pluginDirName, PluginService.PUBLIC_DIR_NAME);
-    }
-
-    /**
-     * @static
-     * @method getPluginsDir
-     * @return {string} The absolute file path to the plugins directory
-     */
-    static getPluginsDir() {
-        return PluginService.PLUGINS_DIR;
-    }
-
-    /**
      * Constructs the path to a specific plugin's details.json file
      * @static
      * @method getDetailsPath
@@ -1382,20 +1360,6 @@ class PluginService {
     }
 
     /**
-     * Validates a details.json file's setting value.  The value is required to be a
-     * string or a number.  Null, undefined, Arrays, Objects, and prototypes are NOT
-     * allowed.
-     * @deprecated
-     * @static
-     * @method validateSettingValue
-     * @param {Boolean|Integer|Number|String} value The value to validate
-     * @return {Boolean} TRUE if the value is valid, FALSE if not
-     */
-    static validateSettingValue(value) {
-        return PluginValidationService.validateSettingValue(value);
-    }
-
-    /**
      * Retrieves all services (initialized).  The services are provided in the
      * callback.
      * @deprecated
@@ -1433,111 +1397,6 @@ class PluginService {
             }
             cb(err, serviceWrapper);
         });
-    }
-
-    /**
-     * Loads the controllers for a plugin by iterating through the files in the
-     * plugin's controllers directory.
-     * @deprecated
-     * @static
-     * @method loadControllers
-     * @param {String} pathToPlugin The absolute file path to the plugin =
-     * @param {String} pluginUid The unique identifier for the plugin
-     * @param {string} site
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
-     */
-    static loadControllers(pathToPlugin, pluginUid, site, cb) {
-        var knownControllerPaths = PLUGIN_INIT_CACHE[pluginUid].controllerPaths;
-        if (knownControllerPaths && knownControllerPaths.length > 0) {
-            var tasks = knownControllerPaths.map(function (knownControllerPath, index, knownControllerPaths) {
-                return function (callback) {
-                    PluginService.loadController(knownControllerPaths[index], pluginUid, site, callback);
-                };
-            });
-
-            return async.parallel(tasks, cb);
-        }
-        var controllersDir = path.join(pathToPlugin, 'controllers');
-
-        var options = {
-            recursive: true,
-            filter: function (fullPath/*, stat*/) {
-                return fullPath.lastIndexOf('.js') === (fullPath.length - '.js'.length);
-            }
-        };
-        FileUtils.getFiles(controllersDir, options).catch(function(err) {
-            log.debug('PluginService[INIT]: The controllers directory [%s] does not exist or could not be read.', controllersDir);
-            log.silly('PluginService[INIT]: %s', err.stack);
-            cb(null, []);
-        }).then(function (files) {
-
-            PLUGIN_INIT_CACHE[pluginUid].controllerPaths = PLUGIN_INIT_CACHE[pluginUid].controllerPaths || [];
-            var tasks = files.map(function (file, index, files) {
-                return function (callback) {
-
-                    var pathToController = files[index];
-                    PLUGIN_INIT_CACHE[pluginUid].controllerPaths.push(pathToController);
-                    PluginService.loadController(pathToController, pluginUid, site, function (err/*, service*/) {
-                        if (_.isError(err)) {
-                            log.warn('PluginService: Failed to load controller at [%s]: %s', pathToController, err.stack);
-                        }
-                        callback(null, _.isError(err));
-                    });
-                };
-            });
-            async.parallel(tasks, cb);
-        });
-    }
-
-    /**
-     * Loads a controller for a plugin and attempts to register the route with the
-     * RequestHandler.
-     * @static
-     * @method loadController
-     * @param {String} pathToController The absolute file path to the controller
-     * @param {String} pluginUid The unique identifier for the plugin
-     * @param {string} site
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    static loadController(pathToController, pluginUid, site, cb) {
-        try {
-
-            //load the controller type
-            var ControllerPrototype = require(pathToController);
-
-            //ensure we can get the routes
-            if (!_.isFunction(ControllerPrototype.getRoutes)) {
-                return cb(new Error('Controller at [' + pathToController + '] does not implement function "getRoutes"'));
-            }
-
-            //get the routes
-            ControllerPrototype.getRoutes(function (err, routes) {
-                if (_.isError(err)) {
-                    return cb(err, null);
-                }
-                else if (!Array.isArray(routes)) {
-                    return cb(new Error('Controller at [' + pathToController + '] did not return an array of routes'), null);
-                }
-
-                //attempt to register route
-                for (var i = 0; i < routes.length; i++) {
-                    var route = routes[i];
-                    route.controller = pathToController;
-                    var result = RequestHandler.registerRoute(route, pluginUid, site);
-
-                    //verify registration
-                    if (!result) {
-                        log.warn('PluginService: Failed to register route [%s] for controller at [%s]', util.inspect(route), pathToController);
-                    }
-                }
-
-                //do callback
-                cb(null, true);
-            });
-        }
-        catch (err) {
-            cb(err, null);
-        }
     }
 
     /**
@@ -1721,7 +1580,7 @@ class PluginService {
 
 function getPluginSettingService(self) {
     if(!self.pluginSettingService) {
-        self.pluginSettingService = new PluginSettingService(self.site);
+        self.pluginSettingService = new PluginSettingService({ pluginService: self });
     }
     return self.pluginSettingService;
 }
