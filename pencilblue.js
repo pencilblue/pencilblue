@@ -84,6 +84,7 @@ class PencilBlue {
             TaskUtils.wrapTimedTask(this, this.initSessions, 'initSessions'),
             TaskUtils.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
             TaskUtils.wrapTimedTask(this, this.initSites, 'initSites'),
+            TaskUtils.wrapTimedTask(this, this.initMiddleware, 'initMiddleware'),
             TaskUtils.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
             TaskUtils.wrapTimedTask(this, this.registerMetrics, 'registerMetrics'),
             TaskUtils.wrapTimedTask(this, this.initServer, 'initServer')
@@ -155,6 +156,20 @@ class PencilBlue {
     initSessions (cb) {
         var handler = new this.pb.SessionHandler();
         handler.start(cb);
+    }
+
+    /**
+     * Registers all default middleware
+     * @method initMiddleware
+     * @param {function} cb (Error, boolean)
+     */
+    initMiddleware (cb) {
+        //register default middleware
+        var self = this;
+        this.pb.Middleware.getAll().forEach(function(middleware) {
+            self.pb.Router.addMiddlewareAfterAll(middleware);
+        });
+        cb(null, true);
     }
 
     /**
@@ -245,11 +260,6 @@ class PencilBlue {
      */
     initServer (cb){
         var self = this;
-
-        //register default middleware
-        this.pb.Middleware.getAll().forEach(function(middleware) {
-            self.pb.Router.addMiddlewareAfterAll(middleware);
-        });
 
         //build server setup
         var context = {

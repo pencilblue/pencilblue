@@ -78,19 +78,24 @@ describe('ErrorFormatters', function() {
             var error = new Error('hello world');
             error.code = 510;
 
+            var themeRoute = Object.freeze({
+                handler: 'testHandler'
+            });
             var params = {
                 error: error,
                 activeTheme: 'pencilblue',
                 request: {
                     router: {
                         continueAfter: function() {}
-                    }
+                    },
+                    themeRoute: themeRoute
                 }
             };
             sinon.spy(params.request.router, 'continueAfter');
             ErrorFormatters.html(params, function(err, result){});
             (typeof params.request.controllerInstance).should.eql('object');
             params.request.router.continueAfter.calledOnce.should.eql(true);
+            params.request.themeRoute.should.not.eql(themeRoute);
         });
     });
 

@@ -535,7 +535,7 @@ class PluginService {
      */
     syncSettings(plugin, details, cb) {
         var self = this;
-        this.getSettingsKV(plugin.uid, function (err, settings) {
+        this.getSettings(plugin.uid, function(err, settings) {
             var isError = _.isError(err);
             if (isError || !settings) {
                 if (isError) {
@@ -543,6 +543,12 @@ class PluginService {
                 }
                 return cb(err, !isError);
             }
+            
+            //create lookup
+            settings = settings.reduce(function(rv, setting) {
+                rv[setting.name] = setting;
+                return rv;
+            }, {});
 
             var discrepancy = false;
             var formattedSettings = [];
@@ -554,10 +560,18 @@ class PluginService {
                 if (typeof val === 'undefined') {
                     discrepancy = true;
                     val = setting.value;
-                    formattedSettings.push({name: settingName, value: val});
+                    formattedSettings.push({name: settingName, value: val, displayName: setting.displayName, group: setting.group});
                 }
                 else {
-                    formattedSettings.push({name: settingName, value: val});
+                    if(setting.group !== val.group){
+                        val.group = setting.group;
+                        discrepancy = true;
+                    }
+                    else if(settings.displayName !== val.displayName){
+                        val.displayName = setting.displayName;
+                        discrepancy = true;
+                    }
+		            formattedSettings.push(val);
                 }
             });
 
@@ -1062,8 +1076,8 @@ class PluginService {
             return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
         }
 
-        var service = new PluginInitializationService({
-            pluginService: this,
+        var service = new pb.PluginInitializationService({
+            pluginService: this.site === plugin.site ? this : new PluginService({ site: plugin.site }),
             pluginCache: PLUGIN_INIT_CACHE
         });
         service.initialize(plugin, {}, function (err, result) {

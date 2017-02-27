@@ -46,7 +46,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
          * @type {SiteQueryService}
          */
         this.siteQueryService = new pb.SiteQueryService({site: this.site, onlyThisSite: true});
-        
+
         /**
          * @property service
          * @type {UserService}
@@ -394,7 +394,7 @@ module.exports = function WPXMLParseServiceModule(pb) {
                             url: pageName,
                             headline: title,
                             publish_date: new Date(rawPage['wp:post_date'][0]),
-                            page_layout: BaseObjectService.sanitize(updatedContent, BaseObjectService.getContentSanitizationRules()),
+                            page_layout: BaseObjectService.sanitize(updatedContent, BaseObjectService.getContentSanitizationRules()) || ' ',
                             page_topics: pageTopics,
                             page_media: pageMedia,
                             seo_title: title,
@@ -403,7 +403,14 @@ module.exports = function WPXMLParseServiceModule(pb) {
                             draft: 0
                         };
                         var pageService = new pb.PageService({site: self.site, onlyThisSite: true});
-                        pageService.save(pageDoc, cb);
+                        pageService.save(pageDoc, function(err, result) {
+                            if (!!err && Array.isArray(err.validationErrors)) {
+                                err.validationErrors.forEach(function(v) {
+                                    v.item = title;
+                                });
+                            }
+                            callback(err, result);
+                        });
                     });
                 });
             };

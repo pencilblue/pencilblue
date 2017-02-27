@@ -143,9 +143,10 @@ ErrorFormatters.html = function(params, cb) {
             failedControllerPaths[paths[i]] = true;
         }
     }
+
     params.request.controllerInstance = new ErrorController();
     params.request.controllerInstance.error = params.error;
-    params.request.themeRoute = params.request.themeRoute || {};
+    params.request.themeRoute = !!params.request.themeRoute ? _.clone(params.request.themeRoute) : {};
     params.request.routeTheme = params.request.routeTheme || {};
     params.request.siteObj = params.request.siteObj || SiteUtils.getGlobalSiteContext();
     params.request.themeRoute.handler = 'render';
