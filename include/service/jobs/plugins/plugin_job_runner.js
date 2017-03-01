@@ -24,56 +24,41 @@ var util = require('util');
 
 /**
  * The framework for a cluster wide job that affects 1 or more plugins.
- * @class PluginJobRunner
- * @constructor
- * @extends ClusterJobRunner
  */
 class PluginJobRunner extends ClusterJobRunner {
-    constructor() {
-        super();
+    constructor(context) {
+        super(context);
 
         /**
-         *
-         * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new PluginService();
+        this.pluginService = context.pluginService;
 
         /**
          * The unique identifier of the plugin to be uninstalled
-         * @property pluginUid
          * @type {String}
          */
-        this.pluginUid = '';
-    }
+        this.pluginUid = context.pluginUid;
 
-    /**
-     * Sets the unique plugin identifier for the plugin to be uninstalled
-     * @method setPluginUid
-     * @param {String} pluginUid The plugin identifier
-     * @return {PluginUninstallJob} This instance
-     */
-    setPluginUid(pluginUid) {
-        this.pluginUid = pluginUid;
-        return this;
+        /**
+         * The site UID
+         * @type {String}
+         */
+        this.site = this.pluginService.site;
     }
 
     /**
      * Retrieves the identifier of the plugin to be uninstalled
-     * @method getPluginUid
      * @return {String} The plugin UID
      */
     getPluginUid() {
         return this.pluginUid;
     }
 
-    setSite(site) {
-        this.site = site;
-        this.pluginService = new PluginService({site: site});
-        return this;
-    }
-
-    getSite() {
+    /**
+     * @returns {String}
+     */
+    getSite () {
         return this.site;
     }
 

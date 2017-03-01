@@ -29,8 +29,8 @@ var PluginDetailsLoader = require('../../entities/plugins/loaders/pluginDetailsL
  * @extends PluginJobRunner
  */
 class PluginDependenciesJob extends PluginJobRunner {
-    constructor() {
-        super();
+    constructor(context) {
+        super(context);
 
         //initialize
         this.setParallelLimit(1);

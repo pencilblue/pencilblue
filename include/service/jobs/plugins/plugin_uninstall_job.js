@@ -46,8 +46,8 @@ const SiteUtils = require('../../../../lib/utils/siteUtils');
  * @extends PluginJobRunner
  */
 class PluginUninstallJob extends PluginJobRunner {
-    constructor() {
-        PluginUninstallJob.super_.call(this);
+    constructor(context) {
+        super(context);
 
         //initialize
         this.setParallelLimit(1);

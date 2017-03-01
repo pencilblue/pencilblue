@@ -99,7 +99,6 @@ class PluginService {
 
         /**
          * A setting service that sets and retrieves the settings for plugins
-         * @property pluginSettingsService
          * @type {SimpleLayeredService}
          */
         this.themeSettingsService = PluginService.genSettingsService('theme_settings', caching.use_memory, caching.use_cache, 'ThemeSettingService', this.site);
@@ -108,7 +107,6 @@ class PluginService {
     // Constants
     /**
      * The absolute path to the plugins directory for this PecilBlue installation
-     * @property PLUGINS_DIR
      * @type {String}
      */
     static get PLUGINS_DIR() {
@@ -544,7 +542,7 @@ class PluginService {
                 }
                 return cb(err, !isError);
             }
-            
+
             //create lookup
             settings = settings.reduce(function(rv, setting) {
                 rv[setting.name] = setting;
@@ -984,11 +982,15 @@ class PluginService {
 
         var name = util.format('UNINSTALL_PLUGIN_%s', pluginUid);
         var jobId = options.jobId;
-        var site = this.site;
-        var job = new PluginUninstallJob();
+        var ctx = {
+            pluginService: new PluginService({site: this.site}),
+            pluginUid: pluginUid,
+            initiator: options.forCluster !== false,
+            name: name,
+            id: options.jobId
+        };
+        var job = new PluginUninstallJob(ctx);
         job.init(name, jobId);
-        job.setPluginUid(pluginUid);
-        job.setSite(site);
         job.setRunAsInitiator(options.forCluster !== false);
         job.run(cb);
         return job.getId();
@@ -1019,11 +1021,15 @@ class PluginService {
 
         cb = cb || function(){};
         var name = util.format('INSTALL_PLUGIN_%s', pluginDirName);
-        var job = new PluginInstallJob();
+
+        var ctx = {
+            name: name,
+            pluginUid: pluginDirName,
+            pluginService: new PluginService({site: this.site})
+        };
+        var job = new PluginInstallJob(ctx);
         job.init(name);
         job.setRunAsInitiator(true);
-        job.setSite(this.site);
-        job.setPluginUid(pluginDirName);
         job.run(cb);
         return job.getId();
     }
@@ -1480,10 +1486,16 @@ class PluginService {
         }
 
         var name = util.format("IS_AVAILABLE_%s", command.pluginUid);
-        var job = new PluginAvailableJob();
+        var ctx = {
+            id: command.jobId,
+            name: name,
+            pluginUid: command.pluginUid,
+            pluginService: new PluginService({site: SiteUtils.GLOBAL_SITE}),
+            initiator: false
+        };
+        var job = new PluginAvailableJob(ctx);
         job.setRunAsInitiator(false)
             .init(name, command.jobId)
-            .setPluginUid(command.pluginUid)
             .run(function (err, result) {
 
                 var response = {
@@ -1512,10 +1524,16 @@ class PluginService {
         }
 
         var name = util.format("INSTALL_DEPENDENCIES_%s", command.pluginUid);
-        var job = new PluginDependenciesJob();
+        var ctx = {
+            id: command.jobId,
+            name: name,
+            pluginUid: pluginUid,
+            pluginService: new PluginService({site: SiteUtils.GLOBAL_SITE}),
+            initiator: false
+        };
+        var job = new PluginDependenciesJob(ctx);
         job.setRunAsInitiator(false)
             .init(name, command.jobId)
-            .setPluginUid(command.pluginUid)
             .run(function (err, result) {
 
                 var response = {
@@ -1544,11 +1562,16 @@ class PluginService {
         }
 
         var name = util.format("INITIALIZE_PLUGIN_%s", command.pluginUid);
-        var job = new PluginInitializeJob();
+        var ctx = {
+            id: command.id,
+            name: name,
+            pluginUid: command.pluginUid,
+            pluginService: new PluginService({site: command.site}),
+            initiator: false
+        };
+        var job = new PluginInitializeJob(ctx);
         job.setRunAsInitiator(false)
             .init(name, command.jobId)
-            .setPluginUid(command.pluginUid)
-            .setSite(command.site)
             .run(function (err, result) {
 
                 var response = {

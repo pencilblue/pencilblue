@@ -28,8 +28,8 @@ const PluginDetailsLoader = require('../../entities/plugins/loaders/pluginDetail
  * @extends PluginJobRunner
  */
 class PluginAvailableJob extends PluginJobRunner {
-    constructor() {
-        super();
+    constructor(context) {
+        super(context);
 
         //initialize
         this.setParallelLimit(1);

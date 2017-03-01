@@ -29,8 +29,8 @@ var PluginService = require('../../entities/plugin_service');
  * @extends PluginJobRunner
  */
 class PluginInitializeJob extends PluginJobRunner {
-    constructor() {
-        super();
+    constructor(context) {
+        super(context);
 
         //initialize
         this.setParallelLimit(1);

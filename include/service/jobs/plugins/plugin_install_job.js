@@ -45,14 +45,8 @@ const util  = require('util');
  * @extends PluginJobRunner
  */
 class PluginInstallJob extends PluginJobRunner {
-    constructor(options) {
-        options = options || {};
-
-        this.site = options.site || SiteUtils.GLOBAL_SITE;
-
-        super();
-
-        this.pluginService = new PluginService(this.site);
+    constructor(context) {
+        super(context);
 
         //initialize
         this.init();
@@ -93,11 +87,16 @@ class PluginInstallJob extends PluginJobRunner {
             function (callback) {
 
                 var name = util.format("IS_AVAILABLE_%s", pluginUid);
-                var job = new PluginAvailableJob();
+                var ctx = {
+                    id: jobId,
+                    name: name,
+                    pluginUid: pluginUid,
+                    pluginService: self.pluginService,
+                    initiator: true
+                };
+                var job = new PluginAvailableJob(ctx);
                 job.setRunAsInitiator(true)
                     .init(name, jobId)
-                    .setPluginUid(pluginUid)
-                    .setSite(site)
                     .setChunkOfWorkPercentage(1 / 2)
                     .run(callback);
             },
@@ -117,11 +116,16 @@ class PluginInstallJob extends PluginJobRunner {
             function (callback) {
 
                 var name = util.format("INITIALIZE_PLUGIN_%s", pluginUid);
-                var job = new PluginInitializeJob();
+                var ctx = {
+                    id: jobId,
+                    name: name,
+                    pluginUid: pluginUid,
+                    pluginService: self.pluginService,
+                    initiator: true
+                };
+                var job = new PluginInitializeJob(ctx);
                 job.setRunAsInitiator(true)
                     .init(name, jobId)
-                    .setPluginUid(pluginUid)
-                    .setSite(site)
                     .setChunkOfWorkPercentage(1 / 2)
                     .run(callback);
             }
