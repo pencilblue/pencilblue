@@ -1025,7 +1025,8 @@ class PluginService {
         var ctx = {
             name: name,
             pluginUid: pluginDirName,
-            pluginService: new PluginService({site: this.site})
+            pluginService: new PluginService({site: this.site}),
+            initiator: true
         };
         var job = new PluginInstallJob(ctx);
         job.init(name);

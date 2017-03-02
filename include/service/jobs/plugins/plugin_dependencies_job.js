@@ -91,7 +91,7 @@ class PluginDependenciesJob extends PluginJobRunner {
                 if (didLoad) {
                     pluginDetails = details;
                 }
-                callback(err, didLoad);
+                callback(null, didLoad);
             },
 
             //load dependencies
