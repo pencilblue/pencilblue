@@ -18,15 +18,18 @@
 
 //dependencies
 const _ = require('lodash');
+const CommandService = require('../../../system/command/command_service');
 const Configuration = require('../../../config');
 const DAO = require('../../../dao/dao');
 const domain  = require('domain');
 const Localization = require('../../../localization');
+const log = require('../../../utils/logging').newInstance('PluginUninstallJob')
 const PluginJobRunner = require('./plugin_job_runner');
 const PluginService = require('../../entities/plugin_service');
 const RequestHandler = require('../../../http/request_handler');
 const SettingServiceFactory = require('../../../system/settings');
 const SiteUtils = require('../../../../lib/utils/siteUtils');
+const util = require('util');
 
 /**
  * A system job that coordinates the uninstall of a plugin across the cluster.
@@ -265,6 +268,63 @@ class PluginUninstallJob extends PluginJobRunner {
      */
     processWorkerResults(err, results, cb) {
         cb(err, results);
+    }
+
+    /**
+     *
+     * @param pluginUid
+     * @returns {string}
+     */
+    static createName (pluginUid) {
+        return 'UNINSTALL_PLUGIN_' + pluginUid;
+    }
+
+    /**
+     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+     * The function is called when a command is recevied to uninstall a plugin.
+     * The function builds out the appropriate options then calls the
+     * uninstallPlugin function.  The result is then sent back to the calling
+     * process via the CommandService.
+     * @static
+     * @method onUninstallPluginCommandReceived
+     * @param {Object} command
+     * @param {String} command.jobId The ID of the in-progress job that this
+     * process is intended to join.
+     */
+    static onUninstallPluginCommandReceived(command) {
+        if (!_.isObject(command)) {
+            log.error('PluginService: an invalid uninstall plugin command object was passed. %s', util.inspect(command));
+            return;
+        }
+
+        var ctx = {
+            id: command.jobId,
+            name: PluginUninstallJob.createName(uid),
+            pluginUid: command.pluginUid,
+            pluginService: new PluginService({site: command.site}),
+            initiator: false
+        };
+        var job = new PluginUninstallJob(ctx);
+        job.init(name, command.jobId);
+        job.setRunAsInitiator(false);
+        job.run(function (err, result) {
+
+            var response = {
+                error: err ? err.stack : undefined,
+                result: result
+            };
+            CommandService.getInstance().sendInResponseTo(command, response);
+        });
+    }
+
+    /**
+     *
+     */
+    static registerCommandCallbacks () {
+
+        //register for commands
+        var commandService = CommandService.getInstance();
+        commandService.registerForType(PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginUninstallJob.onUninstallPluginCommandReceived);
     }
 }
 

@@ -27,6 +27,7 @@ module.exports = function(pb) {
     var BaseController = pb.BaseController;
     var PluginService  = pb.PluginService;
     var RequestHandler = pb.RequestHandler;
+    const PluginUninstallJob = pb.PluginUninstallJob;
 
     /**
      * Controller to properly route and handle remote calls to interact with
@@ -115,8 +116,19 @@ module.exports = function(pb) {
      */
     PluginApiController.prototype.uninstall = function(uid, cb) {
 
-        var jobId   = this.pluginService.uninstallPlugin(uid);
-        var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', jobId);
+        var name = PluginUninstallJob.createName(uid);
+        var ctx = {
+            name: name,
+            pluginUid: uid,
+            pluginService: new PluginService({site: this.site}),
+            initiator: options.forCluster !== false
+        };
+        var job = new PluginUninstallJob(ctx);
+        job.init(name);
+        job.setRunAsInitiator(options.forCluster !== false);
+        job.run(function(){});
+        
+        var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', job.getId());
         cb({content: content});
     };
 

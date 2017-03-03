@@ -115,7 +115,6 @@ class PluginService {
 
     /**
      * The name of the file that defines the plugin's properties
-     * @property DETAILS_FILE_NAME
      * @type {String}
      */
     static get DETAILS_FILE_NAME() {
@@ -124,7 +123,6 @@ class PluginService {
 
     /**
      * The name of the directory for each plugin that contains the public resources
-     * @property PUBLIC_DIR_NAME
      * @type {String}
      */
     static get PUBLIC_DIR_NAME() {
@@ -151,8 +149,6 @@ class PluginService {
     /**
      * Remove the active plugin entry from the current PB process.
      * NOTE: it is not recommended to call this directly.
-     * @static
-     * @method deactivatePlugin
      * @param {String} pluginUid
      * @param {string} site
      * @return {Boolean}
@@ -175,8 +171,6 @@ class PluginService {
 
     /**
      * Activates a plugin based on the UID and the provided spec
-     * @static
-     * @method activatePlugin
      * @param {string} pluginUid
      * @param {object} pluginSpec
      * @param {function} pluginSpec.main_module
@@ -201,8 +195,6 @@ class PluginService {
 
     /**
      * Retrieves the main module prototype for the specified active plugin
-     * @static
-     * @method getActiveMainModule
      * @param {String} pluginUid
      * @param {string} site
      * @return {Function} The prototype that is the plugin's main module.
@@ -216,7 +208,6 @@ class PluginService {
 
     /**
      * Retrieves the names of the active plugins for this instance
-     * @method getActivePluginNames
      * @return {array} An array that contain the names of the plugins that
      * initialized successfully within this instance.
      */
@@ -234,7 +225,6 @@ class PluginService {
 
     /**
      * Get a array of active plugin names with site name as a prefix: site_name_plugin_name
-     * @method getAllActivePluginNames
      * @return {Array} array of active plugin names with site name prefix.
      */
     getAllActivePluginNames() {
@@ -251,7 +241,6 @@ class PluginService {
 
     /**
      * Retrieves a single setting for the specified plugin.
-     * @method getSetting
      * @param {string} settingName The name of the setting to retrieve
      * @param {string} pluginName The name of the plugin who owns the setting
      * @param {function} cb A callback that provides two parameters: cb(error, settingValue).
@@ -265,7 +254,6 @@ class PluginService {
 
     /**
      * Retrieves all of the settings for the specfied plugin.
-     * @method getSettings
      * @param pluginName The name of the plugin who's settings are being requested
      * @param cb A callback that provides two parameters: cb(error, settings).
      * Null is provided in the event that the plugin is not installed.
@@ -283,7 +271,6 @@ class PluginService {
      * not any additional information about the property.  The function takes the
      * raw settings array and transforms it into an object where the setting name
      * is the property and the setting value is the value.
-     * @method getSettingsKV
      * @param {String} pluginName The unique ID of the plugin who settings are to be retrieved
      * @param {Function} cb A callback that takes two parameters.  A error, if
      * exists, and a hash of of the plugin's settings' names/values.
@@ -951,52 +938,6 @@ class PluginService {
     }
 
     /**
-     * Uninstalls the plugin with the specified UID.
-     * @method uninstallPlugin
-     * @param {String} pluginUid The unique plugin identifier
-     * @param {Object} [options]
-     * @param {String} [options.jobId] Required when uninstalling from the executing
-     * process instead of calling upon the cluster.
-     * @param {Boolean} [options.forCluster=true] When true or not provided the function
-     * instructs the cluster to uninstall the plugin.  When explicitly FALSE the
-     * function installs the plugin from the executing process.
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    uninstallPlugin(pluginUid, options, cb) {
-        if (_.isFunction(options)) {
-            cb = options;
-            options = {};
-        }
-        if (!_.isObject(options)) {
-            options = {};
-        }
-        if (!_.isFunction(cb)) {
-            cb = function(){};
-        }
-
-        //log start of operation
-        if (log.isDebug()) {
-            log.debug("PluginService:[%s] Attempting uninstall with options: %s", pluginUid, util.inspect(options));
-        }
-
-
-        var name = util.format('UNINSTALL_PLUGIN_%s', pluginUid);
-        var jobId = options.jobId;
-        var ctx = {
-            pluginService: new PluginService({site: this.site}),
-            pluginUid: pluginUid,
-            initiator: options.forCluster !== false,
-            name: name,
-            id: options.jobId
-        };
-        var job = new PluginUninstallJob(ctx);
-        job.init(name, jobId);
-        job.setRunAsInitiator(options.forCluster !== false);
-        job.run(cb);
-        return job.getId();
-    }
-
-    /**
      * Installs a plugin by stepping through a series of steps that must be
      * completed in order.  There is currently no fallback plan for a failed install.
      * In order for a plugin to be fully installed it must perform the following
@@ -1436,40 +1377,6 @@ class PluginService {
 
     /**
      * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
-     * The function is called when a command is recevied to uninstall a plugin.
-     * The function builds out the appropriate options then calls the
-     * uninstallPlugin function.  The result is then sent back to the calling
-     * process via the CommandService.
-     * @static
-     * @method onUninstallPluginCommandReceived
-     * @param {Object} command
-     * @param {String} command.jobId The ID of the in-progress job that this
-     * process is intended to join.
-     */
-    static onUninstallPluginCommandReceived(command) {
-        if (!_.isObject(command)) {
-            log.error('PluginService: an invalid uninstall plugin command object was passed. %s', util.inspect(command));
-            return;
-        }
-
-        var options = {
-            forCluster: false,
-            jobId: command.jobId
-        };
-
-        var pluginService = new PluginService({site: command.site});
-        pluginService.uninstallPlugin(command.pluginUid, options, function (err, result) {
-
-            var response = {
-                error: err ? err.stack : undefined,
-                result: result
-            };
-            CommandService.getInstance().sendInResponseTo(command, response);
-        });
-    }
-
-    /**
-     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
      * The function is called when a command is recevied to validate that a plugin is available to this process for install.
      * The function builds out the appropriate options then calls the
      * uninstallPlugin function.  The result is then sent back to the calling
@@ -1584,7 +1491,8 @@ class PluginService {
     }
 
     /**
-     *
+     * TODO [1.0] make each job responsible for callback registration
+     * TODO [1.0] remove
      * @static
      * @method init
      */
