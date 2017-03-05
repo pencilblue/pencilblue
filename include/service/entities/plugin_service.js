@@ -21,30 +21,23 @@ const _ = require('lodash');
 const ArrayUtils = require('../../../lib/utils/array_utils');
 const async   = require('async');
 const CacheEntityService = require('../cache_entity_service');
-const CommandService = require('../../system/command/command_service');
 const Configuration = require('../../config');
 const DAO = require('../../dao/dao');
 const DbEntityService = require('../db_entity_service');
 const domain  = require('domain');
 const FileUtils = require('../../../lib/utils/fileUtils');
-const fs      = require('fs');
+const fs = require('fs');
 const log = require('../../utils/logging').newInstance('PluginService');
 const MemoryEntityService = require('../memory_entity_service');
-const npm     = require('npm');
+const npm = require('npm');
 const NpmPluginDependencyService = require('./plugins/npm_plugin_dependency_service');
-const path    = require('path');
-const PluginAvailableJob = require('../jobs/plugins/plugin_available_job');
-const PluginDependenciesJob = require('../jobs/plugins/plugin_dependencies_job');
-const PluginDependencyService = require('./plugins/bower_plugin_dependency_service');
+const path = require('path');
+const PluginDependencyService = require('./plugins/plugin_dependency_service');
 const PluginDetailsLoader = require('./plugins/loaders/pluginDetailsLoader');
-const PluginInitializeJob = require('../jobs/plugins/plugin_initialize_job');
-const PluginInitializationService = require('./plugins/plugin_initialization_service');
-const PluginInstallJob = require('../jobs/plugins/plugin_install_job');
 const PluginLocalizationLoader = require('./plugins/loaders/plugin_localization_loader');
 const PluginRepository = require('../../repository/plugin_repository');
 const PluginServiceLoader = require('./plugins/loaders/plugin_service_loader');
 const PluginSettingService = require('./plugin_setting_service');
-const PluginUninstallJob = require('../jobs/plugins/plugin_uninstall_job');
 const PluginUtils = require('../../../lib/utils/pluginUtils');
 const PluginValidationService = require('./plugins/plugin_validation_service');
 const semver = require('semver');
@@ -53,7 +46,6 @@ const SimpleLayeredService = require('../simple_layered_service');
 const SiteQueryService = require('./site_query_service');
 const SiteService = require('./site_service');
 const SiteUtils = require('../../../lib/utils/siteUtils');
-const TaskUtils = require('../../../lib/utils/taskUtils');
 const util = require('util');
 const UrlUtils = require('../../../lib/utils/urlUtils');
 const ValidationService = require('../../validation/validation_service');
@@ -61,13 +53,8 @@ const ValidationService = require('../../validation/validation_service');
 /**
  * PluginService - Provides functions for interacting with plugins.
  * Install/uninstall, setting retrieval, plugin retrieval, etc.
- *
- * @class PluginService
- * @constructor
  * @param {Object} options
  * @param {String} [options.site]
- * @module Services
- * @submodule Entities
  */
 class PluginService {
     constructor(options) {
@@ -128,9 +115,6 @@ class PluginService {
     static get PUBLIC_DIR_NAME() {
         return 'public';
     }
-
-    // Statics
-
 
     /**
      * Retrieves the path to the active fav icon.
@@ -938,130 +922,6 @@ class PluginService {
     }
 
     /**
-     * Installs a plugin by stepping through a series of steps that must be
-     * completed in order.  There is currently no fallback plan for a failed install.
-     * In order for a plugin to be fully installed it must perform the following
-     * actions without error:
-     * <ol>
-     * <li>Load and parse the plugin's details.json file</li>
-     * <li>Pass validation</li>
-     * <li>Must not already be installed</li>
-     * <li>Successfully register itself with the system</li>
-     * <li>Successfully load any plugin settings</li>
-     * <li>Successfully load any theme settings</li>
-     * <li>Successfully execute the plugin's onInstall function</li>
-     * <li>Successfully initialize the plugin for runtime</li>
-     * </ol>
-     * @method installPlugin
-     * @param {string} pluginDirName The name of the directory that contains the
-     * plugin and its details.json file.
-     * @param {function} [cb] A callback that provides two parameters: cb(err, TRUE/FALSE)
-     * @return {String} The job ID
-     */
-    installPlugin(pluginDirName, cb) {
-
-        cb = cb || function(){};
-        var name = util.format('INSTALL_PLUGIN_%s', pluginDirName);
-
-        var ctx = {
-            name: name,
-            pluginUid: pluginDirName,
-            pluginService: new PluginService({site: this.site}),
-            initiator: true
-        };
-        var job = new PluginInstallJob(ctx);
-        job.init(name);
-        job.setRunAsInitiator(true);
-        job.run(cb);
-        return job.getId();
-    }
-
-    /**
-     * Attempts to initialize all installed plugins.
-     * @method initPlugins
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    initPlugins(cb) {
-        log.debug('PluginService: Beginning plugin initialization...');
-
-        var self = this;
-        async.waterfall([
-            TaskUtils.wrapTask(this._pluginRepository, this._pluginRepository.loadPluginsAcrossAllSites),
-            function (plugins, callback) {
-                if (plugins.length === 0) {
-                    log.debug('PluginService: No plugins are installed');
-                    return callback(null, []);
-                }
-                var tasks = plugins.map(function (plugin, i, plugins) {
-                    return function (callback) {
-
-                        try {
-                            self.initPlugin(plugins[i], function (err, didInitialize) {
-                                callback(null, {plugin: plugins[i], error: err, initialized: didInitialize});
-                            });
-                        }
-                        catch (err) {
-                            callback(null, {plugin: plugins[i], error: err, initialized: false});
-                        }
-                    };
-                });
-                async.series(tasks, callback);
-            }
-        ], cb);
-    }
-
-    /**
-     * Initializes a plugin during startup or just after a plugin has been installed.
-     * @method initPlugin
-     * @param {object} plugin The plugin details
-     * @param {function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    initPlugin(plugin, cb) {
-        if (typeof plugin !== 'object') {
-            return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
-        }
-
-        var service = new pb.PluginInitializationService({
-            pluginService: this.site === plugin.site ? this : new PluginService({ site: plugin.site }),
-            pluginCache: PLUGIN_INIT_CACHE
-        });
-        service.initialize(plugin, {}, function (err, result) {
-            PLUGIN_INIT_CACHE = {};
-            cb(err, result);
-        });
-    }
-
-    /**
-     * Verifies that a plugin has all of the required dependencies installed from NPM
-     * @method hasDependencies
-     * @param {Object} plugin
-     * @param {Function} cb
-     */
-    hasDependencies(plugin, cb) {
-        var npmPluginDependencyService = new NpmPluginDependencyService();
-        npmPluginDependencyService.hasDependencies(plugin, {}, cb);
-    }
-
-    /**
-     * Installs the dependencies for a plugin via NPM.
-     * @method installPluginDependencies
-     * @param {String} pluginDirName
-     * @param {Object} dependencies
-     * @param {Object} plugin
-     * @param {Function} cb
-     */
-    installPluginDependencies(pluginDirName, dependencies, plugin, cb) {
-
-        //verify parameters
-        if (!ValidationService.isNonEmptyStr(pluginDirName, true) || !_.isObject(dependencies)) {
-            return cb(new Error('The plugin directory name and the dependencies are required'));
-        }
-
-        var npmDependencyService = new NpmPluginDependencyService();
-        npmDependencyService.installAll(plugin, {}, cb);
-    }
-
-    /**
      * Loads a module dependencies for the specified plugin.
      * @deprecated
      * @static
@@ -1101,7 +961,7 @@ class PluginService {
      * @param {string} site
      * @return {Object} Service prototype
      */
-    getService(serviceName, pluginUid, site) {
+    getService (serviceName, pluginUid, site) {
         log.warn('PluginService: Instance function getService is deprecated. Use pb.PluginService.getService instead: plugin:' + pluginUid + ' service:' + serviceName);
         try {
             return PluginService.getService(serviceName, pluginUid, site);
@@ -1254,243 +1114,6 @@ class PluginService {
     }
 
     /**
-     * Validates the path to the plugin's icon file.  The path is considered valid
-     * if the path to a valid file.  The path may be absolute or relative to the
-     * plugin's public directory.
-     * @deprecated
-     * @static
-     * @method validateIconPath
-     * @param iconPath The path to the icon (image) file
-     * @param pluginDirName The name of the directory housing the plugin
-     * @return {Boolean} TRUE if the path is valid, FALSE if not
-     */
-    static validateIconPath(iconPath, pluginDirName) {
-        return PluginValidationService.validateIconPath(iconPath, pluginDirName);
-    }
-
-    /**
-     * Validates the path of a main module file.  The path is considered valid if
-     * the path points to JS file.  The path may be absolute or relative to the
-     * specific plugin directory.
-     * @deprecated
-     * @static
-     * @method validateMainModulePath
-     * @param mmPath The relative or absolute path to the main module file
-     * @param pluginDirName The name of the directory housing the plugin
-     * @return {Boolean} TRUE if the path is valid, FALSE if not
-     */
-    static validateMainModulePath(mmPath, pluginDirName) {
-        return PluginValidationService.validateMainModulePath(mmPath, pluginDirName);
-    }
-
-    /**
-     * Validates a setting from a details.json file.
-     * @deprecated
-     * @method validateSetting
-     * @param setting The setting to validate
-     * @param position The position in the settings array where the setting resides
-     * as a 0 based index.
-     * @return {Array} The array of errors that were generated.  If no errors were
-     * produced an empty array is returned.
-     */
-    static validateSetting(setting, position) {
-
-        //setup
-        var errors = [];
-
-        //validate object
-        if (_.isObject(setting)) {
-
-            //validate name
-            if (!ValidationService.isNonEmptyStr(setting.name, true)) {
-                errors.push(new Error("The setting name at position " + position + " must be provided"));
-            }
-
-            //validate value
-            if (!PluginDependencyService.validateSettingValue(setting.value)) {
-                errors.push(new Error("The setting value at position " + position + " must be provided"));
-            }
-        }
-        else {
-            errors.push(new Error("The setting value at position " + position + " must be an object"));
-        }
-
-        return errors;
-    }
-
-    /**
-     * Retrieves all services (initialized).  The services are provided in the
-     * callback.
-     * @deprecated
-     * @static
-     * @method getServices
-     * @param {String} pathToPlugin The absolute file path to the specific plugin directory.
-     * @param {Function} cb A callback that provides two parameters: cb(error, servicesHash);
-     */
-    static getServices(pathToPlugin, cb) {
-        log.warn('PluginService: getServices is deprecated. Use PluginServiceLoader.getAll');
-
-        var pathParts = pathToPlugin.split(path.sep);
-
-        var service = new PluginServiceLoader({pluginUid: pathParts[pathParts.length - 1]});
-        service.getAll({}, cb);
-    }
-
-    /**
-     * Loads a plugin service and initializes it.  The service is required to
-     * implement an "init" function. The service is then provided as a parameter in
-     * the callback.
-     * @deprecated
-     * @static
-     * @method loadService
-     * @param {String} pathToService The absolute file path to the service javascript file.
-     * @param {Function} cb A callback that provides two parameters: cb(error, initializedService)
-     */
-    static loadService(pathToService, cb) {
-        log.warn('PluginService: loadService is deprecated. Use PluginServiceLoader.get');
-
-        var service = new PluginServiceLoader({});
-        service.get(pathToService, function (err, serviceWrapper) {
-            if (serviceWrapper) {
-                serviceWrapper = serviceWrapper.service;
-            }
-            cb(err, serviceWrapper);
-        });
-    }
-
-    /**
-     * Derives the name of a plugin service instance.  The function attempts to get
-     * the name of the service by looking to see if the service has implemented the
-     * getName function.  If it has not then the service name is set to be the file
-     * name minus any extension.
-     * @deprecated since 0.6.0
-     * @static
-     * @method getServiceName
-     * @param pathToService The file path to the service
-     * @param service The service prototype
-     * @return {String} The derived service name
-     */
-    static getServiceName(pathToService, service) {
-        log.warn('PluginService: getServiceName is deprecated. Use PluginServiceLoader.getServiceName');
-        PluginServiceLoader.getServiceName(pathToService, service);
-    }
-
-    /**
-     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
-     * The function is called when a command is recevied to validate that a plugin is available to this process for install.
-     * The function builds out the appropriate options then calls the
-     * uninstallPlugin function.  The result is then sent back to the calling
-     * process via the CommandService.
-     * @static
-     * @method onIsPluginAvailableCommandReceived
-     * @param {Object} command
-     * @param {String} command.jobId The ID of the in-progress job that this
-     * process is intended to join.
-     */
-    static onIsPluginAvailableCommandReceived(command) {
-        if (!_.isObject(command)) {
-            log.error('PluginService: an invalid is_plugin_available command object was passed. %s', util.inspect(command));
-            return;
-        }
-
-        var name = util.format("IS_AVAILABLE_%s", command.pluginUid);
-        var ctx = {
-            id: command.jobId,
-            name: name,
-            pluginUid: command.pluginUid,
-            pluginService: new PluginService({site: SiteUtils.GLOBAL_SITE}),
-            initiator: false
-        };
-        var job = new PluginAvailableJob(ctx);
-        job.setRunAsInitiator(false)
-            .init(name, command.jobId)
-            .run(function (err, result) {
-
-                var response = {
-                    error: err ? err.stack : undefined,
-                    result: result ? true : false
-                };
-                CommandService.getInstance().sendInResponseTo(command, response);
-            });
-    }
-
-    /**
-     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
-     * The function is called when a command is recevied to install plugin
-     * dependencies.  The result is then sent back to the calling process via the
-     * CommandService.
-     * @static
-     * @method onIsPluginAvailableCommandReceived
-     * @param {Object} command
-     * @param {String} command.jobId The ID of the in-progress job that this
-     * process is intended to join.
-     */
-    static onInstallPluginDependenciesCommandReceived(command) {
-        if (!_.isObject(command)) {
-            log.error('PluginService: an invalid install_plugin_dependencies command object was passed. %s', util.inspect(command));
-            return;
-        }
-
-        var name = util.format("INSTALL_DEPENDENCIES_%s", command.pluginUid);
-        var ctx = {
-            id: command.jobId,
-            name: name,
-            pluginUid: pluginUid,
-            pluginService: new PluginService({site: SiteUtils.GLOBAL_SITE}),
-            initiator: false
-        };
-        var job = new PluginDependenciesJob(ctx);
-        job.setRunAsInitiator(false)
-            .init(name, command.jobId)
-            .run(function (err, result) {
-
-                var response = {
-                    error: err ? err.stack : undefined,
-                    result: result ? true : false
-                };
-                CommandService.getInstance().sendInResponseTo(command, response);
-            });
-    }
-
-    /**
-     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
-     * The function is called when a command is recevied to initialize a plugin.
-     * The result is then sent back to the calling process via the
-     * CommandService.
-     * @static
-     * @method onIsPluginAvailableCommandReceived
-     * @param {Object} command
-     * @param {String} command.jobId The ID of the in-progress job that this
-     * process is intended to join.
-     */
-    static onInitializePluginCommandReceived(command) {
-        if (!_.isObject(command)) {
-            log.error('PluginService: an invalid initialize_plugin command object was passed. %s', util.inspect(command));
-            return;
-        }
-
-        var name = util.format("INITIALIZE_PLUGIN_%s", command.pluginUid);
-        var ctx = {
-            id: command.id,
-            name: name,
-            pluginUid: command.pluginUid,
-            pluginService: new PluginService({site: command.site}),
-            initiator: false
-        };
-        var job = new PluginInitializeJob(ctx);
-        job.setRunAsInitiator(false)
-            .init(name, command.jobId)
-            .run(function (err, result) {
-
-                var response = {
-                    error: err ? err.stack : undefined,
-                    result: result ? true : false
-                };
-                CommandService.getInstance().sendInResponseTo(command, response);
-            });
-    }
-
-    /**
      * TODO [1.0] make each job responsible for callback registration
      * TODO [1.0] remove
      * @static
@@ -1499,11 +1122,11 @@ class PluginService {
     static init() {
 
         //register for commands
-        var commandService = CommandService.getInstance();
-        commandService.registerForType(PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
-        commandService.registerForType('is_plugin_available', PluginService.onIsPluginAvailableCommandReceived);
-        commandService.registerForType('install_plugin_dependencies', PluginService.onInstallPluginDependenciesCommandReceived);
-        commandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
+        //var commandService = CommandService.getInstance();
+        //commandService.registerForType(PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
+        //commandService.registerForType('is_plugin_available', PluginService.onIsPluginAvailableCommandReceived);
+        //commandService.registerForType('install_plugin_dependencies', PluginService.onInstallPluginDependenciesCommandReceived);
+        //commandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
     }
 }
 
@@ -1513,13 +1136,6 @@ class PluginService {
      * @type {Object}
      */
     var ACTIVE_PLUGINS = {};
-
-    /**
-     * A hash of shared plugin information used during plugin initialization
-     * @property PLUGIN_INIT_CACHE;
-     * @type {Object}
-     */
-    var PLUGIN_INIT_CACHE = {};
 
 function getPluginSettingService(self) {
     if(!self.pluginSettingService) {

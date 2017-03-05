@@ -17,9 +17,15 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var PluginJobRunner = require('./plugin_job_runner');
-var PluginDetailsLoader = require('../../entities/plugins/loaders/pluginDetailsLoader');
+const _ = require('lodash');
+const CommandService = require('../../../system/command/command_service');
+const log = require('../../../utils/logging').newInstance('PluginDependenciesJob');
+const NpmPluginDependencyService = require('../../entities/plugins/npm_plugin_dependency_service');
+const PluginDetailsLoader = require('../../entities/plugins/loaders/pluginDetailsLoader');
+const PluginJobRunner = require('./plugin_job_runner');
+const PluginService = require('../../entities/plugin_service');
+const SiteUtils = require('../../../../lib/utils/siteUtils');
+const util = require('util');
 
 /**
  * A system job that coordinates the installation of a plugin's dependencies to
@@ -34,6 +40,15 @@ class PluginDependenciesJob extends PluginJobRunner {
 
         //initialize
         this.setParallelLimit(1);
+    }
+
+    /**
+     * The command to that intends for the the uninstall job to run
+     * @readonly
+     * @type {String}
+     */
+    static get PLUGIN_COMMAND() {
+        return 'install_plugin_dependencies';
     }
 
     /**
@@ -101,12 +116,59 @@ class PluginDependenciesJob extends PluginJobRunner {
                     return callback(null, true);
                 }
 
-                self.pluginService.installPluginDependencies(pluginUid, pluginDetails.dependencies, pluginDetails, function (err/*, results*/) {
+                var npmDependencyService = new NpmPluginDependencyService();
+                npmDependencyService.installAll(pluginDetails, {}, function (err/*, results*/) {
                     callback(err, !_.isError(err));
                 });
             }
         ];
         cb(null, tasks);
+    }
+
+    /**
+     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+     * The function is called when a command is recevied to install plugin
+     * dependencies.  The result is then sent back to the calling process via the
+     * CommandService.
+     * @param {Object} command
+     * @param {String} command.jobId The ID of the in-progress job that this
+     * process is intended to join.
+     */
+    static onCommandReceived(command) {
+        if (!_.isObject(command)) {
+            log.error('PluginService: an invalid install_plugin_dependencies command object was passed. %s', util.inspect(command));
+            return;
+        }
+
+        var name = util.format("INSTALL_DEPENDENCIES_%s", command.pluginUid);
+        var ctx = {
+            id: command.jobId,
+            name: name,
+            pluginUid: command.pluginUid,
+            pluginService: new PluginService({site: SiteUtils.GLOBAL_SITE}),
+            initiator: false
+        };
+        var job = new PluginDependenciesJob(ctx);
+        job.setRunAsInitiator(false)
+            .init(name, command.jobId)
+            .run(function (err, result) {
+
+                var response = {
+                    error: err ? err.stack : undefined,
+                    result: result ? true : false
+                };
+                CommandService.getInstance().sendInResponseTo(command, response);
+            });
+    }
+
+    /**
+     *
+     */
+    static registerCommandCallbacks () {
+
+        //register for commands
+        var commandService = CommandService.getInstance();
+        return commandService.registerForType(PluginDependenciesJob.PLUGIN_COMMAND, PluginDependenciesJob.onCommandReceived);
     }
 }
 

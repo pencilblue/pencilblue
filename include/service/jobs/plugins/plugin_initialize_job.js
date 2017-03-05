@@ -17,9 +17,12 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var PluginJobRunner = require('./plugin_job_runner');
-var PluginService = require('../../entities/plugin_service');
+const _ = require('lodash');
+const CommandService = require('../../../system/command/command_service');
+const log = require('../../../utils/logging').newInstance('PluginInitializeJob');
+const PluginJobRunner = require('./plugin_job_runner');
+const PluginService = require('../../entities/plugin_service');
+const util = require('util');
 
 /**
  * A system job that coordinates the initialization of a plugin across a
@@ -34,6 +37,15 @@ class PluginInitializeJob extends PluginJobRunner {
 
         //initialize
         this.setParallelLimit(1);
+    }
+
+    /**
+     * The command to that intends for the the uninstall job to run
+     * @readonly
+     * @type {String}
+     */
+    static get PLUGIN_COMMAND() {
+        return 'initialize_plugin';
     }
 
     /**
@@ -111,6 +123,53 @@ class PluginInitializeJob extends PluginJobRunner {
             }
         ];
         cb(null, tasks);
+    }
+
+    /**
+     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+     * The function is called when a command is recevied to initialize a plugin.
+     * The result is then sent back to the calling process via the
+     * CommandService.
+     * @param {Object} command
+     * @param {String} command.jobId The ID of the in-progress job that this
+     * process is intended to join.
+     */
+    static onCommandReceived(command) {
+        if (!_.isObject(command)) {
+            log.error('PluginService: an invalid initialize_plugin command object was passed. %s', util.inspect(command));
+            return;
+        }
+
+        var name = util.format("INITIALIZE_PLUGIN_%s", command.pluginUid);
+        var ctx = {
+            id: command.id,
+            name: name,
+            pluginUid: command.pluginUid,
+            pluginService: new PluginService({site: command.site}),
+            initiator: false
+        };
+        var job = new PluginInitializeJob(ctx);
+        job.setRunAsInitiator(false)
+            .init(name, command.jobId)
+            .run(function (err, result) {
+
+                var response = {
+                    error: err ? err.stack : undefined,
+                    result: result ? true : false
+                };
+                CommandService.getInstance().sendInResponseTo(command, response);
+            });
+    }
+
+    /**
+     *
+     * @returns {Boolean}
+     */
+    static registerCommandCallbacks () {
+
+        //register for commands
+        var commandService = CommandService.getInstance();
+        return commandService.registerForType(PluginInitializeJob.PLUGIN_COMMAND, PluginInitializeJob.onCommandReceived);
     }
 }
 

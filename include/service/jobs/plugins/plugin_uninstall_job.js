@@ -23,7 +23,7 @@ const Configuration = require('../../../config');
 const DAO = require('../../../dao/dao');
 const domain  = require('domain');
 const Localization = require('../../../localization');
-const log = require('../../../utils/logging').newInstance('PluginUninstallJob')
+const log = require('../../../utils/logging').newInstance('PluginUninstallJob');
 const PluginJobRunner = require('./plugin_job_runner');
 const PluginService = require('../../entities/plugin_service');
 const RequestHandler = require('../../../http/request_handler');
@@ -58,12 +58,10 @@ class PluginUninstallJob extends PluginJobRunner {
 
     /**
      * The command to that intends for the the uninstall job to run
-     * @static
      * @readonly
-     * @property UNINSTALL_PLUGIN_COMMAND
      * @type {String}
      */
-    static get UNINSTALL_PLUGIN_COMMAND() {
+    static get PLUGIN_COMMAND() {
         return 'uninstall_plugin';
     }
 
@@ -291,7 +289,7 @@ class PluginUninstallJob extends PluginJobRunner {
      * @param {String} command.jobId The ID of the in-progress job that this
      * process is intended to join.
      */
-    static onUninstallPluginCommandReceived(command) {
+    static onCommandReceived(command) {
         if (!_.isObject(command)) {
             log.error('PluginService: an invalid uninstall plugin command object was passed. %s', util.inspect(command));
             return;
@@ -299,7 +297,7 @@ class PluginUninstallJob extends PluginJobRunner {
 
         var ctx = {
             id: command.jobId,
-            name: PluginUninstallJob.createName(uid),
+            name: PluginUninstallJob.createName(command.pluginUid),
             pluginUid: command.pluginUid,
             pluginService: new PluginService({site: command.site}),
             initiator: false
@@ -324,7 +322,7 @@ class PluginUninstallJob extends PluginJobRunner {
 
         //register for commands
         var commandService = CommandService.getInstance();
-        commandService.registerForType(PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginUninstallJob.onUninstallPluginCommandReceived);
+        return commandService.registerForType(PluginUninstallJob.PLUGIN_COMMAND, PluginUninstallJob.onCommandReceived);
     }
 }
 

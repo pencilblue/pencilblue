@@ -184,8 +184,7 @@ class PencilBlue {
         this.pb.PluginService.init();
 
         //initialize the plugins
-        var pluginService = new this.pb.PluginService();
-        pluginService.initPlugins(cb);
+        this.pb.PluginInitializationService.initAll(cb);
     }
 
     /**

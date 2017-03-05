@@ -220,6 +220,15 @@ class PluginInstallJob extends PluginJobRunner {
             cb(err, !err);
         });
     }
+
+    /**
+     *
+     * @param pluginUid
+     * @returns {string}
+     */
+    static createName (pluginUid) {
+        return 'INSTALL_PLUGIN_' + pluginUid;
+    }
 }
 
 //exports

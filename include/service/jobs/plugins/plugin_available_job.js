@@ -17,15 +17,18 @@
 'use strict';
 
 //dependencies
-var PluginJobRunner = require('./plugin_job_runner');
+const _ = require('lodash');
+const CommandService = require('../../../system/command/command_service');
+const log = require('../../../utils/logging').newInstance('PluginAvailableJob');
 const PluginDetailsLoader = require('../../entities/plugins/loaders/pluginDetailsLoader');
+const PluginJobRunner = require('./plugin_job_runner');
+const PluginService = require('../../entities/plugin_service');
+const SiteUtils = require('../../../../lib/utils/siteUtils');
+const util = require('util');
 
 /**
  * A system job that coordinates the check to see if a plugin is available for
  * install on each process across the cluster.
- * @class PluginAvailableJob
- * @constructor
- * @extends PluginJobRunner
  */
 class PluginAvailableJob extends PluginJobRunner {
     constructor(context) {
@@ -36,9 +39,17 @@ class PluginAvailableJob extends PluginJobRunner {
     }
 
     /**
+     * The command to that intends for the the uninstall job to run
+     * @readonly
+     * @type {String}
+     */
+    static get PLUGIN_COMMAND() {
+        return 'is_plugin_available';
+    }
+
+    /**
      * Retrieves the tasks needed to contact each process in the cluster to
      * uninstall the plugin.
-     * @method getInitiatorTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
     getInitiatorTasks(cb) {
@@ -70,7 +81,6 @@ class PluginAvailableJob extends PluginJobRunner {
     /**
      * Retrieves the tasks needed to validate that the plugin is available for
      * install.
-     * @method getWorkerTasks
      * @param {Function} cb A callback that takes two parameters: cb(Error, Object|Array)
      */
     getWorkerTasks(cb) {
@@ -87,6 +97,53 @@ class PluginAvailableJob extends PluginJobRunner {
             }
         ];
         cb(null, tasks);
+    }
+
+    /**
+     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
+     * The function is called when a command is recevied to validate that a plugin is available to this process for install.
+     * The function builds out the appropriate options then calls the
+     * uninstallPlugin function.  The result is then sent back to the calling
+     * process via the CommandService.
+     * @param {Object} command
+     * @param {String} command.jobId The ID of the in-progress job that this
+     * process is intended to join.
+     */
+    static onCommandReceived(command) {
+        if (!_.isObject(command)) {
+            log.error('PluginService: an invalid is_plugin_available command object was passed. %s', util.inspect(command));
+            return;
+        }
+
+        var name = util.format("IS_AVAILABLE_%s", command.pluginUid);
+        var ctx = {
+            id: command.jobId,
+            name: name,
+            pluginUid: command.pluginUid,
+            pluginService: new PluginService({site: SiteUtils.GLOBAL_SITE}),
+            initiator: false
+        };
+        var job = new PluginAvailableJob(ctx);
+        job.setRunAsInitiator(false)
+            .init(name, command.jobId)
+            .run(function (err, result) {
+
+                var response = {
+                    error: err ? err.stack : undefined,
+                    result: result ? true : false
+                };
+                CommandService.getInstance().sendInResponseTo(command, response);
+            });
+    }
+
+    /**
+     *
+     */
+    static registerCommandCallbacks () {
+
+        //register for commands
+        var commandService = CommandService.getInstance();
+        return commandService.registerForType(PluginAvailableJob.PLUGIN_COMMAND, PluginAvailableJob.onCommandReceived);
     }
 }
 
