@@ -551,6 +551,35 @@ class PluginValidationService {
             cb(err, validationErrors);
         };
     }
+
+    /**
+     * Validates a plugin's details object.  After validation, any validation failures are added to a new Error object.
+     * The function will callback with an error that contains a validationErrors property when validations failures are
+     * found
+     * @param {object} details
+     * @param {function} cb
+     */
+    static validateToError (details, cb) {
+        if (!_.isObject(details)) {
+            cb(new Error("Details cannot be null and must be an object"), false);
+            return;
+        }
+
+        var validationService = new PluginValidationService({});
+        validationService.validate(details, {}, function (err, validationErrors) {
+            if (_.isError(err)) {
+                return cb(err);
+            }
+
+            //check for validation error
+            validationErrors = validationErrors || [];
+            if (validationErrors.length > 0) {
+                err = new Error("Failed to validate plugin details");
+                err.validationErrors = validationErrors;
+            }
+            cb(err, validationErrors.length === 0);
+        });
+    }
 }
 
 module.exports = PluginValidationService;

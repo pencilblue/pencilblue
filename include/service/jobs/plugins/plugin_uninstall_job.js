@@ -25,6 +25,7 @@ const domain  = require('domain');
 const Localization = require('../../../localization');
 const log = require('../../../utils/logging').newInstance('PluginUninstallJob');
 const PluginJobRunner = require('./plugin_job_runner');
+const PluginLocalizationLoader = require('../../entities/plugins/loaders/plugin_localization_loader');
 const PluginService = require('../../entities/plugin_service');
 const RequestHandler = require('../../../http/request_handler');
 const SettingServiceFactory = require('../../../system/settings');
@@ -155,7 +156,8 @@ class PluginUninstallJob extends PluginJobRunner {
             function (callback) {
 
                 //retrieve localizations
-                self.pluginService.getLocalizations(pluginUid, function (err, localizations) {
+                var service = new PluginLocalizationLoader({pluginUid: pluginUid, site: site});
+                service.getAll({}, function (err, localizations) {
                     if (_.isError(err)) {
                         return callback(err);
                     }

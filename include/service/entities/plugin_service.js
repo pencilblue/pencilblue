@@ -30,13 +30,9 @@ const fs = require('fs');
 const log = require('../../utils/logging').newInstance('PluginService');
 const MemoryEntityService = require('../memory_entity_service');
 const npm = require('npm');
-const NpmPluginDependencyService = require('./plugins/npm_plugin_dependency_service');
 const path = require('path');
-const PluginDependencyService = require('./plugins/plugin_dependency_service');
 const PluginDetailsLoader = require('./plugins/loaders/pluginDetailsLoader');
-const PluginLocalizationLoader = require('./plugins/loaders/plugin_localization_loader');
 const PluginRepository = require('../../repository/plugin_repository');
-const PluginServiceLoader = require('./plugins/loaders/plugin_service_loader');
 const PluginSettingService = require('./plugin_setting_service');
 const PluginUtils = require('../../../lib/utils/pluginUtils');
 const PluginValidationService = require('./plugins/plugin_validation_service');
@@ -864,7 +860,7 @@ class PluginService {
                         return callback(null, false);
                     }
 
-                    PluginService.validateDetails(details, dirName, function (err/*, result*/) {
+                    PluginValidationService.validateToError(details, function (err/*, result*/) {
                         if (_.isError(err)) {
                             plugins.push({
                                 uid: dirName,
@@ -919,57 +915,6 @@ class PluginService {
                 cb(err, results);
             });
         });
-    }
-
-    /**
-     * Loads a module dependencies for the specified plugin.
-     * @deprecated
-     * @static
-     * @method require
-     * @param {String} pluginDirName
-     * @param {String} moduleName
-     * @return {*} The entity returned by the "require" call.
-     */
-    static require(pluginDirName, moduleName) {
-        log.warn('PluginService: require is deprecated. Use NpmPluginDependencyService.require');
-        return NpmPluginDependencyService.require(pluginDirName, moduleName);
-    }
-
-    /**
-     * Loads the localization files from the specified plugin directory and places
-     * them into a hash where the key is the name of the localization file.
-     * @deprecated since 0.6.0
-     * @method getLocalizations
-     * @param {String} pluginDirName The name of the plugin directory
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Object).
-     * When the directory does not exist NULL is returned as the result parameter.
-     */
-    getLocalizations(pluginDirName, cb) {
-        var service = new PluginLocalizationLoader({pluginUid: pluginDirName, site: this.site});
-        service.getAll({}, cb);
-    }
-
-    /**
-     * Retrieves a plugin service prototype.  It is expected to be a prototype but
-     * it may also be an instance as along as that instance fulfills all
-     * responsibilities of the service interface.  When the desired service does not
-     * exist NULL is returned.
-     * @deprecated
-     * @method getService
-     * @param {String} serviceName
-     * @param {String} pluginUid The unique plugin identifier
-     * @param {string} site
-     * @return {Object} Service prototype
-     */
-    getService (serviceName, pluginUid, site) {
-        log.warn('PluginService: Instance function getService is deprecated. Use pb.PluginService.getService instead: plugin:' + pluginUid + ' service:' + serviceName);
-        try {
-            return PluginService.getService(serviceName, pluginUid, site);
-        }
-        catch (e) {
-            //for backward compatibility until the function is removed
-            return null;
-        }
     }
 
     /**
@@ -1067,49 +1012,6 @@ class PluginService {
                 e.source = e;
                 cb(e, null);
             }
-        });
-    }
-
-    /**
-     * Validates a plugin's details.json file.
-     * @deprecated
-     * @static
-     * @method validateDetails
-     * @param {object} details The details object to validate
-     * @param {object} [details.theme]
-     * @param {object} details.permissions
-     * @param {string} details.uid
-     * @param {string} details.description
-     * @param {string} details.version
-     * @param {string} details.pb_version
-     * @param {string} details.icon
-     * @param {Array} [details.contributors]
-     * @param {object} [details.author]
-     * @param {Array} [details.settings]
-     * @param {String} pluginDirName The name of the directory containing the original
-     * details.json file that the details object was derived from.
-     * @param {Function} cb A callback that provides two parameters: cb(error, TRUE/FALSE).
-     * TRUE if the details object passes validation, FALSE if not.
-     */
-    static validateDetails(details, pluginDirName, cb) {
-        if (!_.isObject(details)) {
-            cb(new Error("Details cannot be null and must be an object"), false);
-            return;
-        }
-
-        var validationService = new PluginValidationService({});
-        validationService.validate(details, {}, function (err, validationErrors) {
-            if (_.isError(err)) {
-                return cb(err);
-            }
-
-            //check for validation error
-            validationErrors = validationErrors || [];
-            if (validationErrors.length > 0) {
-                err = new Error("Failed to validate plugin details");
-                err.validationErrors = validationErrors;
-            }
-            cb(err, validationErrors.length === 0);
         });
     }
 

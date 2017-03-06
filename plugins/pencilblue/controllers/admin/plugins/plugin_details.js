@@ -22,6 +22,7 @@ module.exports = function(pb) {
     var util = pb.util;
     var PluginService  = pb.PluginService;
     var PluginDetailsLoader = pb.PluginDetailsLoader;
+    const PluginValidationService = pb.PluginValidationService;
 
     /**
     * Interface for viewing plugin details
@@ -87,7 +88,7 @@ module.exports = function(pb) {
             }
 
             if (plugin) {
-                var obj = {
+                let obj = {
                     details: plugin,
                     status: self.ls.g(PluginService.isActivePlugin(plugin.uid, self.site) ? 'generic.ACTIVE' : 'generic.INACTIVE')
                 };
@@ -99,7 +100,7 @@ module.exports = function(pb) {
             //plugin directory name
             var detailsFile = PluginService.getDetailsPath(puid);
             var details = PluginDetailsLoader.load(puid);
-            var obj = {
+            let obj = {
                 status: self.ls.g('generic.ERRORED')
             };
             if (util.isError(err)) {
@@ -113,7 +114,7 @@ module.exports = function(pb) {
             }
 
             //validate details
-            PluginService.validateDetails(details, puid, function(err, result) {
+            PluginValidationService.validateToError(details, function(err, result) {
                 obj.details = details;
                 if (util.isError(err)) {
                     details.errors = err.validationErrors;
