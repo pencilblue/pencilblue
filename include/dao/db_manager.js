@@ -276,13 +276,6 @@ class DbManager {
         });
     }
 
-    static processMigration (cb) {
-        //TODO [1.0] understand the problem that is created when this is added as a dependency.
-        //I think it is circular with DAO
-        var DBMigrate = require('./db_migrate.js');
-        new DBMigrate().run(cb);
-    }
-
     /**
      * Iterates over all database handles and call's their shutdown function.
      * @param {Function} cb Callback function

@@ -134,7 +134,9 @@ var pb = {
     LibrariesService: require(path.join(config.docRoot, '/include/libraries.js')),
     ClientJs: require(config.docRoot+'/include/client_js'),
 
-    AdminNavigation: require(path.join(config.docRoot, '/include/admin_navigation'))
+    AdminNavigation: require(path.join(config.docRoot, '/include/admin_navigation')),
+
+    DbMigrate: require(config.docRoot + '/include/dao/db_migrate')
 };
 
 //error on removed items

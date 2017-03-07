@@ -32,6 +32,7 @@ const npm = require('npm');
 const Q = require('q');
 const RouteService = require('./lib/service/routeService');
 const ServerInitializer = require('./include/http/server_initializer.js');
+const SiteUtils = require('./lib/utils/siteUtils');
 const System = require('./include/system/system');
 const TaskUtils = require('./lib/utils/taskUtils');
 const uuid = require('uuid');
@@ -195,7 +196,14 @@ class PencilBlue {
      */
     initSiteMigration (cb) {
         this.pb.SiteService.init();
-        this.pb.DbManager.processMigration(cb);
+
+        //run migration
+        var context = {
+            siteService: new this.pb.SiteService({ site: SiteUtils.GLOBAL_SITE, onlyThisSite: false }),
+            dao: new this.pb.DAO()
+        };
+        new this.pb.DbMigrate(context)
+            .run(cb);
     }
 
     /**

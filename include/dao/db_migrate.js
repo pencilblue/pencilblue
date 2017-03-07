@@ -19,9 +19,7 @@
 const _ = require('lodash');
 const async = require('async');
 const Configuration = require('../config');
-const DAO = require('./dao');
 const SecurityService = require('../access_management');
-const SiteService = require('../service/entities/site_service');
 const SiteUtils = require('../../lib/utils/siteUtils');
 const TaskUtils = require('../../lib/utils/taskUtils');
 const url = require('url');
@@ -84,12 +82,16 @@ var SITE_SPECIFIC_SETTINGS = [
  * @constructor
  */
 class DBMigrate {
-    constructor () {
+    constructor (context) {
 
-        this.siteService = new SiteService({
-            site: SiteUtils.GLOBAL_SITE,
-            onlyThisSite: false
-        });
+        //this.siteService = new SiteService({
+        //    site: SiteUtils.GLOBAL_SITE,
+        //    onlyThisSite: false
+        //});
+
+        this.dao = context.dao;
+
+        this.siteService = context.siteService;
     }
 
     /**
@@ -173,8 +175,7 @@ class DBMigrate {
      */
     migrateGlobalSubCollection (collection, siteSpecificArr, compareTo, cb) {
         var self = this;
-        var dao = new DAO();
-        dao.q(collection, function(err, results) {
+        this.dao.q(collection, function(err, results) {
             var tasks = results.map(function(result, i, results) {
                 return function(callback) {
                   var uid = siteSpecificArr.indexOf(results[i][compareTo]) > -1? self.siteUid : SiteUtils.GLOBAL_SITE;
@@ -194,8 +195,7 @@ class DBMigrate {
      */
     migrateCollection  (collection, siteUid, cb) {
         var self = this;
-        var dao = new DAO();
-        dao.q(collection, function (err, results) {
+        this.dao.q(collection, function (err, results) {
             var tasks = results.map(function (result) {
                 return function (callback) {
                     self.applySiteToDocument(result, siteUid, callback);
@@ -214,8 +214,7 @@ class DBMigrate {
      */
     applySiteToDocument  (document, siteUid, callback) {
         document[SiteUtils.SITE_FIELD] = siteUid;
-        var dao = new DAO();
-        dao.save(document, callback);
+        this.dao.save(document, callback);
     }
 }
 
