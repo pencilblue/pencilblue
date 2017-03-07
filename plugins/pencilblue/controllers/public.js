@@ -22,9 +22,9 @@ var path = require('path');
 module.exports = function PluginPublicContentControllerModule(pb) {
 
     //PB dependencies
-    var util           = pb.util;
-    var PluginService  = pb.PluginService;
+    var ActivePluginService = pb.ActivePluginService;
     var BaseController = pb.BaseController;
+    var util = pb.util;
 
     /**
      * Loads files in a plugin's public folder
@@ -46,7 +46,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
         pathParts.splice(0, 3);
 
         var postPluginPath  = pathParts.join(path.sep);
-        var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
+        var pluginPublicDir = ActivePluginService.getPublicDir(plugin);
 
         //do check for valid strings otherwise serve 404
         if (!util.isString(postPluginPath) || !util.isString(pluginPublicDir)) {

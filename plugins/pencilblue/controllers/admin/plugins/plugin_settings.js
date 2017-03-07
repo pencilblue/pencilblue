@@ -19,6 +19,8 @@
 module.exports = function(pb) {
 
     //pb dependencies
+    var BaseAdminController = pb.BaseAdminController;
+    var PluginService = pb.PluginService;
     var util = pb.util;
 
     /**
@@ -34,9 +36,9 @@ module.exports = function(pb) {
          * @property pluginService
          * @type {PluginService}
          */
-        this.pluginService = new pb.PluginService();
+        this.pluginService = new PluginService();
     }
-    util.inherits(PluginSettingsFormController, pb.BaseAdminController);
+    util.inherits(PluginSettingsFormController, BaseAdminController);
 
     /**
      * Initialize controller and plugin service

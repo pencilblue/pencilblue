@@ -17,15 +17,16 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var BaseObjectService = require('../service/base_object_service');
-var CacheEntityService = require('../service/cache_entity_service');
-var Configuration = require('../config');
-var DbEntityService = require('../service/db_entity_service');
-var MemoryEntityService = require('../service/memory_entity_service');
-var RegExpUtils = require('../utils/reg_exp_utils');
-var SimpleLayeredService = require('../service/simple_layered_service');
-var ValidationService = require('../validation/validation_service');
+const _ = require('lodash');
+const BaseObjectService = require('../service/base_object_service');
+const CacheEntityService = require('../service/cache_entity_service');
+const Configuration = require('../config');
+const DbEntityService = require('../service/db_entity_service');
+const MemoryEntityService = require('../service/memory_entity_service');
+const RegExpUtils = require('../utils/reg_exp_utils');
+const SimpleLayeredService = require('../service/simple_layered_service');
+const SiteUtils = require('../../lib/utils/siteUtils');
+const ValidationService = require('../validation/validation_service');
 
 /**
  * Tracks the number of instances created
@@ -55,18 +56,17 @@ class SettingServiceFactory {
         if (Configuration.active.multisite.enabled) {
             return SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, site, onlyThisSite);
         }
-        return SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache);
+        return SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, SiteUtils.GLOBAL_SITE);
     }
 
     /**
      * Creates a new instance of the settings service
-     * @static
-     * @method getService
      * @param {Boolean} useMemory
      * @param {Boolean} useCache
+     *
+     * @param {String} site siteId
+     * @param {Boolean} [onlyThisSite] whether this service should only return setting specified by site
      * @return {SimpleLayeredService}
-     * @param site {String} siteId
-     * @param onlyThisSite {Boolean} whether this service should only return setting specified by site
      */
     static getService(useMemory, useCache, site, onlyThisSite) {
         var keyField = 'key';

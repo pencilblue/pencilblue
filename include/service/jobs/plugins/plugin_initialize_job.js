@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActivePluginService = require('../../../../lib/service/plugins/activePluginService');
 const CommandService = require('../../../system/command/command_service');
 const log = require('../../../utils/logging').newInstance('PluginInitializeJob');
 const PluginJobRunner = require('./plugin_job_runner');
@@ -96,7 +97,7 @@ class PluginInitializeJob extends PluginJobRunner {
 
             //initialize the plugin if not already
             function (callback) {
-                if (PluginService.isPluginActiveBySite(pluginUid, site)) {
+                if (ActivePluginService.isActiveForSite(pluginUid, site)) {
                     self.log('Plugin %s is already active!', pluginUid);
                     callback(null, true);
                     return;

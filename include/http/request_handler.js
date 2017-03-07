@@ -30,13 +30,13 @@ const Localization = require('../localization');
 const log = require('../utils/logging').newInstance('RequestHandler');
 const mime = require('mime');
 const path = require('path');
+const RouteService = require('../../lib/service/routeService');
 const SecurityService = require('../access_management');
-const SessionHandler = require('../session/session');console.log('rh-sh:', SessionHandler);
+const SessionHandler = require('../session/session');
 const SettingServiceFactory = require('../system/settings');
 const SiteUtils = require('../../lib/utils/siteUtils');
 const url = require('url');
 const UrlUtils = require('../../lib/utils/urlUtils');
-const ValidationService = require('../validation/validation_service');
 
     /**
      * Responsible for processing a single req by delegating it to the correct controllers
@@ -381,41 +381,7 @@ const ValidationService = require('../validation/validation_service');
      * @return {Object} The route object or NULL if the path does not match any route
      */
     RequestHandler.prototype.getRoute = function(path) {
-
-        //check static routes first.  It must be an exact match including
-        //casing and any ending slash.
-        var isSilly = log.isSilly();
-        var route   = RequestHandler.staticRoutes[path];
-        if (!_.isNil(route)) {
-            if(route.themes[this.siteObj.uid] || route.themes[GLOBAL_SITE]) {
-                if (isSilly) {
-                    log.silly('RequestHandler: Found static route [%s]', path);
-                }
-                return route;
-            }
-        }
-
-        //now do the hard work.  Iterate over the available patterns until a
-        //pattern is found.
-        for (var i = 0; i < RequestHandler.storage.length; i++) {
-
-            var curr   = RequestHandler.storage[i];
-            var result = curr.expression.test(path);
-
-            if (isSilly) {
-                log.silly('RequestHandler: Comparing Path [%s] to Pattern [%s] Result [%s]', path, curr.pattern, result);
-            }
-            if (result) {
-                if(curr.themes[this.siteObj.uid] || curr.themes[GLOBAL_SITE]) {
-                    return curr;
-                }
-                break;
-            }
-        }
-
-        //ensures we return null when route is not found for backward
-        //compatibility.
-        return null;
+        return RouteService.getRoute(path, this.siteObj.uid);
     };
 
     /**

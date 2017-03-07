@@ -19,6 +19,7 @@
 module.exports = function(pb) {
 
     //pb dependencies
+    const ActivePluginService = pb.ActivePluginService;
     var util = pb.util;
     var PluginService  = pb.PluginService;
     var PluginDetailsLoader = pb.PluginDetailsLoader;
@@ -60,7 +61,7 @@ module.exports = function(pb) {
                 navigation: pb.AdminNavigation.get(self.session, ['plugins', 'manage'], self.ls, self.site),
                 d: obj.details,
                 status: obj.status,
-                is_active: PluginService.isActivePlugin(obj.details.uid, self.site)
+                is_active: ActivePluginService.isActivePlugin(obj.details.uid, self.site)
             });
 
             //render page
@@ -90,7 +91,7 @@ module.exports = function(pb) {
             if (plugin) {
                 let obj = {
                     details: plugin,
-                    status: self.ls.g(PluginService.isActivePlugin(plugin.uid, self.site) ? 'generic.ACTIVE' : 'generic.INACTIVE')
+                    status: self.ls.g(ActivePluginService.isActivePlugin(plugin.uid, self.site) ? 'generic.ACTIVE' : 'generic.INACTIVE')
                 };
                 cb(err, obj);
                 return;

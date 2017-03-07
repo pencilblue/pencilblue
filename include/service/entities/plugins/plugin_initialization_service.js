@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActivePluginService = require('../../../../lib/service/plugins/activePluginService');
 const ArrayUtils = require('../../../../lib/utils/array_utils');
 const async = require('async');
 const BowerPluginDependencyService = require('./bower_plugin_dependency_service');
@@ -407,7 +408,7 @@ class PluginInitializationService {
     static getOnStartupHandler (context) {
         return ['loadMainModule', function(callback/*, results*/) {
 
-            var mainModule = context.pluginSpec.main_module;
+            var mainModule = context.pluginSpec.main_module;console.log(mainModule);
             if (!_.isFunction(mainModule.onStartupWithContext) && !_.isFunction(mainModule.onStartup)) {
                 return callback(new Error('Plugin '+context.plugin.uid+' did not provide an "onStartupWithContext" function.'));
             }
@@ -513,7 +514,7 @@ class PluginInitializationService {
      */
     static getSetActiveHandler (context) {
         return ['loadServices', function(callback/*, results*/) {
-            callback(null, PluginService.activatePlugin(context.plugin.uid, context.pluginSpec, context.site));
+            callback(null, ActivePluginService.activate(context.plugin.uid, context.pluginSpec, context.site));
         }];
     }
 
@@ -597,7 +598,7 @@ class PluginInitializationService {
      * @param {Error} err
      */
     static handleInitializationError (plugin, err) {
-        PluginService.deactivatePlugin(plugin.uid, plugin.site);
+        ActivePluginService.deactivate(plugin.uid, plugin.site);
 
         //log it all
         var hasValidationErrs = !!err.validationErrors;

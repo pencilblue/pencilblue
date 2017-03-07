@@ -18,9 +18,9 @@
 
 //dependencies
 const _ = require('lodash');
+const ActivePluginService = require('../lib/service/plugins/activePluginService');
 const crypto = require('crypto');
 const DAO = require('./dao/dao');
-const PluginService = require('./service/entities/plugin_service');
 const util = require('util');
 const ValidationService = require('./validation/validation_service');
 
@@ -220,7 +220,7 @@ const ValidationService = require('./validation/validation_service');
 
                 //build out session object
                 var roleName = SecurityService.getRoleName(user.admin);
-                user.permissions = PluginService.getPermissionsForRole(roleName);
+                user.permissions = ActivePluginService.getPermissionsForRole(roleName);
                 session.authentication.user = user;
                 session.authentication.user_id = user[DAO.getIdField()].toString();
                 session.authentication.admin_level = user.admin;

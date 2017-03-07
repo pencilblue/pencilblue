@@ -21,6 +21,7 @@ var async = require('async');
 module.exports = function BlogModule(pb) {
 
     //pb dependencies
+    var ActivePluginService = pb.ActivePluginService;
     var util           = pb.util;
     var PluginService  = pb.PluginService;
     var ContentService = pb.ContentService;
@@ -208,7 +209,7 @@ module.exports = function BlogModule(pb) {
         //the theme is specified, we ensure that the theme is installed and
         //initialized otherwise we let the template service figure out how to
         //delegate.
-        if (!PluginService.isActivePlugin(pieces[0], this.site)) {
+        if (!ActivePluginService.isActivePlugin(pieces[0], this.site)) {
             pb.log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
             cb(null, pieces[1]);
             return;

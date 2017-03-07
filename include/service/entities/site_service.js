@@ -486,6 +486,7 @@ class SiteService extends BaseObjectService {
     }
 
     /**
+     * TODO [1.0] remove bc it moved to site utils
      * Returns true if both site ids given are equal
      * @method areEqual
      * @param {String} siteA - first site id to compare
@@ -500,6 +501,7 @@ class SiteService extends BaseObjectService {
     }
 
     /**
+     * TODO [1.0] remove bc it moved to site utils
      * Returns true if actual is not set (falsey) or logically equivalent to expected in terms of sites
      * @method isNotSetOrEqual
      * @param {String} actual - site to check

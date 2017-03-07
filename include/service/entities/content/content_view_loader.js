@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActivePluginService = require('../../../../lib/service/plugins/activePluginService');
 const async       = require('async');
 const ClientJs = require('../../../client_js');
 const CommentService = require('../../../theme/comments');
@@ -25,7 +26,6 @@ const ContentService = require('../../../content');
 const DAO = require('../../../dao/dao');
 const HtmlEncoder = require('htmlencode');
 const log = require('../../../utils/logging').newInstance('ContentViewLoader');
-const PluginService = require('../plugin_service');
 const SecurityService = require('../../../access_management');
 const TemplateValue = require('../template_service').TemplateValue;
 const TopMenuService = require('../../../theme/top_menu');
@@ -190,7 +190,7 @@ class ContentViewLoader {
         //the theme is specified, we ensure that the theme is installed and
         //initialized otherwise we let the template service figure out how to
         //delegate.
-        if (!PluginService.isActivePlugin(pieces[0])) {
+        if (!ActivePluginService.isActivePlugin(pieces[0])) {
             log.silly("ContentController: Theme [%s] is not active, Template Service will delegate [%s]", pieces[0], pieces[1]);
             return cb(null, pieces[1]);
         }

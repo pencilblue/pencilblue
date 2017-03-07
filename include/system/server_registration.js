@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActivePluginService = require('../../lib/service/plugins/activePluginService');
 const async   = require('async');
 const cluster = require('cluster');
 const Configuration = require('../config');
@@ -130,7 +131,7 @@ class ServerRegistration {
      * @method addItem
      * @param {String} name The name and/or description of the information being
      * gathered
-     * @param {Function} The function to be called to gather the data.
+     * @param {Function} itemValueFunction The function to be called to gather the data.
      * @return {Boolean} TRUE if the function is successfully registered, FALSE if not.
      */
     static addItem(name, itemValueFunction) {
@@ -235,7 +236,6 @@ class ServerRegistration {
      */
     static getIp() {
         var interfaces = os.networkInterfaces();
-        var interfaceKeys = Object.keys(interfaces);
         var address = null;
         Object.keys(interfaces).forEach(function(k) {
             Object.keys(interfaces[k]).forEach(function(k2) {
@@ -332,10 +332,9 @@ var ITEM_CALLBACKS = {
     },
 
     //TODO move this to an init method in plugin service.  We need to do this because this low level service should not be responsible for tracking active plugins.  Each service should register the items that are needed
-    // active_plugins: function(cb) {
-    //     var pluginService = new pb.PluginService();
-    //     cb(null, pluginService.getAllActivePluginNames());
-    // },
+     active_plugins: function(cb) {
+         cb(null, ActivePluginService.getAllPluginNames());
+     },
 
     uptime: function(cb) {
         cb(null, process.uptime());

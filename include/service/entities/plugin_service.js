@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActivePluginService = require('../../../lib/service/plugins/activePluginService');
 const ArrayUtils = require('../../../lib/utils/array_utils');
 const async   = require('async');
 const CacheEntityService = require('../cache_entity_service');
@@ -64,12 +65,6 @@ class PluginService {
          */
         this.site = options.site || SiteUtils.GLOBAL_SITE;
 
-        /**
-         * @property _pluginRepository
-         * @type {PluginRepository}
-         */
-        this._pluginRepository = PluginRepository;
-
         //construct settings services
         var caching = Configuration.active.plugins.caching;
 
@@ -105,14 +100,6 @@ class PluginService {
     }
 
     /**
-     * The name of the directory for each plugin that contains the public resources
-     * @type {String}
-     */
-    static get PUBLIC_DIR_NAME() {
-        return 'public';
-    }
-
-    /**
      * Retrieves the path to the active fav icon.
      * @method getActiveIcon
      * @param {Function} cb A callback that provides two parameters: cb(Error, URL_PATH_TO_ICON)
@@ -121,102 +108,9 @@ class PluginService {
         var self = this;
         var settings = SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, this.site);
         settings.get('active_theme', function (err, theme) {
-            var active_theme = PluginService.getPluginForSite(theme, self.site);
+            var active_theme = ActivePluginService.get(theme, self.site);
             cb(err, active_theme && active_theme.icon ? active_theme.icon : '/favicon.ico');
         });
-    }
-
-    /**
-     * Remove the active plugin entry from the current PB process.
-     * NOTE: it is not recommended to call this directly.
-     * @param {String} pluginUid
-     * @param {string} site
-     * @return {Boolean}
-     */
-    static deactivatePlugin(pluginUid, site) {
-        if (!ValidationService.isNonEmptyStr(pluginUid)) {
-            throw new Error('A non-existent or empty plugin UID was passed');
-        }
-
-        if (!site) {
-            site = SiteUtils.GLOBAL_SITE;
-        }
-
-        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
-            delete ACTIVE_PLUGINS[site][pluginUid];
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Activates a plugin based on the UID and the provided spec
-     * @param {string} pluginUid
-     * @param {object} pluginSpec
-     * @param {function} pluginSpec.main_module
-     * @param {string} pluginSpec.public_dir
-     * @param {object} pluginSpec.permissions
-     * @param {Array} pluginSpec.templates
-     * @param {string} pluginSpec.icon
-     * @param {object} pluginSpec.services
-     * @param {string} site
-     * @returns {boolean} TRUE if the site is set as active and FALSE when the site is already active
-     */
-    static activatePlugin(pluginUid, pluginSpec, site) {
-        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
-            return false;
-        }
-        if (!ACTIVE_PLUGINS[site]) {
-            ACTIVE_PLUGINS[site] = {};
-        }
-        ACTIVE_PLUGINS[site][pluginUid] = pluginSpec;
-        return true;
-    }
-
-    /**
-     * Retrieves the main module prototype for the specified active plugin
-     * @param {String} pluginUid
-     * @param {string} site
-     * @return {Function} The prototype that is the plugin's main module.
-     */
-    static getActiveMainModule(pluginUid, site) {
-        if (!site) {
-            site = SiteUtils.GLOBAL_SITE;
-        }
-        return (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) ? ACTIVE_PLUGINS[site][pluginUid].main_module : null;
-    }
-
-    /**
-     * Retrieves the names of the active plugins for this instance
-     * @return {array} An array that contain the names of the plugins that
-     * initialized successfully within this instance.
-     */
-    getActivePluginNames() {
-        var globalPlugins = [];
-        if (ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE]) {
-            globalPlugins = Object.keys(ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE]);
-        }
-        var sitePlugins = [];
-        if (ACTIVE_PLUGINS[this.site]) {
-            sitePlugins = Object.keys(ACTIVE_PLUGINS[this.site]);
-        }
-        return _.uniq(sitePlugins.concat(globalPlugins));
-    }
-
-    /**
-     * Get a array of active plugin names with site name as a prefix: site_name_plugin_name
-     * @return {Array} array of active plugin names with site name prefix.
-     */
-    getAllActivePluginNames() {
-        var pluginNames = [];
-        var siteNames = Object.keys(ACTIVE_PLUGINS);
-        for (var i = 0; i < siteNames.length; i++) {
-            var sitePluginNames = Object.keys(ACTIVE_PLUGINS[siteNames[i]]);
-            for (var j = 0; j < sitePluginNames.length; j++) {
-                pluginNames.push(siteNames[i] + '_' + sitePluginNames[j]);
-            }
-        }
-        return pluginNames;
     }
 
     /**
@@ -413,7 +307,7 @@ class PluginService {
      * plugin does exist null is provided.
      */
     getPlugin(pluginIdentifier, cb) {
-        this._pluginRepository.loadPluginAvailableToThisSite(pluginIdentifier, this.site, cb);
+        PluginRepository.loadPluginAvailableToThisSite(pluginIdentifier, this.site, cb);
     }
 
     /**
@@ -422,7 +316,7 @@ class PluginService {
      * @param {Function} cb
      */
     getPluginBySite(pluginIdentifier, cb) {
-        this._pluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
+        PluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
     }
 
     /**
@@ -431,7 +325,7 @@ class PluginService {
      * @param {Function} cb Provides two parameters: Error, Array
      */
     getPluginsWithThemes(cb) {
-        this._pluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
+        PluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
     }
 
     /**
@@ -440,7 +334,7 @@ class PluginService {
      * @param {Function} cb - callback function
      */
     getPluginsWithThemesBySite(cb) {
-        this._pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
+        PluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
     }
 
     /**
@@ -585,14 +479,13 @@ class PluginService {
                 }
 
                 //build the object to persist
-                var baseDoc = {
+                var settings = {
+                    object_type: 'plugin_settings',
                     plugin_name: plugin.name,
                     plugin_uid: plugin.uid,
                     plugin_id: plugin[DAO.getIdField()].toString(),
                     settings: details.settings
                 };
-                var settings = baseDoc;
-                settings.object_type = 'plugin_settings';
 
                 //save it
                 var dao = new SiteQueryService({site: self.site});
@@ -655,161 +548,6 @@ class PluginService {
                 });
             });
         });
-    }
-
-    /**
-     * Retrieves the permission set for a given role.  All active plugins are
-     * inspected.
-     * @static
-     * @method getPermissionsForRole
-     * @param {string} role The role to get permissions for
-     * @return {Object} A hash of the permissions
-     */
-    static getPermissionsForRole(role) {
-        var perms = {};
-        Object.keys(ACTIVE_PLUGINS).forEach(function (site) {
-            Object.keys(ACTIVE_PLUGINS[site]).forEach(function (pluginUid) {
-                var permissions = ACTIVE_PLUGINS[site][pluginUid].permissions;
-                if (permissions) {
-
-                    var permsAtLevel = permissions[role];
-                    if (permsAtLevel) {
-                        Object.assign(perms, permsAtLevel);
-                    }
-                }
-            });
-        });
-
-        return perms;
-    }
-
-    /**
-     * Retrieves the file path to the public directory for the specified plugin.
-     * @static
-     * @method getActivePluginDir
-     * @param {String} pluginUid A plugin's UID value
-     * @return {String} File path to the plugin's public directory
-     */
-    static getActivePluginPublicDir(pluginUid) {
-        var publicPath = null;
-        var keys = Object.keys(ACTIVE_PLUGINS);
-        for (var i = 0; i < keys.length; i++) {
-            if (ACTIVE_PLUGINS[keys[i]][pluginUid]) {
-                publicPath = ACTIVE_PLUGINS[keys[i]][pluginUid].public_dir;
-                break;
-            }
-        }
-        return publicPath;
-    }
-
-    /**
-     * Indicates if the specified plugin is active in this instance of PB.
-     * @static
-     * @method isActivePlugin
-     * @param {String} uid The unique identifier for a plugin
-     * @param {string} site
-     * @return {Boolean} TRUE if the plugin is active, FALSE if not
-     */
-    static isActivePlugin(uid, site) {
-        if (!site) {
-            site = SiteUtils.GLOBAL_SITE;
-        }
-        return !!PluginService.getPluginForSite(uid, site);
-    }
-
-    /**
-     *
-     * @param theme
-     * @param site
-     * @returns {*}
-     */
-    static getPluginForSite(theme, site) {
-        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][theme]) {
-            return ACTIVE_PLUGINS[site][theme];
-        } else if (ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE] && ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][theme]) {
-            return ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][theme];
-        }
-        return null;
-    }
-
-    /**
-     * Indicates if the specified plugin is active for a given site in this instance of PB.
-     * @static
-     * @method isActivePlugin
-     * @param {String} uid The unique identifier for a plugin
-     * @param {string} site
-     * @return {Boolean} TRUE if the plugin is active, FALSE if not
-     */
-    static isPluginActiveBySite(uid, site) {
-        if (!site) {
-            site = SiteUtils.GLOBAL_SITE;
-        }
-        return ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][uid];
-    }
-
-    /**
-     * Generates a URL path to a public resource for a plugin.
-     * @static
-     * @method genPublicPath
-     * @param {String} plugin The UID of the plugin
-     * @param {String} relativePathToMedia The relative path to the resource from
-     * the plugin's public directory.
-     * @return {String} URL path to the resource
-     */
-    static genPublicPath(plugin, relativePathToMedia) {
-        if (!_.isString(plugin) || !_.isString(relativePathToMedia)) {
-            return '';
-        }
-        return UrlUtils.urlJoin('/public', plugin, relativePathToMedia);
-    }
-
-    /**
-     * Retrieves the details for the active plugins.
-     * @method getActivePlugins
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
-     */
-    getActivePlugins(cb) {
-        this._pluginRepository.loadIncludedPluginsOwnedByThisSite(this.getActivePluginNames(), this.site, cb);
-    }
-
-    /**
-     * Retrieves the content templates for all of the active plugins
-     * @static
-     * @method getActiveContentTemplates
-     * @param targetSite
-     * @return {Array} An array of objects
-     */
-    static getActiveContentTemplates(targetSite) {
-
-        var templates = [];
-        Object.keys(ACTIVE_PLUGINS).forEach(function (site) {
-            if (!SiteService.isNotSetOrEqual(targetSite, site)) {
-                return;
-            }
-            var pluginsForSite = ACTIVE_PLUGINS[site];
-            Object.keys(pluginsForSite).forEach(function (uid) {
-                var plugin = pluginsForSite[uid];
-                if (plugin.templates) {
-                    var clone = _.clone(plugin.templates);
-                    for (var i = 0; i < clone.length; i++) {
-                        clone[i].theme_uid = uid;
-                        templates.push(clone[i]);
-                    }
-                }
-            });
-        });
-        return templates;
-    }
-
-    /**
-     * Retrieves the inactive plugins for this instance of PencilBlue.  An inactive
-     * plugin is considered one who failed to install or one that failed to start
-     * properly.
-     * @method getInactivePlugins
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
-     */
-    getInactivePlugins(cb) {
-        this._pluginRepository.loadPluginsNotIncludedOwnedByThisSite(this.getActivePluginNames(), this.site, cb);
     }
 
     /**
@@ -897,11 +635,11 @@ class PluginService {
         var tasks = {
 
             active: function (callback) {
-                self.getActivePlugins(callback);
+                PluginRepository.loadIncludedPluginsOwnedByThisSite(ActivePluginService.getPluginNames(), self.site, callback);
             },
 
             inactive: function (callback) {
-                self.getInactivePlugins(callback);
+                PluginRepository.loadPluginsNotIncludedOwnedByThisSite(ActivePluginService.getPluginNames(), self.site, cb);
             }
         };
         async.series(tasks, function (err, results) {
@@ -918,37 +656,24 @@ class PluginService {
     }
 
     /**
+     * TODO [1.0] remove
      * Retrieves a plugin service prototype.  It is expected to be a prototype but
      * it may also be an instance as along as that instance fulfills all
      * responsibilities of the service interface.  When the desired service does not
      * exist NULL is returned.
-     * @static
-     * @method getService
+     * @deprecated
      * @param {String} serviceName
      * @param {String} pluginUid The unique plugin identifier
      * @param {string} [site=global] - The site UID
      * @return {Object} Service prototype
      */
     static getService(serviceName, pluginUid, site) {
-        if (!site) {
-            site = SiteUtils.GLOBAL_SITE;
-        }
-        if (ACTIVE_PLUGINS[site] && ACTIVE_PLUGINS[site][pluginUid]) {
-            if (ACTIVE_PLUGINS[site][pluginUid].services && ACTIVE_PLUGINS[site][pluginUid].services[serviceName]) {
-                return ACTIVE_PLUGINS[site][pluginUid].services[serviceName];
-            }
-        } else if (ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE] && ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][pluginUid]) {
-            if (ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][pluginUid].services && ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][pluginUid].services[serviceName]) {
-                return ACTIVE_PLUGINS[SiteUtils.GLOBAL_SITE][pluginUid].services[serviceName];
-            }
-        }
-        throw new Error('Either plugin [' + pluginUid + '] or the service [' + serviceName + '] does not exist for site [' + site + ']');
+        return ActivePluginService.getService(serviceName, pluginUid, site);
     }
 
     /**
      * Attempts to require the main module file for a plugin.
-     * @static
-     * @method loadMainModule
+     * @deprecated
      * @param {String} pluginDirName The name of the directory that the plugin is
      * contained within.
      * @param {String} pathToModule The name of the main module file.  It is also
@@ -990,8 +715,7 @@ class PluginService {
 
     /**
      * Attempts to load and parse the details.json file for a plugin.
-     * @static
-     * @method loadDetailsFile
+     * @deprecated
      * @param {String} filePath The absolute path to the details.json file
      * @param {Function} cb A callback that provides two parameters: cb(error, detailsObject)
      */
@@ -1031,13 +755,6 @@ class PluginService {
         //commandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
     }
 }
-
-    /**
-     * A hash of the plugins that are installed and active in this instance of PB.
-     * @property ACTIVE_PLUGINS
-     * @type {Object}
-     */
-    var ACTIVE_PLUGINS = {};
 
 function getPluginSettingService(self) {
     if(!self.pluginSettingService) {

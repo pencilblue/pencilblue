@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActivePluginService = require('../../../../lib/service/plugins/activePluginService');
 const CommandService = require('../../../system/command/command_service');
 const Configuration = require('../../../config');
 const DAO = require('../../../dao/dao');
@@ -116,13 +117,13 @@ class PluginUninstallJob extends PluginJobRunner {
 
             //call onUninstall
             function (callback) {
-                if (!PluginService.isPluginActiveBySite(pluginUid, site)) {
+                if (!ActivePluginService.isActiveForSite(pluginUid, site)) {
                     self.log("Skipping call to plugin's onUninstall function.  Main module was not active.");
                     callback(null, true);
                     return;
                 }
 
-                var mm = PluginService.getActiveMainModule(pluginUid, site);
+                var mm = ActivePluginService.getMainModule(pluginUid, site);
                 if (_.isFunction(mm.onUninstall) || _.isFunction(mm.onUninstallWithContext)) {
                     self.log('Calling plugin onUnstall', pluginUid);
 
@@ -248,7 +249,7 @@ class PluginUninstallJob extends PluginJobRunner {
 
             //remove from ACTIVE_PLUGINS//unregister services
             function (callback) {
-                var result = PluginService.deactivatePlugin(pluginUid, site);
+                var result = ActivePluginService.deactivate(pluginUid, site);
                 process.nextTick(function () {
                     callback(null, result);
                 });

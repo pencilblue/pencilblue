@@ -18,8 +18,9 @@
 module.exports = function(pb) {
 
     //pb dependencies
-    var util = pb.util;
+    var ActivePluginService = pb.ActivePluginService;
     var BaseAdminController = pb.BaseAdminController;
+    var util = pb.util;
 
     /**
      * Interface for displaying how a plugin's user permissions are organized
@@ -37,7 +38,7 @@ module.exports = function(pb) {
         var map         = {};
         var rolePermMap = {};
         roles.forEach(function(roleName) {
-            var permMap  = pb.PluginService.getPermissionsForRole(roleName);
+            var permMap  = ActivePluginService.getPermissionsForRole(roleName);
 
             rolePermMap[roleName] = {};
             Object.keys(permMap).forEach(function(perm) {

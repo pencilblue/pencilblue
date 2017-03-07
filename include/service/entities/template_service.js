@@ -17,22 +17,23 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async       = require('async');
-var CacheEntityService = require('../cache_entity_service');
-var Configuration = require('../../config');
-var HtmlEncoder = require('htmlencode');
-var log = require('../../utils/logging').newInstance('TemplateService');
-var MemoryEntityService = require('../memory_entity_service');
-var path = require('path');
-var PluginService = require('./plugin_service');
+const _ = require('lodash');
+const ActivePluginService = require('../../../lib/service/plugins/activePluginService');
+const async = require('async');
+const CacheEntityService = require('../cache_entity_service');
+const Configuration = require('../../config');
+const HtmlEncoder = require('htmlencode');
+const log = require('../../utils/logging').newInstance('TemplateService');
+const MemoryEntityService = require('../memory_entity_service');
+const path = require('path');
+const PluginService = require('./plugin_service');
 const PluginDetailsLoader = require('./plugins/loaders/pluginDetailsLoader');
-var SettingServiceFactory = require('../../system/settings');
-var SimpleLayeredService = require('../simple_layered_service');
-var SiteService = require('./site_service');
-var TemplateEntityService = require('../template_entity_service');
-var util = require('util');
-var ValidationService = require('../../validation/validation_service');
+const SettingServiceFactory = require('../../system/settings');
+const SimpleLayeredService = require('../simple_layered_service');
+const SiteService = require('./site_service');
+const TemplateEntityService = require('../template_entity_service');
+const util = require('util');
+const ValidationService = require('../../validation/validation_service');
 
     /**
      * A template engine that provides the ability to read in file snippets and
@@ -345,7 +346,7 @@ var ValidationService = require('../../validation/validation_service');
                 });
             }
 
-            var activePlugins = self.pluginService.getActivePluginNames();
+            var activePlugins = ActivePluginService.getPluginNames();
             for (var i = 0; i < activePlugins.length; i++) {
                 if (!TemplateService.isTemplateBlacklisted(activePlugins[i], relativePath) &&
                     hintedTheme !== activePlugins[i] && Configuration.active.plugins.default !== activePlugins[i]) {
@@ -775,7 +776,7 @@ var ValidationService = require('../../validation/validation_service');
      * @return {Array} An array of template definitions
      */
     TemplateService.getAvailableContentTemplates = function(site) {
-        var templates = PluginService.getActiveContentTemplates(site);
+        var templates = ActivePluginService.getContentTemplates(site);
         templates.push(
             {
                 theme_uid: Configuration.active.plugins.default,

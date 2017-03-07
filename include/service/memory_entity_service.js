@@ -36,7 +36,7 @@ const System = require('../system/system');
  * @param {String} [options.valueField=null]
  * @param {String} [options.site='global']
  * @param {String} [options.onlyThisSite=false]
- * @param {Integer} [options.timeout=0] The number of seconds that a value will remain in cache
+ * @param {number} [options.timeout=0] The number of seconds that a value will remain in cache
  * before expiry.
  */
 function MemoryEntityService(options){

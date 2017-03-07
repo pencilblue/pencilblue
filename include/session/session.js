@@ -263,7 +263,7 @@ class SessionHandler {
      * @param {Object} request The object that describes the incoming user request
      * @return {string} Session Id if available NULL if it cannot be found
      */
-    getSessionIdFromCookie(request) {
+    static getSessionIdFromCookie(request) {
 
         var sessionId = null;
         if (request.headers[SessionHandler.COOKIE_HEADER]) {

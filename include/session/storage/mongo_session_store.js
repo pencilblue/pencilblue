@@ -160,7 +160,7 @@ class MongoSessionStore {
      * @param {Function} cb
      * @return {Function}
      */
-    getHandler(cb) {
+    static getHandler(cb) {
         return function (err, session) {
             if (session && _.isDate(session.timeout)) {
                 session.timeout = session.timeout.getTime();
