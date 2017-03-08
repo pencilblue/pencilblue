@@ -25,6 +25,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
     var PluginUtils = pb.PluginUtils;
     var util           = pb.util;
     var PluginService  = pb.PluginService;
+    var PluginUtils = pb.PluginUtils;
     var TopMenuService = pb.TopMenuService;
 
     /**

@@ -44,7 +44,6 @@ const SiteQueryService = require('./site_query_service');
 const SiteService = require('./site_service');
 const SiteUtils = require('../../../lib/utils/siteUtils');
 const util = require('util');
-const UrlUtils = require('../../../lib/utils/urlUtils');
 const ValidationService = require('../../validation/validation_service');
 
 /**

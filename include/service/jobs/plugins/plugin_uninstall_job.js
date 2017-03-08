@@ -28,7 +28,7 @@ const log = require('../../../utils/logging').newInstance('PluginUninstallJob');
 const PluginJobRunner = require('./plugin_job_runner');
 const PluginLocalizationLoader = require('../../entities/plugins/loaders/plugin_localization_loader');
 const PluginService = require('../../entities/plugin_service');
-const RequestHandler = require('../../../http/request_handler');
+const RouteService = require('../../../../lib/service/routeService');
 const SettingServiceFactory = require('../../../system/settings');
 const SiteUtils = require('../../../../lib/utils/siteUtils');
 const util = require('util');
@@ -146,7 +146,7 @@ class PluginUninstallJob extends PluginJobRunner {
 
             //unregister routes
             function (callback) {
-                var routesRemoved = RequestHandler.unregisterThemeRoutes(pluginUid, site);
+                var routesRemoved = RouteService.unregisterTheme(pluginUid, site);
                 self.log('Unregistered %d routes', routesRemoved);
                 process.nextTick(function () {
                     callback(null, true);
