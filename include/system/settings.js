@@ -60,13 +60,11 @@ class SettingServiceFactory {
 
     /**
      * Creates a new instance of the settings service
-     * @static
-     * @method getService
      * @param {Boolean} useMemory
      * @param {Boolean} useCache
+     * @param {String} site  siteId
+     * @param {Boolean} [onlyThisSite=false]  whether this service should only return setting specified by site
      * @return {SimpleLayeredService}
-     * @param site {String} siteId
-     * @param onlyThisSite {Boolean} whether this service should only return setting specified by site
      */
     static getService(useMemory, useCache, site, onlyThisSite) {
         var keyField = 'key';
@@ -79,7 +77,7 @@ class SettingServiceFactory {
             keyField: keyField,
             timeout: Configuration.active.settings.memory_timeout,
             site: site,
-            onlyThisSite: onlyThisSite
+            onlyThisSite: !!onlyThisSite
         };
 
         //add in-memory service

@@ -43,7 +43,6 @@ const SiteQueryService = require('./site_query_service');
 const SiteService = require('./site_service');
 const SiteUtils = require('../../../lib/utils/siteUtils');
 const util = require('util');
-const UrlUtils = require('../../../lib/utils/urlUtils');
 const ValidationService = require('../../validation/validation_service');
 
 /**
@@ -63,12 +62,6 @@ class PluginService {
          * @type {String}
          */
         this.site = options.site || SiteUtils.GLOBAL_SITE;
-
-        /**
-         * @property _pluginRepository
-         * @type {PluginRepository}
-         */
-        this._pluginRepository = PluginRepository;
 
         //construct settings services
         var caching = Configuration.active.plugins.caching;
@@ -188,7 +181,7 @@ class PluginService {
 
     /**
      * Retrieves the names of the active plugins for this instance
-     * @return {array} An array that contain the names of the plugins that
+     * @return {Array} An array that contain the names of the plugins that
      * initialized successfully within this instance.
      */
     getActivePluginNames() {
@@ -413,7 +406,7 @@ class PluginService {
      * plugin does exist null is provided.
      */
     getPlugin(pluginIdentifier, cb) {
-        this._pluginRepository.loadPluginAvailableToThisSite(pluginIdentifier, this.site, cb);
+        PluginRepository.loadPluginAvailableToThisSite(pluginIdentifier, this.site, cb);
     }
 
     /**
@@ -422,7 +415,7 @@ class PluginService {
      * @param {Function} cb
      */
     getPluginBySite(pluginIdentifier, cb) {
-        this._pluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
+        PluginRepository.loadPluginOwnedByThisSite(pluginIdentifier, this.site, cb);
     }
 
     /**
@@ -431,7 +424,7 @@ class PluginService {
      * @param {Function} cb Provides two parameters: Error, Array
      */
     getPluginsWithThemes(cb) {
-        this._pluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
+        PluginRepository.loadPluginsWithThemesAvailableToThisSite(this.site, cb);
     }
 
     /**
@@ -440,7 +433,7 @@ class PluginService {
      * @param {Function} cb - callback function
      */
     getPluginsWithThemesBySite(cb) {
-        this._pluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
+        PluginRepository.loadPluginsWithThemesOwnedByThisSite(this.site, cb);
     }
 
     /**
@@ -748,28 +741,12 @@ class PluginService {
     }
 
     /**
-     * Generates a URL path to a public resource for a plugin.
-     * @static
-     * @method genPublicPath
-     * @param {String} plugin The UID of the plugin
-     * @param {String} relativePathToMedia The relative path to the resource from
-     * the plugin's public directory.
-     * @return {String} URL path to the resource
-     */
-    static genPublicPath(plugin, relativePathToMedia) {
-        if (!_.isString(plugin) || !_.isString(relativePathToMedia)) {
-            return '';
-        }
-        return UrlUtils.urlJoin('/public', plugin, relativePathToMedia);
-    }
-
-    /**
      * Retrieves the details for the active plugins.
      * @method getActivePlugins
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
     getActivePlugins(cb) {
-        this._pluginRepository.loadIncludedPluginsOwnedByThisSite(this.getActivePluginNames(), this.site, cb);
+        PluginRepository.loadIncludedPluginsOwnedByThisSite(this.getActivePluginNames(), this.site, cb);
     }
 
     /**
@@ -809,7 +786,7 @@ class PluginService {
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
     getInactivePlugins(cb) {
-        this._pluginRepository.loadPluginsNotIncludedOwnedByThisSite(this.getActivePluginNames(), this.site, cb);
+        PluginRepository.loadPluginsNotIncludedOwnedByThisSite(this.getActivePluginNames(), this.site, cb);
     }
 
     /**

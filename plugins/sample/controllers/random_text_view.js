@@ -24,6 +24,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
     //PB dependencies
     var util           = pb.util;
     var PluginService  = pb.PluginService;
+    var PluginUtils = pb.PluginUtils;
     var TopMenuService = pb.TopMenuService;
 
     /**
@@ -112,7 +113,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
             //to the "registerModel" function in order to keep the functional calls
             //to a minimum.
             var model = {
-                'sample_plugin_icon': PluginService.genPublicPath('sample', 'imgs/sample.ico'),
+                'sample_plugin_icon': PluginUtils.genPublicPath('sample', 'imgs/sample.ico'),
 
                 'sample_text': text,
 
