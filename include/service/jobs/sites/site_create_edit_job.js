@@ -17,12 +17,13 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var async = require('async');
-var DAO = require('../../../dao/dao');
-var RequestHandler = require('../../../http/request_handler');
-var SiteJobRunner = require('./site_job_runner');
-var SiteService = require('../../entities/site_service');
+const _ = require('lodash');
+const ActiveSiteService = require('../../../../lib/service/sites/activeSiteService');
+const async = require('async');
+const DAO = require('../../../dao/dao');
+const RequestHandler = require('../../../http/request_handler');
+const SiteJobRunner = require('./site_job_runner');
+const SiteService = require('../../entities/site_service');
 
 /**
  * Job to create/edit a site.
@@ -86,7 +87,7 @@ class SiteCreateEditJob extends SiteJobRunner {
         var tasks = [
             //allow traffic to start routing for site
             function (callback) {
-                RequestHandler.loadSite(site);
+                ActiveSiteService.register(site);
                 callback();
             }
         ];
@@ -125,7 +126,7 @@ class SiteCreateEditJob extends SiteJobRunner {
                             return cb(err, null);
                         }
 
-                        RequestHandler.loadSite(site);
+                        ActiveSiteService.activate(site);
                         callback(err, result);
                     });
                 });

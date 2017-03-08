@@ -20,7 +20,6 @@
 const _ = require('lodash');
 const async = require('async');
 const DAO = require('../../../dao/dao');
-const RequestHandler = require('../../../http/request_handler');
 const SiteJobRunner = require('./site_job_runner');
 
 /**
@@ -120,7 +119,7 @@ class SiteDeactivateJob extends SiteJobRunner {
                             return cb(err, null);
                         }
 
-                        RequestHandler.deactivateSite(site);
+                        ActiveSiteService.deactivate(site.uid);
                         callback(err, result);
                     });
                 });

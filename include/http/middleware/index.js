@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActiveSiteService = require('../../../lib/service/sites/activeSiteService');
 const BodyParserService = require('../../../lib/service/bodyParserService');
 const Configuration = require('../../config');
 const Cookies = require('cookies');
@@ -144,11 +145,11 @@ class Middleware {
      */
     static deriveSite (req, res, next) {
         var hostname = req.handler.hostname;
-        var siteObj = RequestHandler.sites[hostname];
-        var redirectHost = RequestHandler.redirectHosts[hostname];
+        var siteObj = ActiveSiteService.getByHostname(hostname);
+        var redirectHost = ActiveSiteService.getRedirectForHostname(hostname);
 
         // If we need to redirect to a different host
-        if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
+        if (!siteObj && redirectHost && ActiveSiteService.getByHostname(redirectHost)) {
             return req.router.redirect(SiteUtils.getHostWithProtocol(redirectHost), HttpStatus.MOVED_PERMANENTLY);
         }
         req.handler.siteObj = req.siteObj = siteObj;

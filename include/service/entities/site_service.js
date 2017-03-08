@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActiveSiteService = require('../../../lib/service/sites/activeSiteService');
 const async = require('async');
 const BaseObjectService = require('../base_object_service');
 const CommandService = require('../../system/command/command_service');
@@ -26,7 +27,7 @@ const DAO = require('../../dao/dao');
 const Localization = require('../../localization');
 const log = require('../../utils/logging').newInstance('SiteService');
 const RegExpUtils = require('../../utils/reg_exp_utils');
-const RequestHandler = require('../../http/request_handler');if(typeof RequestHandler !== 'function') { throw new Error('shit');}
+const RequestHandler = require('../../http/request_handler');
 const SiteActivateJob = require('../jobs/sites/site_activate_job');
 const SiteCreateEditJob = require('../jobs/sites/site_create_edit_job');
 const SiteDeactivateJob = require('../jobs/sites/site_deactivate_job');
@@ -327,7 +328,7 @@ class SiteService extends BaseObjectService {
                 cb(new Error('Site not active'), null);
             }
             else {
-                RequestHandler.activateSite(site);
+                ActiveSiteService.activate(siteUid);
                 cb(err, site);
             }
         });
@@ -352,7 +353,7 @@ class SiteService extends BaseObjectService {
                 cb(new Error('Site not deactivated'), null);
             }
             else {
-                RequestHandler.deactivateSite(site);
+                ActiveSiteService.deactivate(siteUid);
                 cb(err, site);
             }
         });
@@ -382,7 +383,7 @@ class SiteService extends BaseObjectService {
                     site.defaultLocale = site.defaultLocale || defaultLocale;
                     site.supportedLocales = site.supportedLocales || defaultSupportedLocales;
                     site.prevHostnames = site.prevHostnames || [];
-                    RequestHandler.loadSite(site);
+                    ActiveSiteService.register(site);
                 });
             }
 
@@ -390,7 +391,7 @@ class SiteService extends BaseObjectService {
             // and active allows all routes to be hit.
             // When multisite, use the configured hostname for global, turn off public facing routes,
             // and maintain admin routes (active is false).
-            RequestHandler.loadSite(SiteUtils.getGlobalSiteContext());
+            ActiveSiteService.register(SiteUtils.getGlobalSiteContext());
             cb(err, true);
         });
     }

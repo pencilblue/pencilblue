@@ -148,47 +148,6 @@ const UrlUtils = require('../../lib/utils/urlUtils');
     };
 
     /**
-     * @static
-     * @method loadSite
-     * @param {Object} site
-     */
-    RequestHandler.loadSite = function(site) {
-        RequestHandler.sites[site.hostname] = {
-          active: site.active,
-          uid: site.uid,
-          displayName: site.displayName,
-          hostname: site.hostname,
-          defaultLocale: site.defaultLocale,
-          supportedLocales: site.supportedLocales,
-          prevHostnames: site.prevHostnames
-        };
-        //Populate RequestHandler.redirectHosts if this site has prevHostnames associated
-        if (site.prevHostnames) {
-            site.prevHostnames.forEach(function (oldHostname) {
-                RequestHandler.redirectHosts[oldHostname] = site.hostname;
-            });
-        }
-    };
-
-    /**
-     * @static
-     * @method activateSite
-     * @param {Object} site
-     */
-    RequestHandler.activateSite = function(site) {
-        RequestHandler.sites[site.hostname].active = true;
-    };
-
-    /**
-     * @static
-     * @method deactivateSite
-     * @param {Object} site
-     */
-    RequestHandler.deactivateSite = function(site) {
-        RequestHandler.sites[site.hostname].active = false;
-    };
-
-    /**
      * Derives the locale and localization instance.
      * TODO [1.0] Move to Localization service
      * @method deriveLocalization

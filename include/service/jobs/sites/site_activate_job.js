@@ -18,9 +18,9 @@
 
 //dependencies
 var _ = require('lodash');
+const ActiveSiteService = require('../../../../lib/service/sites/activeSiteService');
 var async = require('async');
 var DAO = require('../../../dao/dao');
-var RequestHandler = require('../../../http/request_handler');
 var SiteJobRunner = require('./site_job_runner');
 
 /**
@@ -118,7 +118,7 @@ class SiteActivateJob extends SiteJobRunner {
                             return cb(err, null);
                         }
 
-                        RequestHandler.activateSite(site);
+                        ActiveSiteService.activate(siteUid);
                         callback(err, result);
                     });
                 });
