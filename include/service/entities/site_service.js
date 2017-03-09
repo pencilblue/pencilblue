@@ -578,8 +578,10 @@ class SiteService extends BaseObjectService {
                 return hostname !== newHostname;
             });
             data.prevHostnames.push(prevHostname);
-            RequestHandler.redirectHosts[prevHostname] = newHostname;
-            RequestHandler.sites[prevHostname] = null;
+
+            //TODO [1.0] did this change prevent the ability for renamed sites to be active?
+            ActiveSiteService.setRedirectHost(prevHostname, newHostname);
+            ActiveSiteService.deregister(data.uid);
         }
         return data;
     }

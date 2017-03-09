@@ -120,8 +120,6 @@ const UrlUtils = require('../../lib/utils/urlUtils');
      */
     RequestHandler.DEFAULT_THEME = Configuration.active.plugins.default;
 
-    RequestHandler.sites = {};
-    RequestHandler.redirectHosts = {};
     var GLOBAL_SITE = SiteUtils.GLOBAL_SITE;
 
     /**

@@ -18,6 +18,9 @@
 
 module.exports = function (pb) {
 
+    //pb dependencies
+    const ActiveSiteService = pb.ActiveSiteService;
+
     /**
      * GoogleAnalytics - A sample for exemplifying what the main module file should
      * look like.
@@ -91,7 +94,8 @@ module.exports = function (pb) {
      * @param {function} cb (Error, string)
      */
     GoogleAnalytics.onRequest = function(req, session, ls, cb) {
-        var siteId = pb.SiteService.getCurrentSite(pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null);
+        let site = ActiveSiteService.getByHostname(req.headers.host);
+        var siteId = pb.SiteService.getCurrentSite(!!site ? site.uid : null);
         var context = {
             site: siteId,
             pluginService: new pb.PluginService({site: siteId}),

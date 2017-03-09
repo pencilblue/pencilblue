@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActiveSiteService = require('../../lib/service/sites/activeSiteService');
 const async  = require('async');
 const Configuration = require('../config');
 const domain = require('domain');
@@ -399,11 +400,12 @@ const ValidationService = require('../validation/validation_service');
      * providers.
      */
     AnalyticsManager.onPageRender = function(req, session, ls, cb) {
-        var context = {
-            site: RequestHandler.sites[req.headers.host] ? RequestHandler.sites[req.headers.host].uid : null,
+        let site = ActiveSiteService.getByHostname(req.headers.host);
+        let context = {
+            site: !!site ? site.uid : null,
             timeout: Configuration.active.analytics.timeout
         };
-        var managerInstance = new AnalyticsManager(context);
+        let managerInstance = new AnalyticsManager(context);
         managerInstance.gatherData(req, session, ls, cb);
     };
 
