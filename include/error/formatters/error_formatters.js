@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActiveSiteService = require('../../../lib/service/sites/activeSiteService');
 const Configuration = require('../../config');
 const HttpStatusCodes = require('http-status-codes');
 const path = require('path');
@@ -148,7 +149,7 @@ ErrorFormatters.html = function(params, cb) {
     params.request.controllerInstance.error = params.error;
     params.request.themeRoute = !!params.request.themeRoute ? _.clone(params.request.themeRoute) : {};
     params.request.routeTheme = params.request.routeTheme || {};
-    params.request.siteObj = params.request.siteObj || SiteUtils.getGlobalSiteContext();
+    params.request.siteObj = params.request.siteObj || ActiveSiteService.getGlobalSiteContext();
     params.request.themeRoute.handler = 'render';
     params.request.router.continueAfter('parseRequestBody');
 };

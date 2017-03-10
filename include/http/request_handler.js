@@ -18,6 +18,7 @@
 
 //dependencies
 const _ = require('lodash');
+const ActiveSiteService = require('../../lib/service/sites/activeSiteService');
 const async = require('async');
 const AsyncEventEmitter = require('../utils/async_event_emitter');
 const Configuration = require('../config');
@@ -88,7 +89,7 @@ const UrlUtils = require('../../lib/utils/urlUtils');
          * @property hostname
          * @type {String}
          */
-        this.hostname  = req.headers.host || SiteUtils.getGlobalSiteContext().hostname;
+        this.hostname  = req.headers.host || ActiveSiteService.getGlobalSiteContext().hostname;
 
         /**
          * @property activeTheme
@@ -249,7 +250,7 @@ const UrlUtils = require('../../lib/utils/urlUtils');
                 return cb(null, self.activeTheme);
             }
 
-            self.siteObj = self.siteObj || SiteUtils.getGlobalSiteContext();
+            self.siteObj = self.siteObj || ActiveSiteService.getGlobalSiteContext();
             var settingsService = SettingServiceFactory.getService(Configuration.active.settings.use_memory, Configuration.active.settings.use_cache, self.siteObj.uid);
             settingsService.get('active_theme', function(err, activeTheme){
                 self.activeTheme = activeTheme || Configuration.active.plugins.default;

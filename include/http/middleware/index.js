@@ -76,7 +76,7 @@ class Middleware {
      */
     static urlParse (req, res, next) {
         req.handler.url = req.parsedUrl = url.parse(req.url, true);
-        req.handler.hostname = req.headers.host || SiteUtils.getGlobalSiteContext().hostname;
+        req.handler.hostname = req.headers.host || ActiveSiteService.getGlobalSiteContext().hostname;
         next();
     }
 

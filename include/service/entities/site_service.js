@@ -391,7 +391,7 @@ class SiteService extends BaseObjectService {
             // and active allows all routes to be hit.
             // When multisite, use the configured hostname for global, turn off public facing routes,
             // and maintain admin routes (active is false).
-            ActiveSiteService.register(SiteUtils.getGlobalSiteContext());
+            ActiveSiteService.register(ActiveSiteService.getGlobalSiteContext());
             cb(err, true);
         });
     }
