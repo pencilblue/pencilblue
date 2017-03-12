@@ -72,7 +72,7 @@ module.exports = function CacheEntityServiceModule(pb) {
     CacheEntityService.prototype.get = function(key, cb){
 
         var self = this;
-        pb.cache.get(keyValue(key, this.site), function(err, result){
+        pb.cache.get(keyValue(key, self.site), function(err, result){
             if (util.isError(err)) {
                 return cb(err, null);
             }
@@ -132,7 +132,7 @@ module.exports = function CacheEntityServiceModule(pb) {
      */
     CacheEntityService.prototype.set = function(key, value, cb) {
         var self = this;
-        pb.cache.get(keyValue(key, this.site), function(err, result){
+        pb.cache.get(keyValue(key, self.site), function(err, result){
             if (util.isError(err)) {
                 return cb(err, null);
             }
@@ -163,10 +163,10 @@ module.exports = function CacheEntityServiceModule(pb) {
 
             //set into cache
             if (self.timeout) {
-                pb.cache.setex(key, self.timeout, val, cb);
+                pb.cache.setex(keyValue(key, self.site), self.timeout, val, cb);
             }
             else {
-                pb.cache.set(key, val, cb);
+                pb.cache.set(keyValue(key, self.site), val, cb);
             }
         });
     };
