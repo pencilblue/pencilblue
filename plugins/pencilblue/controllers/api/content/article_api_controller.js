@@ -46,12 +46,15 @@ module.exports = function(pb) {
          */
         this.service = new ArticleServiceV2(this.getServiceContext());
 
+        let commentContext = this.getServiceContext();
+        commentContext.articleService = this.service;
+
         /**
          *
          * @property commentService
          * @type {CommentService}
          */
-        this.commentService = new CommentService(this.getServiceContext());
+        this.commentService = new CommentService(commentContext);
     };
 
     /**

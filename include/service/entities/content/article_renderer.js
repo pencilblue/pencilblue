@@ -19,7 +19,6 @@
 //dependencies
 var _ = require('lodash');
 var async = require('async');
-var CommentService = require('../../../theme/comments');
 var ContentService = require('../../../content');
 var DAO = require('../../../dao/dao');
 var log = require('../../../utils/logging').newInstance('ArticleRenderer');
@@ -38,7 +37,8 @@ var UrlUtils = require('../../../../lib/utils/urlUtils');
      * @param {String} context.hostname
      * @param {String} context.site
      * @param {Boolean} context.onlyThisSite
-     * @param {UserService} [context.userService]
+     * @param {UserService} context.userService
+     * @param {CommentService} context.commentService
      */
     class ArticleRenderer {
         constructor(context) {
@@ -48,7 +48,7 @@ var UrlUtils = require('../../../../lib/utils/urlUtils');
                  * @property commentService
                  * @type {CommentService}
                  */
-                this.commentService = new CommentService(context);
+                this.commentService = context.commentService;
 
                 /**
                  * @property hostname
@@ -70,6 +70,7 @@ var UrlUtils = require('../../../../lib/utils/urlUtils');
             this.onlyThisSite = context.onlyThisSite;
 
             /**
+             * TODO [1.0] remove optional reference to prevent circular dependency
              * Instance of user service.  No context is provided and therefore can only be used
              * @property userService
              * @type {UserService}
@@ -233,7 +234,7 @@ var UrlUtils = require('../../../../lib/utils/urlUtils');
          */
         formatComments(content, context, cb) {
             var self = this;
-            if (!CommentService.allowComments(context.contentSettings, content)) {
+            if (!ContentService.allowComments(context.contentSettings, content)) {
                 return cb(null);
             }
 

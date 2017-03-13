@@ -17,14 +17,12 @@
 'use strict';
 
 //dependencies
-var _ = require('lodash');
-var ArticleRenderer = require('./article_renderer');
-var async = require('async');
-var BaseObjectService = require('../../base_object_service');
-var ContentObjectService = require('./content_object_service');
-var DAO = require('../../../dao/dao');
-var SiteService = require('../site_service');
-var ValidationService = require('../../../validation/validation_service');
+const _ = require('lodash');
+const async = require('async');
+const BaseObjectService = require('../../base_object_service');
+const ContentObjectService = require('./content_object_service');
+const DAO = require('../../../dao/dao');
+const ValidationService = require('../../../validation/validation_service');
 
 /**
  * Provides functions to interact with articles
@@ -38,9 +36,7 @@ var ValidationService = require('../../../validation/validation_service');
  */
 class ArticleServiceV2 extends ContentObjectService {
     constructor(context) {
-
         context.type = ArticleServiceV2.TYPE;
-
         super(context);
     }
 
@@ -56,6 +52,7 @@ class ArticleServiceV2 extends ContentObjectService {
      * Provides the options for rendering
      * @method getRenderOptions
      * @param {Object} options
+     * @param {Boolean} isMultiple
      * @return {Object}
      */
     getRenderOptions(options, isMultiple) {
@@ -69,15 +66,6 @@ class ArticleServiceV2 extends ContentObjectService {
                 readMore: options && options.readMore ? true : false
             };
         }
-    }
-
-    /**
-     * Retrieves an instance of a content renderer
-     * @method getRenderer
-     * @return {ArticleRenderer}
-     */
-    getRenderer() {
-        return new ArticleRenderer(this.context);
     }
 
     /**
@@ -120,10 +108,8 @@ class ArticleServiceV2 extends ContentObjectService {
 
     /**
      *
-     * @static
-     * @method
      * @param {Object} context
-     * @param {ArticleServiceV2} service An instance of the service that triggered
+     * @param {ArticleServiceV2} context.service An instance of the service that triggered
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */

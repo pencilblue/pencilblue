@@ -418,7 +418,7 @@ class ContentViewLoader {
         ats.registerLocal('author_position', ContentViewLoader.valOrEmpty(content.author_position));
         ats.registerLocal('media_body_style', ContentViewLoader.valOrEmpty(content.media_body_style));
         ats.registerLocal('comments', function (flag, cb) {
-            if (isPage || !CommentService.allowComments(self.contentSettings, content)) {
+            if (isPage || !ContentService.allowComments(self.contentSettings, content)) {
                 return cb(null, '');
             }
 

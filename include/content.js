@@ -221,6 +221,16 @@ class ContentService {
         }
         return dateString;
     }
+
+    /**
+     * TODO [1.0] change to camelCase property
+     * @param contentSettings
+     * @param content
+     * @returns {number|boolean|*}
+     */
+    static allowComments (contentSettings, content) {
+        return contentSettings.allow_comments && content.allow_comments;
+    }
 }
 
 //exports

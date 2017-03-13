@@ -26,7 +26,7 @@ module.exports = function BlogModule(pb) {
     var PluginService  = pb.PluginService;
     var ContentService = pb.ContentService;
     var TopMenu        = pb.TopMenuService;
-    var ArticleService = pb.ArticleService;
+    var ArticleServiceV2 = pb.ArticleServiceV2;
     var CommentService = pb.CommentService;
 
     /**
@@ -43,7 +43,10 @@ module.exports = function BlogModule(pb) {
         this.siteQueryService = new pb.SiteQueryService(this.getServiceContext());
         this.contentService = new ContentService(this.site, true);
         this.pluginService = new PluginService(this.getServiceContext());
-        this.commentService = new CommentService(this.getServiceContext());
+
+        let commentContext = this.getServiceContext();
+        commentContext.articleService = new ArticleServiceV2(this.getServiceContext);
+        this.commentService = new CommentService(commentContext);
     };
 
     Blog.prototype.render = function(cb) {

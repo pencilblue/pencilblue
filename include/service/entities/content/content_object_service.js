@@ -38,6 +38,7 @@ var ValidationService = require('../../../validation/validation_service');
  * @param {string} context.site
  * @param {boolean} context.onlyThisSite
  * @param {string} context.type
+ * @param {ContentRenderer} context.contentRenderer
  */
 class ContentObjectService extends BaseObjectService {
     constructor(context) {
@@ -56,6 +57,11 @@ class ContentObjectService extends BaseObjectService {
          * @type {TopicService}
          */
         this.topicService = new TopicService();
+
+        /**
+         * @type {ContentRenderer}
+         */
+        this.contentRenderer = context.contentRenderer;
     }
 
     /**
@@ -179,7 +185,7 @@ class ContentObjectService extends BaseObjectService {
      * @return {ContentRenderer}
      */
     getRenderer () {
-        throw new Error('getRenderer must be implemented by the extending prototype');
+        return this.contentRenderer;
     }
 
     /**

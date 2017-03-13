@@ -20,6 +20,7 @@ module.exports = function(pb) {
     //PB dependencies
     var util           = pb.util;
     var CommentService = pb.CommentService;
+    var ArticleServiceV2 = pb.ArticleServiceV2;
 
     /**
      *
@@ -37,11 +38,14 @@ module.exports = function(pb) {
      */
     CommentApiController.prototype.initSync = function(/*context*/) {
 
+        let commentContext = this.getServiceContext();
+        commentContext.articleService = new ArticleServiceV2(this.getServiceContext());
+
         /**
          * @property service
          * @type {CommentService}
          */
-        this.service = new CommentService(this.getServiceContext());
+        this.service = new CommentService(commentContext);
     };
 
     /**

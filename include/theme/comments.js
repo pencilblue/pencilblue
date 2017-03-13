@@ -40,6 +40,7 @@ const ValidationService = require('../validation/validation_service');
  * @param {Object} context
  * @param {string} context.site
  * @param {boolean} context.onlyThisSite
+ * @param {ArticleServiceV2} context.articleService
  */
 class CommentService extends BaseObjectService {
     constructor(context) {
@@ -58,7 +59,7 @@ class CommentService extends BaseObjectService {
          * @property articleService
          * @type {ArticleService}
          */
-        this.articleService = new ArticleServiceV2(context);
+        this.articleService = context.articleService;
 
         /**
          *
@@ -176,8 +177,6 @@ class CommentService extends BaseObjectService {
 
     /**
      * Retrieves the template for comments
-     *
-     * @method getCommentsTemplates
      * @param {Object} contentSettings The content settings to use with retrieval
      * @param {Function} output        Callback function
      */
@@ -213,24 +212,10 @@ class CommentService extends BaseObjectService {
     }
 
     /**
-     * Retrieves the necessary user information for a commenter
-     * @deprecated
-     * @static
-     * @method getCommentingUser
-     * @param {Object} user A user object
-     */
-    static getCommentingUser(user) {
-        log.warn('CommentService: Static function getCommentingUser is deprecated.  Create an instance and call it instead');
-        var service = new CommentService({});
-        return service.getCommentingUser(user);
-    }
-
-    /**
      *
-     * @static
-     * @method
      * @param {Object} context
-     * @param {TopicService} service An instance of the service that triggered
+     * @param {TopicService} context.service An instance of the service that triggered
+     * @param {object} context.data
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
@@ -243,8 +228,6 @@ class CommentService extends BaseObjectService {
 
     /**
      *
-     * @static
-     * @method
      * @param {Object} context
      * @param {TopicService} service An instance of the service that triggered
      * the event that called this handler
@@ -263,8 +246,6 @@ class CommentService extends BaseObjectService {
 
     /**
      *
-     * @static
-     * @method validate
      * @param {Object} context
      * @param {Object} context.data The DTO that was provided for persistence
      * @param {TopicService} context.service An instance of the service that triggered
@@ -273,16 +254,6 @@ class CommentService extends BaseObjectService {
      */
     static onValidate(context, cb) {
         context.service.validate(context, cb);
-    }
-
-    /**
-     * TODO [1.0] change to camelCase property
-     * @param contentSettings
-     * @param content
-     * @returns {number|boolean|*}
-     */
-    static allowComments (contentSettings, content) {
-        return contentSettings.allow_comments && content.allow_comments;
     }
 }
 

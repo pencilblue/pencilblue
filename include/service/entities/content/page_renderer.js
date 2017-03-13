@@ -19,7 +19,6 @@
 //dependencies
 const _ = require('lodash');
 const ArticleRenderer = require('./article_renderer');
-const CommentService = require('../../../theme/comments');
 
 /**
  * Retrieves the necessary data as well as prepares the layout so a view
@@ -30,14 +29,6 @@ const CommentService = require('../../../theme/comments');
  */
 class PageRenderer extends ArticleRenderer {
     constructor(context) {
-
-        /**
-         *
-         * @property commentService
-         * @type {CommentService}
-         */
-        this.commentService = new CommentService(context);
-
         super(context);
     }
 
