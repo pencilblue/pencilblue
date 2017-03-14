@@ -19,7 +19,8 @@
 module.exports = function(pb) {
 
     //pb dependencies
-    var util = pb.util;
+    const CommentService = pb.CommentService;
+    const util = pb.util;
 
     /**
      * Loads a section
@@ -45,20 +46,24 @@ module.exports = function(pb) {
                 if (util.isError(err)) {
                     return cb(err);
                 }
+
                 //create the service
                 self.contentSettings = contentSettings;
-                var asContext = self.getServiceContext();
-                asContext.contentSettings = contentSettings;
-                self.service = new pb.ArticleServiceV2(asContext);
+                self.service = new pb.ArticleServiceV2(self.getServiceContext({
+                    contentSettings: contentSettings
+                }));
 
                 //create the loader context
-                var cvlContext             = self.getServiceContext();
-                cvlContext.contentSettings = contentSettings;
-                cvlContext.service         = self.service;
-                self.contentViewLoader     = new pb.ContentViewLoader(cvlContext);
+                self.contentViewLoader = new pb.ContentViewLoader(self.getServiceContext({
+                    contentSettings: contentSettings,
+                    service: self.service,
+                    commentService: new CommentService(self.getServiceContext({
+                        articleService: self.service
+                    }))
+                }));
 
                 //provide a dao
-                self.dao                   = new pb.DAO();
+                self.dao = new pb.DAO();
 
                 cb(null, true);
             });

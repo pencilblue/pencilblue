@@ -64,7 +64,7 @@ class ContentViewLoader {
          * @property commentService
          * @type {CommentService}
          */
-        this.commentService = context.commentService || new CommentService(context);
+        this.commentService = context.commentService;
     }
 
     /**

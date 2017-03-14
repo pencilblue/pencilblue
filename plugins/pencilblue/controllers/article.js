@@ -18,7 +18,9 @@
 module.exports = function(pb) {
 
     //pb dependencies
-    var util = pb.util;
+    const util = pb.util;
+    const BaseController = pb.BaseController;
+    const CommentService = pb.CommentService;
 
     /**
      * Loads a single article
@@ -27,11 +29,11 @@ module.exports = function(pb) {
      * @extends BaseController
      */
     function ArticleViewController(){}
-    util.inherits(ArticleViewController, pb.BaseController);
+    util.inherits(ArticleViewController, BaseController);
 
     /**
      * @method init
-     * @param {Object} content
+     * @param {Object} context
      * @param {Function} cb
      */
     ArticleViewController.prototype.init = function(context, cb) {
@@ -45,9 +47,12 @@ module.exports = function(pb) {
             self.service = new pb.ArticleServiceV2(self.getServiceContext());
 
             //create the loader context
-            var context     = self.getServiceContext();
-            context.service = self.service;
-            self.contentViewLoader = new pb.ContentViewLoader(context);
+            self.contentViewLoader = new pb.ContentViewLoader(self.getServiceContext({
+                service: service,
+                commentService: new CommentService(self.getServiceContext({
+                    articleService: self.service
+                }))
+            }));
 
             cb(null, true);
         };

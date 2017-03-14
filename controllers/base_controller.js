@@ -349,11 +349,12 @@ var uuid = require('uuid');
     /**
      * Retrieves a context object that contains the necessary information for
      * service prototypes
-     * @method getServiceContext
+     * @param {object} [base] The custom set of attributes that should be provided.  Any items from the derived context
+     * will override the base attributes
      * @return {Object}
      */
-    BaseController.prototype.getServiceContext = function(){
-        return Object.assign({}, this.context);
+    BaseController.prototype.getServiceContext = function(base){
+        return Object.assign(base || {}, this.context);
     };
 
     /**

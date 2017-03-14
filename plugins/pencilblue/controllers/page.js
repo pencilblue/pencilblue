@@ -19,7 +19,8 @@
 module.exports = function(pb) {
 
     //pb dependencies
-    var util = pb.util;
+    const CommentService = pb.CommentService;
+    const util = pb.util;
 
     /**
      * Loads a single article
@@ -48,7 +49,10 @@ module.exports = function(pb) {
             //create the loader context
             var context     = self.getServiceContext();
             context.service = self.service;
-            self.contentViewLoader = new pb.ContentViewLoader(context);
+            self.contentViewLoader = new pb.ContentViewLoader(self.getServiceContext({
+                service: self.service,
+                commentService: new CommentService(self.getServiceContext())
+            }));
 
             cb(null, true);
         };

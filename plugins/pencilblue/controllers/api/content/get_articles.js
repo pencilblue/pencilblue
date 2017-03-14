@@ -22,10 +22,10 @@ var async = require('async');
 module.exports = function(pb) {
 
     //pb dependencies
-    var util = pb.util;
-    var BaseController   = pb.BaseController;
-    var Comments         = pb.CommentService;
-    var ArticleServiceV2 = pb.ArticleServiceV2;
+    const ArticleServiceV2 = pb.ArticleServiceV2;
+    const BaseController   = pb.BaseController;
+    const CommentService = pb.CommentService;
+    const util = pb.util;
 
     /**
      * Get articles within indices, for real time pagination
@@ -45,19 +45,20 @@ module.exports = function(pb) {
             var contentService = new pb.ContentService();
             contentService.getSettings(function(err, contentSettings) {
 
-                //set the content settings
-                self.contentSettings = contentSettings;
-
                 //create the service
-                var asContext = self.getServiceContext();
-                asContext.contentSettings = contentSettings;
-                self.service = new pb.ArticleServiceV2(asContext);
+                self.contentSettings = contentSettings;
+                self.service = new pb.ArticleServiceV2(self.getServiceContext({
+                    contentSettings: contentSettings
+                }));
 
                 //create the loader context
-                var cvlContext  = self.getServiceContext();
-                cvlContext.service = self.service;
-                cvlContext.contentSettings = contentSettings;
-                self.contentViewLoader = new pb.ContentViewLoader(cvlContext);
+                self.contentViewLoader = new pb.ContentViewLoader(self.getServiceContext({
+                    contentSettings: contentSettings,
+                    service: self.service,
+                    commentService: new CommentService(self.getServiceContext({
+                        articleService: self.service
+                    }))
+                }));
 
                 //call back
                 cb(err, !util.isError(err));
