@@ -17,10 +17,10 @@
 'use strict';
 
 //dependencies
-var FsEntityService = require('./fs_entity_service');
-var log = require('../utils/logging').newInstance('TemplateEntityService');
-var TemplateService = require('./entities/template_service');
-var ValidationService = require('../validation/validation_service');
+const FsEntityService = require('./fs_entity_service');
+const log = require('../utils/logging').newInstance('TemplateEntityService');
+const TemplateCompilationService = require('../../lib/service/templates/templateCompilationService');
+const ValidationService = require('../validation/validation_service');
 
 /**
  * Service that is used to load the HTML templates from the file system.  If
@@ -64,7 +64,8 @@ class TemplateEntityService extends FsEntityService {
             if (ValidationService.isNonEmptyStr(content, true)) {
                 structure = {
                     key: key,
-                    parts: TemplateService.compile(content, self.startMarker, self.endMarker)
+
+                    parts: TemplateCompilationService.compile(content, {startMarker: self.startMarker, endMarker: self.endMarker})
                 };
 
                 if (log.isSilly()) {

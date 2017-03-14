@@ -600,6 +600,7 @@ const ValidationService = require('../../validation/validation_service');
             }
             else {
                 content = {
+                    //TODO update to TemplateCompilationServiceing
                     parts: TemplateService.compile(content)
                 };
                 self.process(content, cb);
@@ -837,8 +838,8 @@ const ValidationService = require('../../validation/validation_service');
      * is created and pushed into an array.  Each object has two properties: "type"
      * that describes the type of template part it is (static, flag).  "val" the
      * string value of the part.
-     * @static
-     * @method compile
+     * TODO [1.0] remove
+     * @deprecated
      * @param {String} text The template text to compile
      * @param {String} [start='^'] The starting flag marker
      * @param {String} [end='^'] The ending flag marker
