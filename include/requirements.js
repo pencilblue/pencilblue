@@ -105,7 +105,7 @@ module.exports = function PB(config) {
     pb.JSONFSEntityService          = require(path.join(config.docRoot, '/include/service/json_fs_entity_service.js'))(pb);
     pb.ReadOnlySimpleLayeredService = require(path.join(config.docRoot, '/include/service/read_only_simple_layered_service.js'))(pb);
     pb.TemplateEntityService        = require(path.join(config.docRoot, '/include/service/template_entity_service.js'))(pb);
-    pb.CustomObjectService          = require(path.join(config.docRoot, 'include/service/entities/custom_object_service.js'))(pb);
+    pb.CustomObjectService          = require(path.join(config.docRoot, '/include/service/entities/custom_object_service.js'))(pb);
 
     //setup template service
     var TemplateModule = require(config.docRoot+'/include/service/entities/template_service.js')(pb);
