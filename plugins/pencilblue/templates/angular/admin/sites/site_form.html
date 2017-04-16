@@ -22,7 +22,8 @@
                                 displayName: $scope.displayName,
                                 hostname: $scope.hostname,
                                 selectedLocales: $scope.selectedLocales,
-                                defaultLocale: $scope.defaultLocale
+                                defaultLocale: $scope.defaultLocale,
+                                forceLocale: $scope.forceLocale
                             })
                             .success(function(result) {
                                 $scope.onCreateOrEditComplete(result);
@@ -44,7 +45,8 @@
                                 displayName: $scope.displayName,
                                 hostname: $scope.hostname,
                                 selectedLocales: $scope.selectedLocales,
-                                defaultLocale: $scope.defaultLocale
+                                defaultLocale: $scope.defaultLocale,
+                                forceLocale: $scope.forceLocale
                             })
                             .success(function(result) {
                                 $scope.onCreateOrEditComplete(result);
@@ -161,6 +163,9 @@
                         $scope.defaultLocale = "";
                     }
                     $scope.updateSelectedLocales();
+                }
+                $scope.updateForceLocale = function (selected) {
+                    $scope.siteForm.forceLocale = !!selected;
                 }
             });
 </script>

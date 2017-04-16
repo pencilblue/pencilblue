@@ -8,18 +8,18 @@
             <div class="tab-content">
                 <div class="tab-pane active">
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.displayName)}">
-                        <label>Display Name</label>
+                        <label>^loc_site.DISPLAY_NAME^</label>
                         <input type="text" name="displayName" class="form-control" ng-model="displayName" required>
                         <div class="form_error" ng-if="!isFieldValid(siteForm.display)">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.hostname)}">
-                        <label>Hostname</label>
+                        <label>^loc_site.HOSTNAME^</label>
                         <input type="text" name="hostname" class="form-control" ng-disabled="isActive" ng-model="hostname" required>
                         <div class="form_error" ng-if="!isActive && !isFieldValid(siteForm.hostname)">^loc_generic.REQUIRED_FIELD^</div>
                         <div class="form_error" ng-if="isActive">^loc_generic.SITE_MUST_DEACTIVATE^</div>
                     </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.supportedLocales)}">
-                        <label>Supported Locales</label><br>
+                        <label>^loc_site.SUPPORTED_LOCALES^</label><br>
                         <label ng-repeat="(locale, checked) in supportedLocales" style="display:block;">
                             <input type="checkbox"
                                    name="supportedLocales"
@@ -34,6 +34,13 @@
                         <select ng-model="defaultLocale" ng-options="i for i in selectedLocales">
                         </select>
                         <div class="form_error" ng-if="defaultLocale==''">^loc_generic.REQUIRED_FIELD^</div>
+                    </div>
+                    <div class="form-group"> 
+                        <label>^loc_site.FORCE_LOCALE^</label> 
+                        <div class="btn-group"> 
+                            <button type="button" class="btn btn-default" ng-class="{'active': forceLocale}" ng-click="forceLocale = true">^loc_generic.YES^</button>
+                            <button type="button" class="btn btn-default" ng-class="{'active': !forceLocale}" ng-click="forceLocale = false">^loc_generic.NO^</button>
+                        </div>
                     </div>
                 </div>
                 <br>

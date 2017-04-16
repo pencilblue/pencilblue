@@ -56,6 +56,7 @@ module.exports = function SiteFormModule(pb) {
         options.host = data.hostname.toString();
         options.savedLocales = data.supportedLocales;
         options.defaultLocale = data.defaultLocale;
+        options.forceLocale = data.forceLocale;
         options.isActive = data.active;
         options.uid = data.uid;
       }
@@ -85,7 +86,8 @@ module.exports = function SiteFormModule(pb) {
       selectedLocales = [],
       defaultLocale = options.defaultLocale || pb.Localization.getDefaultLocale(),
       isActive = options.isActive,
-      uid = options.uid;
+      uid = options.uid,
+      forceLocale = options.forceLocale || false;
 
     savedLocales[defaultLocale] = true;
 
@@ -109,6 +111,7 @@ module.exports = function SiteFormModule(pb) {
       defaultLocale: defaultLocale,
       isNew: isNew,
       isActive: isActive,
+      forceLocale: forceLocale,
       uid: uid
     });
 
