@@ -36,20 +36,36 @@ $(document).ready(function()
         if(scrollPosition >= documentHeight - 200)
         {
             self.loadingArticles = true;
-            var parameters = (self.offset) ? '?offset=' + self.offset + '&limit=' + self.limit : '?';
-            if(typeof infiniteScrollSection !== 'undefined') {
-                if(parameters.length) {
-                    parameters += '&';
-                }
-                parameters += 'section=' + infiniteScrollSection;
+            var parameters = [];
+
+            //Offset
+            if(!self.offset && typeof infiniteScrollOffset !== 'undefined'){
+                self.offset = infiniteScrollOffset;
             }
-            else if(typeof infiniteScrollTopic !== 'undefined') {
-                if(parameters.length) {
-                    parameters += '&';
-                }
-                parameters += 'topic=' + inifiniteScrollTopic;
+            if(self.offset){
+                parameters.push({ name: 'offset', value: self.offset });
             }
-            $.getJSON('/api/content/get_articles' + parameters, function(result)
+
+            //Limit
+            if(!self.limit && typeof infiniteScrollLimit !== 'undefined'){
+                self.limit = infiniteScrollLimit;
+            }
+            if(self.limit){
+                parameters.push({ name: 'limit', value: self.limit });
+            }
+            
+            //Section or Topic
+            if(typeof infiniteScrollSection !== 'undefined'){
+                parameters.push({ name: 'section', value: infiniteScrollSection });
+            }
+            else if(typeof infiniteScrollTopic !== 'undefined'){
+                parameters.push({ name: 'topic', value: infiniteScrollTopic });
+            }
+
+            var query = $.param(parameters, true);
+            var uri = '/api/content/get_articles?' + query;
+
+            $.getJSON(uri, function(result)
             {
                 if(!result)
                 {
