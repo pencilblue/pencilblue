@@ -426,6 +426,7 @@ module.exports = {
         INVALID_PASSWORD: 'Invalid current password',
         PASSWORD_CHANGED: 'Your password was successfully changed',
         NO_PERMISSIONS: 'None of your installed plugins have permissions set',
+        NO_PERMISSION: 'You do not the right to perform this action',
         CONFIRM_VERIFY: 'Are you sure you want to verify',
         VERIFY: 'Verify',
         VERIFIED: 'was verified',

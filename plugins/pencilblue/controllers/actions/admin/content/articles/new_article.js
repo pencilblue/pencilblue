@@ -32,6 +32,13 @@ module.exports = function(pb) {
         var self = this;
 
         this.getJSONPostParams(function(err, post) {
+            if(post.draft === 0 && self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR) {
+                return cb({
+                    code: 403,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, self.ls.get('NO_PERMISSION'))
+                });
+            }
+
             if(self.session.authentication.user.admin < pb.SecurityService.ACCESS_EDITOR || !post.author) {
               post.author = self.session.authentication.user[pb.DAO.getIdField()];
             }
