@@ -452,6 +452,74 @@ module.exports = function (pb) {
         }
 
         /**
+         * getOnAfterRouteLoadHandler
+         *
+         * This is designed to give us the ability to run a final on After all bit
+         * that can run after the entire init stack is run, instead of the onStartup location
+         *
+         * @author Logan Genet
+         * @status Temporary
+         * @param context
+         * @returns {[string,*]}
+         */
+        static getOnAfterRouteLoadHandler (context) {
+            return ['loadRoutes', function(callback/*, results*/) {
+
+                var mainModule = context.pluginSpec.main_module;
+                if (!util.isFunction(mainModule.onAfterRoutesLoadedWithContext)) {
+                    pb.log.silly("Plugin did not implement onAfterRoutesLoadedWithContext function");
+                    return callback(null, true);
+                }
+
+                var timeoutProtect = setTimeout(function() {
+
+                    // Clear the local timer variable, indicating the timeout has been triggered.
+                    timeoutProtect = null;
+                    callback(new Error("Startup function for plugin "+context.plugin.uid+" never called back!"));
+
+                }, 2000);
+
+                //create the domain to protect against rogue plugins
+                var d = domain.create();
+
+                //create the finally block.  We'll cleanup all listeners and trigger the callback
+                var onDone = function(err) {
+                    d.removeAllListeners('error');
+                    callback(err);
+                };
+
+                //provide a callback for the module to execute.
+                var startupCallback = function(err) {
+                    if (timeoutProtect) {
+                        clearTimeout(timeoutProtect);
+                        onDone(err);
+                    }
+                };
+
+                //add an error handler that will clear the timeout if exists, otherwise we assume that the timeout has
+                // already executed and the module was too late
+                d.once('error', function(err) {
+                    if (timeoutProtect) {
+                        clearTimeout(timeoutProtect);
+                        onDone(err, false);
+                    }
+                });
+                d.run(function () {
+                    //check to see if main modules are instance based
+                    if (util.isFunction(mainModule.prototype.onAfterRoutesLoadedWithContext)) {
+                        mainModule = new mainModule(context.site);
+                    }
+                    if (util.isFunction(mainModule.onAfterRoutesLoadedWithContext)) {
+                        mainModule.onAfterRoutesLoadedWithContext(context, startupCallback);
+                    }
+                    else {
+                        mainModule.onAfterRoutesLoadedWithContext(startupCallback);
+                    }
+                });
+            }];
+        }
+
+        /**
          * @static
          * @method getLoadServicesHandler
          * @param {object} context
@@ -625,7 +693,8 @@ module.exports = function (pb) {
         loadServices: PluginInitializationService.getLoadServicesHandler,
         setActive: PluginInitializationService.getSetActiveHandler,
         loadRoutes: PluginInitializationService.getLoadRoutesHandler,
-        loadLocalization: PluginInitializationService.getLoadLocalizationsHandler
+        loadLocalization: PluginInitializationService.getLoadLocalizationsHandler,
+        afterRoutes: PluginInitializationService.getOnAfterRouteLoadHandler
     };
 
     return PluginInitializationService;

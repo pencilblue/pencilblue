@@ -65,7 +65,7 @@ module.exports = function RedisRegistrationProviderModule(pb) {
      * @property CLIENT
      * @type {Integer}
      */
-    var CLIENT = null;
+    var CLIENT = CLIENT || null;
 
     /**
      * Retrieves the entire cluster status as an array of status objects.  The '_id'

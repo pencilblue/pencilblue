@@ -37,7 +37,7 @@ module.exports = function CacheModule(pb){
      * @property CLIENT
      * @type {RedisClient}
      */
-    var CLIENT = null;
+    var CLIENT = CLIENT || null;
 
     /**
      * Retrieves the instance of Redis or FakeRedis
@@ -72,7 +72,11 @@ module.exports = function CacheModule(pb){
 
         var moduleAtPlay = config.fake ? "fakeredis" : "redis";
         var Redis        = require(moduleAtPlay);
-        return Redis.createClient(config.port, config.host, config);
+        var myClient = Redis.createClient(config.port, config.host, config);
+        myClient.on("error", function(err) {
+            pb.log.error("CACHE ERROR: " + err);
+        });
+        return myClient;
     };
 
     /**

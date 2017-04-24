@@ -192,7 +192,7 @@ module.exports = function SessionModule(pb) {
                 permissions: [],
                 admin_level: pb.SecurityService.ACCESS_USER
             },
-            ip: request.connection.remoteAddress,
+            ip: SessionHandler.getRemoteIP(request),
             client_id: SessionHandler.getClientId(request)
         };
         session[SessionHandler.SID_KEY] = util.uniqueId();
@@ -220,6 +220,24 @@ module.exports = function SessionModule(pb) {
         var whirlpool = crypto.createHash('whirlpool');
         whirlpool.update(request.connection.remoteAddress + request.headers['user-agent']);
         return whirlpool.digest('hex');
+    };
+
+    /**
+     * Retrieves user's remote IP address (Returns first address in x-forwarded-for header if using a proxy)
+     * @static
+     * @method getRemoteIP
+     * @param {Object} request
+     * @returns {String} User's true remote IP address
+     */
+    SessionHandler.getRemoteIP = function(request) {
+        if(request.headers && request.headers['x-forwarded-for']) {
+            var ipList = request.headers['x-forwarded-for'].split(/[\s,]+/);
+            if(ipList.length > 0) {
+                return ipList[0];
+            }
+        }
+
+        return request.connection.remoteAddress;
     };
 
     /**

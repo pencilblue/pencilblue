@@ -71,6 +71,17 @@ module.exports = function AdminNavigationModule(pb) {
         }
     );
 
+    var TN_STATS_NAV = Object.freeze({
+            id: 'tn_stats',
+            title: 'TN Statistics',
+            icon: 'database',
+            href: '/admin/plugins/tn_stats/settings',
+            access: SecurityService.ACCESS_ADMINISTRATOR
+
+        }
+    );
+
+
     /**
      *
      * @private
@@ -201,6 +212,14 @@ module.exports = function AdminNavigationModule(pb) {
         access: SecurityService.ACCESS_WRITER
     });
 
+    var LOCALIZATION_NAV = Object.freeze({
+        id: 'localization_settings',
+        title: 'Localization',
+        icon: 'language',
+        href: '/admin/localization',
+        access: SecurityService.ACCESS_ADMINISTRATOR
+    });
+
     function buildSettingsNavigation(site) {
         var settingsNav = {
             id: 'settings',
@@ -242,11 +261,12 @@ module.exports = function AdminNavigationModule(pb) {
                 access: SecurityService.ACCESS_ADMINISTRATOR
             });
         }
+
         return Object.freeze(settingsNav);
     }
 
     function getDefaultNavigation(site) {
-        return util.clone([CONTENT_NAV, PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
+        return util.clone([CONTENT_NAV, PLUGINS_NAV, LOCALIZATION_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
     }
 
     function getMultiSiteNavigation() {
@@ -254,7 +274,10 @@ module.exports = function AdminNavigationModule(pb) {
     }
 
     function getGlobalScopeNavigation(site) {
-        return util.clone([PLUGINS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
+        if(this.site === 'global' && pb.config.siteRoot !== 'http://localhost:8080'){
+            return util.clone([TN_STATS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
+        }
+        return util.clone([PLUGINS_NAV, TN_STATS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
     }
 
 

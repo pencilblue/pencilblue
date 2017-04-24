@@ -50,7 +50,10 @@ module.exports = function (pb) {
             this.req.handler = new RequestHandler(null, this.req, this.res);
             this.req.router = this;
 
-            return this._handle(this.req, this.res);
+            return this._handle(this.req, this.res).catch((err) => {
+                this.res.statusCode = 500;
+                this.res.end();
+            });
         }
 
         /**
@@ -108,7 +111,8 @@ module.exports = function (pb) {
 
             domain.create()
                 .once('error', function(err) {
-                    pb.log.error('Router: An unhandled error occurred after calling middleware "%s": %s', Router.middleware[self.index].name, err.stack);
+                    var middleWareName = Router.middleware[self.index] ? Router.middleware[self.index].name : 'UNKNOWN';
+                    pb.log.error('Router: An unhandled error occurred after calling middleware "%s": %s', middleWareName, err.stack);
                     reject(err);
                 })
                 .run(function() {

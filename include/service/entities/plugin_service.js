@@ -88,7 +88,7 @@ module.exports = function PluginServiceModule(pb) {
      * @property PLUGINS_DIR
      * @type {String}
      */
-    var PLUGINS_DIR = path.join(pb.config.docRoot, 'plugins');
+    var PLUGINS_DIR = path.join(pb.config.plugins.directory);
 
     /**
      * The name of the file that defines the plugin's properties
@@ -559,7 +559,7 @@ module.exports = function PluginServiceModule(pb) {
                 }
                 return cb(err, !isError);
             }
-            
+
             //create lookup
             settings = settings.reduce(function(rv, setting) {
                 rv[setting.name] = setting;

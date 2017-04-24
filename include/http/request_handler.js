@@ -169,7 +169,7 @@ module.exports = function RequestHandlerModule(pb) {
      * @property CORE_ROUTES
      * @type {Array}
      */
-    RequestHandler.CORE_ROUTES = require(path.join(pb.config.docRoot, '/plugins/pencilblue/include/routes.js'))(pb);
+    RequestHandler.CORE_ROUTES = require(path.join(pb.config.plugins.directory, '/pencilblue/include/routes.js'))(pb);
 
     /**
      * The event emitted when a route and theme is derived for an incoming request
@@ -228,10 +228,12 @@ module.exports = function RequestHandlerModule(pb) {
           active: site.active,
           uid: site.uid,
           displayName: site.displayName,
+          forceLocale: site.forceLocale,
           hostname: site.hostname,
           defaultLocale: site.defaultLocale,
           supportedLocales: site.supportedLocales,
-          prevHostnames: site.prevHostnames
+          prevHostnames: site.prevHostnames,
+          useBundledScripts: site.useBundledScripts
         };
         //Populate RequestHandler.redirectHosts if this site has prevHostnames associated
         if (site.prevHostnames) {
@@ -594,14 +596,28 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.prototype.handleRequest = function(){
 
-        //fist things first check for public resource
+        //first things first check for public resource
         if (RequestHandler.isPublicRoute(this.url.pathname)) {
             return this.servePublicContent();
         }
 
         //check for session cookie
         var cookies = RequestHandler.parseCookies(this.req);
+        var siteObj = RequestHandler.sites[this.hostname];
+        var url = this.url.pathname;
         this.req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
+
+        //TODO: Break this out into an injectable block - Logan
+        if(typeof(siteObj) !== 'undefined' && siteObj.hasOwnProperty('forceLocale') && siteObj.forceLocale) {
+            cookies.locale = cookies.locale || cookies[" locale"];
+            cookies.locale = cookies.locale || siteObj.defaultLocale;
+            if (checkRouteContainsLocale(url, siteObj)) {
+                var redirectLocation = pb.SiteService.getHostWithProtocol(this.hostname);
+                redirectLocation += '/' + cookies.locale + this.url.path;
+                return this.doRedirect(redirectLocation, pb.HttpStatus.MOVED_TEMPORARILY);
+            }
+        }
+        // END
 
         //open session
         var self = this;
@@ -626,6 +642,27 @@ module.exports = function RequestHandlerModule(pb) {
         });
     };
 
+    // TODO: Break this out into an injectable service thing - Logan
+    function checkRouteContainsLocale(url, siteObj){
+        //Do not redirect for public resources
+        if(url.indexOf('/public/') !== -1 || url.indexOf('/admin') !== -1 || url.indexOf('/actions/') !== -1 || url.indexOf('/api') !== -1 || url.indexOf('/media') !== -1) {
+            return false;
+        }
+
+        //Do not redirect if the url contains a supported locale.
+        if(siteObj.supportedLocales) {
+            var loca‌‌les =  Object.keys(siteObj.supportedLocales);
+            for (var i = 0; i < loca‌‌les.length; i++) {
+                if(url.indexOf(loca‌‌les[i]) != -1){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+    // END
+
     /**
      * Derives the locale and localization instance.
      * @method deriveLocalization
@@ -645,11 +682,14 @@ module.exports = function RequestHandlerModule(pb) {
         sources.push(this.req.headers[pb.Localization.ACCEPT_LANG_HEADER]);
         if (this.siteObj) {
             opts.supported = Object.keys(this.siteObj.supportedLocales);
+            opts.site = this.siteObj.uid;
             sources.push(this.siteObj.defaultLocale);
         }
         var localePrefStr = sources.reduce(function(prev, curr, i) {
             return prev + (curr ? (!!i && !!prev ? ',' : '') + curr : '');
         }, '');
+
+        opts.activeTheme = this.activeTheme || RequestHandler.DEFAULT_THEME;
 
         //get locale preference
         return new pb.Localization(localePrefStr, opts);
@@ -742,6 +782,9 @@ module.exports = function RequestHandlerModule(pb) {
         if (this.resp.headerSent) {
             return false;
         }
+        if(!options){
+            options = {};
+        }
 
         //default the options object
         options = options || {};
@@ -765,6 +808,7 @@ module.exports = function RequestHandlerModule(pb) {
         };
 
         getActiveTheme(function(error, activeTheme) {
+            self.localizationService = self.deriveLocalization({ session: self.session });
 
             //build out params for handlers
             self.localizationService = self.localizationService || self.deriveLocalization({});
@@ -831,6 +875,7 @@ module.exports = function RequestHandlerModule(pb) {
         //available we can still have one available when we error out
         this.localizationService = this.deriveLocalization({ session: session });
 
+
         //make sure we have a site
         if (!siteObj) {
             var error = new Error("The host (" + hostname + ") has not been registered with a site. In single site mode, you must use your site root (" + pb.config.siteRoot + ").");
@@ -893,6 +938,10 @@ module.exports = function RequestHandlerModule(pb) {
                 pb.log.silly('RequestHandler: Comparing Path [%s] to Pattern [%s] Result [%s]', path, curr.pattern, result);
             }
             if (result) {
+
+                //Do not delete in merge - Kyle - Logan
+                pb.log.setTransactionName(curr.path);
+
                 if(curr.themes[this.siteObj.uid] || curr.themes[GLOBAL_SITE]) {
                     return curr;
                 }
@@ -1078,6 +1127,9 @@ module.exports = function RequestHandlerModule(pb) {
 
             //update the localization
             this.localizationService = this.deriveLocalization({ session: this.session, routeLocalization: pathVars.locale });
+        } else {
+            //create the localization with active theme
+            this.localizationService = this.deriveLocalization({ session: this.session});
         }
 
         //instantiate controller
@@ -1320,8 +1372,14 @@ module.exports = function RequestHandlerModule(pb) {
                 });
             }
             if (pb.config.server.x_powered_by) {
-                this.resp.setHeader('x-powered-by', pb.config.server.x_powered_by);
+                try{
+                    this.resp.setHeader('x-powered-by', pb.config.server.x_powered_by);
+                }
+                catch(e){
+                    self.req.controllerInstance.log.error('Failed to set cookie, callback probably called twice: %s', e.stack);
+                }
             }
+            this.resp.setHeader('Access-Control-Allow-Origin', pb.SiteService.getHostWithProtocol(this.hostname));
             this.resp.setHeader('content-type', contentType);
             this.resp.writeHead(data.code);
 
@@ -1385,6 +1443,22 @@ module.exports = function RequestHandlerModule(pb) {
             var result = RequestHandler.checkRequiresAuth(ctx);
             callback(result.success ? null : result, result);
         };
+        // check that this is still needed - Logan
+        var checkIPFilter = function(callback) {
+            var result = {success: true}
+            if(pb.config.server.ipFilter.enabled && (self.themeRoute.auth_required === true || self.themeRoute.path === '/admin/login')) {
+                return pb.AdminIPFilter.requestIsAuthorized(self.req, function(err, isAuthorized) {
+                    if(isAuthorized) {
+                        return callback(null, result);
+                    }
+                    result.success = false;
+                    result.content = "403 Forbidden";
+                    result.code    = 403;
+                    return callback(result, result);
+                });
+            }
+            callback(null, result);
+        };
 
         var checkAdminLevel = function(callback) {
             var ctx = {
@@ -1408,7 +1482,8 @@ module.exports = function RequestHandlerModule(pb) {
             checkSystemSetup: checkSystemSetup,
             checkRequiresAuth: checkRequiresAuth,
             checkAdminLevel: checkAdminLevel,
-            checkPermissions: checkPermissions
+            checkPermissions: checkPermissions,
+            checkIPFilter: checkIPFilter
         };
         async.series(tasks, function(err, results){
             if (err) {
@@ -1690,6 +1765,8 @@ module.exports = function RequestHandlerModule(pb) {
      * @returns {Object}
      */
     RequestHandler.buildControllerContext = function(req, res, extraData) {
+        req = req || {};
+        req.handler = req.handler || {};
         return util.merge(extraData || {}, {
             request_handler: req.handler,
             request: req,
@@ -1703,7 +1780,7 @@ module.exports = function RequestHandlerModule(pb) {
             site: req.site,
             siteObj: req.siteObj,
             siteName: req.siteName,
-            activeTheme: req.activeTheme,
+            activeTheme: req.activeTheme || req.handler.activeTheme || 'pencilblue',
             routeLocalized: !!req.routeTheme.localization
         });
     };

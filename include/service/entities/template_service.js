@@ -168,7 +168,7 @@ module.exports = function(pb) {
      * @property CUSTOM_PATH_PREFIX
      * @type {String}
      */
-    var CUSTOM_PATH_PREFIX = path.join(pb.config.docRoot, 'plugins') + path.sep;
+    var CUSTOM_PATH_PREFIX = path.join(pb.config.plugins.directory) + path.sep;
 
     /**
      * A container that provides the mapping for global call backs.  These should
@@ -632,42 +632,6 @@ module.exports = function(pb) {
     };
 
     /**
-     * Takes in the below parameters and returns a single TemplateValue that is the combination of
-     * all items in list, after being ran through the renderFunction.
-     *
-     * @param list - The list of data to be used
-     * @param renderFunction - A function that each item in the list will be ran against
-     * @param cb - yields error if one occurred, or a single TemplateValue that is the join of
-     *              all values that were returned by the render function
-     * @returns {*}
-     */
-    TemplateService.prototype.registerLocalForEach = function (list, renderFunction, processFunc, cb) {
-        // Handle Optional processFunction
-        if(!cb){
-            cb = processFunc;
-            processFunc = function(e) {return e;};
-        }
-
-        if (!list) {
-            return cb(null, '');
-        }
-        else if (!util.isArray(list)) {
-            list = [list];
-        }
-
-        var tasks = pb.util.getTasks(list, function (item, i) {
-            return function (callback) {
-                renderFunction(item[i], callback);
-            };
-        });
-
-        async.parallel(tasks, function (err, results) {
-            results = processFunc(results);
-            cb(err, new pb.TemplateValue(results.join(''), false));
-        });
-    };
-    
-    /**
      * Registers a model with the template service.  It processes each
      * key/value pair in the object and creates a dot notated string
      * registration.  For the object { key: 'value' } with a model name of
@@ -885,7 +849,7 @@ module.exports = function(pb) {
      */
     TemplateService.compile = function(text, start, end) {
         if (!pb.ValidationService.isNonEmptyStr(text, true)) {
-            pb.log.warn('TemplateService: Cannot parse the content because it is not a valid string: '+text);
+            pb.log.silly('TemplateService: Cannot parse the content because it is not a valid string: '+text);
             return [];
         }
         if (!pb.ValidationService.isNonEmptyStr(start, true)) {

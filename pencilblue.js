@@ -1,3 +1,7 @@
+console.time("startup");
+if(process.env.NEW_RELIC_LICENSE_KEY && process.env.NEW_RELIC_APP_NAME){
+    require('newrelic');
+}
 /*
     Copyright (C) 2015  PencilBlue, LLC
 
@@ -44,7 +48,8 @@ function PencilBlue(config){
      * @property pb
      * @type {Object}
      */
-    var pb = require('./lib')(config);
+    var pb = require('./include')(config);
+    this.requirements = pb;
 
     /**
      * The number of requests served by this instance
@@ -74,6 +79,7 @@ function PencilBlue(config){
             util.wrapTimedTask(this, this.initMiddleware, 'initMiddleware'),
             util.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
             util.wrapTimedTask(this, this.initSites, 'initSites'),
+            util.wrapTimedTask(this, this.initLocales, 'initLocales'),
             util.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
             util.wrapTimedTask(this, this.registerMetrics, 'registerMetrics'),
             util.wrapTimedTask(this, this.initServer, 'initServer')
@@ -83,6 +89,7 @@ function PencilBlue(config){
                 throw err;
             }
             pb.log.info('PencilBlue: Ready to run!');
+            console.timeEnd("startup");
 
             //print out stats
             if (pb.log.isDebug()) {
@@ -186,6 +193,17 @@ function PencilBlue(config){
     };
 
     /**
+     * Initializes Locales(s).
+     * @method initLocales
+     * @static
+     * @param {Function} cb - callback function
+     */
+    this.initLocales = function(cb) {
+        pb.LocalizationService.init();
+        cb(null, true);
+    };
+
+    /**
      * Attempts to initialize a connection pool to the core database
      * @static
      * @method initDBConnections
@@ -275,13 +293,17 @@ function PencilBlue(config){
             pb.log.silly('New Request: %s', (req.uid = util.uniqueId()));
         }
 
+        function isIpAddress(ipAddress) {
+            return /(\d+\.\d+\.\d+\.\d+)|:(\d+)/.test(ipAddress);
+        }
+        //check to see if we should inspect the x-forwarded-proto header for SSL
         //bump the counter for the instance
         requestsServed++;
 
         //check to see if we should inspect the x-forwarded-proto header for SSL
         //load balancers use this for SSL termination relieving the stress of SSL
         //computation on more powerful load balancers.
-        if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
+        if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https' && !isIpAddress(req.headers.host)) {
             return this.onHttpConnectForHandoff(req, res);
         }
 

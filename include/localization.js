@@ -72,6 +72,12 @@ module.exports = function LocalizationModule(pb) {
          * @type {string}
          */
         this.activeTheme = options.activeTheme;
+
+        /**
+         * The current site that should be prioritized when
+         * performing key lookup, higher priority than activeTheme
+         */
+        this.site = options.site;
     }
 
     /**
@@ -151,6 +157,17 @@ module.exports = function LocalizationModule(pb) {
      * @type {Object}
      */
     Localization.supportedLookup = {};
+
+    /***
+     * Logan, this might be deprecated
+     */
+    // /**
+    //  * @static
+    //  * @readonly
+    //  * @property keys
+    //  * @type {Object}
+    //  */
+    // Localization.keys = {};
 
     /**
      * @static
@@ -291,6 +308,7 @@ module.exports = function LocalizationModule(pb) {
      * @return {String}
      */
     Localization.prototype.g = function(key, options) {
+        var self = this;
         options = options || {
             site: pb.SiteService.GLOBAL_SITE,
             params: {}
@@ -298,7 +316,7 @@ module.exports = function LocalizationModule(pb) {
 
         //log operation
         if (pb.log.isSilly()) {
-            pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, this.language);
+            pb.log.silly('Localization: Localizing key [%s] - Locale [%s]', key, self.language);
         }
 
         //error checking
@@ -314,22 +332,25 @@ module.exports = function LocalizationModule(pb) {
             throw new Error('params parameter is required');
         }
 
-
-        //TODO retrieve active plugins for site to narrow down which plugins should be examined during retrieval
-
         //get the current local as object
-        var locale = this.localeObj;
+        var locale = self.localeObj;
 
         //get theme to prioritize
-        var plugin = options.plugin || this.activeTheme;
+        var plugin = options.plugin || self.activeTheme;
 
         //define convenience functions
-        var self = this;
+
         var processValue = function(localization) {
 
             //set cache
-            self.cache[key] = localization;
-
+            if(usingSite){
+                if(!self.cache[self.site]){
+                    self.cache[self.site] = {};
+                }
+                self.cache[self.site][key] = localization;
+            } else {
+                self.cache[key] = localization;
+            }
             //finish processing the value
             return localization.isParameterized ?
                 Localization.replaceParameters(localization.value, params, options.defaultParamVal) :
@@ -409,18 +430,30 @@ module.exports = function LocalizationModule(pb) {
             return util.isString(result) || options.defaultVal !== undefined ? result : key;
         };
 
-        //verify that key even exists, if not we're done.  Just send back the default val, if provided
-        if (!Localization.storage[key]) {
-            return finalize(options.defaultVal);
-        }
-        else if (this.cache[key]) {
+        var usingSite = Localization.storage[self.site] && Localization.storage[self.site][key];
 
-            //we have already processed this key once for this instance
-            return finalize(processValue(this.cache[key]));
+        if (!Localization.storage[key] && !usingSite) {
+           return finalize(options.defaultVal);
+        }
+        else if (self.cache[self.site] && self.cache[self.site][key]) {
+            return finalize(processValue(self.cache[self.site][key]));
+        } else if(self.cache[key]){
+            return finalize(processValue(self.cache[key]));
         }
 
+        var keyBlock;
         //key create key path
-        var keyBlock = findKeyBlock(key, false);
+        //*****
+         //* Logan, this might be a cause for breaking changes.
+        if(usingSite) {
+            keyBlock = Localization.storage[self.site][key];
+        }else {
+            //ok, so we need to get the key out, its nested inside site. Hope we have the site ID here.
+            //remember to add things based on self.id to the cache.
+
+            keyBlock = findKeyBlock(key, false);
+        }
+
         if (!keyBlock) {
             return null;
         }
@@ -433,7 +466,7 @@ module.exports = function LocalizationModule(pb) {
 
             //check to see if we should fall back to the default locale
             var defaultLocale = Localization.parseLocaleStr(Localization.getDefaultLocale());
-            if (defaultLocale.language !== this.localeObj.language || defaultLocale.countryCode !== this.localeObj.countryCode) {
+            if (defaultLocale.language !== self.localeObj.language || defaultLocale.countryCode !== self.localeObj.countryCode) {
 
                 locale = defaultLocale;
                 langKey = k(defaultLocale.language);
@@ -495,7 +528,7 @@ module.exports = function LocalizationModule(pb) {
             }
 
             var compoundedResult = true;
-            files.forEach(function(file) {
+            files.forEach(function (file) {
 
                 //parse the file
                 var obj = null;
@@ -516,12 +549,46 @@ module.exports = function LocalizationModule(pb) {
                 compoundedResult = compoundedResult && Localization._registerLocale(localeObj, obj);
             });
 
-            //set the supported locales
-            pb.log.debug("Localization: Supporting - " + JSON.stringify(Object.keys(Localization.supportedLookup)));
-            cb(null, compoundedResult);
-        });
+                //set the supported locales
+                pb.log.debug("Localization: Supporting - " + JSON.stringify(Object.keys(Localization.supportedLookup)));
+
+                if(pb.config.localization && pb.config.localization.db){
+                    loadLocalesFromDB(compoundedResult, cb);
+                }
+                else{
+                    cb(null, compoundedResult);
+                }
+            });
+
     };
 
+    function loadLocalesFromDB(compoundedResult, cb){
+        var opts = {
+            where: {}
+        };
+        var queryService = new pb.SiteQueryService();
+
+        queryService.q("localizations", opts, function (err, result) {
+            if (util.isError(err) || !result || result.length === 0) {
+                pb.log.error(err);
+                result = [];
+            }
+            for(var i = 0; i < result.length; i++) {
+                var keyBlock = result[i].storage[result[i]._id];
+
+                Localization.storage[result[i]._id] = keyBlock;
+                /*for(var key in keyBlock){
+                    if(util.isObject(keyBlock[key])){
+                        var indexKey = result[i]._id + '.' + key;
+                        Localization.keys[indexKey] = true;
+                        Localization.keys[key] = true;
+                    }
+                }*/
+            }
+
+            return cb(null, compoundedResult);
+        });
+    }
     /**
      * Determines if there have been keys registered for the specified locale.
      * An example locale string would be: en-US.  Where the characters to the
@@ -724,6 +791,11 @@ module.exports = function LocalizationModule(pb) {
         if (!util.isObject(options)) {
             options = {};
         }
+        /*****
+         * Logan, this is not in there coce.  I do not know the pains this might cause if removed.
+         *         var keyParts = key.split(Localization.KEY_SEP);
+         */
+        //parse the key
 
         //ensure that the key path exists and set a reference to the block that
         //represents the key.  We are essentially walking the tree to get to
@@ -1126,6 +1198,11 @@ module.exports = function LocalizationModule(pb) {
      * @param {String} key
      * @param {boolean} create
      * @return {Object} The object that contains the values for the key
+     */
+    /***
+     * Logan, this might be a problem, this was massively changed.
+     * @param key
+     * @returns {{}|*|Object}
      */
     function findKeyBlock(key, create) {
         if (create && typeof Localization.storage[key] === 'undefined') {

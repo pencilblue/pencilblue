@@ -368,7 +368,7 @@ form .error
     margin: 0 .5em .5em 0;
 }
 
-.add_field_button {
+.add_field_button, .toggle-wysiswyg-button {
     margin-bottom: .5em;
 }
 

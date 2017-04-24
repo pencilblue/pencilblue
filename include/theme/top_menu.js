@@ -187,6 +187,9 @@ module.exports = function TopMenuServiceModule(pb) {
         }
 
         var ts = new pb.TemplateService(options);
+        if(pb.config.localization.nav){
+            ts.setReprocess(true);
+        }
         ts.load('elements/top_menu/link', function(err, linkTemplate) {
             ts.load('elements/top_menu/dropdown', function(err, dropdownTemplate) {
                 ts.load('elements/top_menu/account_button', function(err, accountButtonTemplate) {
