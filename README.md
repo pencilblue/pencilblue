@@ -24,7 +24,7 @@ The first open source content management system to meet all the needs of a moder
 Installation
 -----
 
-[![LAUNCH ON OpenShift](http://launch-shifter.rhcloud.com/launch/LAUNCH ON.svg)](https://hub.openshift.com/quickstarts/deploy/159-pencilblue)
+[![LAUNCH ON OpenShift](http://launch-shifter.rhcloud.com/launch/LAUNCH%20ON.svg)](https://hub.openshift.com/quickstarts/deploy/159-pencilblue)
 
 The instructions below assume that Node.js [0.11, 6] and MongoDB [2, 3) are installed on your machine. If they are not then please visit http://nodejs.org and http://www.mongodb.org to install them.
 
