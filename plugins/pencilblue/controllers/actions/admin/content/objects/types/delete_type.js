@@ -39,7 +39,7 @@ module.exports = function(pb) {
         }
 
         //ensure existence
-        var service = new pb.CustomObjectService(self.site, true);
+        var service = new pb.CustomObjectService(self.site, false);
         service.loadTypeById(vars.id, function(err, objectType) {
             if(objectType === null) {
                 cb({

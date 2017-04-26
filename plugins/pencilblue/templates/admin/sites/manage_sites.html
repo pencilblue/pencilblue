@@ -6,7 +6,7 @@
         <div class="col-xs-12" style="background-color:#fff; font-weight:bold;">
             <div class="input-group" style="width:100%; margin-bottom:20px">
                 <input type="text" class="form-control" placeholder="Search Active Sites for..." ng-model="activeQuery"
-                       style="width:100%;">
+                style="width:100%;">
                 <span class="input-group-btn" ng-click="clearSearch('activeQuery')">
                     <button class="btn btn-default" type="button"><i class="fa fa-search" ng-class="{'fa-search': !activeQuery.length, 'fa-times': activeQuery.length}"></i></button>
                 </span>
@@ -35,20 +35,25 @@
                         <span ng-show="predicate == 'created' && !reverse" class="fa fa-caret-down"></span>
                         <span ng-show="predicate == 'created' && reverse" class="fa fa-caret-up"></span>
                     </th>
+                    <th id="active_theme_header" ng-click="orderActive('activeTheme')">Active Theme
+                        <span ng-show="predicate == 'activeTheme' && !reverse" class="fa fa-caret-down"></span>
+                        <span ng-show="predicate == 'activeTheme' && reverse" class="fa fa-caret-up"></span>
+                    </th>
                     <th></th>
                 </tr>
                 <tr class="active_site_row" ng-repeat="active in activeSites | orderBy:predicate:reverse | filter:activeQuery track by active.uid " >
                     <td><a href="#" ng-click="authUserToSite(active)" title="{{active.displayName}}" ng-bind="active.displayName"></a></td>
                     <td ng-bind="active.hostname"></td>
                     <td ng-bind="active.created | date: 'yyyy-MM-dd HH:mm'"></td>
+                    <td ng-bind="active.activeTheme"></td>
                     <td style="text-align: right">
                         <div class="btn-group" style="text-align: left">
-                            <a class="btn btn-sm btn-default" ng-click="deactivateSite(active)"><i class="fa fa-remove"></i>&nbsp;^loc_sites.DEACTIVATE^</a>
+                            <a class="btn btn-sm btn-default" ng-href="/admin/sites/{{active.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_generic.EDIT^</a>
                             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-sm fa-chevron-down"></i>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a ng-href="/admin/sites/{{active.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_generic.EDIT^</a></li>
+                                <li><a ng-click="deactivateSite(active)"><i class="fa fa-remove"></i>&nbsp;^loc_sites.DEACTIVATE^</a></li>
                             </ul>
                         </div>
                     </td>
@@ -90,20 +95,25 @@
                         <span ng-show="inactivePredicate == 'created' && !inactiveReverse" class="fa fa-caret-down"></span>
                         <span ng-show="inactivePredicate == 'created' && inactiveReverse" class="fa fa-caret-up"></span>
                     </th>
+                    <th id="inactive_theme_header" ng-click="orderActive('activeTheme')">Active Theme
+                        <span ng-show="inactivePredicate == 'activeTheme' && !inactiveReverse" class="fa fa-caret-down"></span>
+                        <span ng-show="inactivePredicate == 'activeTheme' && inactiveReverse" class="fa fa-caret-up"></span>
+                    </th>
                     <th></th>
                 </tr>
                 <tr class="inactive_site_row" ng-repeat="inactive in inactiveSites | orderBy:inactivePredicate:inactiveReverse | filter:inactiveQuery  track by inactive.uid">
                     <td><a href="#" ng-click="authUserToSite(inactive)" title="{{inactive.displayName}}" ng-bind="inactive.displayName"></a></td>
                     <td ng-bind="inactive.hostname"></td>
                     <td ng-bind="inactive.created | date: 'yyyy-MM-dd HH:mm'"></td>
+                    <td ng-bind="inactive.activeTheme"></td>
                     <td style="text-align: right">
                         <div class="btn-group" style="text-align: left">
-                            <a class="btn btn-sm btn-default" ng-click="activateSite(inactive)"><i class="fa fa-plus"></i>&nbsp;^loc_sites.ACTIVATE^</a>
+                            <a class="btn btn-sm btn-default" ng-href="/admin/sites/{{inactive.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_generic.EDIT^</a>
                             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
                                 <i class="fa fa-sm fa-chevron-down"></i>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a ng-href="/admin/sites/{{inactive.uid}}"><i class="fa fa-fw fa-cog"></i>&nbsp;^loc_generic.EDIT^</a></li>
+                                <li><a ng-click="activateSite(inactive)"><i class="fa fa-plus"></i>&nbsp;^loc_sites.ACTIVATE^</a></li>
                                 <li><a ng-click="deleteSite(inactive)"><i class="fa fa-fw fa-trash"></i>&nbsp;^loc_generic.DELETE^</a></li>
                             </ul>
                         </div>

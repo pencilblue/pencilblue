@@ -18,6 +18,7 @@
         $scope.page.meta_keywords = $scope.page.meta_keywords ? $scope.page.meta_keywords.join(', ') : '';
         $scope.editingObject = $scope.page;
         $scope.variablePrefix = 'page';
+        $scope.page.page_topics = [];
 
         $scope.setPublishDateToNow = function() {
             $scope.page.publish_date = $filter('date')(new Date(), 'MM-dd-yyyy HH:mm');;

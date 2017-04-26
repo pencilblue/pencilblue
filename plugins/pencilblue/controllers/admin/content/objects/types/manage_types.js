@@ -35,6 +35,7 @@ module.exports = function(pb) {
 
     function handleError(err, obj){
         if(err || !obj){
+            pb.log.error("Failed to get Custom Objects: " + err);
             return [];
         }
         return obj;
@@ -43,7 +44,8 @@ module.exports = function(pb) {
     ManageObjectTypes.prototype.render = function(cb) {
         var self = this;
 
-        var service = new pb.CustomObjectService(self.site, false);
+        // Added the global service and concat of the arrays
+        var service = new pb.CustomObjectService(self.site, true);
         var globalService = new pb.CustomObjectService();
         globalService.findTypes(function (err, globalObjTypes) {
             globalObjTypes = handleError(err, globalObjTypes);
@@ -73,6 +75,9 @@ module.exports = function(pb) {
                 self.setPageName(self.ls.g('custom_objects.MANAGE_OBJECT_TYPES'));
                 self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
                 self.ts.load('admin/content/objects/types/manage_types', function (err, data) {
+                    if(util.isError(err)){
+                        return cb(err);
+                    }
                     var result = '' + data;
                     cb({content: result});
                 });

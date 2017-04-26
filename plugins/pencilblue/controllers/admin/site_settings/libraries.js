@@ -33,6 +33,10 @@ module.exports = function(pb) {
     Libraries.prototype.render = function(cb) {
         var self = this;
 
+        if(this.site === 'global' && pb.config.siteRoot !== 'http://localhost:8080'){
+            return self.reqHandler.serve404();
+        }
+
         var tabs =
         [
             {

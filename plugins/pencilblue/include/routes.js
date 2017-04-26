@@ -61,6 +61,36 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
+            path: '/admin/localization',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin','sites','localizations.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'post',
+            path: '/api/localizations/overrides',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            request_body: ['application/json'],
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers','api', 'localization_controller.js'),
+            content_type: 'text/html',
+            handler:'saveLocales'
+        },
+        {
+            method: 'get',
+            path: '/api/localizations/overrides',
+            auth_required: true,
+            access_level: pb.SecurityService.ACCESS_EDITOR,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers','api','localization_controller.js'),
+            content_type: 'application/json',
+            handler:'getLocales'
+        },
+        {
+            method: 'get',
             path: "/admin/login",
             access_level: 0,
             auth_required: false,
@@ -1441,6 +1471,7 @@ module.exports = function Routes(pb){
             path: "/api/content/pages/:id",
             handler: "get",
             content_type: 'application/json',
+            inactive_site_access: true,
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_WRITER,

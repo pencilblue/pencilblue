@@ -51,6 +51,10 @@ module.exports = function(pb) {
     ManagePlugins.prototype.render = function (cb) {
         var self = this;
 
+        if(this.site === 'global' && pb.config.siteRoot !== 'http://localhost:8080'){
+            return self.reqHandler.serve404();
+        }
+
         var tasks = {
             sitePluginMap: [util.wrapTask(this.pluginService, this.pluginService.getPluginMap)],
             globalPluginMap: [util.wrapTask(this.globalPluginService, this.globalPluginService.getPluginMap)],

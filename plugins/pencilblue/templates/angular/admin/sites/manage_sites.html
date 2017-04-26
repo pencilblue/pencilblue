@@ -24,6 +24,25 @@
                     $scope[query] = '';
                 };
 
+                $scope.predicate = 'displayName';
+                $scope.reverse = false;
+                $scope.inactivePredicate = 'displayName';
+                $scope.inactiveReverse = false;
+
+                $scope.orderActive = function(predicate) {
+                    $scope.reverse = ($scope.predicate === predicate) ? !$scope.reverse : false;
+                    $scope.predicate = predicate;
+                };
+
+                $scope.orderInactive = function(predicate) {
+                    $scope.inactiveReverse = ($scope.inactivePredicate === predicate) ? !$scope.inactiveReverse : false;
+                    $scope.inactivePredicate = predicate;
+                };
+
+                $scope.clearSearch = function(query){
+                    $scope[query] = '';
+                };
+
                 $scope.activateSite = function(site) {
                     site.name = site.displayName;
                     $scope.actionPlugin = site;
@@ -96,6 +115,9 @@
                                 window.location = '//' + site.hostname + '/admin';
                             })
                             .error(function(error, status){
+                                if(!error){
+                                    error = status;
+                                }
                                 $scope.onActionFailure(error);
                             });
                 };
@@ -167,6 +189,12 @@
 
                 $scope.onActionFailure = function(error) {
                     $scope.actionIsComplete = true;
+                    if(error === 404){
+                        error = {message: "^loc_TOKEN_LOGIN_NOT_FOUND^"};
+                    }
+                    else if(!error){
+                        error = {message: "^loc_TOKEN_LOGIN_UNKNOWN_FAILURE^"};
+                    }
                     $scope.actionError = error.message;
                 };
 
