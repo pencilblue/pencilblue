@@ -11,8 +11,8 @@
       "name": "Brian Hyder"
     }
   ],
-  "name": "pencilblue",
-  "description": "Business class content management for Node.js (plugins, server cluster management, data-driven pages)",
+  "name": "tn-pencilblue",
+  "description": "Fork of PencilBlue for use by CareerBuilder's Talent Networks",
   "keywords": [
     "cms",
     "website",
@@ -21,7 +21,7 @@
   "version": "0.8.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pencilblue/pencilblue.git"
+    "url": "https://github.com/careerbuilder/pencilblue.git"
   },
   "dependencies": {
     "async": "1.5.2",
@@ -69,5 +69,5 @@
   "bugs": {
     "url": "https://github.com/pencilblue/pencilblue/issues"
   },
-  "_id": "pencilblue@0.8.0"
+  "publishConfig":{"registry":"https://cbdatascience.jfrog.io/cbdatascience/api/npm/tn-npm-repo"}
 }
