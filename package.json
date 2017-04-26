@@ -18,7 +18,7 @@
     "website",
     "platform"
   ],
-  "version": "0.8.0",
+  "version": "0.8.1-0",
   "repository": {
     "type": "git",
     "url": "https://github.com/careerbuilder/pencilblue.git"
@@ -69,5 +69,7 @@
   "bugs": {
     "url": "https://github.com/pencilblue/pencilblue/issues"
   },
-  "publishConfig":{"registry":"https://cbdatascience.jfrog.io/cbdatascience/api/npm/tn-npm-repo"}
+  "publishConfig": {
+    "registry": "https://cbdatascience.jfrog.io/cbdatascience/api/npm/tn-npm-repo"
+  }
 }
