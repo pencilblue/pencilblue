@@ -265,7 +265,7 @@ module.exports = function (pb) {
                 }
 
                 var err = null;
-                if (!semver.satisfies(pb.config.version, results.details.pb_version)) {
+                if (!semver.prerelease(pb.config.version) && !semver.satisfies(pb.config.version, results.details.pb_version)) {
                     err = new Error('PB version '+pb.config.version+' does not satisfy plugin version expression '+results.details.pb_version+'for plugin '+results.details.uid);
                 }
                 callback(err);
