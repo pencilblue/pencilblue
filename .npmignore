@@ -11,13 +11,7 @@ public/bower_components/
 log/
 coverage/
 out
-config.js
 **/.DS_Store
 **/dump.rdb
-
-config.js
-
 npm-debug.log
 **/bower_components
-
-.npmrc
