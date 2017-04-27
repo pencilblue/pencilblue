@@ -17,12 +17,12 @@
 'use strict';
 
 //dependencies
-var util  = require('../../../util.js');
+var util = require('../../../util.js');
 var async = require('async');
 var path = require('path');
 var fs = require('fs');
 
-module.exports = function(pb) {
+module.exports = function (pb) {
 
     //pb dependencies
     var DAO = pb.DAO;
@@ -108,7 +108,7 @@ module.exports = function(pb) {
      * @param {String} mediaPath
      * @param {Function} cb
      */
-    MediaServiceV2.prototype.getContentStreamByPath = function(mediaPath, cb) {
+    MediaServiceV2.prototype.getContentStreamByPath = function (mediaPath, cb) {
         this.provider.getStream(mediaPath, cb);
     };
 
@@ -117,15 +117,15 @@ module.exports = function(pb) {
      * @param {string} id
      * @param {Function} cb
      */
-    MediaServiceV2.prototype.getContentStreamById = function(id, cb) {
+    MediaServiceV2.prototype.getContentStreamById = function (id, cb) {
         var self = this;
         var tasks = [
-            function(callback) { self.dao.loadById(id, TYPE, callback); },
-            function(media, callback) {
+            function (callback) { self.dao.loadById(id, TYPE, callback); },
+            function (media, callback) {
                 if (!media) {
                     return callback(null, null);
                 }
-                self.provider.getStream(media.location, function(err, stream) {
+                self.provider.getStream(media.location, function (err, stream) {
                     callback(err, stream ? {
                         stream: stream,
                         mime: media.mime || pb.RequestHandler.getMimeFromPath(media.location)
@@ -153,10 +153,10 @@ module.exports = function(pb) {
      * @param {Function} cb A callback that provides two parameters.  An Error if
      * exists and the rendered HTML content for the media resource.
      */
-    MediaServiceV2.prototype.renderByLocation = function(options, cb) {
+    MediaServiceV2.prototype.renderByLocation = function (options, cb) {
         var result = options.type ? MediaServiceV2.getRendererByType(options.type) : MediaServiceV2.getRenderer(options.location, options.isFile);
         if (!result) {
-            var failures = [ BaseObjectService.validationFailure('type', 'An invalid type was provided') ];
+            var failures = [BaseObjectService.validationFailure('type', 'An invalid type was provided')];
             var err = BaseObjectService.validationError(failures);
             return cb(err, null);
         }
@@ -184,7 +184,7 @@ module.exports = function(pb) {
      * @param {Function} cb A callback that provides two parameters. An Error if
      * exists and the rendered HTML content for the media resource.
      */
-    MediaServiceV2.prototype.renderById = function(id, options, cb) {
+    MediaServiceV2.prototype.renderById = function (id, options, cb) {
         var self = this;
 
         this.dao.loadById(id, TYPE, function (err, media) {
@@ -212,7 +212,7 @@ module.exports = function(pb) {
      * @param {Function} cb A callback that provides two parameters. An Error if
      * exists and the rendered HTML content for the media resource.
      */
-    MediaServiceV2.prototype.render = function(media, options, cb) {
+    MediaServiceV2.prototype.render = function (media, options, cb) {
         //retrieve renderer
         var result = MediaServiceV2.getRendererByType(media.media_type);
         if (!result) {
@@ -237,7 +237,7 @@ module.exports = function(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    MediaServiceV2.prototype.validate = function(context, cb) {
+    MediaServiceV2.prototype.validate = function (context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
 
@@ -275,7 +275,7 @@ module.exports = function(pb) {
      * @param {Array} context.validationErrors
      * @param {function} cb (Error)
      */
-    MediaServiceV2.prototype.validateTopicReferences = function(context, cb) {
+    MediaServiceV2.prototype.validateTopicReferences = function (context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
 
@@ -291,21 +291,21 @@ module.exports = function(pb) {
 
         //verify that each topic exists
         var opts = {
-            select: {name: 1},
+            select: { name: 1 },
             where: DAO.getIdInWhere(obj.media_topics)
         };
-        this.topicService.getAll(opts, function(err, topics) {
+        this.topicService.getAll(opts, function (err, topics) {
             if (util.isError(err)) {
                 return cb(err);
             }
 
             //convert to map
-            var map = util.arrayToObj(topics, function(topics, i) {
+            var map = util.arrayToObj(topics, function (topics, i) {
                 return topics[i].id.toString();
             });
 
             //find the ones that don't exist
-            obj.media_topics.forEach(function(item, index) {
+            obj.media_topics.forEach(function (item, index) {
                 if (!map[item]) {
                     errors.push(BaseObjectService.validationFailure('media_topics[' + index + ']', item + ' is not a valid reference'));
                 }
@@ -323,7 +323,7 @@ module.exports = function(pb) {
      * @param {Array} context.validationErrors
      * @param {function} cb (Error)
      */
-    MediaServiceV2.prototype.validateName = function(context, cb) {
+    MediaServiceV2.prototype.validateName = function (context, cb) {
         var obj = context.data;
         var errors = context.validationErrors;
 
@@ -334,11 +334,11 @@ module.exports = function(pb) {
 
         //ensure the media name is unique
         var where = { name: obj.name };
-        this.dao.unique(TYPE, where, obj[DAO.getIdField()], function(err, isUnique) {
-            if(util.isError(err)) {
+        this.dao.unique(TYPE, where, obj[DAO.getIdField()], function (err, isUnique) {
+            if (util.isError(err)) {
                 return cb(err);
             }
-            else if(!isUnique) {
+            else if (!isUnique) {
                 errors.push(BaseObjectService.validationFailure('name', 'The name ' + obj.name + ' is already in use'));
             }
             cb();
@@ -353,7 +353,7 @@ module.exports = function(pb) {
      * @param {File} context.data.content Formidable file descriptor
      * @param {function} cb (Error)
      */
-    MediaServiceV2.prototype.persistContent = function(context, cb) {
+    MediaServiceV2.prototype.persistContent = function (context, cb) {
         var obj = context.data;
         var fileDescriptor = obj.content;
 
@@ -375,7 +375,7 @@ module.exports = function(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    MediaServiceV2.onFormat = function(context, cb) {
+    MediaServiceV2.onFormat = function (context, cb) {
         var dto = context.data;
         dto.name = BaseObjectService.sanitize(dto.name);
         dto.caption = BaseObjectService.sanitize(dto.caption);
@@ -401,7 +401,7 @@ module.exports = function(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    MediaServiceV2.onMerge = function(context, cb) {
+    MediaServiceV2.onMerge = function (context, cb) {
         var dto = context.data;
         var obj = context.object;
 
@@ -416,7 +416,7 @@ module.exports = function(pb) {
 
         //check to see if we have a file handle
         var mediaUrl;
-        if ( (obj.isFile = util.isObject(dto.content)) ) {
+        if ((obj.isFile = util.isObject(dto.content))) {
 
             //ensure the content is available for validation
             obj.content = dto.content;
@@ -443,19 +443,19 @@ module.exports = function(pb) {
         var renderer = result.renderer;
         var tasks = {
 
-            meta: function(callback) {
+            meta: function (callback) {
                 renderer.getMeta(mediaUrl, obj.isFile, callback);
             },
 
-            thumbnail: function(callback) {
+            thumbnail: function (callback) {
                 renderer.getThumbnail(mediaUrl, callback);
             },
 
-            mediaId: function(callback) {
+            mediaId: function (callback) {
                 renderer.getMediaId(mediaUrl, callback);
             }
         };
-        async.series(tasks, function(err, taskResult) {
+        async.series(tasks, function (err, taskResult) {
             obj.media_type = result.type;
             if (taskResult) {
                 obj.icon = renderer.getIcon(result.type);
@@ -477,7 +477,7 @@ module.exports = function(pb) {
      * the event that called this handler
      * @param {Function} cb A callback that takes a single parameter: an error if occurred
      */
-    MediaServiceV2.onValidate = function(context, cb) {
+    MediaServiceV2.onValidate = function (context, cb) {
         context.service.validate(context, cb);
     };
 
@@ -489,7 +489,7 @@ module.exports = function(pb) {
      * @param {MediaServiceV2} context.service
      * @param {function} cb (Error)
      */
-    MediaServiceV2.onBeforeSave = function(context, cb) {
+    MediaServiceV2.onBeforeSave = function (context, cb) {
         var obj = context.data;
         if (obj.content) {
             return context.service.persistContent(context, cb);
@@ -506,7 +506,7 @@ module.exports = function(pb) {
      * @return {object|null} A media renderer interface implementation or NULL if
      * none support the given URL.
      */
-    MediaServiceV2.getRenderer = function(mediaUrl, isFile) {
+    MediaServiceV2.getRenderer = function (mediaUrl, isFile) {
         if (typeof isFile === 'undefined') {
             isFile = MediaServiceV2.isFile(mediaUrl);
         }
@@ -536,7 +536,7 @@ module.exports = function(pb) {
      * @return {object|null} A media renderer interface implementation or NULL if
      * none support the given type.
      */
-    MediaServiceV2.getRendererByType = function(type) {
+    MediaServiceV2.getRendererByType = function (type) {
         for (var i = 0; i < REGISTERED_MEDIA_RENDERERS.length; i++) {
 
             var types = REGISTERED_MEDIA_RENDERERS[i].getSupportedTypes();
@@ -563,18 +563,18 @@ module.exports = function(pb) {
      * rendering element.
      * @return {String}
      */
-    MediaServiceV2.getMediaFlag = function(mid, options) {
+    MediaServiceV2.getMediaFlag = function (mid, options) {
         if (!mid) {
-            throw new Error('The media id is required but ['+mid+'] was provided');
+            throw new Error('The media id is required but [' + mid + '] was provided');
         }
         else if (!util.isObject(options)) {
             options = {};
         }
 
-        var flag = '^media_display_'+mid+'/';
+        var flag = '^media_display_' + mid + '/';
 
         var cnt = 0;
-        Object.keys(options).forEach(function(opt) {
+        Object.keys(options).forEach(function (opt) {
             if (cnt++ > 0) {
                 flag += ',';
             }
@@ -600,7 +600,7 @@ module.exports = function(pb) {
      * @param {String} content The content string that potentially contains 1 or more media flags
      * @return {Object} An object that contains the information about the parsed media flag.
      */
-    MediaServiceV2.extractNextMediaFlag = function(content) {
+    MediaServiceV2.extractNextMediaFlag = function (content) {
         if (!util.isString(content)) {
             return null;
         }
@@ -618,7 +618,7 @@ module.exports = function(pb) {
             return null;
         }
 
-        var flag   = content.substring(startIndex, endIndex + 1);
+        var flag = content.substring(startIndex, endIndex + 1);
         var result = MediaServiceV2.parseMediaFlag(flag);
         if (result) {
             result.startIndex = startIndex;
@@ -641,24 +641,24 @@ module.exports = function(pb) {
      * @param {String} flag The content string that potentially contains 1 or more media flags
      * @return {Object} An object that contains the information about the parsed media flag.
      */
-    MediaServiceV2.parseMediaFlag = function(flag) {
+    MediaServiceV2.parseMediaFlag = function (flag) {
         if (!util.isString(flag)) {
             return null;
         }
 
         //strip flag start and end markers if exist
         var hasStartMarker = flag.charAt(0) === '^';
-        var hasEndMarker   = flag.charAt(flag.length - 1) === '^';
+        var hasEndMarker = flag.charAt(flag.length - 1) === '^';
         flag = flag.substring(hasStartMarker ? 1 : 0, hasEndMarker ? flag.length - 1 : undefined);
 
         //split on forward slash as it is the division between id and style
         var prefix = 'media_display_';
         var parts = flag.split('/');
-        var id    = parts[0].substring(prefix.length);
+        var id = parts[0].substring(prefix.length);
 
         var style = {};
         if (parts[1] && parts[1].length) {
-            parts[1].split(',').forEach(function(item) {
+            parts[1].split(',').forEach(function (item) {
                 var division = item.split(':');
                 style[division[0]] = division[1];
             });
@@ -678,10 +678,10 @@ module.exports = function(pb) {
      * @method getSupportedExtensions
      * @return {Array} provides an array of strings
      */
-    MediaServiceV2.getSupportedExtensions = function() {
+    MediaServiceV2.getSupportedExtensions = function () {
 
         var extensions = {};
-        REGISTERED_MEDIA_RENDERERS.forEach(function(provider) {
+        REGISTERED_MEDIA_RENDERERS.forEach(function (provider) {
 
             //for backward compatibility check for existence of extension retrieval
             if (!util.isFunction(provider.getSupportedExtensions)) {
@@ -696,7 +696,7 @@ module.exports = function(pb) {
             }
 
             //add them to the hash
-            exts.forEach(function(extension) {
+            exts.forEach(function (extension) {
                 extensions[extension] = true;
             });
         });
@@ -711,7 +711,7 @@ module.exports = function(pb) {
      * @param {Function|Object} interfaceImplementation A prototype or object that implements the media renderer interface.
      * @return {Boolean} TRUE if the implementation was registered, FALSE if not
      */
-    MediaServiceV2.registerRenderer = function(interfaceImplementation) {
+    MediaServiceV2.registerRenderer = function (interfaceImplementation) {
         if (!interfaceImplementation) {
             return false;
         }
@@ -727,7 +727,7 @@ module.exports = function(pb) {
      * @param {Function|Object} interfaceImplementation A prototype or object that implements the media renderer interface
      * @return {Boolean} TRUE if registered, FALSE if not
      */
-    MediaServiceV2.isRegistered = function(interfaceImplementation) {
+    MediaServiceV2.isRegistered = function (interfaceImplementation) {
         return REGISTERED_MEDIA_RENDERERS.indexOf(interfaceImplementation) >= 0;
     };
 
@@ -738,7 +738,7 @@ module.exports = function(pb) {
      * @param {Function|Object} interfaceToUnregister A prototype or object that implements the media renderer interface
      * @return {Boolean} TRUE if unregistered, FALSE if not
      */
-    MediaServiceV2.unregisterRenderer = function(interfaceToUnregister) {
+    MediaServiceV2.unregisterRenderer = function (interfaceToUnregister) {
         var index = REGISTERED_MEDIA_RENDERERS.indexOf(interfaceToUnregister);
         if (index >= 0) {
             REGISTERED_MEDIA_RENDERERS.splice(index, 1);
@@ -756,7 +756,7 @@ module.exports = function(pb) {
      * @return {MediaProvider} An instance of a media provider or NULL when no
      * provider can be loaded.
      */
-    MediaServiceV2.loadMediaProvider = function(context) {
+    MediaServiceV2.loadMediaProvider = function (context) {
         var ProviderType = MEDIA_PROVIDERS[pb.config.media.provider];
         if (util.isNullOrUndefined(ProviderType)) {
             ProviderType = MediaServiceV2.findProviderType();
@@ -770,13 +770,15 @@ module.exports = function(pb) {
      * @method findProviderType
      * @return {MediaProvider}
      */
-    MediaServiceV2.findProviderType = function() {
-        var paths = [path.join(pb.config.docRoot, pb.config.media.provider), pb.config.media.provider];
-        for(var i = 0; i < paths.length; i++) {
-            try{
+    MediaServiceV2.findProviderType = function () {
+        var paths = [path.join(pb.config.docRoot, pb.config.media.provider),
+        path.join(path.resolve('.'), pb.config.media.provider),
+        pb.config.media.provider];
+        for (var i = 0; i < paths.length; i++) {
+            try {
                 return require(paths[i])(pb);
             }
-            catch(e){
+            catch (e) {
                 pb.log.silly(e.stack);
             }
         }
@@ -793,7 +795,7 @@ module.exports = function(pb) {
      * @param {String} position Can be one of 4 values: none, left, right, center
      * @return {String} The HTML formatted style attribute(s)
      */
-    MediaServiceV2.getStyleForPosition = function(position) {
+    MediaServiceV2.getStyleForPosition = function (position) {
         var positionToStyle = {
             left: 'float: left;margin-right: 1em',
             right: 'float: right;margin-left: 1em',
@@ -809,9 +811,9 @@ module.exports = function(pb) {
      * @param {String} originalFilename
      * @return {String}
      */
-    MediaServiceV2.generateMediaPath = function(originalFilename) {
+    MediaServiceV2.generateMediaPath = function (originalFilename) {
         var now = new Date();
-        var filename  = MediaServiceV2.generateFilename(originalFilename);
+        var filename = MediaServiceV2.generateFilename(originalFilename);
         return pb.UrlService.urlJoin('/media', now.getFullYear() + '', (now.getMonth() + 1) + '', filename);
     };
 
@@ -822,13 +824,13 @@ module.exports = function(pb) {
      * @param {String} originalFilename
      * @return {String}
      */
-    MediaServiceV2.generateFilename = function(originalFilename){
+    MediaServiceV2.generateFilename = function (originalFilename) {
         var now = new Date();
 
         //calculate extension
         var ext = '';
         var extIndex = originalFilename.lastIndexOf('.');
-        if (extIndex >= 0){
+        if (extIndex >= 0) {
             ext = originalFilename.substr(extIndex);
         }
 
@@ -843,7 +845,7 @@ module.exports = function(pb) {
      * @param {String} mediaType
      * @return {String}
      */
-    MediaServiceV2.getMediaIcon = function(mediaType) {
+    MediaServiceV2.getMediaIcon = function (mediaType) {
 
         var result = MediaServiceV2.getRendererByType(mediaType);
         if (!result) {
@@ -859,9 +861,9 @@ module.exports = function(pb) {
      * @param {Array} media The array of media objects to format
      * @return {Array} The same array of media that was passed in
      */
-    MediaServiceV2.formatMedia = function(media) {
+    MediaServiceV2.formatMedia = function (media) {
         var quickLookup = {};
-        media.forEach(function(item) {
+        media.forEach(function (item) {
 
             //get the renderer
             var renderer = quickLookup[item.media_type];
@@ -892,7 +894,7 @@ module.exports = function(pb) {
      * @param {Object} [overrides] A hash of style properties that will be applied
      * to the base style for the given view
      */
-    MediaServiceV2.getStyleForView = function(renderer, view, overrides) {
+    MediaServiceV2.getStyleForView = function (renderer, view, overrides) {
         if (!overrides) {
             overrides = {};
         }
@@ -910,7 +912,7 @@ module.exports = function(pb) {
      * @method isFile
      * @param {String} mediaUrl A URI string that points to a media resource
      */
-    MediaServiceV2.isFile = function(mediaUrl) {
+    MediaServiceV2.isFile = function (mediaUrl) {
         return !(mediaUrl.indexOf('http') === 0 || mediaUrl.indexOf('//') === 0);
     };
 
