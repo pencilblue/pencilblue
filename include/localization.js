@@ -928,11 +928,12 @@ module.exports = function LocalizationModule(pb) {
                 }
             }
 
+
             //no plugin so we should fall through to the default block
-            if (util.isObject(langBlock[countryKey].__default)) {
-                delete langBlock[countryKey].__default;
-                return true;
-            }
+             if (langBlock[countryKey] && langBlock[countryKey].__default && util.isObject(langBlock[countryKey].__default)) {
+                 delete langBlock[countryKey].__default;
+                 return true;
+             }
             return false;
         }
 

@@ -50,8 +50,10 @@ module.exports = function(pb) {
 
     ManagePlugins.prototype.render = function (cb) {
         var self = this;
-
-        if(this.site === 'global' && pb.config.siteRoot !== 'http://localhost:8080'){
+        let isStaging = (this.siteObj && this.siteObj.hostname === 'global-cms-staging.cbtalentnetwork.com');
+        let isLocal = pb.config.siteRoot === 'http://localhost:8080';
+        
+        if(this.site === 'global' && !isStaging && !isLocal){
             return self.reqHandler.serve404();
         }
 

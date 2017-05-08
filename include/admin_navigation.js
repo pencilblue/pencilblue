@@ -274,7 +274,7 @@ module.exports = function AdminNavigationModule(pb) {
     }
 
     function getGlobalScopeNavigation(site) {
-        if(this.site === 'global' && pb.config.siteRoot !== 'http://localhost:8080'){
+        if(pb.config.siteRoot !== 'http://localhost:8080'){
             return util.clone([TN_STATS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
         }
         return util.clone([PLUGINS_NAV, TN_STATS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);

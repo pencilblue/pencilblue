@@ -56,6 +56,9 @@ module.exports = function(pb) {
      * @return {String}
      */
     PageRenderer.prototype.getLayout = function(content) {
+        if(util.isObject(content.page_layout)){
+            return "";
+        }
         return content.page_layout;
     };
 
