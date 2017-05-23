@@ -35,7 +35,6 @@ module.exports = function MediaServiceModule(pb) {
      * or fallback to global if not found in specified site
      */
     function MediaService(provider, site, onlyThisSite) {
-        pb.log.warn('MediaService is deprecated. Please use MediaServiceV2');
 
         /**
          * @property site
