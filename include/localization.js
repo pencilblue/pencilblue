@@ -158,17 +158,6 @@ module.exports = function LocalizationModule(pb) {
      */
     Localization.supportedLookup = {};
 
-    /***
-     * Logan, this might be deprecated
-     */
-    // /**
-    //  * @static
-    //  * @readonly
-    //  * @property keys
-    //  * @type {Object}
-    //  */
-    // Localization.keys = {};
-
     /**
      * @static
      * @readonly
@@ -339,10 +328,7 @@ module.exports = function LocalizationModule(pb) {
         var plugin = options.plugin || self.activeTheme;
 
         //define convenience functions
-
         var processValue = function(localization) {
-
-            //set cache
             if(usingSite){
                 if(!self.cache[self.site]){
                     self.cache[self.site] = {};
@@ -435,22 +421,12 @@ module.exports = function LocalizationModule(pb) {
         if (!Localization.storage[key] && !usingSite) {
            return finalize(options.defaultVal);
         }
-        else if (self.cache[self.site] && self.cache[self.site][key]) {
-            return finalize(processValue(self.cache[self.site][key]));
-        } else if(self.cache[key]){
-            return finalize(processValue(self.cache[key]));
-        }
 
         var keyBlock;
         //key create key path
-        //*****
-         //* Logan, this might be a cause for breaking changes.
         if(usingSite) {
             keyBlock = Localization.storage[self.site][key];
         }else {
-            //ok, so we need to get the key out, its nested inside site. Hope we have the site ID here.
-            //remember to add things based on self.id to the cache.
-
             keyBlock = findKeyBlock(key, false);
         }
 
@@ -460,21 +436,31 @@ module.exports = function LocalizationModule(pb) {
 
         //we found the key.  Now we need to dig around and figure out which
         //value to pick
-        var langKey = k(locale.language);
-        var result = processLanguageBlock(keyBlock[langKey]);
-        if (!util.isString(result)) {
-
+        function getDefaultValue(){
             //check to see if we should fall back to the default locale
             var defaultLocale = Localization.parseLocaleStr(Localization.getDefaultLocale());
             if (defaultLocale.language !== self.localeObj.language || defaultLocale.countryCode !== self.localeObj.countryCode) {
 
                 locale = defaultLocale;
-                langKey = k(defaultLocale.language);
-                result = processLanguageBlock(keyBlock[langKey]);
+                var langKey = k(defaultLocale.language);
+                return processLanguageBlock(keyBlock[langKey]);
             }
             else {
-                result = options.defaultVal;
+                return options.defaultVal;
             }
+        }
+        function getValueByLanguage(){
+            var langKey = k(locale.language);
+            return processLanguageBlock(keyBlock[langKey]);
+        }
+
+        var result = getValueByLanguage();
+        if(usingSite && (!result || result === options.defaultVal)){
+            keyBlock = findKeyBlock(key, false) || {};
+            result = getValueByLanguage();
+        }
+        if(!util.isString(result)){
+            result = getDefaultValue();
         }
 
         //finally, if we have a string result return it otherwise settle on the key
@@ -577,13 +563,6 @@ module.exports = function LocalizationModule(pb) {
                 var keyBlock = result[i].storage[result[i]._id];
 
                 Localization.storage[result[i]._id] = keyBlock;
-                /*for(var key in keyBlock){
-                    if(util.isObject(keyBlock[key])){
-                        var indexKey = result[i]._id + '.' + key;
-                        Localization.keys[indexKey] = true;
-                        Localization.keys[key] = true;
-                    }
-                }*/
             }
 
             return cb(null, compoundedResult);
@@ -791,12 +770,6 @@ module.exports = function LocalizationModule(pb) {
         if (!util.isObject(options)) {
             options = {};
         }
-        /*****
-         * Logan, this is not in there coce.  I do not know the pains this might cause if removed.
-         *         var keyParts = key.split(Localization.KEY_SEP);
-         */
-        //parse the key
-
         //ensure that the key path exists and set a reference to the block that
         //represents the key.  We are essentially walking the tree to get to
         //the key.  When a child node does not exist we create it.
