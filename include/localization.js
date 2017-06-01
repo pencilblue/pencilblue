@@ -456,7 +456,7 @@ module.exports = function LocalizationModule(pb) {
 
         var result = getValueByLanguage();
         if(usingSite && (!result || result === options.defaultVal)){
-            keyBlock = findKeyBlock(key, false) || {};
+            keyBlock = findKeyBlock(key, false);
             result = getValueByLanguage();
         }
         if(!util.isString(result)){
@@ -770,6 +770,12 @@ module.exports = function LocalizationModule(pb) {
         if (!util.isObject(options)) {
             options = {};
         }
+        /*****
+         * Logan, this is not in there code.  I do not know the pains this might cause if removed.
+         *         var keyParts = key.split(Localization.KEY_SEP);
+         */
+        //parse the key
+
         //ensure that the key path exists and set a reference to the block that
         //represents the key.  We are essentially walking the tree to get to
         //the key.  When a child node does not exist we create it.
