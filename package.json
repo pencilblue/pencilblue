@@ -60,8 +60,10 @@
   },
   "scripts": {
     "start": "node pencilblue.js",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec --recursive",
-    "postinstall": "bower install --allow-root"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec --recursive"
+  },
+  "bin": {
+    "pb-bower": "./bin/pb-bower"
   },
   "license": "GPL-3.0",
   "readme": "See README file",
