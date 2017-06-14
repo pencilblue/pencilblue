@@ -939,9 +939,6 @@ module.exports = function RequestHandlerModule(pb) {
             }
             if (result) {
 
-                //Do not delete in merge - Kyle - Logan
-                pb.log.setTransactionName(curr.path);
-
                 if(curr.themes[this.siteObj.uid] || curr.themes[GLOBAL_SITE]) {
                     return curr;
                 }
