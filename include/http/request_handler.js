@@ -1296,7 +1296,7 @@ module.exports = function RequestHandlerModule(pb) {
         var self = this;
 
         //infer a response code when not provided
-        if(typeof data.code === 'undefined'){
+        if(!data.code){
             data.code = 200;
         }
 
