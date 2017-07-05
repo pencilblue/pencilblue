@@ -1778,7 +1778,7 @@ module.exports = function RequestHandlerModule(pb) {
             siteObj: req.siteObj,
             siteName: req.siteName,
             activeTheme: req.activeTheme || req.handler.activeTheme || 'pencilblue',
-            routeLocalized: !!req.routeTheme.localization
+            routeLocalized: !!req.handler.themeRoute.localization
         });
     };
 
