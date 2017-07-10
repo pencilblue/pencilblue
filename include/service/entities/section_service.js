@@ -729,7 +729,7 @@ module.exports = function SectionServiceModule(pb) {
                     }
                     else if (orphans.length === 0) {
                         //we kept the children so there is nothing to do
-                        return cb(null, true);
+                        return cb(null, data);
                     }
 
                     //ok, now we can delete the orhphans if they exist
