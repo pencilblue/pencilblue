@@ -241,6 +241,22 @@ module.exports = function SiteQueryServiceModule(pb) {
   };
 
   /**
+   * Overriding DAO delete method for sites, removes objects from persistence that match criteria and on the site specified
+   *
+   * @method delete
+   * @param {Object} where Key value pair object
+   * @param {String} collection The collection to search in
+   * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#remove
+   * @param {Function} cb A callback that provides two parameter. The first is an
+   * error, if occurred.  The second is the number of records that were removed
+   * from persistence.
+   */
+  SiteQueryService.prototype.delete = function (where, collection, options, cb) {
+      let modifiedWhere = modifyLoadWhere(this.siteUid, where);
+      return DAO.prototype.delete.call(this, modifiedWhere, collection, options, cb);
+  };
+
+  /**
    * Wrapper for site-aware DAO.save.  Saves object to database
    * @method save
    * @param {Object} dbObj
