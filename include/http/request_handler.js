@@ -469,7 +469,7 @@ module.exports = function RequestHandlerModule(pb) {
             routeDescriptor = {
                 path: patternObj.path,
                 pattern: pattern,
-                path_vars: pathVars,
+                path_vars:  {},
                 expression: new RegExp(pattern),
                 themes: {}
             };
@@ -488,11 +488,13 @@ module.exports = function RequestHandlerModule(pb) {
             routeDescriptor.themes[site].size++;
         }
 
+
+        //set the pathvars up based on the descriptor.method
+        routeDescriptor.path_vars[descriptor.method] = pathVars;
+
         //set the controller then lock it down to prevent tampering
         descriptor.controller = Controller;
         routeDescriptor.themes[site][theme][descriptor.method] = Object.freeze(descriptor);
-
-
 
        //only add the descriptor it is new.  We do it here because we need to
        //know that the controller is good.
@@ -1114,7 +1116,7 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, routeTheme, method, site, route) {
 
         //extract path variables
-        var pathVars = this.getPathVariables(route);
+        var pathVars = this.getPathVariables(route, method);
         if (typeof pathVars.locale !== 'undefined') {
             if (!this.siteObj.supportedLocales[pathVars.locale]) {
 
@@ -1149,11 +1151,12 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} route
      * @param {Object} route.path_vars
      */
-    RequestHandler.prototype.getPathVariables = function(route) {
+    RequestHandler.prototype.getPathVariables = function(route, method) {
         var pathVars = {};
         var pathParts = this.url.pathname.split('/');
-        Object.keys(route.path_vars).forEach(function(field) {
-            pathVars[field] = pathParts[route.path_vars[field]];
+
+        Object.keys(route.path_vars[method]).forEach(function(field) {
+            pathVars[field] = pathParts[route.path_vars[method][field]];
         });
         return pathVars;
     };
