@@ -53,7 +53,7 @@ module.exports = function(pb) {
         let isStaging = (this.siteObj && this.siteObj.hostname === 'global-cms-staging.cbtalentnetwork.com');
         let isLocal = pb.config.siteRoot === 'http://localhost:8080';
         
-        if(this.site === 'global' && !isStaging && !isLocal){
+        if(this.site === 'global' && !isStaging && !isLocal && !(this.query && this.query.forceAllow)){
             return self.reqHandler.serve404();
         }
 
