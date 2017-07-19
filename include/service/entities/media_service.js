@@ -126,7 +126,7 @@ module.exports = function MediaServiceModule(pb) {
                 return cb(null, validationErrors);
             }
 
-            self.siteQueryService.save(media, cb);
+            self.siteQueryService.save(media, options, cb);
         });
     };
 
