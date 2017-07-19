@@ -1154,13 +1154,14 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.prototype.getPathVariables = function(route, method) {
         var pathVars = {};
         var pathParts = this.url.pathname.split('/');
-
-        Object.keys(route.path_vars[method]).forEach(function(field) {
-            pathVars[field] = pathParts[route.path_vars[method][field]];
-        });
+        let methodKey = !route.path_vars[method] && route.path_vars['ALL'] ? 'ALL' : method;
+        if(route.path_vars[methodKey]) {
+            Object.keys(route.path_vars[method]).forEach(function (field) {
+                pathVars[field] = pathParts[route.path_vars[method][field]];
+            });
+        }
         return pathVars;
     };
-
     /**
      * Begins the rendering process by initializing the controller.  This is done
      * by gathering all initialization parameters and calling the controller's
