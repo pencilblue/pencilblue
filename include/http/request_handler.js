@@ -939,9 +939,6 @@ module.exports = function RequestHandlerModule(pb) {
             }
             if (result) {
 
-                //Do not delete in merge - Kyle - Logan
-                pb.log.setTransactionName(curr.path);
-
                 if(curr.themes[this.siteObj.uid] || curr.themes[GLOBAL_SITE]) {
                     return curr;
                 }
@@ -1348,7 +1345,7 @@ module.exports = function RequestHandlerModule(pb) {
         var self = this;
 
         //infer a response code when not provided
-        if(typeof data.code === 'undefined'){
+        if(!data.code){
             data.code = 200;
         }
 
@@ -1781,7 +1778,7 @@ module.exports = function RequestHandlerModule(pb) {
             siteObj: req.siteObj,
             siteName: req.siteName,
             activeTheme: req.activeTheme || req.handler.activeTheme || 'pencilblue',
-            routeLocalized: !!req.routeTheme.localization
+            routeLocalized: !!(req.handler.themeRoute ? req.handler.themeRoute.localization : false)
         });
     };
 

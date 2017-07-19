@@ -200,7 +200,7 @@ module.exports = function AnalyticsManagerModule(pb) {
     AnalyticsManager.buildProviderResponseHandler = function(opts) {
         return function(err, result) {
             if (util.isError(err)) {
-                pb.log.error("AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s", opts.key, opts.method, opts.url, err.stack);
+                pb.log.error(`AnalyticsManager: Rendering provider [${opts.key}] failed for URL [${opts.method}:${opts.url}]\n${err.stack}`);
             }
 
             //collect runtime metrics
@@ -235,7 +235,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      */
     AnalyticsManager.buildDomainErrorHandler = function(opts) {
         return function(err) {
-            pb.log.error('AnalyticsManager: Rendering provider [%s] failed for URL [%s:%s]\n%s', opts.key, opts.method, opts.url, err.stack);
+            pb.log.error(`AnalyticsManager: Rendering provider [${opts.key}] failed for URL [${opts.method}:${opts.url}]\n${err.stack}`);
 
             //only callback if the timeout handle is still in place
             if (opts.th !== null) {
