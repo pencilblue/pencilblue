@@ -155,7 +155,8 @@ Configuration.getBaseConfig = function(multisite) {
             options: {
 
                 //http://docs.mongodb.org/manual/core/write-concern/
-                w: 1
+                w: 1,
+                replSet: 'replset-1'
             },
 
             //PB provides the ability to log queries.  This is handy during
