@@ -636,7 +636,7 @@ module.exports = function(pb) {
      * @return {Boolean} TRUE when registered successfully, FALSE if not
      */
     TemplateService.prototype.registerLocal = function(flag, callbackFunctionOrValue) {
-        this.localCallbacks[flag] = callbackFunctionOrValue;
+        this.localCallbacks[flag] = callbackFunctionOrValue || '';
         return true;
     };
 
