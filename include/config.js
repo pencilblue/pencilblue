@@ -153,10 +153,10 @@ Configuration.getBaseConfig = function(multisite) {
             name: 'pencil_blue',
 
             options: {
-
                 //http://docs.mongodb.org/manual/core/write-concern/
                 w: 1,
-                replSet: 'replset-1'
+                replicaSet: 'replset-1',
+                readPreference: 'nearest'
             },
 
             //PB provides the ability to log queries.  This is handy during
