@@ -1152,6 +1152,9 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} route.path_vars
      */
     RequestHandler.prototype.getPathVariables = function(route, method) {
+        if(!method){
+            pb.log.error(`getPathVariables error: method undefined for path /${route.path}`)
+        }
         var pathVars = {};
         var pathParts = this.url.pathname.split('/');
         let methodKey = !route.path_vars[method] && route.path_vars['ALL'] ? 'ALL' : method;
