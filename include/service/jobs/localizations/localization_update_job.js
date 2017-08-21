@@ -97,7 +97,7 @@ module.exports = function LocalizationUpdateJobModule(pb) {
         var queryService = new pb.SiteQueryService({site: site, onlyThisSite: false});
         queryService.q("localizations", opts, function (err, result) {
             if (util.isError(err)) {
-                pb.log.error(err);
+                pb.log.error(`Failed to get Custom Locales for site ${site} on job runner: ${err}`);
                 return callback(err);
             }
             if (result && result[0] && result[0].storage) {
@@ -105,6 +105,7 @@ module.exports = function LocalizationUpdateJobModule(pb) {
                 pb.Localization.storage[site] = keyBlock;
             } else {
                 pb.Localization.storage[site] = {};
+                pb.log.warn(`Deleted custom locale storage record for site ${site}`);
             }
             callback(null, true);
         });
