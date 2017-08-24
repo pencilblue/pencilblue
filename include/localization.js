@@ -559,7 +559,7 @@ module.exports = function LocalizationModule(pb) {
             if (util.isError(err) || !result || result.length === 0) {
                 let msg = `Failed to load custom locales: ${err}`;
                 pb.log.error(msg);
-                return cb(msg);
+                return cb(new Error(msg));
             }
             for(var i = 0; i < result.length; i++) {
                 var keyBlock = result[i].storage[result[i]._id];
