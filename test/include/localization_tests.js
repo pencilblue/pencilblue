@@ -4,8 +4,9 @@ var path          = require('path');
 var should        = require('should');
 var Configuration = require('../../include/config.js');
 var Lib           = require('../../lib');
+const sinon       = require('sinon');
 
-describe('Localization', function() {
+describe.only('Localization', function() {
 
     //set the dummy data for
     var dummyLocale = 'pl-pl';
@@ -18,7 +19,10 @@ describe('Localization', function() {
 
         pb = new Lib(Configuration.getBaseConfig());
         Localization = pb.Localization;
+        pb.SiteQueryService = sinon.stub();
+        pb.SiteQueryService.prototype.q = sinon.stub().yields(null, [{storage:{}}]);
         Localization.init(next);
+
     });
 
     describe('Localization.getLocalizationPackage', function() {
