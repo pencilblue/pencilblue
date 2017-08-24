@@ -6,7 +6,7 @@ var Configuration = require('../../include/config.js');
 var Lib           = require('../../lib');
 const sinon       = require('sinon');
 
-describe.only('Localization', function() {
+describe('Localization', function() {
 
     //set the dummy data for
     var dummyLocale = 'pl-pl';
