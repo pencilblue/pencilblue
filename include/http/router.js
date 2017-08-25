@@ -112,7 +112,7 @@ module.exports = function (pb) {
             domain.create()
                 .once('error', function(err) {
                     var middleWareName = Router.middleware[self.index] ? Router.middleware[self.index].name : 'UNKNOWN';
-                    pb.log.error('Router: An unhandled error occurred after calling middleware "%s": %s', middleWareName, err.stack);
+                    pb.log.error(`Router: An unhandled error occurred after calling middleware ${middleWareName}: ${err.stack}`);
                     reject(err);
                 })
                 .run(function() {
