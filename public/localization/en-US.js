@@ -1,4 +1,10 @@
 module.exports = {
+    //these for site navigation items' localization
+    navigation: {
+        NOTICE: 'Notice',
+        NEWS: 'News',
+        ABOUT: 'About'
+    },
     generic: {
         LOCALE_DISPLAY: 'English (United States)',
         PENCILBLUE: 'PencilBlue',
