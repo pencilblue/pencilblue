@@ -355,7 +355,7 @@ module.exports = function(pb) {
          * @param {function} next (Error) Callback function that takes a single parameter, an error if it occurred
          */
         static derivePathVariables (req, res, next) {
-            req.pathVars = req.handler.getPathVariables(req.route, req.method);
+            req.pathVars = req.handler.getPathVariables(req.route);
             next();
         }
 
