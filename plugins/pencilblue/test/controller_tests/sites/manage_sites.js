@@ -45,6 +45,7 @@ describe('When hitting the manage sites route', function () {
                 expect(queryOptions.where.active).to.equal(true);
                 expect(queryOptions.where['$or'][0].uid).to.equal('');
                 expect(queryOptions.where['$or'][1].displayName.toString()).to.equal('/(?:)/i');
+                expect(queryOptions.where['$or'][2].hostname.toString()).to.equal('/(?:)/i');
                 done();
             });
         });
@@ -59,6 +60,7 @@ describe('When hitting the manage sites route', function () {
                 expect(queryOptions.where.active).to.equal(false);
                 expect(queryOptions.where['$or'][0].uid).to.equal('siteID');
                 expect(queryOptions.where['$or'][1].displayName.toString()).to.equal('/siteID/i');
+                expect(queryOptions.where['$or'][2].hostname.toString()).to.equal('/siteID/i');
                 done();
             });
         });

@@ -64,12 +64,12 @@ module.exports = function(pb) {
         search(cb) {
             let siteQuery = this.query.site || '';
             let isActive = this.query.active === 'true';
-            let displayRegex = new RegExp(`${siteQuery}`, 'i');
-            this._getSitesByCriteria({where: {active: isActive, '$or': [{'uid':siteQuery}, {'displayName': displayRegex}]}})
+            let caseInsensitiveQuery = new RegExp(`${siteQuery}`, 'i');
+            this._getSitesByCriteria({where: {active: isActive, '$or': [{'uid':siteQuery}, {'displayName': caseInsensitiveQuery}, {'hostname': caseInsensitiveQuery}]}})
                 .then(data => cb({content: data}), err => cb(err));
         }
 
-        /**
+        /** caseInsensitiveQuery
          * Action to paginate for a given site list.
          * @method getPage
          * @param {Function} cb - callback function
