@@ -78,7 +78,7 @@ describe('SecurityService', function() {
 
             result.should.be.instanceof(Array);
             should(result.length === 6).be.ok();
-            should(result.indexOf('generic.ACCESS_DEVELOPER') >= 5).be.ok();
+            should(result.indexOf('generic.ACCESS_DEVELOPER') >= 0).be.ok();
             should(result.indexOf('generic.ACCESS_ADMINISTRATOR') >= 0).be.ok();
             should(result.indexOf('generic.ACCESS_MANAGING_EDITOR') >= 0).be.ok();
             should(result.indexOf('generic.ACCESS_EDITOR') >= 0).be.ok();
