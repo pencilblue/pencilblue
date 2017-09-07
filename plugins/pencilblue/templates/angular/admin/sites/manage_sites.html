@@ -5,8 +5,6 @@
                 ^angular_objects^
                 ^tmp_angular=admin=elements=error_success^
 
-                var perPage = 2; // TODO: Increase to 50 before release
-
                 $scope.predicate = 'displayName';
                 $scope.reverse = false;
                 $scope.inactivePredicate = 'displayName';
@@ -17,8 +15,8 @@
                 $scope.activeCount = parseInt($scope.activeCount, 10); // total number of sites
                 $scope.inactiveCount = parseInt($scope.inactiveCount, 10); // total number of sites
 
-                $scope.totalPagesActive = Math.ceil($scope.activeCount/perPage); // total number of pages
-                $scope.totalPagesInactive = Math.ceil($scope.inactiveCount/perPage); // total number of pages
+                $scope.totalPagesActive = parseInt($scope.totalPagesActive, 10); // total number of pages
+                $scope.totalPagesInactive = parseInt($scope.totalPagesInactive, 10); // total number of pages
 
                 function setPageNumbers() {
                     $scope.activePage = 1; // the current active page

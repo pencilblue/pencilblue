@@ -19,7 +19,7 @@ module.exports = function(pb) {
 
     const SUB_NAV_KEY = 'sites_manage';
     const SITE_COLLECTION = 'site';
-    const PER_PAGE = 2;  // TODO: Increase to 50 before release
+    const PER_PAGE = 50;
 
     /**
      * Renders a view to display and manage all the sites
@@ -47,6 +47,8 @@ module.exports = function(pb) {
                         inactiveSites,
                         activeCount,
                         inactiveCount,
+                        totalPagesActive: Math.ceil(activeCount/PER_PAGE),
+                        totalPagesInactive: Math.ceil(inactiveCount/PER_PAGE),
                         tabs: this.tabs
                     });
                     this.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));

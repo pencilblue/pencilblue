@@ -30,6 +30,20 @@ describe('When hitting the manage sites route', function () {
                 done();
           });
        });
+        it('should calculate the active and inactive page counts', function (done) {
+            manageSitesController._getSites = sinon.stub().resolves(['myActiveSites', 'myInactiveSites', 1123, 136]);
+            manageSitesController.render(function(data) {
+                expect(data.content).to.exist;
+                let angularObject = manageSitesController.ts.getRegisteredLocal('angular_objects');
+                expect(angularObject.navigation).to.be.ok;
+                expect(angularObject.activeCount).to.equal(1123);
+                expect(angularObject.inactiveCount).to.equal(136);
+                expect(angularObject.totalPagesActive).to.equal(23);
+                expect(angularObject.totalPagesInactive).to.equal(3);
+                done();
+            });
+        });
+
     });
     describe('to search', function () {
         beforeEach(function () {
@@ -90,7 +104,7 @@ describe('When hitting the manage sites route', function () {
                 let queryOptions = manageSitesController._getSitesByCriteria.args[0][0];
                 expect(data.content).to.equal('results');
                 expect(queryOptions.where.active).to.equal(true);
-                expect(queryOptions.limit).to.equal(2);
+                expect(queryOptions.limit).to.equal(50);
                 expect(queryOptions.offset).to.equal(0);
                 done();
             });
@@ -104,8 +118,8 @@ describe('When hitting the manage sites route', function () {
                 let queryOptions = manageSitesController._getSitesByCriteria.args[0][0];
                 expect(data.content).to.equal('results');
                 expect(queryOptions.where.active).to.equal(false);
-                expect(queryOptions.limit).to.equal(2);
-                expect(queryOptions.offset).to.equal(4);
+                expect(queryOptions.limit).to.equal(50);
+                expect(queryOptions.offset).to.equal(100);
                 done();
             });
         });
@@ -113,15 +127,15 @@ describe('When hitting the manage sites route', function () {
             manageSitesController._getSitesByCriteria = sinon.stub().rejects(new Error('something went wrong!'));
             manageSitesController.query = {
                 active: 'false',
-                page: '2'
+                page: '4'
             };
             manageSitesController.getPage(function (err) {
                 let queryOptions = manageSitesController._getSitesByCriteria.args[0][0];
                 expect(err).to.exist;
                 expect(err.message).to.equal('something went wrong!');
                 expect(queryOptions.where.active).to.equal(false);
-                expect(queryOptions.limit).to.equal(2);
-                expect(queryOptions.offset).to.equal(4);
+                expect(queryOptions.limit).to.equal(50);
+                expect(queryOptions.offset).to.equal(200);
                 done();
             });
         });
@@ -139,11 +153,11 @@ describe('When hitting the manage sites route', function () {
                     let activeSitesCountWhereClause = manageSitesController.dao.count.args[0][1];
                     let inactiveSitesCountWhereClause = manageSitesController.dao.count.args[1][1];
 
-                    expect(activeSites.limit).to.equal(2);
+                    expect(activeSites.limit).to.equal(50);
                     expect(activeSites.offset).to.equal(0);
                     expect(activeSites.where.active).to.equal(true);
 
-                    expect(inactiveSites.limit).to.equal(2);
+                    expect(inactiveSites.limit).to.equal(50);
                     expect(inactiveSites.offset).to.equal(0);
                     expect(inactiveSites.where.active).to.equal(false);
 
