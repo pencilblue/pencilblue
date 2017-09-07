@@ -3,7 +3,11 @@ var sinon = require('sinon');
 module.exports = () => {
 
     let pb = sinon.stub();
-    pb.AdminSubnavService = { registerFor: sinon.stub() };
+    pb.AdminSubnavService = {
+        get: sinon.stub().returnsArg(0),
+        registerFor: sinon.stub()
+    };
+    pb.AdminNavigation = { get: sinon.stub().returnsArg(1) };
     pb.BaseController = sinon.stub();
     pb.BaseController.apiResponse = sinon.stub();
     pb.BaseService = sinon.stub();
@@ -11,7 +15,18 @@ module.exports = () => {
     pb.cache.delAsync = sinon.stub();
     pb.cache.set = sinon.stub();
     pb.cache.expire = sinon.stub();
+    pb.ClientJs = {
+        getAngularObjects: sinon.stub().returnsArg(0)
+    };
     pb.DAO = sinon.stub();
+    pb.DAO.prototype.count = sinon.stub().yields(null, true);
+    pb.DAO.prototype.q = sinon.stub().yields(null, true);
+
+    pb.SettingServiceFactory = {
+        getServiceBySite: function() {return {
+            get: sinon.stub().yields(null, 'bravo')
+        }}
+    };
 
     pb.util = {
         clone: (arg) => {return JSON.parse(JSON.stringify(arg));},

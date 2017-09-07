@@ -14,12 +14,162 @@ describe('When hitting the manage sites route', function () {
         manageSitesController.ls = new pb.Localization();
     });
 
-    describe('get sites by criteria', function () {
-        beforeEach(function() {
+    describe('to render the page', function () {
+       it('should get sites and register an angular object', function (done) {
+          manageSitesController._getSites = sinon.stub().resolves(['myActiveSites', 'myInactiveSites', 'activeSiteCount', 'inactiveSiteCount']);
+           manageSitesController.render(function(data) {
+                expect(data.content).to.exist;
+                let angularObject = manageSitesController.ts.getRegisteredLocal('angular_objects');
+                expect(angularObject.navigation).to.be.ok;
+                expect(angularObject.pills).to.equal('sites_manage');
+                expect(angularObject.activeSites).to.equal('myActiveSites');
+                expect(angularObject.inactiveSites).to.equal('myInactiveSites');
+                expect(angularObject.activeCount).to.equal('activeSiteCount');
+                expect(angularObject.inactiveCount).to.equal('inactiveSiteCount');
+                expect(angularObject.tabs).to.be.ok;
+                done();
+          });
+       });
+    });
+    describe('to search', function () {
+        beforeEach(function () {
+            manageSitesController._getSitesByCriteria = sinon.stub().resolves('results');
+        });
+        it('should default the site query to empty, and set active to true if it is true, then run a search on uid and display name according to active state', function (done) {
+            manageSitesController.query = {
+                active: 'true'
+            };
+            manageSitesController.search(function (data) {
+                let queryOptions = manageSitesController._getSitesByCriteria.args[0][0];
+                expect(data.content).to.equal('results');
+                expect(queryOptions.where.active).to.equal(true);
+                expect(queryOptions.where['$or'][0].uid).to.equal('');
+                expect(queryOptions.where['$or'][1].displayName.toString()).to.equal('/(?:)/i');
+                done();
+            });
+        });
+        it('should use the site query, and set active to false if it is not equal to the string true, then run a search on uid and display name according to active state', function (done) {
+            manageSitesController.query = {
+                active: 'false',
+                site: 'siteID'
+            };
+            manageSitesController.search(function (data) {
+                let queryOptions = manageSitesController._getSitesByCriteria.args[0][0];
+                expect(data.content).to.equal('results');
+                expect(queryOptions.where.active).to.equal(false);
+                expect(queryOptions.where['$or'][0].uid).to.equal('siteID');
+                expect(queryOptions.where['$or'][1].displayName.toString()).to.equal('/siteID/i');
+                done();
+            });
+        });
+        it('should callback with an error if the _getSitesByCriteria rejects', function (done) {
+            manageSitesController._getSitesByCriteria = sinon.stub().rejects(new Error('something went wrong!'));
+            manageSitesController.query = {
+                active: 'false'
+            };
+            manageSitesController.search(function (err) {
+                let queryOptions = manageSitesController._getSitesByCriteria.args[0][0];
+                expect(err).to.exist;
+                expect(err.message).to.equal('something went wrong!');
+                expect(queryOptions.where.active).to.equal(false);
+                done();
+            });
+        });
+    });
+    describe('to paginate', function () {
+        beforeEach(function () {
+            manageSitesController._getSitesByCriteria = sinon.stub().resolves('results');
+        });
+        it('should default page to 0, and check if active is true', function (done) {
+            manageSitesController.query = {
+                active: 'true'
+            };
+            manageSitesController.getPage(function (data) {
+                let queryOptions = manageSitesController._getSitesByCriteria.args[0][0];
+                expect(data.content).to.equal('results');
+                expect(queryOptions.where.active).to.equal(true);
+                expect(queryOptions.limit).to.equal(2);
+                expect(queryOptions.offset).to.equal(0);
+                done();
+            });
+        });
+        it('should respect the page number if given and adjust the offset by the perpage.', function (done) {
+            manageSitesController.query = {
+                active: 'false',
+                page: '2'
+            };
+            manageSitesController.getPage(function (data) {
+                let queryOptions = manageSitesController._getSitesByCriteria.args[0][0];
+                expect(data.content).to.equal('results');
+                expect(queryOptions.where.active).to.equal(false);
+                expect(queryOptions.limit).to.equal(2);
+                expect(queryOptions.offset).to.equal(4);
+                done();
+            });
+        });
+        it('should callback with an error if the _getSitesByCriteria rejects', function (done) {
+            manageSitesController._getSitesByCriteria = sinon.stub().rejects(new Error('something went wrong!'));
+            manageSitesController.query = {
+                active: 'false',
+                page: '2'
+            };
+            manageSitesController.getPage(function (err) {
+                let queryOptions = manageSitesController._getSitesByCriteria.args[0][0];
+                expect(err).to.exist;
+                expect(err.message).to.equal('something went wrong!');
+                expect(queryOptions.where.active).to.equal(false);
+                expect(queryOptions.limit).to.equal(2);
+                expect(queryOptions.offset).to.equal(4);
+                done();
+            });
+        });
+    });
+    describe('getting all of the site data for initial page load', function () {
+        beforeEach(function () {
+            manageSitesController._getSitesByCriteria = sinon.stub().resolves(true)
+        });
+        it('should call to get active sites, inactive sites, active count, and inactive count', function () {
+            return manageSitesController._getSites()
+                .then(() => {
+                    let activeSites = manageSitesController._getSitesByCriteria.args[0][0];
+                    let inactiveSites = manageSitesController._getSitesByCriteria.args[1][0];
 
+                    let activeSitesCountWhereClause = manageSitesController.dao.count.args[0][1];
+                    let inactiveSitesCountWhereClause = manageSitesController.dao.count.args[1][1];
+
+                    expect(activeSites.limit).to.equal(2);
+                    expect(activeSites.offset).to.equal(0);
+                    expect(activeSites.where.active).to.equal(true);
+
+                    expect(inactiveSites.limit).to.equal(2);
+                    expect(inactiveSites.offset).to.equal(0);
+                    expect(inactiveSites.where.active).to.equal(false);
+
+                    expect(activeSitesCountWhereClause.active).to.equal(true);
+                    expect(inactiveSitesCountWhereClause.active).to.equal(false);
+                });
+        });
+    });
+    describe('get sites by criteria', function () {
+        beforeEach(function () {
+            manageSitesController.dao.q.yields(null, [{}]);
         });
         it('should take in options, and perform a query with them on the site collection', function () {
-
+            let options = {someKey: 1};
+            return manageSitesController._getSitesByCriteria(options)
+                .then(() => {
+                    expect(manageSitesController.dao.q.calledOnce).to.equal(true);
+                    expect(manageSitesController.dao.q.calledWith('site', options)).to.equal(true);
+                })
+        });
+        it('should stamp the active theme onto the site object', function () {
+            let options = {someKey: 1};
+            manageSitesController.dao.q.yields(null, [{}]);
+            return manageSitesController._getSitesByCriteria(options)
+                .then((sites) => {
+                    expect(sites[0]).to.exist;
+                    expect(sites[0].activeTheme).to.equal('bravo');
+                })
         });
     });
     describe('the sub navigation options', function () {

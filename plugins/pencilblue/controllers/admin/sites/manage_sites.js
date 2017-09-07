@@ -19,7 +19,6 @@ module.exports = function(pb) {
 
     const SUB_NAV_KEY = 'sites_manage';
     const SITE_COLLECTION = 'site';
-    const dao = Promise.promisifyAll(new pb.DAO());
     const PER_PAGE = 2;  // TODO: Increase to 50 before release
 
     /**
@@ -29,6 +28,10 @@ module.exports = function(pb) {
      */
     class ManageSites extends pb.BaseController {
 
+        constructor() {
+            super();
+            this.dao = Promise.promisifyAll(new pb.DAO());
+        }
         /**
          * Render view to manage sites.
          * @method render
@@ -63,8 +66,7 @@ module.exports = function(pb) {
             let isActive = this.query.active === 'true';
             let displayRegex = new RegExp(`${siteQuery}`, 'i');
             this._getSitesByCriteria({where: {active: isActive, '$or': [{'uid':siteQuery}, {'displayName': displayRegex}]}})
-                .then(data => cb({content: data}))
-                .catch(err => cb(err));
+                .then(data => cb({content: data}), err => cb(err));
         }
 
         /**
@@ -78,20 +80,19 @@ module.exports = function(pb) {
             page *= PER_PAGE;
 
             this._getSitesByCriteria({where: {active: isActive}, offset: page, limit: PER_PAGE})
-                .then(data => cb({content: data}))
-                .catch(err => cb(err));
+                .then(data => cb({content: data}), err => cb(err));
         }
 
         _getSites() {
             let activeSites = this._getSitesByCriteria({select: pb.DAO.PROJECT_ALL, where: {active: true}, offset: 0, limit: PER_PAGE});
             let inactiveSites = this._getSitesByCriteria({select: pb.DAO.PROJECT_ALL, where: {active: false}, offset: 0, limit: PER_PAGE});
-            let activeCount = dao.countAsync(SITE_COLLECTION, {active: true});
-            let inactiveCount = dao.countAsync(SITE_COLLECTION, {active: false});
+            let activeCount = this.dao.countAsync(SITE_COLLECTION, {active: true});
+            let inactiveCount = this.dao.countAsync(SITE_COLLECTION, {active: false});
             return Promise.all([activeSites, inactiveSites, activeCount, inactiveCount]);
         }
 
         _getSitesByCriteria(options) {
-            return dao.qAsync(SITE_COLLECTION, options)
+            return this.dao.qAsync(SITE_COLLECTION, options)
                 .each((site) => {
                     let siteService = Promise.promisifyAll(pb.SettingServiceFactory.getServiceBySite(site.uid));
                     return siteService.getAsync('active_theme')
