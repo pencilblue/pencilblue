@@ -230,6 +230,8 @@ module.exports = {
         VIEW_SITE: 'View site',
         SITE_SETTINGS: 'Site settings',
         MANAGE_SITES: 'Manage Sites',
+        EDIT_SITE: 'Edit Site Config',
+        ACCESS_DEVELOPER: 'CMS Developer',
         SITE_LOGO: 'Site logo',
         AUTHOR: 'Author',
         ACCOUNT: 'Account',

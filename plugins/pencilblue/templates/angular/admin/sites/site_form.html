@@ -24,9 +24,7 @@
                                 selectedLocales: $scope.selectedLocales,
                                 defaultLocale: $scope.defaultLocale,
                                 useCustomRedirect: $scope.useCustomRedirect || true,
-                                redirectLink: $scope.redirectLink,
-                                forceLocale: $scope.forceLocale,
-                                useBundledScripts: $scope.useBundledScripts
+                                redirectLink: $scope.redirectLink
                             })
                             .success(function(result) {
                                 $scope.onCreateOrEditComplete(result);
@@ -48,9 +46,7 @@
                                 displayName: $scope.displayName,
                                 hostname: $scope.hostname,
                                 selectedLocales: $scope.selectedLocales,
-                                defaultLocale: $scope.defaultLocale,
-                                forceLocale: $scope.forceLocale,
-                                useBundledScripts: $scope.useBundledScripts
+                                defaultLocale: $scope.defaultLocale
                             })
                             .success(function(result) {
                                 $scope.onCreateOrEditComplete(result);
@@ -136,16 +132,16 @@
                 $scope.onActionSuccess = function() {
                     $scope.actionIsComplete = true;
                     $window.location.href = '/admin/sites';
-                }
+                };
 
                 $scope.onActionFailure = function(error) {
                     $scope.actionIsComplete = true;
                     $scope.actionError = error.message;
-                }
+                };
 
                 $scope.refreshPage = function() {
                     $window.location.reload();
-                }
+                };
 
                 $scope.updateSelectedLocales = function() {
                     $scope.selectedLocales = [];
@@ -158,7 +154,7 @@
                             }
                         }
                     });
-                }
+                };
 
                 $scope.updateSupportedLocales = function(locale) {
                     $scope.supportedLocales[locale] = !$scope.supportedLocales[locale];
@@ -167,11 +163,7 @@
                         $scope.defaultLocale = "";
                     }
                     $scope.updateSelectedLocales();
-                }
-
-                $scope.updateForceLocale = function(selected) {
-                        $scope.siteForm.forceLocale = !!selected;
-                }
+                };
 
             });
 </script>

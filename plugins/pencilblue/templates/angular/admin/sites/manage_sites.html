@@ -5,10 +5,91 @@
                 ^angular_objects^
                 ^tmp_angular=admin=elements=error_success^
 
+                var perPage = 2; // TODO: Increase to 50 before release
+
                 $scope.predicate = 'displayName';
                 $scope.reverse = false;
                 $scope.inactivePredicate = 'displayName';
                 $scope.inactiveReverse = false;
+
+                setPageNumbers();
+
+                $scope.activeCount = parseInt($scope.activeCount, 10); // total number of sites
+                $scope.inactiveCount = parseInt($scope.inactiveCount, 10); // total number of sites
+
+                $scope.totalPagesActive = Math.ceil($scope.activeCount/perPage); // total number of pages
+                $scope.totalPagesInactive = Math.ceil($scope.inactiveCount/perPage); // total number of pages
+
+                function setPageNumbers() {
+                    $scope.activePage = 1; // the current active page
+                    $scope.inactivePage = 1; // the current inactive page
+                    $scope.jumpToActivePage = 1; // User Friendly View on active page
+                    $scope.jumpToInactivePage = 1; // User Friendly View on inactive page
+                }
+
+                $scope.nextPage = function (isActive) {
+                    var page = isActive ? 'activePage' : 'inactivePage';
+                    var jumpTo = isActive ? 'jumpToActivePage' : 'jumpToInactivePage';
+                    var totalPage = isActive ? 'totalPagesActive' : 'totalPagesInactive';
+
+                    if($scope[page] + 1 <= $scope[totalPage]){
+                        $scope[page]++;
+                        $scope[jumpTo]++;
+                        doPagination(isActive, $scope[page]);
+                    }
+                };
+                $scope.previousPage = function (isActive) {
+                    var page = isActive ? 'activePage' : 'inactivePage';
+                    var jumpTo = isActive ? 'jumpToActivePage' : 'jumpToInactivePage';
+
+                    if($scope[page] - 1 > 0){
+                        $scope[page]--;
+                        $scope[jumpTo]--;
+                        doPagination(isActive, $scope[page]);
+                    }
+                };
+                $scope.goToPage = function (isActive) {
+                    var page = isActive ? 'activePage' : 'inactivePage';
+                    var jumpTo = isActive ? 'jumpToActivePage' : 'jumpToInactivePage';
+                    var totalPage = isActive ? 'totalPagesActive' : 'totalPagesInactive';
+
+                    if($scope[jumpTo] >= 1 && $scope[jumpTo] <= $scope[totalPage]) {
+                        $scope[page] = parseInt($scope[jumpTo]) || 1;
+                        doPagination(isActive, $scope[jumpTo]);
+                    }
+                };
+                function doPagination(isActive, page) {
+                    $http.get('/admin/sites/paginate?active=' + isActive + "&page=" + (page - 1))
+                        .then(function (data) {
+                            if (isActive) {
+                                return $scope.activeSites = data.data;
+                            }
+                            $scope.inactiveSites = data.data;
+                        })
+                        .catch(function (err) {
+                            $scope.errorMessage = err;
+                        });
+                }
+
+                $scope.submitSearch = function(keyEvent, isActive) {
+                    if (keyEvent.which === 13){
+                        $scope.search(isActive);
+                    }
+                };
+                $scope.search = function (isActive) {
+                    var query = isActive ? $scope.activeQuery : $scope.inactiveQuery;
+
+                    $http.get('/admin/sites/search?active=' + isActive + '&site=' + query)
+                        .then(function (data) {
+                            if(isActive) {
+                                return $scope.activeSites = data.data;
+                            }
+                            $scope.inactiveSites = data.data;
+                        })
+                        .catch(function (err) {
+                            $scope.errorMessage = err; // TODO: Figure out what err.PROP is used
+                        });
+                };
 
                 $scope.orderActive = function(predicate) {
                     $scope.reverse = ($scope.predicate === predicate) ? !$scope.reverse : false;
@@ -20,27 +101,12 @@
                     $scope.inactivePredicate = predicate;
                 };
 
-                $scope.clearSearch = function(query){
-                    $scope[query] = '';
-                };
+                $scope.clearSearch = function(isActive){
+                    $scope.activeQuery = '';
+                    $scope.inactiveQuery = '';
 
-                $scope.predicate = 'displayName';
-                $scope.reverse = false;
-                $scope.inactivePredicate = 'displayName';
-                $scope.inactiveReverse = false;
-
-                $scope.orderActive = function(predicate) {
-                    $scope.reverse = ($scope.predicate === predicate) ? !$scope.reverse : false;
-                    $scope.predicate = predicate;
-                };
-
-                $scope.orderInactive = function(predicate) {
-                    $scope.inactiveReverse = ($scope.inactivePredicate === predicate) ? !$scope.inactiveReverse : false;
-                    $scope.inactivePredicate = predicate;
-                };
-
-                $scope.clearSearch = function(query){
-                    $scope[query] = '';
+                    setPageNumbers();
+                    return doPagination(isActive, 1);
                 };
 
                 $scope.activateSite = function(site) {

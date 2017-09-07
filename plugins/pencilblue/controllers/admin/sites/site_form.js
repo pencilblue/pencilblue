@@ -87,9 +87,7 @@ module.exports = function SiteFormModule(pb) {
       selectedLocales = [],
       defaultLocale = options.defaultLocale || pb.Localization.getDefaultLocale(),
       isActive = options.isActive,
-      uid = options.uid,
-      forceLocale = options.forceLocale || false;
-      useBundledScripts = options.useBundledScripts;
+      uid = options.uid;
 
     savedLocales[defaultLocale] = true;
 
@@ -113,9 +111,7 @@ module.exports = function SiteFormModule(pb) {
       defaultLocale: defaultLocale,
       isNew: isNew,
       isActive: isActive,
-      forceLocale: forceLocale,
-      uid: uid,
-      useBundledScripts: useBundledScripts
+      uid: uid
     });
 
     self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));

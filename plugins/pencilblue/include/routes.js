@@ -1165,6 +1165,26 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
+            path: "/admin/sites/search",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage_sites.js'),
+            content_type: 'text/html',
+            handler: 'search'
+        },
+        {
+            method: 'get',
+            path: "/admin/sites/paginate",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage_sites.js'),
+            content_type: 'text/html',
+            handler: 'getPage'
+        },
+        {
+            method: 'get',
             path: "/admin/sites/new",
             access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
             auth_required: true,
@@ -1441,7 +1461,6 @@ module.exports = function Routes(pb){
             path: "/api/content/pages/:id",
             handler: "get",
             content_type: 'application/json',
-            inactive_site_access: true,
             auth_required: true,
             inactive_site_access: true,
             access_level: pb.SecurityService.ACCESS_WRITER,

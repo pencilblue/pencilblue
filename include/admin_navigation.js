@@ -62,14 +62,13 @@ module.exports = function AdminNavigationModule(pb) {
      * @return {Array}
      */
     var MULTISITE_NAV = Object.freeze({
-            id: 'site_entity',
-            title: 'admin.MANAGE_SITES',
-            icon: 'sitemap',
-            href: '/admin/sites',
-            access: SecurityService.ACCESS_ADMINISTRATOR
+        id: 'site_entity',
+        title: 'admin.MANAGE_SITES',
+        icon: 'sitemap',
+        href: '/admin/sites',
+        access: SecurityService.ACCESS_ADMINISTRATOR
+    });
 
-        }
-    );
 
     var TN_STATS_NAV = Object.freeze({
             id: 'tn_stats',
@@ -258,7 +257,7 @@ module.exports = function AdminNavigationModule(pb) {
                 title: 'site_settings.LIBRARIES',
                 icon: 'book',
                 href: '/admin/site_settings/libraries',
-                access: SecurityService.ACCESS_ADMINISTRATOR
+                access: SecurityService.ACCESS_DEVELOPER
             });
         }
 
@@ -269,15 +268,26 @@ module.exports = function AdminNavigationModule(pb) {
         return util.clone([CONTENT_NAV, PLUGINS_NAV, LOCALIZATION_NAV, USERS_NAV, buildSettingsNavigation(site), VIEW_SITE_NAV, LOGOUT_NAV]);
     }
 
-    function getMultiSiteNavigation() {
-        return util.clone([MULTISITE_NAV]);
+    function getMultiSiteNavigation(site) {
+        let siteNav = util.clone([MULTISITE_NAV]);
+        if (!pb.SiteService.isGlobal(site)) {
+            siteNav.push({
+                id: 'edit_site_entity',
+                title: 'admin.EDIT_SITE',
+                icon: 'pencil',
+                href: `/admin/sites/${site}`,
+                access: SecurityService.ACCESS_ADMINISTRATOR
+            });
+        }
+
+        return siteNav;
     }
 
     function getGlobalScopeNavigation(site) {
-        if(pb.config.siteRoot !== 'http://localhost:8080'){
-            return util.clone([TN_STATS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
-        }
-        return util.clone([PLUGINS_NAV, TN_STATS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
+        let pluginNav = util.clone(PLUGINS_NAV);
+        pluginNav.access = SecurityService.ACCESS_DEVELOPER;
+
+        return util.clone([pluginNav, TN_STATS_NAV, USERS_NAV, buildSettingsNavigation(site), LOGOUT_NAV]);
     }
 
 
@@ -333,7 +343,7 @@ module.exports = function AdminNavigationModule(pb) {
         var childrenAdditions = getChildrenAdditions(site);
 
         if (pb.config.multisite.enabled) {
-            var multiSiteAdditions = getMultiSiteNavigation();
+            var multiSiteAdditions = getMultiSiteNavigation(site);
             util.arrayPushAll(multiSiteAdditions, navigation);
         }
 
@@ -427,7 +437,7 @@ module.exports = function AdminNavigationModule(pb) {
         var isGlobal = pb.SiteService.isGlobal(site);
         var nav = buildNavigation(site);
         return isDuplicate(id, nav) ||
-          (!isGlobal && isDuplicate(id, buildNavigation(pb.SiteService.GLOBAL_SITE)));
+            (!isGlobal && isDuplicate(id, buildNavigation(pb.SiteService.GLOBAL_SITE)));
     }
 
     /**
