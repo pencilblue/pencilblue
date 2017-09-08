@@ -36,13 +36,6 @@
                         <div class="form_error" ng-if="defaultLocale==''">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
                     <div class="form-group"> 
-                        <label>Force Locale</label> 
-                        <div class="btn-group"> 
-                            <button type="button" id="enable-force-locale" class="btn btn-default" ng-class="{'active': forceLocale}" ng-click="forceLocale = true">^loc_YES^</button> 
-                            <button type="button" id="disable-force-locale" class="btn btn-default" ng-class="{'active': !forceLocale}" ng-click="forceLocale = false">^loc_NO^</button> 
-                        </div> 
-                     </div>
-                    <div class="form-group"> 
                         <label>Use Custom Redirect</label> 
                         <div class="btn-group"> 
                             <button type="button" id="enable-custom-redirect" class="btn btn-default" ng-class="{'active': useCustomRedirect}" ng-click="useCustomRedirect = true">^loc_YES^</button> 
@@ -53,13 +46,6 @@
                         <label>Redirect Link</label>
                         <input type="text" name="redirectLink" class="form-control" ng-model="redirectLink">
                     </div>
-                    <div class="form-group"> 
-                        <label>Use Bundled Scripts</label> 
-                        <div class="btn-group"> 
-                            <button type="button" id="enable-bundled-scripts" class="btn btn-default" ng-class="{'active': useBundledScripts}" ng-click="useBundledScripts = true">^loc_YES^</button> 
-                            <button type="button" id="disable-bundled-scripts" class="btn btn-default" ng-class="{'active': !useBundledScripts}" ng-click="useBundledScripts = false">^loc_NO^</button> 
-                        </div> 
-                         </div>
                 </div>
                 <br>
                 <a class="btn btn-default" href="/admin/sites">
