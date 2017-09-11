@@ -319,7 +319,7 @@ describe('RequestHandler', function() {
         };
         Object.keys(mimeMap).forEach(function(ext) {
 
-            it.only('should map the extension '+ext+' to mime type '+mimeMap[ext], function() {
+            it('should map the extension '+ext+' to mime type '+mimeMap[ext], function() {
                 this.pb.RequestHandler.getMimeFromPath('/file.'+ext).should.eql(mimeMap[ext]);
             });
         });
