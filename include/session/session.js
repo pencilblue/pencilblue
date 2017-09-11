@@ -329,14 +329,14 @@ module.exports = function SessionModule(pb) {
      *                              should be bound to the params, and will be called with a callback
      * @return {string} err if one is returned from the function or underlying lock system.
      */
-    SessionHandler.runTransaction = function (key, timeout, aciton, cb) {
+    SessionHandler.runTransaction = function (key, timeout, action, cb) {
         return redLock.lock(key, timeout, function (err, lock) {
             if (err) {
                 pb.log.error(`SessionHandler: runTransaction Async - Lock failed: ${err}`);
                 return cb();
             }
 
-            aciton( function (actionErr) {
+            action( function (actionErr) {
                 lock.unlock(function (err) {
                     if (err) {
                         console.error(err);
@@ -357,14 +357,14 @@ module.exports = function SessionModule(pb) {
      *                              should be bound to the params, and will NOT be called with a callback
      * @return {string} err if one is returned from the function or underlying lock system.
      */
-    SessionHandler.runTransactionSync = function (key, timeout, aciton, cb) {
+    SessionHandler.runTransactionSync = function (key, timeout, action, cb) {
         return redLock.lock(key, timeout, function (err, lock) {
             if (err) {
                 pb.log.error(`SessionHandler: runTransaction Sync - Lock failed: ${err}`);
                 return cb(err);
             }
 
-            aciton();
+            action();
             lock.unlock(function (err) {
                 if (err) {
                     console.error(err);
