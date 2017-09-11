@@ -311,7 +311,7 @@ describe('RequestHandler', function() {
             tff: 'application/octet-stream',
             eot: 'application/vnd.ms-fontobject',
             woff: 'application/font-woff',
-            otf: 'font/opentype',
+            otf: 'font/otf',
             ttf: 'application/x-font-ttf',
             pdf: 'application/pdf',
             html: 'text/html',
@@ -319,7 +319,7 @@ describe('RequestHandler', function() {
         };
         Object.keys(mimeMap).forEach(function(ext) {
 
-            it('should map the extension '+ext+' to mime type '+mimeMap[ext], function() {
+            it.only('should map the extension '+ext+' to mime type '+mimeMap[ext], function() {
                 this.pb.RequestHandler.getMimeFromPath('/file.'+ext).should.eql(mimeMap[ext]);
             });
         });
