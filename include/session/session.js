@@ -20,6 +20,7 @@
 var path   = require('path');
 var crypto = require('crypto');
 var util   = require('../util.js');
+const Redlock = require('redlock');
 
 /**
  * Tools for session storage
@@ -27,6 +28,8 @@ var util   = require('../util.js');
  * @module Session
  */
 module.exports = function SessionModule(pb) {
+
+    const redLock = new Redlock([pb.cache]);
 
     /**
      * Responsible for managing user sessions
@@ -314,6 +317,63 @@ module.exports = function SessionModule(pb) {
     SessionHandler.getSessionCookie = function(session) {
         return {session_id: session.uid, path: '/'};
     };
+
+
+    /**
+     * Runs a set of code against the Session store (redis) using a Mutex.
+     * @static
+     * @method runTransaction & runTransactionAsync
+     * @param {string} key The key to lock in the redis cluster
+     * @param {number} timeout The TTL for the lock as a fallback
+     * @param {bound function} action The action or function that you want to run in the mutex
+     *                              should be bound to the params, and will be called with a callback
+     * @return {string} err if one is returned from the function or underlying lock system.
+     */
+    SessionHandler.runTransaction = function (key, timeout, action, cb) {
+        return redLock.lock(key, timeout, function (err, lock) {
+            if (err) {
+                pb.log.error(`SessionHandler: runTransaction Async - Lock failed: ${err}`);
+                return cb();
+            }
+
+            action( function (actionErr) {
+                lock.unlock(function (err) {
+                    if (err) {
+                        console.error(err);
+                    }
+                    return cb(actionErr || err);
+                });
+            });
+        });
+    }
+    /**
+     * Runs a set of code against the Session store (redis) using a Mutex.
+     * Syncronous version, action function does not take a callback
+     * @static
+     * @method runTransactionSync
+     * @param {string} key The key to lock in the redis cluster
+     * @param {number} timeout The TTL for the lock as a fallback
+     * @param {bound function} action The action or function that you want to run in the mutex
+     *                              should be bound to the params, and will NOT be called with a callback
+     * @return {string} err if one is returned from the function or underlying lock system.
+     */
+    SessionHandler.runTransactionSync = function (key, timeout, action, cb) {
+        return redLock.lock(key, timeout, function (err, lock) {
+            if (err) {
+                pb.log.error(`SessionHandler: runTransaction Sync - Lock failed: ${err}`);
+                return cb(err);
+            }
+
+            action();
+            lock.unlock(function (err) {
+                if (err) {
+                    console.error(err);
+                }
+                return cb(err);
+            });
+        });
+    }
+
 
     return SessionHandler;
 };

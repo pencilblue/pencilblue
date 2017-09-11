@@ -311,7 +311,7 @@ describe('RequestHandler', function() {
             tff: 'application/octet-stream',
             eot: 'application/vnd.ms-fontobject',
             woff: 'application/font-woff',
-            otf: 'font/opentype',
+            otf: 'font/otf',
             ttf: 'application/x-font-ttf',
             pdf: 'application/pdf',
             html: 'text/html',
