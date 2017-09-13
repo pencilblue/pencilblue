@@ -26,6 +26,7 @@
   "dependencies": {
     "async": "1.5.2",
     "async-eventemitter": "0.2.2",
+    "bluebird": "^3.5.0",
     "bower": "^1.7.9",
     "cookies": "^0.6.2",
     "fakeredis": "1.0.3",
