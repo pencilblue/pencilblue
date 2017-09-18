@@ -277,7 +277,12 @@ module.exports = function DBManagerModule(pb) {
 
                         dao.dropIndex(indexCollection, index.name, function (err, result) {
                             if (util.isError(err)) {
-                                pb.log.error('DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack);
+                                let info = ['DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack];
+                                if (err.name === 'MongoError' && err.codeName === 'IndexNotFound') {
+                                    pb.log.warn(...info);
+                                    return callback(null, result);  // index not found should not be treated as a fatal error when deleting undeclared indices for start up
+                                }
+                                pb.log.error(...info);
                             }
                             callback(err, result);
                         });
