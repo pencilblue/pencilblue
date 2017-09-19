@@ -1159,8 +1159,8 @@ module.exports = function RequestHandlerModule(pb) {
         var pathParts = this.url.pathname.split('/');
         let methodKey = !route.path_vars[method] && route.path_vars['ALL'] ? 'ALL' : method;
         if(route.path_vars[methodKey]) {
-            Object.keys(route.path_vars[methodKey]).forEach(function (field) {
-                pathVars[field] = pathParts[route.path_vars[methodKey][field]];
+            Object.keys(route.path_vars[method]).forEach(function (field) {
+                pathVars[field] = pathParts[route.path_vars[method][field]];
             });
         }
         return pathVars;
