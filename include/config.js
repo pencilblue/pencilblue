@@ -153,7 +153,7 @@ Configuration.getBaseConfig = function(multisite) {
             name: 'pencil_blue',
 
             options: {
-                w: 1,
+                w: 3,
                 replicaSet: 'replset-1',
                 readPreference: 'secondaryPreferred'
             },
