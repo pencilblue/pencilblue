@@ -19,12 +19,12 @@
 //dependencies
 var async   = require('async');
 var domain  = require('domain');
+var xml2js  = require('xml2js');
 
 module.exports = function WPXMLParseServiceModule(pb) {
 
     //pb dependencies
     var util           = pb.util;
-    var xml2js         = pb.NpmPluginDependencyService.require('wp_import', 'xml2js');
     var BaseObjectService = pb.BaseObjectService;
 
     /**

@@ -24,7 +24,7 @@
     "url": "https://github.com/careerbuilder/pencilblue.git"
   },
   "dependencies": {
-    "async": "^2.5.0",
+    "async": "~1.5.2",
     "async-eventemitter": "^0.2.4",
     "bluebird": "^3.5.0",
     "bower": "^1.7.9",
@@ -40,7 +40,6 @@
     "mongodb": "2.1.14",
     "node.extend": "1.1.6",
     "nodemailer": "^4.1.3",
-    "npm": "3.8.5",
     "redis": "^2.6.3",
     "redlock": "^3.0.0",
     "sanitize-html": "^1.14.1",
