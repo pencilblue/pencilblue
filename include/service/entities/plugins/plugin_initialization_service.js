@@ -318,7 +318,7 @@ module.exports = function (pb) {
          * @returns {Array}
          */
         static getLoadMainModuleHandler (context) {
-            return ['pluginCacheSync', 'bowerDependencyCheck', function(callback, results) {
+            return ['bowerDependencyCheck', function(callback, results) {
 
                 //convert perm array to hash
                 var map = {};
