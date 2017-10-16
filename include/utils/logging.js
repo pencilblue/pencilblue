@@ -20,7 +20,6 @@ const cluster = require('cluster');
 const winston = require('winston');
 const util    = require('../util.js');
 let newrelic = null;
-require('loggly-winston-bulk');
 
 if(process.env.NEW_RELIC_LICENSE_KEY && process.env.NEW_RELIC_APP_NAME){
   newrelic = require('newrelic');
@@ -67,15 +66,6 @@ module.exports = function LogFactory(config){
         //initialize transports with console by default
         config.logging.transports = [getConsoleTransport(config)];
         configureFileTransport(config);
-    }
-
-    if(process.env.LOGGLY_TOKEN && process.env.LOGGLY_SUBDOMAIN) {
-        winston.add(winston.transports.Loggly, {
-            inputToken: process.env.LOGGLY_TOKEN,
-            subdomain: process.env.LOGGLY_SUBDOMAIN,
-            tags: ["CMS_" + process.env.APP_ENV],
-            json: true
-        });
     }
 
     const logger = getLogger(config);
