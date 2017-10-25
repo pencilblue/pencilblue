@@ -196,31 +196,6 @@ module.exports = function (pb) {
 
         /**
          * @static
-         * @method getNpmDependencyCheckHandler
-         * @param {object} context
-         * @param {PluginInitializationService} context.pluginInitializationService
-         * @param {PluginService} context.pluginService
-         * @param {object} context.cachedPlugin
-         * @param {boolean} context.isCachedPlugin
-         * @param {string} context.site
-         * @param {object} context.plugin
-         * @returns {Array}
-         */
-        static getNpmDependencyCheckHandler (context) {
-            return PluginInitializationService.buildNoActionOnCachedTask(context, ['pluginCacheSync'], function(callback, results) {
-                if (!util.isObject(results.details.dependencies) || Object.keys(results.details.dependencies).length === 0) {
-                    //no dependencies were declared so we're good
-                    return callback();
-                }
-
-                //iterate over dependencies to ensure that they exist
-                var npmService = new pb.NpmPluginDependencyService();
-                npmService.installAll(context.plugin.dependencies, {pluginUid: context.plugin.uid}, callback);
-            });
-        }
-
-        /**
-         * @static
          * @method getBowerDependencyCheckHandler
          * @param {object} context
          * @param {PluginInitializationService} context.pluginInitializationService
@@ -343,7 +318,7 @@ module.exports = function (pb) {
          * @returns {Array}
          */
         static getLoadMainModuleHandler (context) {
-            return ['npmDependencyCheck', 'bowerDependencyCheck', function(callback, results) {
+            return ['bowerDependencyCheck', function(callback, results) {
 
                 //convert perm array to hash
                 var map = {};
@@ -683,7 +658,6 @@ module.exports = function (pb) {
         validationErrors: PluginInitializationService.getValidationErrorsHandler,
         validationOutput: PluginInitializationService.getValidationOutputHandler,
         uidCheck: PluginInitializationService.getUidCheckHandler,
-        npmDependencyCheck: PluginInitializationService.getNpmDependencyCheckHandler,
         bowerDependencyCheck: PluginInitializationService.getBowerDependencyCheckHandler,
         versionCheck: PluginInitializationService.getVersionCheckHandler,
         pluginCacheSync: PluginInitializationService.getPluginCacheSyncHandler,

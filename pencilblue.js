@@ -25,7 +25,6 @@ var fs          = require('fs');
 var http        = require('http');
 var https       = require('https');
 var async       = require('async');
-var npm         = require('npm');
 var util        = require('./include/util.js');
 var ServerInitializer = require('./include/http/server_initializer.js');
 var HtmlEncoder = require('htmlencode');
@@ -111,10 +110,6 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     this.initModules = function(cb) {
-        npm.on('log', function(message) {
-            pb.log.info(message);
-        });
-
         HtmlEncoder.EncodeType = 'numerical';
 
         pb.Localization.init(cb);

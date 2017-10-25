@@ -225,15 +225,15 @@ module.exports = function RequestHandlerModule(pb) {
      */
     RequestHandler.loadSite = function(site) {
         RequestHandler.sites[site.hostname] = {
-            active: site.active,
-            uid: site.uid,
-            displayName: site.displayName,
-            forceLocale: site.forceLocale,
-            hostname: site.hostname,
-            defaultLocale: site.defaultLocale,
-            supportedLocales: site.supportedLocales,
-            prevHostnames: site.prevHostnames,
-            useBundledScripts: site.useBundledScripts
+          active: site.active,
+          uid: site.uid,
+          displayName: site.displayName,
+          forceLocale: site.forceLocale,
+          hostname: site.hostname,
+          defaultLocale: site.defaultLocale,
+          supportedLocales: site.supportedLocales,
+          prevHostnames: site.prevHostnames,
+          useBundledScripts: site.useBundledScripts
         };
         //Populate RequestHandler.redirectHosts if this site has prevHostnames associated
         if (site.prevHostnames) {
@@ -469,7 +469,7 @@ module.exports = function RequestHandlerModule(pb) {
             routeDescriptor = {
                 path: patternObj.path,
                 pattern: pattern,
-                path_vars: pathVars,
+                path_vars:  {},
                 expression: new RegExp(pattern),
                 themes: {}
             };
@@ -487,6 +487,10 @@ module.exports = function RequestHandlerModule(pb) {
             routeDescriptor.themes[site][theme] = {};
             routeDescriptor.themes[site].size++;
         }
+
+
+        //set the pathvars up based on the descriptor.method
+        routeDescriptor.path_vars[descriptor.method] = pathVars;
 
         //set the controller then lock it down to prevent tampering
         descriptor.controller = Controller;
@@ -1112,7 +1116,7 @@ module.exports = function RequestHandlerModule(pb) {
     RequestHandler.prototype.onSecurityChecksPassed = function(activeTheme, routeTheme, method, site, route) {
 
         //extract path variables
-        var pathVars = this.getPathVariables(route);
+        var pathVars = this.getPathVariables(route, method);
         if (typeof pathVars.locale !== 'undefined') {
             if (!this.siteObj.supportedLocales[pathVars.locale]) {
 
@@ -1147,15 +1151,20 @@ module.exports = function RequestHandlerModule(pb) {
      * @param {Object} route
      * @param {Object} route.path_vars
      */
-    RequestHandler.prototype.getPathVariables = function(route) {
+    RequestHandler.prototype.getPathVariables = function(route, method) {
+        if(!method){
+            pb.log.error(`getPathVariables error: method undefined for path /${route.path}`)
+        }
         var pathVars = {};
         var pathParts = this.url.pathname.split('/');
-        Object.keys(route.path_vars).forEach(function(field) {
-            pathVars[field] = pathParts[route.path_vars[field]];
-        });
+        let methodKey = !route.path_vars[method] && route.path_vars['ALL'] ? 'ALL' : method;
+        if(route.path_vars[methodKey]) {
+            Object.keys(route.path_vars[methodKey]).forEach(function (field) {
+                pathVars[field] = pathParts[route.path_vars[methodKey][field]];
+            });
+        }
         return pathVars;
     };
-
     /**
      * Begins the rendering process by initializing the controller.  This is done
      * by gathering all initialization parameters and calling the controller's
@@ -1316,9 +1325,9 @@ module.exports = function RequestHandlerModule(pb) {
         //calculate response time
         if (pb.log.isDebug()) {
             pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+
-                "ms URL=["+this.req.method+']'+
-                this.req.url+(doRedirect ? ' Redirect='+data.redirect : '') +
-                (typeof data.code === 'undefined' ? '' : ' CODE='+data.code));
+                    "ms URL=["+this.req.method+']'+
+                    this.req.url+(doRedirect ? ' Redirect='+data.redirect : '') +
+                    (typeof data.code === 'undefined' ? '' : ' CODE='+data.code));
         }
 
         //close session after data sent

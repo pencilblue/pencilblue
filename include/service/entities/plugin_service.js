@@ -18,7 +18,6 @@
 
 //dependencies
 var fs      = require('fs');
-var npm     = require('npm');
 var path    = require('path');
 var async   = require('async');
 var domain  = require('domain');
@@ -1142,50 +1141,6 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
-     * Verifies that a plugin has all of the required dependencies installed from NPM
-     * @method hasDependencies
-     * @param {Object} plugin
-     * @param {Function} cb
-     */
-    PluginService.prototype.hasDependencies = function(plugin, cb) {
-        var npmPluginDependencyService = new pb.NpmPluginDependencyService();
-        npmPluginDependencyService.hasDependencies(plugin, {}, cb);
-    };
-
-    /**
-     * Installs the dependencies for a plugin via NPM.
-     * @method installPluginDependencies
-     * @param {String} pluginDirName
-     * @param {Object} dependencies
-     * @param {Object} plugin
-     * @param {Function} cb
-     */
-    PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
-
-        //verify parameters
-        if (!pb.ValidationService.isNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
-            return cb(new Error('The plugin directory name and the dependencies are required'));
-        }
-
-        var npmDependencyService = new pb.NpmPluginDependencyService();
-        npmDependencyService.installAll(plugin, {}, cb);
-    };
-
-    /**
-     * Loads a module dependencies for the specified plugin.
-     * @deprecated
-     * @static
-     * @method require
-     * @param {String} pluginDirName
-     * @param {String} moduleName
-     * @return {*} The entity returned by the "require" call.
-     */
-    PluginService.require = function(pluginDirName, moduleName) {
-        pb.log.warn('PluginService: require is deprecated. Use NpmPluginDependencyService.require');
-        return pb.NpmPluginDependencyService.require(pluginDirName, moduleName);
-    };
-
-    /**
      * Loads the localization files from the specified plugin directory and places
      * them into a hash where the key is the name of the localization file.
      * @deprecated since 0.6.0
@@ -1698,38 +1653,6 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
-     * The function is called when a command is recevied to install plugin
-     * dependencies.  The result is then sent back to the calling process via the
-     * CommandService.
-     * @static
-     * @method onIsPluginAvailableCommandReceived
-     * @param {Object} command
-     * @param {String} command.jobId The ID of the in-progress job that this
-     * process is intended to join.
-     */
-    PluginService.onInstallPluginDependenciesCommandReceived = function(command) {
-        if (!util.isObject(command)) {
-            pb.log.error('PluginService: an invalid install_plugin_dependencies command object was passed. %s', util.inspect(command));
-            return;
-        }
-
-        var name = util.format("INSTALL_DEPENDENCIES_%s", command.pluginUid);
-        var job  = new pb.PluginDependenciesJob();
-        job.setRunAsInitiator(false)
-            .init(name, command.jobId)
-            .setPluginUid(command.pluginUid)
-            .run(function(err, result) {
-
-                var response = {
-                    error: err ? err.stack : undefined,
-                    result: result ? true : false
-                };
-                pb.CommandService.getInstance().sendInResponseTo(command, response);
-            });
-    };
-
-    /**
-     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
      * The function is called when a command is recevied to initialize a plugin.
      * The result is then sent back to the calling process via the
      * CommandService.
@@ -1772,7 +1695,6 @@ module.exports = function PluginServiceModule(pb) {
         var commandService = pb.CommandService.getInstance();
         commandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
         commandService.registerForType('is_plugin_available', PluginService.onIsPluginAvailableCommandReceived);
-        commandService.registerForType('install_plugin_dependencies', PluginService.onInstallPluginDependenciesCommandReceived);
         commandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
     };
 
