@@ -1061,6 +1061,10 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.initPlugins = function(cb) {
         pb.log.debug('PluginService: Beginning plugin initialization...');
 
+
+        //Do the initial platform wide initializations here.
+
+
         var self = this;
         async.waterfall([
             util.wrapTask(this._pluginRepository, this._pluginRepository.loadPluginsAcrossAllSites),
@@ -1069,20 +1073,49 @@ module.exports = function PluginServiceModule(pb) {
                     pb.log.debug('PluginService: No plugins are installed');
                     return callback(null, []);
                 }
-                var tasks  = util.getTasks(plugins, function(plugins, i) {
-                    return function(callback) {
 
-                        try {
-                            self.initPlugin(plugins[i], function(err, didInitialize) {
-                                callback(null, {plugin: plugins[i], error: err, initialized: didInitialize});
-                            });
-                        }
-                        catch(err) {
-                            callback(null, {plugin: plugins[i], error: err, initialized: false});
-                        }
+                var distinctPlugins = plugins.map(plugin => plugin.uid)
+                    .filter((pluginuid, index, self) => self.indexOf(pluginuid) === index);
+
+
+                var pluginSpecs = {};
+
+                const platformTasks = util.getTasks(distinctPlugins, function (distinctPlugins, i) {
+                    return function (callback) {
+                        const initService = new pb.PluginInitializationService(distinctPlugins[i]);
+                        initService.initialize().then(function (pluginSpec) {
+                            pluginSpecs[pluginSpec.uid] = pluginSpec;
+                            callback (null, true);
+                        }).catch(callback);
                     };
                 });
-                async.series(tasks, callback);
+
+
+                async.parallel(platformTasks, function (err, results) {
+                    var tasks  = util.getTasks(plugins, function(plugins, i) {
+                        return function(callback) {
+
+                            try {
+                                const sitePluginService = new pb.SitePluginInitializationService(pluginsSpecs[plugins[i].uid], plugins[i].site);
+                                sitePluginService.initialize()
+                                    .then(_ => callback(null, {plugin: plugins[i], initialize: true}))
+                                    .catch(err => callback(null, {plugin: plugins[i], error: err, initialized: false}));
+                                // self.initPlugin(plugins[i], function(err, didInitialize) {
+                                //     callback(null, {plugin: plugins[i], error: err, initialized: didInitialize});
+                                // });
+                            }
+                            catch(err) {
+                                callback(null, {plugin: plugins[i], error: err, initialized: false});
+                            }
+                        };
+                    });
+
+
+                    //This will be the place for site plugin call
+
+                    async.series(tasks, callback);
+                });
+
             }
         ], cb);
     };
