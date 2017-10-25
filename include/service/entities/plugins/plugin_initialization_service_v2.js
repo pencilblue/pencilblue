@@ -16,6 +16,22 @@ module.exports = (pb) => {
         }
 
         initialize() {
+
+            return this._getDetails().then(details => {
+                const mainModule = this._loadMainModule(details);
+                let pluginSpec = this._mainModuleHandler(mainModule, details);
+                return this._onStartup(pluginSpec.main_module)
+                    .then(_ => this._loadServices())
+                    .then(services => pluginSpec.services = services)
+                    .then(_ => this._loadControllers())
+                    .then(controllers => {
+                        pluginSpec.controllers = controllers
+                        return pluginSpec;
+                    });
+            });
+
+
+
             const tasks = [
                 this._getDetails,
                 this._mainModuleHandler,
@@ -23,11 +39,20 @@ module.exports = (pb) => {
                 this._loadServices,
                 this._loadControllers
             ];
+            //
+            // // return Promise.each(tasks).then(_ => this.pluginSpec);
+            //
+            //
+            // return Promise.reduce(tasks, task => task.bind(this)()).then(_ => this.pluginSpec);
+        }
 
-            // return Promise.each(tasks).then(_ => this.pluginSpec);
-
-
-            return Promise.reduce(tasks, task => task.bind(this)()).then(_ => this.pluginSpec);
+        _loadMainModule(details) {
+            try {
+                return require(path.join(PLUGINS_DIR, this.pluginuid, details.main_module.path));
+            }
+            catch (e) {
+                return null;
+            }
         }
 
 
@@ -48,15 +73,12 @@ module.exports = (pb) => {
             });
         }
 
-        _mainModuleHandler() {
-            if (!this._loadMainModule()) {
-                return Promise.reject(new Error('Failed to load main module for plugin '+this.pluginuid+' at '+ this.details.main_module.path));
-            }
+        _mainModuleHandler(mainModule, details) {
 
             let permissions = {};
-            if (this.details.permissions) {
-                Object.keys(this.details.permissions).forEach(role => {
-                    permissions[role] = util.arrayToHash(this.details.permissions[role]);
+            if (details.permissions) {
+                Object.keys(details.permissions).forEach(role => {
+                    permissions[role] = util.arrayToHash(details.permissions[role]);
                 });
             }
             else {
@@ -64,38 +86,20 @@ module.exports = (pb) => {
             }
 
             let templates = null;
-            if (this.details.theme && this.details.theme.content_templates) {
-                templates = this.details.theme.content_templates;
+            if (details.theme && details.theme.content_templates) {
+                templates = details.theme.content_templates;
                 templates.forEach(template => {
-                    template.theme_name = this.details.name;
+                    template.theme_name = details.name;
                 });
             }
 
-            this.pluginSpec = {
-                main_module: this.mainModule,
+            return {
+                main_module: mainModule,
                 public_dir: path.join(PLUGINS_DIR, this.pluginuid, PUBLIC_DIR_NAME),
                 permissions,
                 templates,
-                icon: this.details.icon ? pb.UrlService.urlJoin('/public', this.pluginuid, this.deatils.icon) : null
+                icon: details.icon ? pb.UrlService.urlJoin('/public', this.pluginuid, deatils.icon) : null
             };
-
-            return Promise.resolve(this.pluginSpec);
-        }
-
-        _loadMainModule() {
-            const pluginMM = path.join(PLUGINS_DIR, this.pluginuid, this.details.main_module.path);
-            const paths = [pluginMM, this.details.main_module.path];
-            for (let path of paths) {
-                try {
-                    this.mainModule = require(path)(pb);
-                    break;
-                }
-                catch(e) {
-                    pb.log.warn('PluginService: Failed to load main module at %s: %s', paths, e.stack);
-                }
-            }
-
-            this.mainModule;
         }
         //TODO: Will take care of these last
         // validationErrors() {
@@ -122,9 +126,9 @@ module.exports = (pb) => {
         //
         // }
 
-        _onStartup() {
-            if (util.isFunction(this.mainModule.onStartup)) {
-                return Promise.promisify(this.mainModule.onStartup, { context: this.mainModule })();
+        _onStartup(mainModule) {
+            if (mainModule && util.isFunction(mainModule.onStartup)) {
+                return Promise.promisify(mainModule.onStartup, { context: mainModule })();
             }
             pb.log.debug('PluginInitializationService:[%s] No main module onStartup function found.', this.pluginuid);
             return Promise.resolve(true);
@@ -132,20 +136,12 @@ module.exports = (pb) => {
 
         _loadServices() {
             let loader = new pb.PluginServiceLoader({ pluginUid: this.pluginuid });
-            return Promise.promisify(loader.getAll, {context: loader})({})
-                .then(services => {
-                    this.pluginSpec.services = services;
-                    return services;
-                });
+            return Promise.promisify(loader.getAll, {context: loader})({});
         }
 
         _loadControllers() {
             let loader = new pb.PluginControllerLoader({ pluginUid: this.pluginuid });
-            return Promise.promisify(loader.getAll, {context: loader})({})
-                .then(controllers => {
-                    this.pluginSpec.controllers = controllers;
-                    return controllers;
-                });
+            return Promise.promisify(loader.getAll, {context: loader})({});
         }
 
     }

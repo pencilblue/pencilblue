@@ -9,14 +9,14 @@ module.exports = (pb) => {
         }
 
         initialize() {
-            const tasks = [
-                this._onStartupWithContext,
-                this._setActive,
-                this._loadRoutes,
-                this._loadLocalization
-            ];
 
-            return Promise.reduce(tasks, task => task.bind(this)()).then(_ => this.pluginSpec);
+
+            return this._onStartupWithContext()
+                .then(_ => {
+                    this._setActive();
+                    this._loadRoutes();
+                    return this._loadLocalization();
+                });
         }
 
         _setActive() {
@@ -32,11 +32,11 @@ module.exports = (pb) => {
         }
 
         _loadRoutes () {
-            this.pluginSpec.controllers.forEach(this._registerRoutesForController);
+            this.pluginSpec.controllers.forEach(controller => this._registerRoutesForController(controller));
         }
 
         _registerRoutesForController (controller) {
-            if (!util.isFunction(controller.getRoutes)) {
+            if (!util.isFunction(controller.getRoutes) || !util.isFunction(controller.getRoutesSync)) {
                 return Promise.reject(new Error('Controller at [' + controller.path + '] did not return an array of routes'));
             }
         }

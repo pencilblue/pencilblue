@@ -24,6 +24,9 @@ var domain  = require('domain');
 var semver  = require('semver');
 var util    = require('../../util.js');
 
+
+const Promise = require('bluebird');
+
 module.exports = function PluginServiceModule(pb) {
 
     /**
@@ -1077,44 +1080,26 @@ module.exports = function PluginServiceModule(pb) {
                     .filter((pluginuid, index, self) => self.indexOf(pluginuid) === index);
 
 
-                var pluginSpecs = {};
+                const pluginSpecs = distinctPlugins.reduce((acc, plugin) => {
+                    acc[plugin] = new pb.PluginInitializationService(plugin).initialize();
+                    return acc;
+                }, {})
 
-                const platformTasks = util.getTasks(distinctPlugins, function (distinctPlugins, i) {
-                    return function (callback) {
-                        const initService = new pb.PluginInitializationService(distinctPlugins[i]);
-                        initService.initialize().then(function (pluginSpec) {
-                            pluginSpecs[pluginSpec.uid] = pluginSpec;
-                            callback (null, true);
-                        }).catch(callback);
-                    };
-                });
-
-
-                async.parallel(platformTasks, function (err, results) {
-                    var tasks  = util.getTasks(plugins, function(plugins, i) {
-                        return function(callback) {
-
-                            try {
-                                const sitePluginService = new pb.SitePluginInitializationService(pluginsSpecs[plugins[i].uid], plugins[i].site);
-                                sitePluginService.initialize()
-                                    .then(_ => callback(null, {plugin: plugins[i], initialize: true}))
-                                    .catch(err => callback(null, {plugin: plugins[i], error: err, initialized: false}));
-                                // self.initPlugin(plugins[i], function(err, didInitialize) {
-                                //     callback(null, {plugin: plugins[i], error: err, initialized: didInitialize});
-                                // });
-                            }
-                            catch(err) {
-                                callback(null, {plugin: plugins[i], error: err, initialized: false});
-                            }
-                        };
+                Promise.props(pluginSpecs).then(specs => {
+                    const tasks = plugins.map(plugin => {
+                        try {
+                            const sitePluginService = new pb.SitePluginInitializationService(specs[plugin], plugin.site);
+                            return sitePluginService.initialize()
+                                .then(_ => { return { plugin: plugin, initialized: true } })
+                                .catch(err => { return { plugin: plugin, error: err, initialized: false } });
+                        }
+                        catch(err) {
+                            return {plugin: plugin, error: err, initialized: false};
+                        }
                     });
 
-
-                    //This will be the place for site plugin call
-
-                    async.series(tasks, callback);
-                });
-
+                    return Promise.all(tasks);
+                }).then(callback);
             }
         ], cb);
     };
