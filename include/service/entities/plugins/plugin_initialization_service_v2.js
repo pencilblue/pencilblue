@@ -20,6 +20,7 @@ module.exports = (pb) => {
             return this._getDetails().then(details => {
                 const mainModule = this._loadMainModule(details);
                 let pluginSpec = this._mainModuleHandler(mainModule, details);
+                pluginSpec.uid = this.pluginuid;
                 return this._onStartup(pluginSpec.main_module)
                     .then(_ => this._loadServices())
                     .then(services => pluginSpec.services = services)
@@ -29,21 +30,6 @@ module.exports = (pb) => {
                         return pluginSpec;
                     });
             });
-
-
-
-            const tasks = [
-                this._getDetails,
-                this._mainModuleHandler,
-                this._onStartup,
-                this._loadServices,
-                this._loadControllers
-            ];
-            //
-            // // return Promise.each(tasks).then(_ => this.pluginSpec);
-            //
-            //
-            // return Promise.reduce(tasks, task => task.bind(this)()).then(_ => this.pluginSpec);
         }
 
         _loadMainModule(details) {
@@ -101,30 +87,6 @@ module.exports = (pb) => {
                 icon: details.icon ? pb.UrlService.urlJoin('/public', this.pluginuid, deatils.icon) : null
             };
         }
-        //TODO: Will take care of these last
-        // validationErrors() {
-        //
-        // }
-        //
-        // validationOutput() {
-        //
-        // }
-        //
-        // uidCheck() {
-        //
-        // }
-        //
-        // npmDependencyCheck() {
-        //
-        // }
-        //
-        // bowerDependencyCheck() {
-        //
-        // }
-        //
-        // versionCheck() {
-        //
-        // }
 
         _onStartup(mainModule) {
             if (mainModule && util.isFunction(mainModule.onStartup)) {
@@ -141,9 +103,32 @@ module.exports = (pb) => {
 
         _loadControllers() {
             let loader = new pb.PluginControllerLoader({ pluginUid: this.pluginuid });
-            return Promise.promisify(loader.getAll, {context: loader})({});
+            return Promise.promisify(loader.getAll, {context: loader})({register: true});
         }
-
+        //TODO: Will take care of these last
+        // validationErrors() {
+        //
+        // }
+        //
+        // validationOutput() {
+        //
+        // }
+        //
+        // uidCheck() {
+        //
+        // }
+        //
+        // npmDependencyCheck() {
+        // WHO CARES WE MANAGE OUR DEPENDENCIES WITH CI ON ALL LEVELS
+        // }
+        //
+        // bowerDependencyCheck() {
+        // WHO CARES BOWER IS DEAD
+        // }
+        //
+        // versionCheck() {
+        // WHO CARES
+        // }
     }
     return PluginInitializationService
 }

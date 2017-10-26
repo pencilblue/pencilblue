@@ -1088,7 +1088,7 @@ module.exports = function PluginServiceModule(pb) {
                 Promise.props(pluginSpecs).then(specs => {
                     const tasks = plugins.map(plugin => {
                         try {
-                            const sitePluginService = new pb.SitePluginInitializationService(specs[plugin], plugin.site);
+                            const sitePluginService = new pb.SitePluginInitializationService(specs[plugin.uid], plugin.site);
                             return sitePluginService.initialize()
                                 .then(_ => { return { plugin: plugin, initialized: true } })
                                 .catch(err => { return { plugin: plugin, error: err, initialized: false } });
@@ -1099,7 +1099,7 @@ module.exports = function PluginServiceModule(pb) {
                     });
 
                     return Promise.all(tasks);
-                }).then(callback);
+                }).then(result => callback(null, result));
             }
         ], cb);
     };

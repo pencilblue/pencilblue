@@ -9,13 +9,12 @@ module.exports = (pb) => {
         }
 
         initialize() {
-
-
             return this._onStartupWithContext()
                 .then(_ => {
-                    this._setActive();
-                    this._loadRoutes();
-                    return this._loadLocalization();
+                    this._loadLocalization().then(_ => {
+                        this._loadRoutes();
+                        return this._setActive();
+                    });
                 });
         }
 
@@ -24,7 +23,7 @@ module.exports = (pb) => {
         }
 
         _onStartupWithContext () {
-            const mainModule = this.pluginSpec.mainModule
+            const mainModule = this.pluginSpec.main_module
             if (util.isFunction(mainModule.onStartupWithContext)) {
                 return Promise.promisify(mainModule.onStartupWithContext, { context: mainModule })({ site: this.site });
             }
@@ -32,18 +31,31 @@ module.exports = (pb) => {
         }
 
         _loadRoutes () {
-            this.pluginSpec.controllers.forEach(controller => this._registerRoutesForController(controller));
+            Object.keys(this.pluginSpec.controllers).forEach(key => { this._registerRoutesForController(key, this.pluginSpec.controllers[key]) });
         }
 
-        _registerRoutesForController (controller) {
-            if (!util.isFunction(controller.getRoutes) || !util.isFunction(controller.getRoutesSync)) {
-                return Promise.reject(new Error('Controller at [' + controller.path + '] did not return an array of routes'));
+        _registerRoutesForController (path, controller) {
+            if (!controller.getRoutes && !controller.getRoutesSync) {
+                return Promise.reject(new Error('Controller at [' + path + '] did not return an array of routes'));
             }
+
+
+            const routesHandler = routes => {
+                if (routes) {
+                    routes.forEach(route => {
+                        route.controller = path;
+                        pb.RequestHandler.registerRoute(route, this.pluginSpec.uid, this.site);
+                    });
+                }
+            };
+
+            controller.getRoutes((err, routes) => routesHandler(routes));
+
         }
 
         _loadLocalization () {
-            const service = new pb.PluginLocalizationLoader({ pluginUid: context.pluginSpec.uid, site: this.site });
-            return Promise.promisify(service.getAll, { context: service })();
+            const service = new pb.PluginLocalizationLoader({ pluginUid: this.pluginSpec.uid, site: this.site });
+            return Promise.promisify(service.getAll, { context: service })({register: true});
         }
 
         // _afterRoutes () { TODO : Implement for other PB users (Not currently used in TN)
