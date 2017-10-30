@@ -210,7 +210,7 @@ module.exports = function DBManagerModule(pb) {
                 return function(callback) {
                     var dao = new DAO();
                     dao.ensureIndex(procedures[i], function(err, result) {
-                        if (util.isError(err)) {
+                        if (util.isError(err) && pb.log.isDebug()) {
                             errors.push(err);
                             pb.log.error('DBManager: Failed to create INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(procedures[i]), util.inspect(result), err.stack);
                         }
