@@ -1062,46 +1062,41 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.initPlugins = function(cb) {
         pb.log.debug('PluginService: Beginning plugin initialization...');
-
-
-        //Do the initial platform wide initializations here.
-
-
-        var self = this;
-        async.waterfall([
-            util.wrapTask(this._pluginRepository, this._pluginRepository.loadPluginsAcrossAllSites),
-            function(plugins, callback) {
-                if (plugins.length === 0) {
-                    pb.log.debug('PluginService: No plugins are installed');
-                    return callback(null, []);
-                }
-
-                var distinctPlugins = plugins.map(plugin => plugin.uid)
-                    .filter((pluginuid, index, self) => self.indexOf(pluginuid) === index);
-
-
-                const pluginSpecs = distinctPlugins.reduce((acc, plugin) => {
-                    acc[plugin] = new pb.PluginInitializationService(plugin).initialize();
-                    return acc;
-                }, {})
-
-                Promise.props(pluginSpecs).then(specs => {
-                    const tasks = plugins.map(plugin => {
-                        try {
-                            const sitePluginService = new pb.SitePluginInitializationService(specs[plugin.uid], plugin.site);
-                            return sitePluginService.initialize()
-                                .then(_ => { return { plugin: plugin, initialized: true } })
-                                .catch(err => { return { plugin: plugin, error: err, initialized: false } });
-                        }
-                        catch(err) {
-                            return {plugin: plugin, error: err, initialized: false};
-                        }
-                    });
-
-                    return Promise.all(tasks);
-                }).then(result => callback(null, result));
+        this._pluginRepository.loadPluginsAcrossAllSites((err, plugins) => {
+            if (err) {
+                return cb(err, []);
             }
-        ], cb);
+
+            if (plugins.length === 0) {
+                pb.log.debug('PluginService: No plugins are installed');
+                return cb(null, []);
+            }
+
+            const distinctPlugins = plugins.map(plugin => plugin.uid)
+                .filter((pluginuid, index, self) => self.indexOf(pluginuid) === index);
+
+            //Do the initial platform wide initializations here.
+            const pluginSpecs = distinctPlugins.reduce((acc, plugin) => {
+                acc[plugin] = new pb.PluginInitializationService(plugin).initialize();
+                return acc;
+            }, {});
+
+            Promise.props(pluginSpecs).then(specs => {
+                const tasks = plugins.map(plugin => {
+                    try {
+                        //For each site plugin pair activate each plugin per site.
+                        const sitePluginService = new pb.SitePluginInitializationService(specs[plugin.uid], plugin.site);
+                        return sitePluginService.initialize()
+                            .then(_ => { return { plugin: plugin, initialized: true } })
+                            .catch(err => { return { plugin: plugin, error: err, initialized: false } });
+                    }
+                    catch(err) {
+                        return {plugin: plugin, error: err, initialized: false};
+                    }
+                });
+                return Promise.all(tasks);
+            }).then(result => cb(null, result));
+        });
     };
 
     /**
@@ -1115,14 +1110,15 @@ module.exports = function PluginServiceModule(pb) {
             return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
         }
 
-        var service = new pb.PluginInitializationService({
-            pluginService: this.site === plugin.site ? this : new PluginService({ site: plugin.site }),
-            pluginCache: PLUGIN_INIT_CACHE
-        });
-        service.initialize(plugin, {}, function(err, result) {
-            PLUGIN_INIT_CACHE = {};
-            cb(err, result);
-        });
+        const service = new pb.PluginInitializationService(plugin.uid);
+        const sitePluginHandler = result => {
+            const sitePluginService = new pb.SitePluginInitializationService(result, plugin.site);
+            return sitePluginService.initialize();
+        };
+        service.initialize()
+            .then(result => sitePluginHandler(result))
+            .then(result => cb(null, result))
+            .catch(err => cb(err, null));
     };
 
     /**

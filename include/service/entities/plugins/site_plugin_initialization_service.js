@@ -11,10 +11,9 @@ module.exports = (pb) => {
         initialize() {
             return this._onStartupWithContext()
                 .then(_ => {
-                    this._loadLocalization().then(_ => {
-                        this._loadRoutes();
-                        return this._setActive();
-                    });
+                    this._loadLocalization();
+                    this._loadRoutes();
+                    return this._setActive();
                 });
         }
 
@@ -38,7 +37,6 @@ module.exports = (pb) => {
             if (!controller.getRoutes && !controller.getRoutesSync) {
                 return Promise.reject(new Error('Controller at [' + path + '] did not return an array of routes'));
             }
-
 
             const routesHandler = routes => {
                 if (routes) {
