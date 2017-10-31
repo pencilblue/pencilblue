@@ -15,6 +15,17 @@ module.exports = (pb) => {
             this.pluginuid = pluginuid;
         }
 
+        static handleInitializationError (pluginuid, err) {
+            //log it all
+            var hasValidationErrs = !!err.validationErrors;
+            pb.log.error('PluginInitializationService:[%s] failed to initialize: %s', pluginuid, hasValidationErrs ? err.message : err.stack);
+            if (hasValidationErrs) {
+                err.validationErrors.forEach(function(validationError) {
+                    pb.log.error('PluginInitializationService:[%s] details.json validation error FIELD=%s MSG=%s', pluginuid, validationError.field, validationError.message);
+                });
+            }
+        }
+
         initialize() {
             return this._getDetails()
                 .then(details => this._validate(details))
@@ -109,7 +120,7 @@ module.exports = (pb) => {
             let loader = new pb.PluginControllerLoader({ pluginUid: this.pluginuid });
             return Promise.promisify(loader.getAll, { context: loader })({register: true});
         }
-        //TODO: Will take care of these last
+
         _validate(details) {
             const validationService = new pb.PluginValidationService({});
             return Promise.promisify(validationService.validate, { context: validationService })(details, {})
@@ -120,7 +131,7 @@ module.exports = (pb) => {
             if (result.validationErrors && result.validationErrors.length) {
                 const err = new Error(`Failed to validate details for plugin ${this.pluginuid}\n ${JSON.stringify(result.validationErrors, null, 2)}`);
                 err.validationERrors = result.validationErrors;
-                return Promise.reject(err);
+                PluginInitializationService.handleInitializationError(this.pluginuid, err);
             }
             return Promise.resolve(result);
         }
