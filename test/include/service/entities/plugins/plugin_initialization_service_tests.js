@@ -31,8 +31,6 @@ describe('PluginInitializationService', function() {
                 pb.BaseObjectService.validationFailure('a', 'b', 'c')
             ];
             PluginInitializationService.handleInitializationError(plugin, err);
-
-            pb.PluginService.deactivatePlugin(plugin.uid, plugin.site).should.eql(false);
         });
     });
 });
