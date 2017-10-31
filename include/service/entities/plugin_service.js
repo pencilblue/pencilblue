@@ -1062,11 +1062,8 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.prototype.initPlugins = function(cb) {
         pb.log.debug('PluginService: Beginning plugin initialization...');
-        this._pluginRepository.loadPluginsAcrossAllSites((err, plugins) => {
-            if (err) {
-                return cb(err, []);
-            }
 
+        const processPlugins = plugins => {
             if (plugins.length === 0) {
                 pb.log.debug('PluginService: No plugins are installed');
                 return cb(null, []);
@@ -1081,7 +1078,7 @@ module.exports = function PluginServiceModule(pb) {
                 return acc;
             }, {});
 
-            Promise.props(pluginSpecs).then(specs => {
+            return Promise.props(pluginSpecs).then(specs => {
                 const tasks = plugins.map(plugin => {
                     try {
                         //For each site plugin pair activate each plugin per site.
@@ -1095,8 +1092,13 @@ module.exports = function PluginServiceModule(pb) {
                     }
                 });
                 return Promise.all(tasks);
-            }).then(result => cb(null, result));
-        });
+            });
+        };
+
+        Promise.promisify(this._pluginRepository.loadPluginsAcrossAllSites, {context:this._pluginRepository})()
+            .then(plugins => processPlugins(plugins))
+            .then(result => cb(null, result))
+            .catch(err => cb(err, []));
     };
 
     /**

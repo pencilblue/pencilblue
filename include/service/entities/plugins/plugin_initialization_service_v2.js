@@ -16,25 +16,29 @@ module.exports = (pb) => {
         }
 
         initialize() {
+            return this._getDetails()
+                .then(details => this._validate(details))
+                .then(details => this._initTasks(details));
+        }
 
-            return this._getDetails().then(details => {
-                const mainModule = this._loadMainModule(details);
-                let pluginSpec = this._mainModuleHandler(mainModule, details);
-                pluginSpec.uid = this.pluginuid;
-                return this._onStartup(pluginSpec.main_module)
-                    .then(_ => this._loadServices())
-                    .then(services => pluginSpec.services = services)
-                    .then(_ => this._loadControllers())
-                    .then(controllers => {
-                        pluginSpec.controllers = controllers
-                        return pluginSpec;
-                    });
-            });
+        _initTasks(details) {
+            const mainModule = this._loadMainModule(details);
+            let pluginSpec = this._mainModuleHandler(mainModule, details);
+            pluginSpec.uid = this.pluginuid;
+
+            return this._onStartup(pluginSpec.main_module)
+                .then(_ => this._loadServices())
+                .then(services => pluginSpec.services = services)
+                .then(_ => this._loadControllers())
+                .then(controllers => {
+                    pluginSpec.controllers = controllers
+                    return pluginSpec;
+                });
         }
 
         _loadMainModule(details) {
             try {
-                return require(path.join(PLUGINS_DIR, this.pluginuid, details.main_module.path));
+                return require(path.join(PLUGINS_DIR, this.pluginuid, details.main_module.path))(pb);
             }
             catch (e) {
                 return null;
@@ -103,32 +107,23 @@ module.exports = (pb) => {
 
         _loadControllers() {
             let loader = new pb.PluginControllerLoader({ pluginUid: this.pluginuid });
-            return Promise.promisify(loader.getAll, {context: loader})({register: true});
+            return Promise.promisify(loader.getAll, { context: loader })({register: true});
         }
         //TODO: Will take care of these last
-        // validationErrors() {
-        //
-        // }
-        //
-        // validationOutput() {
-        //
-        // }
-        //
-        // uidCheck() {
-        //
-        // }
-        //
-        // npmDependencyCheck() {
-        // WHO CARES WE MANAGE OUR DEPENDENCIES WITH CI ON ALL LEVELS
-        // }
-        //
-        // bowerDependencyCheck() {
-        // WHO CARES BOWER IS DEAD
-        // }
-        //
-        // versionCheck() {
-        // WHO CARES
-        // }
+        _validate(details) {
+            const validationService = new pb.PluginValidationService({});
+            return Promise.promisify(validationService.validate, { context: validationService })(details, {})
+                .then(result => this._handleValidationErrors(result))
+                .then(_ => details);
+        }
+        _handleValidationErrors(result) {
+            if (result.validationErrors && result.validationErrors.length) {
+                const err = new Error(`Failed to validate details for plugin ${this.pluginuid}\n ${JSON.stringify(result.validationErrors, null, 2)}`);
+                err.validationERrors = result.validationErrors;
+                return Promise.reject(err);
+            }
+            return Promise.resolve(result);
+        }
     }
     return PluginInitializationService
 }
