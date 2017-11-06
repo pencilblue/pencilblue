@@ -29,18 +29,18 @@ module.exports = (pb) => {
         }
 
         _loadRoutes () {
-            Object.keys(this.pluginSpec.controllers).forEach(key => { this._registerRoutesForController(key, this.pluginSpec.controllers[key]) });
+            Object.keys(this.pluginSpec.controllers).forEach(key => { this._registerRoutesForController(this.pluginSpec.controllers[key]) });
         }
 
-        _registerRoutesForController (path, controller) {
-            if (!controller.getRoutes && !controller.getRoutesSync) {
-                return Promise.reject(new Error('Controller at [' + path + '] did not return an array of routes'));
+        _registerRoutesForController (controller) {
+            if (!controller.getRoutes) {
+                return Promise.reject(new Error('Controller [' + controller.name + '] did not return an array of routes'));
             }
 
             const routesHandler = routes => {
                 if (routes) {
                     routes.forEach(route => {
-                        route.controller = path;
+                        route.controller = controller;
                         pb.RequestHandler.registerRoute(route, this.pluginSpec.uid, this.site);
                     });
                 }

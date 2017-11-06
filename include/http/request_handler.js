@@ -262,21 +262,6 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     * Validates a route descriptor.  The specified object must have a "controller"
-     * property that points to a valid file and the "path" property must specify a
-     * valid URL path structure.
-     * @static
-     * @method isValidRoute
-     * @param {Object} descriptor The object to validate
-     * @param {String} descriptor.controller The file path to the controller file
-     * @param {String} descriptor.path The URL path
-     */
-    RequestHandler.isValidRoute = function(descriptor) {
-        return fs.existsSync(descriptor.controller) &&
-            !util.isNullOrUndefined(descriptor.path);
-    };
-
-    /**
      * Unregisters all routes associated with a theme
      * @static
      * @method unregisterThemeRoutes
@@ -395,12 +380,6 @@ module.exports = function RequestHandlerModule(pb) {
             site = GLOBAL_SITE;
         }
 
-        //validate route
-        if (!RequestHandler.isValidRoute(descriptor)) {
-            pb.log.error("RequestHandler: Route Validation Failed for: "+JSON.stringify(descriptor));
-            return false;
-        }
-
         //standardize http method (if exists) to upper case
         if (descriptor.method) {
             descriptor.method = descriptor.method.toUpperCase();
@@ -410,7 +389,7 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //make sure we get a valid prototype back
-        var Controller = require(descriptor.controller)(pb);
+        var Controller = util.isString(descriptor.controller) ? require(descriptor.controller)(pb) : descriptor.controller;
         if (!Controller) {
             pb.log.error('RequestHandler: Failed to get a prototype back from the controller module. %s', JSON.stringify(descriptor));
             return false;

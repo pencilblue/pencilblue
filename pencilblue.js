@@ -73,7 +73,7 @@ function PencilBlue(config){
             util.wrapTimedTask(this, this.initDBIndices, 'initDBIndices'),
             util.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
             util.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
-            util.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
+            //util.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
             util.wrapTimedTask(this, this.initSessions, 'initSessions'),
             util.wrapTimedTask(this, this.initMiddleware, 'initMiddleware'),
             util.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
