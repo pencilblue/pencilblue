@@ -11,7 +11,6 @@ module.exports = (pb) => {
         initialize() {
             return this._onStartupWithContext()
                 .then(_ => {
-                    this._loadLocalization();
                     this._loadRoutes();
                     return this._setActive();
                 });
@@ -49,11 +48,6 @@ module.exports = (pb) => {
 
             controller.getRoutes((err, routes) => routesHandler(routes));
 
-        }
-
-        _loadLocalization () {
-            const service = new pb.PluginLocalizationLoader({ pluginUid: this.pluginSpec.uid, site: this.site });
-            return Promise.promisify(service.getAll, { context: service })({register: true});
         }
 
         // _afterRoutes () { TODO : Implement for other PB users (Not currently used in TN)

@@ -43,6 +43,7 @@ module.exports = (pb) => {
                 .then(_ => this._loadControllers())
                 .then(controllers => {
                     pluginSpec.controllers = controllers
+                    this._loadLocalization();
                     return pluginSpec;
                 });
         }
@@ -118,7 +119,7 @@ module.exports = (pb) => {
 
         _loadControllers() {
             let loader = new pb.PluginControllerLoader({ pluginUid: this.pluginuid });
-            return Promise.promisify(loader.getAll, { context: loader })({register: true});
+            return Promise.promisify(loader.getAll, { context: loader })({});
         }
 
         _validate(details) {
@@ -134,6 +135,11 @@ module.exports = (pb) => {
                 PluginInitializationService.handleInitializationError(this.pluginuid, err);
             }
             return Promise.resolve(result);
+        }
+
+        _loadLocalization () {
+            const service = new pb.PluginLocalizationLoader({ pluginUid: this.pluginuid, site: this.site });
+            return Promise.promisify(service.getAll, { context: service })({register: true});
         }
     }
     return PluginInitializationService
