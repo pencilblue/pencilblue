@@ -1077,7 +1077,8 @@ module.exports = function PluginServiceModule(pb) {
                 return cb(null, []);
             }
 
-            const distinctPlugins = plugins.reduce((distinct, plugin) => ({...distinct, [plugin.uid]: true}), {});
+
+            const distinctPlugins = plugins.reduce((distinct, plugin) => Object.assign(distinct, { [plugin.uid]: true}), {});
             const pluginSpecs = _.mapValues(distinctPlugins, (_, uid) => new pb.PluginInitializationService(uid).initialize());
 
             return Promise.props(pluginSpecs).then(specs => {
