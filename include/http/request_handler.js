@@ -894,41 +894,18 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Object} The route object or NULL if the path does not match any route
      */
     RequestHandler.prototype.getRoute = function(path) {
-
         //check static routes first.  It must be an exact match including
         //casing and any ending slash.
-        var isSilly = pb.log.isSilly();
-        var route   = RequestHandler.staticRoutes[path];
-        if (!util.isNullOrUndefined(route)) {
-            if(route.themes[this.siteObj.uid] || route.themes[GLOBAL_SITE]) {
-                if (isSilly) {
-                    pb.log.silly('RequestHandler: Found static route [%s]', path);
-                }
-                return route;
-            }
+        var route = RequestHandler.staticRoutes[path];
+        if (!util.isNullOrUndefined(route) && (route.themes[this.siteObj.uid] || route.themes[GLOBAL_SITE])) {
+            return route;
         }
 
-        //now do the hard work.  Iterate over the available patterns until a
-        //pattern is found.
-        for (var i = 0; i < RequestHandler.storage.length; i++) {
-
-            var curr   = RequestHandler.storage[i];
-            var result = curr.expression.test(path);
-
-            if (isSilly) {
-                pb.log.silly('RequestHandler: Comparing Path [%s] to Pattern [%s] Result [%s]', path, curr.pattern, result);
-            }
-            if (result) {
-
-                if(curr.themes[this.siteObj.uid] || curr.themes[GLOBAL_SITE]) {
-                    return curr;
-                }
-                break;
-            }
+        var matchRoute = RequestHandler.storage.find(route => route.expression.test(path));
+        if (matchRoute && (matchRoute.themes[this.siteObj.uid] || matchRoute.themes[GLOBAL_SITE])) {
+            return matchRoute;
         }
 
-        //ensures we return null when route is not found for backward
-        //compatibility.
         return null;
     };
 
