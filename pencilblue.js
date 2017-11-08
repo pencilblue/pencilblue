@@ -172,7 +172,6 @@ function PencilBlue(config){
      * @param {Function} cb - callback function
      */
     this.initSiteMigration = function(cb) {
-        pb.SiteService.init();
         pb.dbm.processMigration(cb);
     };
 
@@ -183,6 +182,7 @@ function PencilBlue(config){
      * @param {Function} cb - callback function
      */
     this.initSites = function(cb) {
+        pb.SiteService.init();
         var siteService = new pb.SiteService();
         siteService.initSites(cb);
     };
