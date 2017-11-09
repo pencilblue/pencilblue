@@ -61,18 +61,7 @@ module.exports = (pb) => {
         // Platform Wide Tasks (Only need to run once)
         _getDetails() {
             const filePath = path.join(PLUGINS_DIR, this.pluginuid, DETAILS_FILE_NAME);;
-            return fs.readFileAsync(filePath).then((data) => {
-                try {
-                    this.details = JSON.parse(data);
-                    return this.details
-                }
-                catch(e) {
-                    e.message = "Failed to parse json file ["+filePath+']. '+e.message;
-                    e.code    = 500;
-                    e.source  = e;
-                    throw e;
-                }
-            });
+            return fs.readFileAsync(filePath).then(JSON.parse);
         }
 
         _mainModuleHandler(mainModule, details) {
