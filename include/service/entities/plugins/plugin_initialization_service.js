@@ -120,7 +120,7 @@ module.exports = (pb) => {
         _handleValidationErrors(result) {
             if (result.validationErrors && result.validationErrors.length) {
                 const err = new Error(`Failed to validate details for plugin ${this.pluginuid}\n ${JSON.stringify(result.validationErrors, null, 2)}`);
-                err.validationERrors = result.validationErrors;
+                err.validationErrors = result.validationErrors;
                 PluginInitializationService.handleInitializationError(this.pluginuid, err);
             }
             return Promise.resolve(result);
