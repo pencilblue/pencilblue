@@ -67,21 +67,21 @@ function PencilBlue(config){
      */
     this.init = function(){
         var tasks = [
-            util.wrapTimedTask(this, this.initModules, 'initModules'),
-            util.wrapTimedTask(this, this.initRequestHandler, 'initRequestHandler'),
-            util.wrapTimedTask(this, this.initDBConnections, 'initDBConnections'),
-            util.wrapTimedTask(this, this.initDBIndices, 'initDBIndices'),
-            util.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
-            util.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
-            util.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
-            util.wrapTimedTask(this, this.initSessions, 'initSessions'),
-            util.wrapTimedTask(this, this.initMiddleware, 'initMiddleware'),
-            util.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
-            util.wrapTimedTask(this, this.initSites, 'initSites'),
-            util.wrapTimedTask(this, this.initLocales, 'initLocales'),
-            util.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
-            util.wrapTimedTask(this, this.registerMetrics, 'registerMetrics'),
-            util.wrapTimedTask(this, this.initServer, 'initServer')
+            util.wrapTask(this, this.initModules, 'initModules'),
+            util.wrapTask(this, this.initRequestHandler, 'initRequestHandler'),
+            util.wrapTask(this, this.initDBConnections, 'initDBConnections'),
+            util.wrapTask(this, this.initDBIndices, 'initDBIndices'),
+            util.wrapTask(this, this.initServerRegistration, 'initServerRegistration'),
+            util.wrapTask(this, this.initCommandService, 'initCommandService'),
+            //util.wrapTask(this, this.initSiteMigration, 'initSiteMigration'),
+            util.wrapTask(this, this.initSessions, 'initSessions'),
+            util.wrapTask(this, this.initMiddleware, 'initMiddleware'),
+            util.wrapTask(this, this.initPlugins, 'initPlugins'),
+            util.wrapTask(this, this.initSites, 'initSites'),
+            util.wrapTask(this, this.initLocales, 'initLocales'),
+            util.wrapTask(this, this.initLibraries, 'initLibraries'),
+            util.wrapTask(this, this.registerMetrics, 'registerMetrics'),
+            util.wrapTask(this, this.initServer, 'initServer')
         ];
         async.series(tasks, function(err, results) {
             if (util.isError(err)) {
@@ -172,7 +172,6 @@ function PencilBlue(config){
      * @param {Function} cb - callback function
      */
     this.initSiteMigration = function(cb) {
-        pb.SiteService.init();
         pb.dbm.processMigration(cb);
     };
 
@@ -183,6 +182,7 @@ function PencilBlue(config){
      * @param {Function} cb - callback function
      */
     this.initSites = function(cb) {
+        pb.SiteService.init();
         var siteService = new pb.SiteService();
         siteService.initSites(cb);
     };

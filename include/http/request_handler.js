@@ -262,21 +262,6 @@ module.exports = function RequestHandlerModule(pb) {
     };
 
     /**
-     * Validates a route descriptor.  The specified object must have a "controller"
-     * property that points to a valid file and the "path" property must specify a
-     * valid URL path structure.
-     * @static
-     * @method isValidRoute
-     * @param {Object} descriptor The object to validate
-     * @param {String} descriptor.controller The file path to the controller file
-     * @param {String} descriptor.path The URL path
-     */
-    RequestHandler.isValidRoute = function(descriptor) {
-        return fs.existsSync(descriptor.controller) &&
-            !util.isNullOrUndefined(descriptor.path);
-    };
-
-    /**
      * Unregisters all routes associated with a theme
      * @static
      * @method unregisterThemeRoutes
@@ -395,12 +380,6 @@ module.exports = function RequestHandlerModule(pb) {
             site = GLOBAL_SITE;
         }
 
-        //validate route
-        if (!RequestHandler.isValidRoute(descriptor)) {
-            pb.log.error("RequestHandler: Route Validation Failed for: "+JSON.stringify(descriptor));
-            return false;
-        }
-
         //standardize http method (if exists) to upper case
         if (descriptor.method) {
             descriptor.method = descriptor.method.toUpperCase();
@@ -410,7 +389,7 @@ module.exports = function RequestHandlerModule(pb) {
         }
 
         //make sure we get a valid prototype back
-        var Controller = require(descriptor.controller)(pb);
+        var Controller = util.isString(descriptor.controller) ? require(descriptor.controller)(pb) : descriptor.controller;
         if (!Controller) {
             pb.log.error('RequestHandler: Failed to get a prototype back from the controller module. %s', JSON.stringify(descriptor));
             return false;
@@ -915,41 +894,18 @@ module.exports = function RequestHandlerModule(pb) {
      * @return {Object} The route object or NULL if the path does not match any route
      */
     RequestHandler.prototype.getRoute = function(path) {
-
         //check static routes first.  It must be an exact match including
         //casing and any ending slash.
-        var isSilly = pb.log.isSilly();
-        var route   = RequestHandler.staticRoutes[path];
-        if (!util.isNullOrUndefined(route)) {
-            if(route.themes[this.siteObj.uid] || route.themes[GLOBAL_SITE]) {
-                if (isSilly) {
-                    pb.log.silly('RequestHandler: Found static route [%s]', path);
-                }
-                return route;
-            }
+        var route = RequestHandler.staticRoutes[path];
+        if (!util.isNullOrUndefined(route) && (route.themes[this.siteObj.uid] || route.themes[GLOBAL_SITE])) {
+            return route;
         }
 
-        //now do the hard work.  Iterate over the available patterns until a
-        //pattern is found.
-        for (var i = 0; i < RequestHandler.storage.length; i++) {
-
-            var curr   = RequestHandler.storage[i];
-            var result = curr.expression.test(path);
-
-            if (isSilly) {
-                pb.log.silly('RequestHandler: Comparing Path [%s] to Pattern [%s] Result [%s]', path, curr.pattern, result);
-            }
-            if (result) {
-
-                if(curr.themes[this.siteObj.uid] || curr.themes[GLOBAL_SITE]) {
-                    return curr;
-                }
-                break;
-            }
+        var matchRoute = RequestHandler.storage.find(route => route.expression.test(path));
+        if (matchRoute && (matchRoute.themes[this.siteObj.uid] || matchRoute.themes[GLOBAL_SITE])) {
+            return matchRoute;
         }
 
-        //ensures we return null when route is not found for backward
-        //compatibility.
         return null;
     };
 

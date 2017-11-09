@@ -290,6 +290,7 @@ module.exports = function PB(config) {
     pb.PluginControllerLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_controller_loader.js'))(pb);
     pb.PluginLocalizationLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_localization_loader.js'))(pb);
     pb.PluginInitializationService = require(path.join(config.docRoot, '/include/service/entities/plugins/plugin_initialization_service.js'))(pb);
+    pb.SitePluginInitializationService = require(path.join(config.docRoot, '/include/service/entities/plugins/site_plugin_initialization_service.js'))(pb);
 
     pb.PasswordResetService = require(path.join(config.docRoot, '/include/service/entities/password_reset_service.js'))(pb);
 

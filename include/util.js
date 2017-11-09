@@ -208,8 +208,10 @@ Util.wrapTimedTask = function(context, func, name, argArray) {
     }
     var task = Util.wrapTask(context, func, argArray);
     return function(callback) {
+        console.time(name);
         var start = Date.now();
         task(function(err, result) {
+            console.timeEnd(name);
             callback(err, {
                 result: result,
                 time: Date.now() - start,

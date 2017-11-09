@@ -212,10 +212,7 @@ module.exports = function DBManagerModule(pb) {
                     dao.ensureIndex(procedures[i], function(err, result) {
                         if (util.isError(err)) {
                             errors.push(err);
-                            pb.log.error('DBManager: Failed to create INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(procedures[i]), util.inspect(result), err.stack);
-                        }
-                        else if (pb.log.isDebug()) {
-                            pb.log.silly('DBManager: Attempted to create INDEX=[%s] RESULT=[%s]', JSON.stringify(procedures[i]), util.inspect(result));
+                            pb.log.silly('DBManager: Failed to create INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(procedures[i]), util.inspect(result), err.stack);
                         }
                         callback(null, result);
                     });
