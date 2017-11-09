@@ -1113,12 +1113,7 @@ module.exports = function PluginServiceModule(pb) {
         if (typeof plugin !== 'object') {
             return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
         }
-
-        let pluginSpec = Promise.resolve(PLUGIN_SPECS[plugin.uid]);
-        if (!pluginSpec) {
-            pluginSpec = new pb.PluginInitializationService(uid).initialize()
-        }
-
+        const pluginSpec = Promise.resolve(PLUGIN_SPECS[plugin.uid] || new pb.PluginInitializationService(plugin.uid).initialize());
         return pluginSpec
             .then(spec => new pb.SitePluginInitializationService(spec, plugin.site).initialize())
             .asCallback(cb);
