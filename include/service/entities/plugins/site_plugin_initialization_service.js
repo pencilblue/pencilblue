@@ -10,10 +10,8 @@ module.exports = (pb) => {
 
         initialize() {
             return this._onStartupWithContext()
-                .then(_ => {
-                    this._loadRoutes();
-                    return this._setActive();
-                });
+                .then(_ => this._loadRoutes())
+                .then(_ => this._setActive());
         }
 
         _setActive() {
@@ -21,7 +19,7 @@ module.exports = (pb) => {
         }
 
         _onStartupWithContext () {
-            const mainModule = this.pluginSpec.main_module
+            const mainModule = this.pluginSpec.main_module;
             if (util.isFunction(mainModule.onStartupWithContext)) {
                 return Promise.promisify(mainModule.onStartupWithContext, { context: mainModule })({ site: this.site });
             }
@@ -30,6 +28,11 @@ module.exports = (pb) => {
 
         _loadRoutes () {
             Object.keys(this.pluginSpec.controllers).forEach(key => { this._registerRoutesForController(this.pluginSpec.controllers[key]) });
+            const mainModule = this.pluginSpec.main_module;
+            if (util.isFunction(mainModule.onAfterRoutesLoadedWithContext)) {
+                return Promise.promisify(mainModule.onAfterRoutesLoadedWithContext, { context: mainModule })({ site: this.site });
+            }
+            return Promise.resolve();
         }
 
         _registerRoutesForController (controller) {
