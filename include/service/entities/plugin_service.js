@@ -20,8 +20,6 @@
 var fs      = require('fs');
 var path    = require('path');
 var async   = require('async');
-var domain  = require('domain');
-var semver  = require('semver');
 var util    = require('../../util.js');
 
 
