@@ -1117,8 +1117,7 @@ module.exports = function PluginServiceModule(pb) {
         }
 
         return new pb.SitePluginInitializationService((PLUGIN_SPECS[plugin.uid]), plugin.site).initialize()
-            .then(result => cb(null, result))
-            .catch(err => cb(err, null));
+            .asCallback(cb);
     };
 
     /**
