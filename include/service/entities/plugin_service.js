@@ -1099,8 +1099,7 @@ module.exports = function PluginServiceModule(pb) {
 
         Promise.promisify(this._pluginRepository.loadPluginsAcrossAllSites, {context:this._pluginRepository})()
             .then(plugins => processPlugins(plugins))
-            .then(result => cb(null, result))
-            .catch(err => cb(err, []));
+            .asCallback(cb);
     };
 
     /**
