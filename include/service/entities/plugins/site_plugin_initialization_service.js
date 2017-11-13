@@ -9,9 +9,12 @@ module.exports = (pb) => {
         }
 
         initialize() {
-            return this._onStartupWithContext()
-                .then(_ => this._loadRoutes())
-                .then(_ => this._setActive());
+            return Promise.all([
+                this._onStartupWithContext(),
+                this._loadRoutes(),
+                this._syncSettings(),
+                this._setActive()
+            ]);
         }
 
         _setActive() {
@@ -53,9 +56,10 @@ module.exports = (pb) => {
 
         }
 
-        // _afterRoutes () { TODO : Implement for other PB users (Not currently used in TN)
-        //
-        // }
+        _syncSettings () {
+            const syncService = new pb.PluginService({ site: this.site });
+            return Promise.promisify(syncService.syncSettings, {context: syncService})(this.pluginSpec, this.pluginSpec.details);
+        }
     }
 
     return SitePluginInitializationService;

@@ -36,6 +36,7 @@ module.exports = (pb) => {
             const mainModule = this._loadMainModule(details);
             let pluginSpec = this._mainModuleHandler(mainModule, details);
             pluginSpec.uid = this.pluginuid;
+            pluginSpec.details = details;
 
             return this._onStartup(pluginSpec.main_module)
                 .then(_ => this._loadServices())
