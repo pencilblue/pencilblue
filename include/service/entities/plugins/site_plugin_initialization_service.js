@@ -58,7 +58,8 @@ module.exports = (pb) => {
 
         _syncSettings () {
             const syncService = new pb.PluginService({ site: this.site });
-            return Promise.promisify(syncService.syncSettings, {context: syncService})(this.pluginSpec, this.pluginSpec.details);
+            return Promise.promisify(syncService.syncSettings, {context: syncService})(this.pluginSpec, this.pluginSpec.details)
+                .catch(err => pb.log.warn(`SitePluginInitializationService: Failed to sync settings: ${err.stack}`));
         }
     }
 

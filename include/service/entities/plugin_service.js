@@ -587,11 +587,11 @@ module.exports = function PluginServiceModule(pb) {
                     formattedSettings.push({name: settingName, value: val, displayName: setting.displayName, group: setting.group});
                 }
                 else {
-                    if(setting.group !== val.group){
+                    if(setting.group && setting.group && setting.group !== val.group){
                         val.group = setting.group;
                         discrepancy = true;
                     }
-                    else if(settings.displayName !== val.displayName){
+                    else if(setting.displayName && setting.displayName !== val.displayName){
                         val.displayName = setting.displayName;
                         discrepancy = true;
                     }
