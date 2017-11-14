@@ -587,11 +587,11 @@ module.exports = function PluginServiceModule(pb) {
                     formattedSettings.push({name: settingName, value: val, displayName: setting.displayName, group: setting.group});
                 }
                 else {
-                    if(setting.group !== val.group){
+                    if(setting.group && setting.group && setting.group !== val.group){
                         val.group = setting.group;
                         discrepancy = true;
                     }
-                    else if(settings.displayName !== val.displayName){
+                    else if(setting.displayName && setting.displayName !== val.displayName){
                         val.displayName = setting.displayName;
                         discrepancy = true;
                     }
@@ -1082,16 +1082,14 @@ module.exports = function PluginServiceModule(pb) {
             return Promise.props(pluginSpecs).then(specs => {
                 PLUGIN_SPECS = specs;
                 const tasks = plugins.map(plugin => {
-                    try {
-                        //For each site plugin pair activate each plugin per site.
-                        const sitePluginService = new pb.SitePluginInitializationService(specs[plugin.uid], plugin.site);
-                        return sitePluginService.initialize()
-                            .then(_ => { return { plugin: plugin, initialized: true } })
-                            .catch(err => { return { plugin: plugin, error: err, initialized: false } });
-                    }
-                    catch(err) {
-                        return {plugin: plugin, error: err, initialized: false};
-                    }
+                    //For each site plugin pair activate each plugin per site.
+                    const sitePluginService = new pb.SitePluginInitializationService(specs[plugin.uid], plugin.site);
+                    return sitePluginService.initialize()
+                        .then(_ => { return { plugin: plugin, initialized: true } })
+                        .catch(err => {
+                            pb.log.error(`PluginService: failure during site plugin initialization for ${plugin.site}: ${err.stack}`);
+                            return { plugin: plugin, error: err, initialized: false }
+                        });
                 });
                 return Promise.all(tasks);
             });
@@ -1099,8 +1097,7 @@ module.exports = function PluginServiceModule(pb) {
 
         Promise.promisify(this._pluginRepository.loadPluginsAcrossAllSites, {context:this._pluginRepository})()
             .then(plugins => processPlugins(plugins))
-            .then(result => cb(null, result))
-            .catch(err => cb(err, []));
+            .asCallback(cb);
     };
 
     /**

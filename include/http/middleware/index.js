@@ -146,7 +146,9 @@ module.exports = function(pb) {
 
             // If we need to redirect to a different host
             if (!siteObj && redirectHost && RequestHandler.sites[redirectHost]) {
-                return req.router.redirect(pb.SiteService.getHostWithProtocol(redirectHost), HttpStatus.MOVED_PERMANENTLY);
+                req.handler.url.protocol = pb.config.server.ssl.enabled || pb.config.server.ssl.use_x_forwarded ? 'https' : 'http';
+                req.handler.url.host = redirectHost;
+                return req.router.redirect(url.format(req.handler.url), HttpStatus.MOVED_PERMANENTLY);
             }
             req.handler.siteObj = req.siteObj = siteObj;
 
