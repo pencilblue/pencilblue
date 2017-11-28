@@ -109,7 +109,7 @@ module.exports = (pb) => {
 
         _loadControllers() {
             let loader = new pb.PluginControllerLoader({ pluginUid: this.pluginuid });
-            return Promise.promisify(loader.getAll, { context: loader })({});
+            return Promise.promisify(loader.getAll, { context: loader })({register: true});
         }
 
         _validate(details) {

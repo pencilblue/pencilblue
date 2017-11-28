@@ -1,0 +1,51 @@
+const Cookies = require('cookies');
+const util = require('util')
+
+module.exports = pb => ({
+    principal: async (req, res) =>{
+        //check for session cookie
+        var cookies = pb.RequestHandler.parseCookies(req);
+        req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
+
+        //open session
+        const session = await util.promisify(pb.session.open).call(pb.session, req)
+        if (!session) {
+            throw new Error("The session object was not valid.  Unable to generate a session object based on request.")
+        }
+
+        //set the session id when no session has started or the current one has
+        //expired.
+        var sc = Object.keys(cookies).length === 0;
+        var se = !sc && cookies.session_id !== session.uid;
+        req.handler.setSessionCookie = req.setSessionCookie = sc || se;
+        if (pb.log.isSilly()) {
+            pb.log.silly("RequestHandler: Session ID [%s] Cookie SID [%s] Created [%s] Expired [%s]", session.uid, cookies.session_id, sc, se);
+        }
+
+        //continue processing
+        req.handler.session = req.session = session;
+    },
+    principalClose: async (req, res) => {
+        //close session after data sent
+        //public content doesn't require a session so in order to not error out we
+        //check if the session exists first.
+        if (req.session) {
+            try {
+                await util.promisify(pb.session.close).call(pb.session, req.session)
+            } catch (_err) {
+                pb.log.warn(`RequestHandler: Failed to close session [${req.session.uid}]`)
+            }
+        }
+    },
+    writeSessionCookie: (req, res) => {
+        const cookies = new Cookies(req, res);
+        if (req.setSessionCookie) {
+            try {
+                cookies.set(pb.SessionHandler.COOKIE_NAME, req.session.uid, pb.SessionHandler.getSessionCookie(req.session));
+            }
+            catch (e) {
+                pb.log.error('RequestHandler: Failed to set cookie: %s', e.stack);
+            }
+        }
+    }
+})
