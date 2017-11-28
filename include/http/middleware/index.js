@@ -23,7 +23,7 @@ module.exports = function(pb) {
     const { principal, principalClose, writeSessionCookie } = require('./session')(pb)
     const { urlParse, checkPublicRoute, systemSetupCheck, parseRequestBody } = require('./system')(pb)
     const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb)
-    const { requiresAuthenticationCheck, authorizationCheck } = require('./auth')(pb)
+    const { requiresAuthenticationCheck, authorizationCheck, ipFilterCheck } = require('./auth')(pb)
     const { localizedRouteCheck, initializeLocalization } = require('./localization')(pb)
     const { instantiateController, initializeController, render, writeResponse } = require('./controller')(pb)
 
@@ -40,6 +40,7 @@ module.exports = function(pb) {
         systemSetupCheck,
         requiresAuthenticationCheck,
         authorizationCheck,
+        ipFilterCheck,
         instantiateController,
         parseRequestBody,
         initializeLocalization,

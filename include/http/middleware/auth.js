@@ -1,4 +1,5 @@
 const ErrorUtils = require('../../error/error_utils');
+const util = require('util')
 
 module.exports = pb => ({
     requiresAuthenticationCheck: (req, res) => {
@@ -33,6 +34,14 @@ module.exports = pb => ({
         }
         if (!result.success) {
             throw ErrorUtils.forbidden()
+        }
+    },
+    ipFilterCheck: async (req, res) => {
+        if (pb.config.server.ipFilter.enabled && (req.route.auth_required === true || req.route.path === '/admin/login')) {
+            const authorized = await util.promisify(pb.AdminIPFilter.requestIsAuthorized).call(pb.AdminIPFilter, req)
+            if (!authorized) {
+                throw ErrorUtils.forbidden()
+            }
         }
     }
 })

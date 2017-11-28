@@ -1,5 +1,20 @@
 const Cookies = require('cookies');
-const util = require('util')
+const util = require('util');
+const _ = require('lodash');
+
+const mergeSession = (cachedSession, newSession) => {
+    cachedSession = cachedSession || {};
+    let toDelete = newSession._toDelete || [];
+    delete newSession._toDelete;
+    delete newSession.delete;
+    _.merge(cachedSession, newSession)
+    toDelete.forEach(key => {
+        if (!['uid', 'client_id'].includes(key)) {
+            delete cachedSession[key];
+        }
+    });
+    return cachedSession;
+};
 
 module.exports = pb => ({
     principal: async (req, res) =>{
@@ -22,6 +37,13 @@ module.exports = pb => ({
             pb.log.silly("RequestHandler: Session ID [%s] Cookie SID [%s] Created [%s] Expired [%s]", session.uid, cookies.session_id, sc, se);
         }
 
+        //Setup key deletion
+        session._toDelete = [];
+        session.delete = function (key) {
+            delete this[key];
+            this._toDelete.push(key);
+        };
+
         //continue processing
         req.handler.session = req.session = session;
     },
@@ -29,12 +51,14 @@ module.exports = pb => ({
         //close session after data sent
         //public content doesn't require a session so in order to not error out we
         //check if the session exists first.
-        if (req.session) {
-            try {
-                await util.promisify(pb.session.close).call(pb.session, req.session)
-            } catch (_err) {
-                pb.log.warn(`RequestHandler: Failed to close session [${req.session.uid}]`)
-            }
+        if (!req.session) {
+            return
+        }
+        const mergeFn = (cachedSession) => mergeSession(cachedSession, req.session);
+        try {
+            await util.promisify(pb.session.merge).call(pb.session, req.session.uid, mergeFn)
+        } catch (_err) {
+            pb.log.warn(`RequestHandler: Failed to close session [${req.session.uid}]`)
         }
     },
     writeSessionCookie: (req, res) => {
