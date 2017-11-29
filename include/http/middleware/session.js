@@ -17,7 +17,7 @@ const mergeSession = (cachedSession, newSession) => {
 };
 
 module.exports = pb => ({
-    principal: async (req, res) =>{
+    openSession: async (req, res) => {
         //check for session cookie
         var cookies = pb.RequestHandler.parseCookies(req);
         req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
@@ -47,7 +47,7 @@ module.exports = pb => ({
         //continue processing
         req.handler.session = req.session = session;
     },
-    principalClose: async (req, res) => {
+    closeSession: async (req, res) => {
         //close session after data sent
         //public content doesn't require a session so in order to not error out we
         //check if the session exists first.

@@ -2,6 +2,7 @@
 .project
 .idea
 .vscode
+.nyc_output
 public/media/
 public/docs/
 public/bower_components/

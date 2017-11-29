@@ -3,8 +3,20 @@ const ErrorUtils = require('../../error/error_utils');
 
 const replaceAndRedirect = (req, pattern, replacement) => {
     let newPath = req.url.replace(pattern, replacement);
-    return req.handler.doRedirect(newPath);
+    return req.router.redirect(newPath);
 };
+
+const splitLocale = (locale) => {
+    let [language = '', countryCode = ''] = locale.split('-');
+    language = language.toLowerCase();
+    countryCode = countryCode.toUpperCase();
+    return { language, countryCode };
+}
+
+const normalizeLocale = (locale) => {
+    const { language, countryCode } = splitLocale(locale);
+    return `${language}-${countryCode}`;
+}
 
 module.exports = pb => ({
     localizedRouteCheck: (req, res) => {
@@ -21,7 +33,7 @@ module.exports = pb => ({
             return;
         }
 
-        const correctedLocale = pb.Localization.normalizeLocale(locale);
+        const correctedLocale = normalizeLocale(locale);
 
         if (req.siteObj.supportedLocales[correctedLocale]) {
             return replaceAndRedirect(req, locale, correctedLocale);

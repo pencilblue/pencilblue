@@ -28,7 +28,7 @@ module.exports = pb => ({
     },
     deriveActiveTheme: async (req, res) => {
         const settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, req.siteObj.uid);
-        const activeTheme = await util.promisify(settings.get).call(settings, 'active_theme')
+        let activeTheme = await util.promisify(settings.get).call(settings, 'active_theme')
         if (!activeTheme) {
             pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", pb.config.plugins.default);
             activeTheme = pb.config.plugins.default;
