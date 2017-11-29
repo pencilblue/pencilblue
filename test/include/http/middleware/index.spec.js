@@ -35,6 +35,7 @@ describe('Middleware', function() {
         req.handler = new this.pb.RequestHandler(null, req, res);
         req.handler.url = Url.parse(req.url);
         req.handler.hostname = req.headers.host;
+        req.method = 'GET'
     });
 
     describe('startTime', function() {
@@ -291,6 +292,140 @@ describe('Middleware', function() {
         });
     });
 
+    describe('deriveRoute', function() {
+        let deriveRoute
+        before(function() {
+            deriveRoute = this.getMiddleware('deriveRoute')
+            this.pb.RequestHandler.registerRoute({path: '/foo', method: 'GET', controller: function (){}}, 'sample')
+            this.pb.RequestHandler.registerRoute({path: '/bar', controller: function (){}}, 'test_theme')
+            this.pb.RequestHandler.registerRoute({path: '/:locale', method: 'GET', controller: function (){}}, 'sample')
+            this.pb.RequestHandler.registerRoute({path: '/users/:id', method: 'GET', controller: function (){}}, 'base')
+            this.pb.RequestHandler.registerRoute({path: '/users/:id', method: 'DELETE', controller: function (){}}, 'base')
+            this.pb.RequestHandler.registerRoute({path: '/users/:name', method: 'POST', controller: function (){}}, 'base')
+            this.pb.RequestHandler.registerRoute({path: '/theme', method: 'GET', controller: function (){}, plugin: 'test_theme'}, 'test_theme')
+            this.pb.RequestHandler.registerRoute({path: '/theme', method: 'GET', controller: function (){}, plugin: 'sample'}, 'sample')
+            this.pb.RequestHandler.registerRoute({path: '/sample', method: 'GET', controller: function (){}, plugin: 'base'}, 'base')
+            this.pb.RequestHandler.registerRoute({path: '/sample', method: 'GET', controller: function (){}, plugin: 'sample'}, 'sample')
+            this.pb.RequestHandler.registerRoute({path: '/base', method: 'GET', controller: function (){}, plugin: 'base'}, 'base')
+            this.pb.RequestHandler.registerRoute({path: '/base', method: 'GET', controller: function (){}, plugin: 'pencilblue'}, 'pencilblue')
+            this.pb.RequestHandler.registerRoute({path: '/pb', method: 'GET', controller: function (){}, plugin: 'pencilblue'}, 'pencilblue')
+
+        })
+
+        beforeEach(function() {
+            req.activeTheme = 'test_theme'
+            sandbox.stub(this.pb.PluginService.prototype, 'getActivePluginNames').returns(['sample', 'test_theme', 'base'])
+        })
+
+        it ('should match exact routes before variable routes', (done) => {
+            req.handler.url = Url.parse('/foo')
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.path.should.eql('/foo')
+                done()
+            })
+        })
+
+        it ('should match any method to ALL', (done) => {
+            req.handler.url = Url.parse('/bar')
+            req.method = 'PUT'
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.path.should.eql('/bar')
+                done()
+            })
+        })
+
+        it ('should match variables after exact matches', (done) => {
+            req.handler.url = Url.parse('/en-US')
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.path.should.eql('/:locale')
+                req.pathVars.locale.should.eql('en-US')
+                done()
+            })
+        })
+
+        it ('should allow trailing slash', (done) => {
+            req.handler.url = Url.parse('/users/1/')
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.path.should.eql('/users/:id')
+                req.route.method.should.eql('GET')
+                req.pathVars.id.should.eql('1')
+                done()
+            })
+        })
+
+        it ('should match on method', (done) => {
+            req.handler.url = Url.parse('/users/2')
+            req.method = 'DELETE'
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.path.should.eql('/users/:id')
+                req.route.method.should.eql('DELETE')
+                req.pathVars.id.should.eql('2')
+                done()
+            })
+        })
+
+        it ('should have correct pathVars on matching collision', (done) => {
+            req.handler.url = Url.parse('/users/test')
+            req.method = 'POST'
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.path.should.eql('/users/:name')
+                req.route.method.should.eql('POST')
+                req.pathVars.name.should.eql('test')
+                done()
+            })
+        })
+
+        it ('should give precedence to the active theme', (done) => {
+            req.handler.url = Url.parse('/theme')
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.plugin.should.eql('test_theme')
+                done()
+            })
+        })
+
+        it ('should give precedence to sample over base', (done) => {
+            req.handler.url = Url.parse('/sample')
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.plugin.should.eql('sample')
+                done()
+            })
+        })
+
+        it ('should give precedence to base over pb', (done) => {
+            req.handler.url = Url.parse('/base')
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.plugin.should.eql('base')
+                done()
+            })
+        })
+
+        it ('should support pb routes', (done) => {
+            req.handler.url = Url.parse('/pb')
+            deriveRoute(req, res, (err) => {
+                should(err).eql(undefined)
+                req.route.plugin.should.eql('pencilblue')
+                done()
+            })
+        })
+
+        it ('should 404 when there is no match', (done) => {
+            req.handler.url = Url.parse('/fake/news')
+            deriveRoute(req, res, (err) => {
+                err.code.should.eql(HttpStatusCodes.NOT_FOUND);
+                done()
+            })
+        })
+    })
+
     describe('inactiveAccessCheck', function() {
 
         beforeEach(function() {
@@ -458,6 +593,35 @@ describe('Middleware', function() {
         });
     });
 
+    describe('ipFilterCheck', function() {
+        let ipFilterCheck
+        before(function() {
+            ipFilterCheck = this.getMiddleware('ipFilterCheck');
+            this.pb.config.server.ipFilter.enabled = true;
+        })
+
+        beforeEach(function() {
+            req.route = {
+                auth_required: true
+            }
+            sandbox.stub(this.pb.AdminIPFilter, 'requestIsAuthorized').yields(null, false)
+        })
+
+        it ('should forbid when enabled and not authorized', (done) => {
+            ipFilterCheck(req, res, (err) => {
+                err.code.should.eql(HttpStatusCodes.FORBIDDEN);
+                done()
+            })
+        })
+
+        it ('should allow when enabled and authorized', function (done) {
+            this.pb.AdminIPFilter.requestIsAuthorized.yields(null, true)
+            ipFilterCheck(req, res, (err) => {
+                should(err).eql(undefined)
+                done()
+            })
+        })
+    })
     describe('localizedRouteCheck', function() {
         let localizedRouteCheck
         before(function() {
@@ -810,5 +974,37 @@ describe('Middleware', function() {
             });
         });
     });
+
+    describe('session delete', function() {
+        let openSession
+        let closeSession
+        before(function() {
+            openSession = this.getMiddleware('openSession')
+            closeSession = this.getMiddleware('closeSession')
+        })
+
+        beforeEach(function(done) {
+            sandbox.stub(this.pb.session, 'merge').callsArgWith(2, null, true)
+            openSession(req, res, () => {
+                req.session.foo = 'bar'
+                done()
+            })
+        })
+
+        it('should allow deletion', function(done) {
+            req.session.bar = 'baz'
+            req.session.delete('foo')
+            req.session.delete('uid')
+            req.session.should.not.have.property('foo')
+            closeSession(req, res, (err) => {
+                const mergeFn = this.pb.session.merge.args[0][1]
+                const saved = mergeFn({foo: 'bar', uid: 'uid'})
+                saved.should.have.property('uid')
+                saved.should.have.property('bar')
+                saved.should.not.have.property('foo')
+                done()
+            })
+        })
+    })
 });
 
