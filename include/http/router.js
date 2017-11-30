@@ -74,7 +74,6 @@ module.exports = function (pb) {
                     return resolve();
                 }
 
-                pb.log.error(err)
                 req.handler.serveError(err, { handler: function(data) {
                     req.controllerResult = data;
                     self.continueAfter('render')
