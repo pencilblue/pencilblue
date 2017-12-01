@@ -252,6 +252,60 @@ module.exports = function RequestHandlerModule(pb) {
                 });
             });
         }
+            /**
+         *
+         * @method onRenderComplete
+         * @param {Error|object} data
+         * @param {string} [data.redirect]
+         * @param {Integer} [data.code
+         */
+        onRenderComplete(data){
+            if (util.isError(data)) {
+                return this.serveError(data);
+            }
+
+            //set cookie
+            var cookies = new Cookies(this.req, this.resp);
+            if (this.setSessionCookie) {
+                try{
+                    cookies.set(pb.SessionHandler.COOKIE_NAME, this.session.uid, pb.SessionHandler.getSessionCookie(this.session));
+                }
+                catch(e){
+                    pb.log.error('RequestHandler: %s', e.stack);
+                }
+            }
+
+            //do any necessary redirects
+            var doRedirect = typeof data.redirect !== 'undefined';
+            if(doRedirect) {
+                this.doRedirect(data.redirect, data.statusCode);
+            }
+            else {
+                //output data here
+                this.writeResponse(data);
+            }
+
+            //calculate response time
+            if (pb.log.isDebug()) {
+                pb.log.debug("Response Time: "+(new Date().getTime() - this.startTime)+
+                        "ms URL=["+this.req.method+']'+
+                        this.req.url+(doRedirect ? ' Redirect='+data.redirect : '') +
+                        (typeof data.code === 'undefined' ? '' : ' CODE='+data.code));
+            }
+
+            //close session after data sent
+            //public content doesn't require a session so in order to not error out we
+            //check if the session exists first.
+            if (this.session) {
+                var self = this;
+                pb.session.close(this.session, function(err/*, result*/) {
+                    if (util.isError(err)) {
+                        pb.log.warn('RequestHandler: Failed to close session [%s]', self.session.uid);
+                    }
+                });
+            }
+        };
+
         /**
              *
              * @method writeResponse
