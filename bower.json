@@ -46,6 +46,6 @@
     "respond": "~1.4.2",
     "sprintf": "~1.0.2",
     "textAngular": "^1.5.16",
-    "to-markdown": "~0.0.2"
+    "to-markdown": "0.0.3"
   }
 }
