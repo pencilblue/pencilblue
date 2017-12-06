@@ -1,6 +1,12 @@
+const path = require('path');
 const util = require('util');
 const url = require('url');
 const HttpStatus = require('http-status-codes');
+const ErrorUtils = require('../../error/error_utils');
+
+
+const publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', '/favicon.ico', '/docs/'];
+const modulePattern = /^\/node_modules\/(.*)/
 
 module.exports = pb => ({
     /**
@@ -12,9 +18,25 @@ module.exports = pb => ({
         req.handler.hostname = req.headers.host || pb.SiteService.getGlobalSiteContext().hostname;
     },
     checkPublicRoute: (req, res) => {
-        if (pb.RequestHandler.isPublicRoute(req.handler.url.pathname)) {
-            req.handler.servePublicContent();
-            req.router.continueAfter('writeResponse');
+        const pathname = req.handler.url.pathname
+        if (publicRoutes.some(prefix => pathname.startsWith(prefix))) {
+            const absolutePath = path.join(pb.config.docRoot, 'public', pathname)
+            req.handler.servePublicContent(absolutePath);
+            req.router.continueAfter('writeResponse')
+        }
+    },
+    checkModuleRoute: (req, res) => {
+        const pathname = req.handler.url.pathname
+        const match = modulePattern.exec(pathname)
+        if (match) {
+            let modulePath
+            try {
+                modulePath = require.resolve(match[1])
+            } catch(_) {
+                throw ErrorUtils.notFound()
+            }
+            req.handler.servePublicContent(modulePath)
+            req.router.continueAfter('writeResponse')
         }
     },
     systemSetupCheck: async (req, res) => {

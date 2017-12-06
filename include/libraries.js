@@ -100,7 +100,7 @@ module.exports = function LibrariesServiceModule(pb) {
             jquery_validate: '/bower_components/jquery.validation/dist/jquery.validate.min.js',
             bootstrap_js: '/bower_components/bootstrap/dist/js/bootstrap.min.js',
             bootstrap_css: '/bower_components/bootstrap/dist/css/bootstrap.min.css',
-            font_awesome: '/bower_components/fontawesome/css/font-awesome.min.css',
+            font_awesome: '/bower_components/font-awesome/css/font-awesome.min.css',
             angular: '/bower_components/angular/angular.min.js',
             angular_route: '/bower_components/angular-route/angular-route.min.js',
             angular_sanitize: '/bower_components/angular-sanitize/angular-sanitize.min.js',
