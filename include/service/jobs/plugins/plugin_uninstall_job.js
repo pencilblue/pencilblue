@@ -149,36 +149,6 @@ module.exports = function PluginUninstallJobModule(pb) {
                 }
             },
 
-            //unregister routes
-            function(callback) {
-                var routesRemoved = pb.RequestHandler.unregisterThemeRoutes(pluginUid, site);
-                self.log('Unregistered %d routes', routesRemoved);
-                process.nextTick(function(){callback(null, true);});
-            },
-
-            //remove localization
-            function(callback) {
-
-                //retrieve localizations
-                self.pluginService.getLocalizations(pluginUid, function(err, localizations) {
-                    if (util.isError(err)) {
-                        return callback(err);
-                    }
-                    else if (util.isNullOrUndefined(localizations)) {
-
-                        //no localization directory was found
-                        return callback(null, true);
-                    }
-
-                    //remove all localizations
-                    var result = true;
-                    Object.keys(localizations).forEach(function(locale) {
-                        result = result && pb.Localization.unregisterLocale(locale, { plugin: pluginUid });
-                    });
-                    callback(null, result);
-                });
-            },
-
             //remove settings
             function(callback) {
                 self.log('Attempting to remove plugin settings');

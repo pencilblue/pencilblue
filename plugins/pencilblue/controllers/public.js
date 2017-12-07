@@ -42,10 +42,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
      */
     PluginPublicContentController.prototype.render = function(cb) {
         var plugin          = this.pathVars.plugin;
-        var pathParts       = this.req.url.split('/');
-        pathParts.splice(0, 3);
-
-        var postPluginPath  = pathParts.join(path.sep);
+        var postPluginPath  = this.pathVars.path;
         var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
 
         //do check for valid strings otherwise serve 404
