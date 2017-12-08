@@ -11,7 +11,6 @@ module.exports = (pb) => {
         initialize() {
             return Promise.all([
                 this._onStartupWithContext(),
-                this._loadRoutes(),
                 this._syncSettings(),
                 this._setActive()
             ]);
@@ -27,33 +26,6 @@ module.exports = (pb) => {
                 return Promise.promisify(mainModule.onStartupWithContext, { context: mainModule })({ site: this.site });
             }
             return Promise.resolve();
-        }
-
-        _loadRoutes () {
-            Object.keys(this.pluginSpec.controllers).forEach(key => { this._registerRoutesForController(this.pluginSpec.controllers[key]) });
-            const mainModule = this.pluginSpec.main_module;
-            if (util.isFunction(mainModule.onAfterRoutesLoadedWithContext)) {
-                return Promise.promisify(mainModule.onAfterRoutesLoadedWithContext, { context: mainModule })({ site: this.site });
-            }
-            return Promise.resolve();
-        }
-
-        _registerRoutesForController (controller) {
-            if (!controller.getRoutes) {
-                return Promise.reject(new Error('Controller [' + controller.name + '] did not return an array of routes'));
-            }
-
-            const routesHandler = routes => {
-                if (routes) {
-                    routes.forEach(route => {
-                        route.controller = controller;
-                        pb.RequestHandler.registerRoute(route, this.pluginSpec.uid, this.site);
-                    });
-                }
-            };
-
-            controller.getRoutes((err, routes) => routesHandler(routes));
-
         }
 
         _syncSettings () {

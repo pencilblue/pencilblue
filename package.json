@@ -18,7 +18,7 @@
     "website",
     "platform"
   ],
-  "version": "0.8.1-55",
+  "version": "0.8.1-56",
   "repository": {
     "type": "git",
     "url": "https://github.com/careerbuilder/pencilblue.git"
@@ -39,6 +39,8 @@
     "mongodb": "2.1.14",
     "node.extend": "1.1.6",
     "nodemailer": "^4.1.3",
+    "nyc": "^11.3.0",
+    "path-to-regexp": "^2.1.0",
     "redis": "^2.6.3",
     "redlock": "^3.0.0",
     "sanitize-html": "^1.14.1",
@@ -48,7 +50,6 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.15",
-    "istanbul": "0.4.5",
     "mocha": "^3.2.0",
     "mocha-lcov-reporter": "^1.3.0",
     "should": "^11.1.2",
@@ -60,10 +61,26 @@
   },
   "scripts": {
     "start": "node pencilblue.js",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec --recursive"
+    "test": "nyc mocha --recursive"
   },
   "bin": {
     "pb-bower": "./bin/pb-bower"
+  },
+  "nyc": {
+    "all": true,
+    "exclude": [
+      "log/**",
+      "coverage/**",
+      "public/**",
+      "plugins/**",
+      "test/**",
+      "sample.config.js"
+    ],
+    "reporter": [
+      "text-summary",
+      "lcov",
+      "html"
+    ]
   },
   "license": "GPL-3.0",
   "readme": "See README file",

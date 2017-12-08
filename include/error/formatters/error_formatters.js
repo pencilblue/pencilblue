@@ -149,10 +149,9 @@ module.exports = function(pb) {
 
         params.request.controllerInstance = new ErrorController();
         params.request.controllerInstance.error = params.error;
-        params.request.themeRoute = !!params.request.themeRoute ? _.clone(params.request.themeRoute) : {};
-        params.request.routeTheme = params.request.routeTheme || {};
+        params.request.route = !!params.request.route ? _.clone(params.request.route) : {};
         params.request.siteObj = params.request.siteObj || pb.SiteService.getGlobalSiteContext();
-        params.request.themeRoute.handler = 'render';
+        params.request.route.handler = 'render';
         params.request.router.continueAfter('parseRequestBody');
     };
 

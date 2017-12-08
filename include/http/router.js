@@ -47,7 +47,7 @@ module.exports = function (pb) {
         handle() {
 
             //set reference to the handler
-            this.req.handler = new RequestHandler(null, this.req, this.res);
+            this.req.handler = new RequestHandler(this.req, this.res);
             this.req.router = this;
 
             return this._handle(this.req, this.res).catch((err) => {
