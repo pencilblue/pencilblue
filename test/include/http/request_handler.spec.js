@@ -239,9 +239,9 @@ describe('RequestHandler', function() {
             ico: 'image/x-icon',
             tff: 'application/octet-stream',
             eot: 'application/vnd.ms-fontobject',
-            woff: 'application/font-woff',
+            woff: 'font/woff',
             otf: 'font/otf',
-            ttf: 'application/x-font-ttf',
+            ttf: 'font/ttf',
             pdf: 'application/pdf',
             html: 'text/html',
             notanext: 'application/octet-stream'
