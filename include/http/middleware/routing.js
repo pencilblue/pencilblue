@@ -53,7 +53,7 @@ module.exports = pb => ({
         }
 
         let exactMatch = plugins.some(plugin => {
-            descriptor = findDescriptor(plugin[pathname])
+            descriptor = findDescriptor(plugin[pathname]) || findDescriptor(plugin['/:locale?' + pathname])
             return descriptor
         })
 
