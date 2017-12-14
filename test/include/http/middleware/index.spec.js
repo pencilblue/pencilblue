@@ -602,20 +602,29 @@ describe('Middleware', function() {
 
         beforeEach(function() {
             req.route = {
-                auth_required: true
-            }
+                auth_required: true,
+                path: '/admin/plugins'
+            };
             sandbox.stub(this.pb.AdminIPFilter, 'requestIsAuthorized').yields(null, false)
         })
 
-        it ('should forbid when enabled and not authorized', (done) => {
+        it ('should forbid when enabled, on admin page, and not authorized', (done) => {
             ipFilterCheck(req, res, (err) => {
                 err.code.should.eql(HttpStatusCodes.FORBIDDEN);
                 done()
             })
         })
 
-        it ('should allow when enabled and authorized', function (done) {
-            this.pb.AdminIPFilter.requestIsAuthorized.yields(null, true)
+        it ('should allow when enabled, on admin page, and authorized', function (done) {
+            this.pb.AdminIPFilter.requestIsAuthorized.yields(null, true);
+            ipFilterCheck(req, res, (err) => {
+                should(err).eql(undefined)
+                done()
+            })
+        })
+        it ('should allow when enabled, not on an admin page, and authorized', function (done) {
+            req.route.path = '/self-service/publish';
+            this.pb.AdminIPFilter.requestIsAuthorized.yields(null, false);
             ipFilterCheck(req, res, (err) => {
                 should(err).eql(undefined)
                 done()
