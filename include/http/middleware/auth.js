@@ -12,7 +12,7 @@ module.exports = pb => ({
         };
         var result = pb.RequestHandler.checkRequiresAuth(context);
         if (result.redirect) {
-            throw ErrorUtils.notAuthorized()
+            throw ErrorUtils.notAuthorized();
         }
     },
     authorizationCheck: (req, res) => {
@@ -24,23 +24,23 @@ module.exports = pb => ({
         //check role
         var result = pb.RequestHandler.checkAdminLevel(context);
         if (!result.success) {
-            throw ErrorUtils.forbidden()
+            throw ErrorUtils.forbidden();
         }
 
         //check permissions
         result = pb.RequestHandler.checkPermissions(context);
         if (!result.success && pb.log.isDebug()) {
-            pb.log.debug('AuthCheck: %s', result.message);
+            pb.log.debug(`AuthCheck: ${result.message}`);
         }
         if (!result.success) {
-            throw ErrorUtils.forbidden()
+            throw ErrorUtils.forbidden();
         }
     },
     ipFilterCheck: async (req, res) => {
-        if (pb.config.server.ipFilter.enabled && (req.route.auth_required === true || req.route.path === '/admin/login')) {
-            const authorized = await util.promisify(pb.AdminIPFilter.requestIsAuthorized).call(pb.AdminIPFilter, req)
+        if (pb.config.server.ipFilter.enabled && req.route.path.startsWith('/admin')) {
+            const authorized = await util.promisify(pb.AdminIPFilter.requestIsAuthorized).call(pb.AdminIPFilter, req);
             if (!authorized) {
-                throw ErrorUtils.forbidden()
+                throw ErrorUtils.forbidden();
             }
         }
     }
