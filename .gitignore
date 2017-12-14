@@ -32,5 +32,3 @@ npm-debug.log
 **/bower_components
 
 .npmrc
-
-package-lock.json
