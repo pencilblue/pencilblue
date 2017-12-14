@@ -287,20 +287,6 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
-     * Replaces a single setting for the specified plugin
-     * @method setSetting
-     * @param name The name of the setting to change
-     * @param value The new value for the setting
-     * @param pluginName The plugin who's setting is being changed.
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
-     * TRUE if the setting was persisted successfully, FALSE if not.
-     */
-    PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
-        var settingService = getPluginSettingService(this);
-        settingService.setSetting(name, value, pluginName, cb);
-    };
-
-    /**
      * Replaces the settings for the specified plugin.
      * @method setSettings
      * @param settings The settings object to be validated and persisted
@@ -311,20 +297,6 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.setSettings = function(settings, pluginName, cb) {
         var settingService = getPluginSettingService(this);
         settingService.setSettings(settings, pluginName, cb);
-    };
-
-    /**
-     * Replaces a single theme setting for the specified plugin
-     * @method setThemeSetting
-     * @param name The name of the setting to change
-     * @param value The new value for the setting
-     * @param pluginName The plugin who's setting is being changed.
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
-     * TRUE if the setting was persisted successfully, FALSE if not.
-     */
-    PluginService.prototype.setThemeSetting = function(name, value, pluginName, cb) {
-        var settingService = getPluginSettingService(this);
-        settingService.setThemeSetting(name, value, pluginName, cb);
     };
 
     /**
@@ -1344,56 +1316,6 @@ module.exports = function PluginServiceModule(pb) {
      */
     PluginService.validateMainModulePath = function(mmPath, pluginDirName) {
         return pb.PluginValidationService.validateMainModulePath(mmPath, pluginDirName);
-    };
-
-    /**
-     * Validates a setting from a details.json file.
-     * @deprecated
-     * @method validateSetting
-     * @param setting The setting to validate
-     * @param position The position in the settings array where the setting resides
-     * as a 0 based index.
-     * @return {Array} The array of errors that were generated.  If no errors were
-     * produced an empty array is returned.
-     */
-    PluginService.validateSetting = function(setting, position) {
-
-        //setup
-        var errors = [];
-        var v      = pb.validation;
-
-        //validate object
-        if (util.isObject(setting)) {
-
-            //validate name
-            if (!v.isNonEmptyStr(setting.name, true)) {
-                errors.push(new Error("The setting name at position "+position+" must be provided"));
-            }
-
-            //validate value
-            if (!pb.PluginDependencyService.validateSettingValue(setting.value)) {
-                errors.push(new Error("The setting value at position "+position+" must be provided"));
-            }
-        }
-        else {
-            errors.push(new Error("The setting value at position "+position+" must be an object"));
-        }
-
-        return errors;
-    };
-
-    /**
-     * Validates a details.json file's setting value.  The value is required to be a
-     * string or a number.  Null, undefined, Arrays, Objects, and prototypes are NOT
-     * allowed.
-     * @deprecated
-     * @static
-     * @method validateSettingValue
-     * @param {Boolean|Integer|Number|String} value The value to validate
-     * @return {Boolean} TRUE if the value is valid, FALSE if not
-     */
-    PluginService.validateSettingValue = function(value) {
-        return pb.PluginDependencyService.validateSettingValue(value);
     };
 
     /**

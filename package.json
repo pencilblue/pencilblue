@@ -30,7 +30,6 @@
     "async-eventemitter": "^0.2.4",
     "bluebird": "^3.5.0",
     "bootstrap": "~3.3.5",
-    "bower": "^1.7.9",
     "cookies": "^0.7.1",
     "fakeredis": "1.0.3",
     "font-awesome": "^4.3.0",
@@ -72,9 +71,6 @@
   "scripts": {
     "start": "node pencilblue.js",
     "test": "nyc mocha --recursive"
-  },
-  "bin": {
-    "pb-bower": "./bin/pb-bower"
   },
   "nyc": {
     "all": true,

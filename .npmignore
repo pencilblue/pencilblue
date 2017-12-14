@@ -7,11 +7,9 @@
 .vscode
 public/media/
 public/docs/
-public/bower_components/
 log/
 coverage/
 out
 **/.DS_Store
 **/dump.rdb
 npm-debug.log
-**/bower_components

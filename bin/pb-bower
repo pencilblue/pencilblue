@@ -1,3 +1,0 @@
-#!/bin/bash
-
-cd node_modules/@cbtn/pencilblue && bower install
