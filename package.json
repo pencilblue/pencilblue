@@ -26,6 +26,7 @@
   "dependencies": {
     "angular": "~1.4.7",
     "angular-route": "~1.4.7",
+    "angular-sanitize": "~1.4.7",
     "async": "~1.5.2",
     "async-eventemitter": "^0.2.4",
     "bluebird": "^3.5.0",
@@ -37,6 +38,8 @@
     "htmlencode": "0.0.4",
     "http-status-codes": "^1.0.6",
     "jquery": "~1.11.1",
+    "jquery-datetimepicker": "^2.5.14",
+    "jquery-validation": "^1.17.0",
     "locale": "^0.1.0",
     "lodash": "^4.17.2",
     "markdown": "~0.5.0",
