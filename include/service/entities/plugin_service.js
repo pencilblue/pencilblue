@@ -833,6 +833,23 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
+     * Retrieves an object of all the active plugins by the site initialized with this plugin service
+     * @returns {*}
+     */
+    PluginService.prototype.getActivePluginsByCurrentSite = function () {
+        return PluginService.getActivePluginsBySite(this.site);
+    };
+
+    /**
+     * Returns an object of all the active plugins by the specified site id; if the site id is falsy, the active plugins of the global site are returned
+     * @param siteId
+     * @returns {*}
+     */
+    PluginService.getActivePluginsBySite = function (siteId) {
+        return ACTIVE_PLUGINS[siteId || GLOBAL_SITE];
+    };
+
+    /**
      * Retrieves the content templates for all of the active plugins
      * @static
      * @method getActiveContentTemplates
