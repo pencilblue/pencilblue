@@ -19,10 +19,10 @@
 //dependencies
 var async = require('async');
 var util  = require('../../../util.js');
+const Promise = require('bluebird');
 
 module.exports = function PluginInstallJobModule(pb) {
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
-    const PluginPersistenceService = pb.PluginPersistenceService;
 
     /**
      * A system job that coordinates the install of a plugin across the cluster.
@@ -140,8 +140,8 @@ module.exports = function PluginInstallJobModule(pb) {
      * @method doPersistenceTasks
      */
     PluginInstallJob.prototype.doPersistenceTasks = function(cb) {
-        let persistenceService = new PluginPersistenceService(this.log.bind(this));
-        persistenceService.persist(this.getPluginUid(), null, this.getSite())
+        let persistenceService = new pb.PluginPersistenceService(this.log.bind(this));
+        Promise.resolve(persistenceService.persist(this.getPluginUid(), null, this.getSite()))
             .asCallback(cb);
     };
 
