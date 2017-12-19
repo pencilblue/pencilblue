@@ -1126,7 +1126,7 @@ module.exports = function PluginServiceModule(pb) {
      * @param pluginId
      * @returns {Promise.<T>}
      */
-    PluginService.prototype.getPluginSpec = function (pluginId) {
+    PluginService.getPluginSpec = function (pluginId) {
         return Promise.resolve(PLUGIN_SPECS[pluginId] || new pb.PluginInitializationService(pluginId).initialize());
     };
 
@@ -1140,7 +1140,7 @@ module.exports = function PluginServiceModule(pb) {
         if (typeof plugin !== 'object') {
             return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
         }
-        const pluginSpec = this.getPluginSpec(plugin.uid);
+        const pluginSpec = PluginService.getPluginSpec(plugin.uid);
         return pluginSpec
             .then(spec => new pb.SitePluginInitializationService(spec, plugin.site).initialize())
             .asCallback(cb);

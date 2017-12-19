@@ -31,10 +31,9 @@ module.exports = pb => class PluginPersistenceService {
     }
 
     async _loadDetails(pluginId) {
-        let filePath = pb.PluginService.getDetailsPath(pluginId);
-
-        this.log(`Loading details file for install persistence operations from: ${filePath}`);
-        return pb.PluginService.loadDetailsFileAsync(filePath);
+        this.log(`Loading details from plugin service for plugin ${pluginId}`);
+        let spec = await pb.PluginService.getPluginSpec(pluginId);
+        return spec.details;
     }
 
     async _saveEntry(details, pluginId, pluginSite) {
