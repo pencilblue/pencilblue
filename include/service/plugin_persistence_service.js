@@ -21,7 +21,7 @@ module.exports = pb => class PluginPersistenceService {
         await this._setPluginSettings(pluginService, details, settings);
         await this._setPluginThemeSettings(pluginService, details);
 
-        await this._invokeOnInstall(pluginId, details);
+        await this._invokeOnInstall(pluginId, details, site);
 
         return true;
     }
@@ -72,7 +72,7 @@ module.exports = pb => class PluginPersistenceService {
         }
     }
 
-    async _invokeOnInstall(pluginId, details) {
+    async _invokeOnInstall(pluginId, details, site) {
         const util = pb.util;
         let mainModule = pb.PluginService.loadMainModule(pluginId, details.main_module.path);
         if (!mainModule) {
@@ -88,7 +88,7 @@ module.exports = pb => class PluginPersistenceService {
                 return Promise.promisify(mainModule.onInstall).call(mainModule);
             }
 
-            return Promise.promisify(mainModule.onInstallWithContext).call(mainModule, { site: site });
+            return Promise.promisify(mainModule.onInstallWithContext).call(mainModule, {site: site});
         }
         else {
             this.log(`WARN: Plugin ${details.uid} did not provide an 'onInstall' function.`);
