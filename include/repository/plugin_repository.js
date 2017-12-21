@@ -240,7 +240,7 @@ module.exports = function PluginRepositoryModule(pb) {
             }), {}));
 
         return directoryContents
-            .filter(id => id !== 'pencilblue' && fileStats[id].isDirectory());
+            .filter(id => id !== pb.config.plugins.default && fileStats[id].isDirectory());
     };
 
     function getIdsNotInListQuery(pluginIDs) {
