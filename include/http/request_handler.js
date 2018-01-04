@@ -418,17 +418,8 @@ module.exports = function RequestHandlerModule(pb) {
              * @param {Object} site
              */
         static loadSite(site) {
-            RequestHandler.sites[site.hostname] = {
-                active: site.active,
-                uid: site.uid,
-                displayName: site.displayName,
-                forceLocale: site.forceLocale,
-                hostname: site.hostname,
-                defaultLocale: site.defaultLocale,
-                supportedLocales: site.supportedLocales,
-                prevHostnames: site.prevHostnames,
-                useBundledScripts: site.useBundledScripts
-            };
+            RequestHandler.sites[site.hostname] = site;
+
             //Populate RequestHandler.redirectHosts if this site has prevHostnames associated
             if (site.prevHostnames) {
                 site.prevHostnames.forEach(function (oldHostname) {

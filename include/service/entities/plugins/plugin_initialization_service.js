@@ -90,7 +90,7 @@ module.exports = (pb) => {
                 public_dir: path.join(PLUGINS_DIR, this.pluginuid, PUBLIC_DIR_NAME),
                 permissions,
                 templates,
-                icon: details.icon ? pb.UrlService.urlJoin('/public', this.pluginuid, deatils.icon) : null
+                icon: details.icon ? pb.UrlService.urlJoin('/public', this.pluginuid, details.icon) : null
             };
         }
 

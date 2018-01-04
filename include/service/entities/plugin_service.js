@@ -90,6 +90,7 @@ module.exports = function PluginServiceModule(pb) {
      * @type {String}
      */
     var PLUGINS_DIR = path.join(pb.config.plugins.directory);
+    PluginService.PLUGINS_DIR = PLUGINS_DIR;
 
     /**
      * The name of the file that defines the plugin's properties
@@ -805,6 +806,23 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
+     * Retrieves an object of all the active plugins by the site initialized with this plugin service
+     * @returns {*}
+     */
+    PluginService.prototype.getActivePluginsByCurrentSite = function () {
+        return PluginService.getActivePluginsBySite(this.site);
+    };
+
+    /**
+     * Returns an object of all the active plugins by the specified site id; if the site id is falsy, the active plugins of the global site are returned
+     * @param siteId
+     * @returns {*}
+     */
+    PluginService.getActivePluginsBySite = function (siteId) {
+        return ACTIVE_PLUGINS[siteId || GLOBAL_SITE];
+    };
+
+    /**
      * Retrieves the content templates for all of the active plugins
      * @static
      * @method getActiveContentTemplates
@@ -1041,35 +1059,47 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.initPlugins = function(cb) {
         pb.log.debug('PluginService: Beginning plugin initialization...');
 
+        const repository = this._pluginRepository;
+
+        const preloadAllPlugins = async function() {
+            let allAvailablePlugins = await repository.loadAllPluginIds();
+            let specPromises = allAvailablePlugins.reduce((agg, pId) =>
+                Object.assign(agg, {[pId]: new pb.PluginInitializationService(pId).initialize()}), {});
+            return PLUGIN_SPECS = await Promise.props(specPromises);
+        };
+
         const processPlugins = plugins => {
             if (plugins.length === 0) {
                 pb.log.debug('PluginService: No plugins are installed');
                 return cb(null, []);
             }
 
-
-            const distinctPlugins = plugins.reduce((distinct, plugin) => Object.assign(distinct, { [plugin.uid]: true}), {});
-            const pluginSpecs = _.mapValues(distinctPlugins, (_, uid) => new pb.PluginInitializationService(uid).initialize());
-
-            return Promise.props(pluginSpecs).then(specs => {
-                PLUGIN_SPECS = specs;
-                const tasks = plugins.map(plugin => {
-                    //For each site plugin pair activate each plugin per site.
-                    const sitePluginService = new pb.SitePluginInitializationService(specs[plugin.uid], plugin.site);
-                    return sitePluginService.initialize()
-                        .then(_ => { return { plugin: plugin, initialized: true } })
-                        .catch(err => {
-                            pb.log.error(`PluginService: failure during site plugin initialization for ${plugin.site}: ${err.stack}`);
-                            return { plugin: plugin, error: err, initialized: false }
-                        });
-                });
-                return Promise.all(tasks);
+            const tasks = plugins.map(plugin => {
+                //For each site plugin pair activate each plugin per site.
+                const sitePluginService = new pb.SitePluginInitializationService(PLUGIN_SPECS[plugin.uid], plugin.site);
+                return sitePluginService.initialize()
+                    .then(_ => { return { plugin: plugin, initialized: true } })
+                    .catch(err => {
+                        pb.log.error(`PluginService: failure during site plugin initialization for ${plugin.site}: ${err.stack}`);
+                        return { plugin: plugin, error: err, initialized: false }
+                    });
             });
+            return Promise.all(tasks);
         };
 
-        Promise.promisify(this._pluginRepository.loadPluginsAcrossAllSites, {context:this._pluginRepository})()
+        Promise.resolve(preloadAllPlugins())
+            .then(() => Promise.promisify(this._pluginRepository.loadPluginsAcrossAllSites, {context:this._pluginRepository})())
             .then(plugins => processPlugins(plugins))
             .asCallback(cb);
+    };
+
+    /**
+     * Load the plugin spec (details) from memory if available, or from disk if not
+     * @param pluginId
+     * @returns {Promise.<T>}
+     */
+    PluginService.getPluginSpec = function (pluginId) {
+        return Promise.resolve(PLUGIN_SPECS[pluginId] || new pb.PluginInitializationService(pluginId).initialize());
     };
 
     /**
@@ -1082,7 +1112,7 @@ module.exports = function PluginServiceModule(pb) {
         if (typeof plugin !== 'object') {
             return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
         }
-        const pluginSpec = Promise.resolve(PLUGIN_SPECS[plugin.uid] || new pb.PluginInitializationService(plugin.uid).initialize());
+        const pluginSpec = PluginService.getPluginSpec(plugin.uid);
         return pluginSpec
             .then(spec => new pb.SitePluginInitializationService(spec, plugin.site).initialize())
             .asCallback(cb);
