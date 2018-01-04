@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "angular": "~1.4.7",
+    "angular-bootstrap-colorpicker": "^3.0.32",
     "angular-route": "~1.4.7",
     "angular-sanitize": "~1.4.7",
     "async": "~1.5.2",
