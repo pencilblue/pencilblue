@@ -54,9 +54,9 @@
 						<span class="btn btn-success fileinput-button" ng-disabled="uploading">
 							<i class="fa" ng-class="{'fa-plus': !uploading, 'fa-circle-o-notch fa-spin': uploading}"></i>
 							<span>^loc_generic.SELECT_FILE^...</span>
-							<input type="file" ng-file-select="onFileSelect($files)" accept="^acceptable_extensions^"/>
+							<input type="file" ngf-select="onFileSelect($files)" accept="^acceptable_extensions^"/>
 						</span>
-						<div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="dropSupported=true" ng-file-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">^loc_media.DRAG_DROP_IMG_VID^</div>
+						<div class="file_drop" ngf-drop="onFileSelect($files)" ngf-drop-available="dropSupported=true" ngf-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">^loc_media.DRAG_DROP_IMG_VID^</div>
 						<button type="button" class="btn btn-default" style="margin-top: 1em" data-dismiss="modal">
 							<i class="fa fa-ban"></i>&nbsp;^loc_generic.CANCEL^
 						</button>

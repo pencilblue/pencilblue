@@ -21,7 +21,7 @@ const next = fn => (req, res, next) => Promise.resolve(fn).then(fn => fn(req, re
 module.exports = function(pb) {
     const { startTime, endTime } = require('./timing')(pb)
     const { openSession, closeSession, writeSessionCookie } = require('./session')(pb)
-    const { urlParse, checkPublicRoute, systemSetupCheck, parseRequestBody } = require('./system')(pb)
+    const { urlParse, checkPublicRoute, checkModuleRoute, systemSetupCheck, parseRequestBody } = require('./system')(pb)
     const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb)
     const { requiresAuthenticationCheck, authorizationCheck, ipFilterCheck } = require('./auth')(pb)
     const { localizedRouteCheck, initializeLocalization } = require('./localization')(pb)
@@ -30,6 +30,7 @@ module.exports = function(pb) {
     const stack = [
         startTime,
         urlParse,
+        checkModuleRoute,
         checkPublicRoute,
         openSession,
         deriveSite,

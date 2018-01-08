@@ -444,9 +444,6 @@ module.exports = {
         DB_NAME: 'Database naam',
         DB_SERVERS: 'Database server(s)',
         CONTENT_SETTINGS: 'Inhoudsinstellingen',
-        LIBRARIES: 'Bibliotheken',
-        LIBRARY_SETTINGS: 'Bibliotheek instellingen',
-        LIBRARY_CLUSTER: 'Als je PencilBlue op een cluster server draait, is een restart nodig om alle veranderingen door te voeren',
         ARTICLES_PER_PAGE: 'Artikels per pagina',
         AUTO_BREAK_ARTICLES: 'Automatisch artikels afbreken na # aantal paragrafen',
         READ_MORE_TEXT: 'Lees meer',
@@ -480,8 +477,6 @@ module.exports = {
         EMAIL_DIRECTIVES_DESCRIPTION: 'Directives: ^verification_url^, ^first_name^, ^last_name^',
         SEND_TEST_EMAIL: 'Zend test email',
         SEND: 'Zend',
-        USE_CDN: 'Gebruik CDNs (standaard)',
-        USE_BOWER: 'Gebruiker Bower',
         TEST_EMAIL_SUCCESS: 'Test email succesvol verzonden'
     }
 };
