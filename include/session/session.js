@@ -95,7 +95,7 @@ module.exports = function SessionModule(pb) {
      * @property COOKIE_NAME
      * @type {String}
      */
-    SessionHandler.COOKIE_NAME = 'session_id';
+    SessionHandler.COOKIE_NAME = 'cms_tn_session_id';
 
     /**
      *
@@ -168,8 +168,8 @@ module.exports = function SessionModule(pb) {
 
         return Promise.using(this.sessionStore.lock(sid), _lock => {
             return this.sessionStore.getAsync(sid)
-            .then(mergeFn)
-            .then(Promise.promisify(this.close).bind(this))
+                .then(mergeFn)
+                .then(Promise.promisify(this.close).bind(this))
         }).asCallback(cb)
     }
 
@@ -255,9 +255,9 @@ module.exports = function SessionModule(pb) {
      */
     SessionHandler.getSessionStore = function(){
         var possibleStores = [
-              SessionHandler.HANDLER_PATH + pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
-              pb.config.session.storage
-         ];
+            SessionHandler.HANDLER_PATH + pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
+            pb.config.session.storage
+        ];
 
         var SessionStoreModule = null;
         for(var i = 0; i < possibleStores.length; i++){
@@ -298,11 +298,14 @@ module.exports = function SessionModule(pb) {
     SessionHandler.getSessionIdFromCookie = function(request){
 
         var sessionId = null;
+        if(request.headers['session_id']) {
+            request.headers[SessionHandler.COOKIE_HEADER] = request.headers['session_id'];
+        }
         if (request.headers[SessionHandler.COOKIE_HEADER]) {
 
             // Discovered that sometimes the cookie string has trailing spaces
             for(var key in request.headers[SessionHandler.COOKIE_HEADER]){
-                if(key.trim() == 'session_id'){
+                if(key.trim() === SessionHandler.COOKIE_NAME){
                     sessionId = request.headers[SessionHandler.COOKIE_HEADER][key];
                     break;
                 }
@@ -319,7 +322,7 @@ module.exports = function SessionModule(pb) {
      * @return {Object}
      */
     SessionHandler.getSessionCookie = function(session) {
-        return {session_id: session.uid, path: '/'};
+        return {[SessionHandler.COOKIE_NAME]: session.uid, path: '/'};
     };
 
     return SessionHandler;
