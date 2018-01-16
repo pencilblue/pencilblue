@@ -20,6 +20,9 @@ module.exports = pb => ({
     openSession: async (req, res) => {
         //check for session cookie
         var cookies = pb.RequestHandler.parseCookies(req);
+        if(cookies[pb.SessionHandler.COOKIE_NAME] || cookies.session_id) { // Fall back to session id
+            cookies[pb.SessionHandler.COOKIE_NAME] = cookies[pb.SessionHandler.COOKIE_NAME] || cookies.session_id;
+        }
         req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
 
         //open session
@@ -31,7 +34,7 @@ module.exports = pb => ({
         //set the session id when no session has started or the current one has
         //expired.
         var sc = Object.keys(cookies).length === 0;
-        var se = !sc && cookies[pb.SessionHandler.COOKIE_NAME] !== session.uid;
+        var se = !sc && cookies[pb.SessionHandler.COOKIE_NAME] !== session.uid && cookies.session_id !== session.uid;
         req.handler.setSessionCookie = req.setSessionCookie = sc || se;
         if (pb.log.isSilly()) {
             pb.log.silly("RequestHandler: Session ID [%s] Cookie SID [%s] Created [%s] Expired [%s]", session.uid, cookies.session_id, sc, se);
