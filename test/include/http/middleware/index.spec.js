@@ -112,7 +112,7 @@ describe('Middleware', function() {
         it('should parse the cookies and set them back to the header', function(done) {
             var self = this;
             this.getMiddleware('openSession')(req, res, function() {
-                req.headers[self.pb.SessionHandler.COOKIE_HEADER].should.eql({ '': undefined,  session_id: 'abc123', cms_tn_session_id: 'abc123'});
+                req.headers[self.pb.SessionHandler.COOKIE_HEADER].should.eql({ '': undefined,  session_id: 'abc123'});
                 done();
             });
         });
@@ -146,14 +146,14 @@ describe('Middleware', function() {
             });
         });
 
-        it('should set the session cookie when the session ID in the cookie does not match the ID in the active session', function(done) {
-            sandbox.stub(this.pb.session, 'open').callsArgWith(1, null, { id: 'abc124' });
+        it.only('should set the session cookie when the session ID in the cookie does not match the ID in the active session', function(done) {
+            sandbox.stub(this.pb.session, 'open').callsArgWith(1, null, { uid: 'abc124' });
 
             var self = this;
             this.getMiddleware('openSession')(req, res, function(err) {
                 should(err).eql(undefined);
                 req.setSessionCookie.should.eql(true);
-                req.headers[self.pb.SessionHandler.COOKIE_HEADER].should.eql({ '': undefined,  session_id: 'abc123', cms_tn_session_id: 'abc123'});
+                req.headers[self.pb.SessionHandler.COOKIE_HEADER].should.eql({ '': undefined,  session_id: 'abc123'});
                 done();
             });
         });

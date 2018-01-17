@@ -3,7 +3,7 @@ const pb = require('../../helpers/pb_stub')();
 
 const SessionHandler = require('../../../include/session/session')(pb);
 
-describe.only('when using the SessionHandler', () => {
+describe('when using the SessionHandler', () => {
 
     let sessionHandler;
     let sessionStore;
