@@ -15,9 +15,9 @@
                         <span>^loc_generic.SELECT_FILE^...</span>
 
                         <!-- As of 12/20/2014 Chrome did allow the .wxr extension filter on mac so we cleared the filter -->
-                        <input type="file" ng-file-select="onFileSelect($files)" accept=""></input>
+                        <input type="file" ngf-select="onFileSelect($files)" accept=""></input>
                     </span>
-                    <div class="file_drop" ng-file-drop="onFileSelect($files)" ng-file-drop-available="dropSupported=true" ng-file-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">^loc_DROP_WP_FILE^</div>
+                    <div class="file_drop" ngf-drop="onFileSelect($files)" ngf-drop-available="dropSupported=true" ngf-drag-over-class="file_drop_hover" ng-show="dropSupported && !uploading">^loc_DROP_WP_FILE^</div>
                 </div>
             </div>
         </fieldset>

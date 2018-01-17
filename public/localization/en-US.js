@@ -540,9 +540,6 @@ module.exports = {
         DB_NAME: 'Database name',
         DB_SERVERS: 'Database server(s)',
         CONTENT_SETTINGS: 'Content settings',
-        LIBRARIES: 'Libraries',
-        LIBRARY_SETTINGS: 'Library settings',
-        LIBRARY_CLUSTER: 'If you are running PencilBlue on a server cluster, a restart is needed for the changes to take full effect',
         ARTICLES_PER_PAGE: 'Articles per page',
         AUTO_BREAK_ARTICLES: 'Auto break articles after # of paragraphs',
         READ_MORE_TEXT: 'Read more text',
@@ -576,8 +573,6 @@ module.exports = {
         EMAIL_DIRECTIVES_DESCRIPTION: 'Directives: ^verification_url^, ^first_name^, ^last_name^',
         SEND_TEST_EMAIL: 'Send test email',
         SEND: 'Send',
-        USE_CDN: 'Use CDNs (default)',
-        USE_BOWER: 'Use Bower',
         TEST_EMAIL_SUCCESS: 'Test email successfully sent',
         CANNOT_SIGN_UP_GLOBAL: 'You cannot sign up on global; an admin must create a global user within admin panel',
     }

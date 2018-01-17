@@ -45,16 +45,6 @@ module.exports = function RequestHandlerModule(pb) {
         'multipart/form-data': pb.FormBodyParser
     };
 
-    /**
-     * Provides the list of directories that are publicly available
-     * @private
-     * @static
-     * @readonly
-     * @property PUBLIC_ROUTE_PREFIXES
-     * @type {Array}
-     */
-    const PUBLIC_ROUTE_PREFIXES = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', '/favicon.ico', '/docs/', '/bower_components/'];
-
     const GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
 
     class RequestHandler {
@@ -428,17 +418,8 @@ module.exports = function RequestHandlerModule(pb) {
              * @param {Object} site
              */
         static loadSite(site) {
-            RequestHandler.sites[site.hostname] = {
-                active: site.active,
-                uid: site.uid,
-                displayName: site.displayName,
-                forceLocale: site.forceLocale,
-                hostname: site.hostname,
-                defaultLocale: site.defaultLocale,
-                supportedLocales: site.supportedLocales,
-                prevHostnames: site.prevHostnames,
-                useBundledScripts: site.useBundledScripts
-            };
+            RequestHandler.sites[site.hostname] = site;
+
             //Populate RequestHandler.redirectHosts if this site has prevHostnames associated
             if (site.prevHostnames) {
                 site.prevHostnames.forEach(function (oldHostname) {
@@ -505,21 +486,7 @@ module.exports = function RequestHandlerModule(pb) {
         static getMimeFromPath(resourcePath) {
             return mime.lookup(resourcePath);
         }
-        /**
-             * Determines if the path is mapped to static resources
-             * @static
-             * @method isPublicRoute
-             * @param {String} path URL path to a resource
-             * @return {Boolean} TRUE if mapped to a public resource directory, FALSE if not
-             */
-        static isPublicRoute(path) {
-            for (var i = 0; i < PUBLIC_ROUTE_PREFIXES.length; i++) {
-                if (path.indexOf(PUBLIC_ROUTE_PREFIXES[i]) === 0) {
-                    return true;
-                }
-            }
-            return false;
-        }
+
         /**
              * Parses cookies passed for a request
              * @static

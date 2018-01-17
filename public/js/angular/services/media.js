@@ -1,5 +1,5 @@
 angular.module('media', [])
-.service('mediaService', function($http, $q, $upload) {
+.service('mediaService', function($http, $q, Upload) {
     this.loadMediaLink = function(url, cb) {
         $http.get('/api/admin/content/media/get_link?url=' + url)
         .success(function(result) {
@@ -39,9 +39,9 @@ angular.module('media', [])
     };
 
      this.onFileSelect = function(file) {
-        return $upload.upload({
+        return Upload.upload({
             url: '/api/admin/content/media/upload_media',
-            file: file
+            data: { file: file }
         }).progress(function(evt) {
             return parseInt(100.0 * evt.loaded / evt.total);
         }).success(function(data) {

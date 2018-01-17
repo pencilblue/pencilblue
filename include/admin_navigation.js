@@ -251,16 +251,6 @@ module.exports = function AdminNavigationModule(pb) {
             ]
         };
 
-        if (pb.SiteService.isGlobal(site)) {
-            settingsNav.children.push({
-                id: 'library_settings',
-                title: 'site_settings.LIBRARIES',
-                icon: 'book',
-                href: '/admin/site_settings/libraries',
-                access: SecurityService.ACCESS_DEVELOPER
-            });
-        }
-
         return Object.freeze(settingsNav);
     }
 

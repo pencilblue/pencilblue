@@ -460,9 +460,6 @@ module.exports = {
         DB_NAME: 'Название базы данных',
         DB_SERVERS: 'Сервер(ы) базы данных',
         CONTENT_SETTINGS: 'Настройки контента',
-        LIBRARIES: 'Библиотеки',
-        LIBRARY_SETTINGS: 'Настройка библиотек',
-        LIBRARY_CLUSTER: 'Если вы работаете с PencilBlue на кластере серверов, необходима перезагрузка для того, чтобы изменения вступили в силу',
         ARTICLES_PER_PAGE: 'Статей на странице',
         AUTO_BREAK_ARTICLES: 'Автоматически разделять статьи после # числа параграфов',
         READ_MORE_TEXT: 'Текст ссылки "читать далее"',
@@ -496,8 +493,6 @@ module.exports = {
         EMAIL_DIRECTIVES_DESCRIPTION: 'Директивы: ^verification_url^, ^first_name^, ^last_name^',
         SEND_TEST_EMAIL: 'Отправить проверочный email',
         SEND: 'Отправить',
-        USE_CDN: 'Использовать CDNs (по умолчанию)',
-        USE_BOWER: 'Использовать Bower',
         TEST_EMAIL_SUCCESS: 'Тест успешно отправлен'
     }
 };

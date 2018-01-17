@@ -79,7 +79,6 @@ function PencilBlue(config){
             util.wrapTask(this, this.initPlugins, 'initPlugins'),
             util.wrapTask(this, this.initSites, 'initSites'),
             util.wrapTask(this, this.initLocales, 'initLocales'),
-            util.wrapTask(this, this.initLibraries, 'initLibraries'),
             util.wrapTask(this, this.registerMetrics, 'registerMetrics'),
             util.wrapTask(this, this.initServer, 'initServer')
         ];
@@ -348,16 +347,6 @@ function PencilBlue(config){
      */
     this.initCommandService = function(cb) {
         pb.CommandService.getInstance().init(cb);
-    };
-
-    /**
-     * Initializes the libraries service
-     * @static
-     * @method initLibraries
-     * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
-     */
-    this.initLibraries = function(cb) {
-        pb.LibrariesService.init(cb);
     };
 
     /**

@@ -180,6 +180,7 @@ module.exports = function PB(config) {
     pb.PluginAvailableJob    = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_available_job.js'))(pb);
     pb.PluginInitializeJob   = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_initialize_job.js'))(pb);
     pb.PluginInstallJob      = require(path.join(config.docRoot, '/include/service/jobs/plugins/plugin_install_job.js'))(pb);
+    pb.PluginPersistenceService = require(path.join(config.docRoot, '/include/service/plugin_persistence_service'))(pb);
     pb.SiteJobRunner         = require(path.join(config.docRoot, '/include/service/jobs/sites/site_job_runner.js'))(pb);
     pb.SiteActivateJob       = require(path.join(config.docRoot, '/include/service/jobs/sites/site_activate_job.js'))(pb);
     pb.SiteDeactivateJob     = require(path.join(config.docRoot, '/include/service/jobs/sites/site_deactivate_job.js'))(pb);
@@ -196,13 +197,6 @@ module.exports = function PB(config) {
     Object.defineProperty(pb, 'content', {
         get: function() {
             pb.log.warn('PencilBlue: pb.content is deprecated.  Use pb.ContentService instead');
-            return new pb.ContentService();
-        }
-    });
-    pb.LibrariesService = require(path.join(config.docRoot, '/include/libraries.js'))(pb); // JS libraries settings and functions
-    Object.defineProperty(pb, 'libraries', {
-        get: function() {
-            pb.log.warn('PencilBlue: pb.libraries is deprecated.  Use pb.LibrariesService instead');
             return new pb.ContentService();
         }
     });
@@ -283,8 +277,6 @@ module.exports = function PB(config) {
     pb.CommentService        = require(config.docRoot+'/include/theme/comments.js')(pb);
 
     pb.PluginValidationService = require(path.join(config.docRoot, '/include/service/entities/plugins/plugin_validation_service.js'))(pb);
-    pb.PluginDependencyService = require(path.join(config.docRoot, '/include/service/entities/plugins/plugin_dependency_service.js'))(pb);
-    pb.BowerPluginDependencyService = require(path.join(config.docRoot, '/include/service/entities/plugins/bower_plugin_dependency_service.js'))(pb);
     pb.PluginResourceLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_resource_loader.js'))(pb);
     pb.PluginServiceLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_service_loader.js'))(pb);
     pb.PluginControllerLoader = require(path.join(config.docRoot, '/include/service/entities/plugins/loaders/plugin_controller_loader.js'))(pb);

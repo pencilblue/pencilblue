@@ -1,7 +1,6 @@
-<script type="text/javascript" src="^angular_upload_src^"></script>
 <script type="text/javascript">
-    angular.module('pencilblueApp', ['angularFileUpload'])
-    .controller('PencilBlueController', function($scope, $http, $upload, $timeout) {
+    angular.module('pencilblueApp', ['ngFileUpload'])
+    .controller('PencilBlueController', function($scope, $http, Upload, $timeout) {
         ^angular_objects^
         ^tmp_angular=admin=elements=error_success^
 
@@ -10,9 +9,9 @@
                 var file = $files[i];
                 $scope.uploading = true;
                 $scope.uploadPercent = 0;
-                $scope.upload = $upload.upload({
+                $scope.upload = Upload.upload({
                     url: '/actions/admin/content/topics/import',
-                    file: file
+                    data: { file: file }
                 }).progress(function(evt) {
                     $scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
                 }).success(function(data, status, headers, config) {
