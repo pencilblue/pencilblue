@@ -39,7 +39,7 @@ module.exports = function SessionModule(pb) {
     function SessionHandler(sessionStore){
 
         //ensure a session store was started
-        Promise.promisifyAll(sessionStore)
+        Promise.promisifyAll(sessionStore);
         this.sessionStore = sessionStore;
     }
 
@@ -272,7 +272,7 @@ module.exports = function SessionModule(pb) {
 
         //ensure session store was loaded
         if (SessionStoreModule === null){
-            throw new Error("Failed to initialize a session store. Exhausted posibilities: "+JSON.stringify(possibleStores));
+            throw new Error(`Failed to initialize a session store. Exhausted possibilities: ${JSON.stringify(possibleStores)}`);
         }
         return SessionStoreModule(pb);
     };
@@ -296,8 +296,7 @@ module.exports = function SessionModule(pb) {
      * @return {string} Session Id if available NULL if it cannot be found
      */
     SessionHandler.getSessionIdFromCookie = function(request){
-
-        var sessionId = null;
+        let sessionId = null;
 
         let cookieHeader = request.headers[SessionHandler.COOKIE_HEADER];
         if (cookieHeader) {
