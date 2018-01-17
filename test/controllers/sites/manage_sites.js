@@ -1,9 +1,9 @@
 const {expect, sinon} = require('../../helpers/spec_helper');
 const pb = require('../../helpers/pb_stub')();
 
-const ManageSitesController = require('../../../controllers/admin/sites/manage_sites')(pb);
+const ManageSitesController = require('../../../plugins/pencilblue/controllers/admin/sites/manage_sites')(pb);
 
-describe('When hitting the manage sites route', function () {
+describe('ManageSitedController', function () {
     let manageSitesController;
 
     beforeEach(function () {
