@@ -298,17 +298,13 @@ module.exports = function SessionModule(pb) {
     SessionHandler.getSessionIdFromCookie = function(request){
 
         var sessionId = null;
-        if(request.headers['session_id']) {
-            request.headers[SessionHandler.COOKIE_HEADER] = request.headers['session_id'];
-        }
-        if (request.headers[SessionHandler.COOKIE_HEADER]) {
 
-            // Discovered that sometimes the cookie string has trailing spaces
-            for(var key in request.headers[SessionHandler.COOKIE_HEADER]){
-                if(key.trim() === SessionHandler.COOKIE_NAME){
-                    sessionId = request.headers[SessionHandler.COOKIE_HEADER][key];
-                    break;
-                }
+        let cookieHeader = request.headers[SessionHandler.COOKIE_HEADER];
+        if (cookieHeader) {
+            let key = Object.keys(cookieHeader).find(x => x.trim() === SessionHandler.COOKIE_NAME) ||
+                Object.keys(cookieHeader).find(x => x.trim() === 'session_id');
+            if (key) {
+                return cookieHeader[key];
             }
         }
         return sessionId;
