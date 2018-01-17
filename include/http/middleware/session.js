@@ -23,7 +23,7 @@ module.exports = pb => ({
         req.headers[pb.SessionHandler.COOKIE_HEADER] = cookies;
 
         //open session
-        const session = await util.promisify(pb.session.open).call(pb.session, req)
+        const session = await util.promisify(pb.session.open).call(pb.session, req);
         if (!session) {
             throw new Error("The session object was not valid.  Unable to generate a session object based on request.")
         }
@@ -31,7 +31,7 @@ module.exports = pb => ({
         //set the session id when no session has started or the current one has
         //expired.
         var sc = Object.keys(cookies).length === 0;
-        var se = !sc && cookies.session_id !== session.uid;
+        var se = !sc && cookies[pb.SessionHandler.COOKIE_NAME] !== session.uid;
         req.handler.setSessionCookie = req.setSessionCookie = sc || se;
         if (pb.log.isSilly()) {
             pb.log.silly("RequestHandler: Session ID [%s] Cookie SID [%s] Created [%s] Expired [%s]", session.uid, cookies.session_id, sc, se);

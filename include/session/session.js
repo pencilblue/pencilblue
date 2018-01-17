@@ -39,7 +39,7 @@ module.exports = function SessionModule(pb) {
     function SessionHandler(sessionStore){
 
         //ensure a session store was started
-        Promise.promisifyAll(sessionStore)
+        Promise.promisifyAll(sessionStore);
         this.sessionStore = sessionStore;
     }
 
@@ -95,7 +95,7 @@ module.exports = function SessionModule(pb) {
      * @property COOKIE_NAME
      * @type {String}
      */
-    SessionHandler.COOKIE_NAME = 'session_id';
+    SessionHandler.COOKIE_NAME = 'cms_tn_session_id';
 
     /**
      *
@@ -168,8 +168,8 @@ module.exports = function SessionModule(pb) {
 
         return Promise.using(this.sessionStore.lock(sid), _lock => {
             return this.sessionStore.getAsync(sid)
-            .then(mergeFn)
-            .then(Promise.promisify(this.close).bind(this))
+                .then(mergeFn)
+                .then(Promise.promisify(this.close).bind(this))
         }).asCallback(cb)
     }
 
@@ -255,9 +255,9 @@ module.exports = function SessionModule(pb) {
      */
     SessionHandler.getSessionStore = function(){
         var possibleStores = [
-              SessionHandler.HANDLER_PATH + pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
-              pb.config.session.storage
-         ];
+            SessionHandler.HANDLER_PATH + pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
+            pb.config.session.storage
+        ];
 
         var SessionStoreModule = null;
         for(var i = 0; i < possibleStores.length; i++){
@@ -272,7 +272,7 @@ module.exports = function SessionModule(pb) {
 
         //ensure session store was loaded
         if (SessionStoreModule === null){
-            throw new Error("Failed to initialize a session store. Exhausted posibilities: "+JSON.stringify(possibleStores));
+            throw new Error(`Failed to initialize a session store. Exhausted possibilities: ${JSON.stringify(possibleStores)}`);
         }
         return SessionStoreModule(pb);
     };
@@ -296,16 +296,14 @@ module.exports = function SessionModule(pb) {
      * @return {string} Session Id if available NULL if it cannot be found
      */
     SessionHandler.getSessionIdFromCookie = function(request){
+        let sessionId = null;
 
-        var sessionId = null;
-        if (request.headers[SessionHandler.COOKIE_HEADER]) {
-
-            // Discovered that sometimes the cookie string has trailing spaces
-            for(var key in request.headers[SessionHandler.COOKIE_HEADER]){
-                if(key.trim() == 'session_id'){
-                    sessionId = request.headers[SessionHandler.COOKIE_HEADER][key];
-                    break;
-                }
+        let cookieHeader = request.headers[SessionHandler.COOKIE_HEADER];
+        if (cookieHeader) {
+            let key = Object.keys(cookieHeader).find(x => x.trim() === SessionHandler.COOKIE_NAME) ||
+                Object.keys(cookieHeader).find(x => x.trim() === 'session_id');
+            if (key) {
+                return cookieHeader[key];
             }
         }
         return sessionId;
@@ -319,7 +317,7 @@ module.exports = function SessionModule(pb) {
      * @return {Object}
      */
     SessionHandler.getSessionCookie = function(session) {
-        return {session_id: session.uid, path: '/'};
+        return {[SessionHandler.COOKIE_NAME]: session.uid, path: '/'};
     };
 
     return SessionHandler;

@@ -147,7 +147,7 @@ describe('Middleware', function() {
         });
 
         it('should set the session cookie when the session ID in the cookie does not match the ID in the active session', function(done) {
-            sandbox.stub(this.pb.session, 'open').callsArgWith(1, null, { id: 'abc124' });
+            sandbox.stub(this.pb.session, 'open').callsArgWith(1, null, { uid: 'abc124' });
 
             var self = this;
             this.getMiddleware('openSession')(req, res, function(err) {
@@ -157,7 +157,17 @@ describe('Middleware', function() {
                 done();
             });
         });
-
+        it('should set the session cookie when the cms tn session ID in the cookie does not match the ID in the active session', function(done) {
+            sandbox.stub(this.pb.session, 'open').callsArgWith(1, null, { uid: 'abc124' });
+            req.headers.cookie = 'cms_tn_session_id=abc123;';
+            var self = this;
+            this.getMiddleware('openSession')(req, res, function(err) {
+                should(err).eql(undefined);
+                req.setSessionCookie.should.eql(true);
+                req.headers[self.pb.SessionHandler.COOKIE_HEADER].should.eql({ '': undefined,  cms_tn_session_id: 'abc123'});
+                done();
+            });
+        });
         it('should set the retrieved session on the request and the handler', function(done) {
             var expectedSession =  { id: 'abc123' };
             sandbox.stub(this.pb.session, 'open').withArgs(req).callsArgWith(1, null, expectedSession);

@@ -33,6 +33,7 @@ module.exports = () => {
         uniqueId: sinon.stub().returns('randomID')
     }
     pb.config = {
+        docRoot: 'documentRoot',
         cb:{
             cb_api_dev_key: 'LOOKATMEIMMRKEYTHING'
         }
