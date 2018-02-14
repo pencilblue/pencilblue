@@ -42,7 +42,7 @@
     "jquery-datetimepicker": "^2.5.14",
     "jquery-ui-dist": "^1.12.1",
     "jquery-validation": "^1.17.0",
-    "json-formatter": "^0.1.0",
+    "jsonformatter": "^0.7.0",
     "locale": "^0.1.0",
     "lodash": "^4.17.2",
     "markdown": "~0.5.0",
