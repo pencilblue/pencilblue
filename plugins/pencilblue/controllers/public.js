@@ -68,7 +68,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
             var forbidden = new Error('Path is not a valid public directory.');
             forbidden.code = 403;
 
-            return this.serveError(forbidden);
+            return this.reqHandler.serveError(forbidden);
         }
     };
 
