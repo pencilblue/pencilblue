@@ -65,6 +65,8 @@ module.exports = function PluginPublicContentControllerModule(pb) {
             //remove qsvars before loading files
             this.reqHandler.servePublicContent(fullpath.split('?')[0]);
         } else {
+            pb.log.error('PluginPublicContentController: Path is not a valid public directory. NORMALIZED_POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', normalizedpath, pluginPublicDir, this.req.url);
+
             var forbidden = new Error('Path is not a valid public directory.');
             forbidden.code = 403;
 
