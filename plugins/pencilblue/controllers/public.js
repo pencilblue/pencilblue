@@ -44,7 +44,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
         var plugin          = this.pathVars.plugin;
         var postPluginPath  = this.pathVars.path;
         var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
-        var publicRoutes = ['js/', 'css/', 'fonts/', 'img/', 'localization/', 'favicon.ico', 'docs/', 'dist/'];
+        var publicRoutes = ['js/', 'css/', 'fonts/', 'img/', 'localization/', 'favicon.ico', 'dist/'];
 
         //do check for valid strings otherwise serve 404
         if (!util.isString(postPluginPath) || !util.isString(pluginPublicDir)) {
@@ -65,8 +65,10 @@ module.exports = function PluginPublicContentControllerModule(pb) {
             //remove qsvars before loading files
             this.reqHandler.servePublicContent(fullpath.split('?')[0]);
         } else {
-            this.reqHandler.serve404();
-            return;
+            var forbidden = new Error('Path is not a valid public directory.');
+            forbidden.code = 403;
+
+            return this.serveError(forbidden);
         }
     };
 
