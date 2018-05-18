@@ -44,6 +44,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
         var plugin          = this.pathVars.plugin;
         var postPluginPath  = this.pathVars.path;
         var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
+        var publicRoutes = ['js/', 'css/', 'fonts/', 'img/', 'localization/', 'favicon.ico', 'dist/'];
 
         //do check for valid strings otherwise serve 404
         if (!util.isString(postPluginPath) || !util.isString(pluginPublicDir)) {
@@ -53,10 +54,24 @@ module.exports = function PluginPublicContentControllerModule(pb) {
         }
 
         //serve up the content
-        var resourcePath = path.join(pluginPublicDir, postPluginPath);
+        //mitigates path traversal attacks by using path.normalize to resolve any
+        //directory changes (./ and ../) and verifying that the path has one of
+        //the prefixes in publicRoutes
+        var normalizedpath = path.normalize(postPluginPath).replace(/^(\.\.[\/\\])+/, '');
+        
+        if (publicRoutes.some(prefix => normalizedpath.startsWith(prefix))) {
+            var fullpath = path.join(pluginPublicDir, normalizedpath);
+            
+            //remove qsvars before loading files
+            this.reqHandler.servePublicContent(fullpath.split('?')[0]);
+        } else {
+            pb.log.error('PluginPublicContentController: Path is not a valid public directory. NORMALIZED_POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', normalizedpath, pluginPublicDir, this.req.url);
 
-        //remove qsvars before loading files
-        this.reqHandler.servePublicContent(resourcePath.split('?')[0]);
+            var forbidden = new Error('Path is not a valid public directory.');
+            forbidden.code = 403;
+
+            return this.reqHandler.serveError(forbidden);
+        }
     };
 
     //exports
