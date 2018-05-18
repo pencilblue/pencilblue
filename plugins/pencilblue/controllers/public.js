@@ -57,10 +57,10 @@ module.exports = function PluginPublicContentControllerModule(pb) {
         //mitigates path traversal attacks by using path.normalize to resolve any
         //directory changes (./ and ../) and verifying that the path has one of
         //the prefixes in publicRoutes
-        var normalized = path.normalize(postPluginPath).replace(/^(\.\.[\/\\])+/, '');
+        var normalizedpath = path.normalize(postPluginPath).replace(/^(\.\.[\/\\])+/, '');
         
-        if (publicRoutes.some(prefix => normalize.startsWith(prefix))) {
-            var fullpath = path.join(pluginPublicDir, normalized);
+        if (publicRoutes.some(prefix => normalizedpath.startsWith(prefix))) {
+            var fullpath = path.join(pluginPublicDir, normalizedpath);
             
             //remove qsvars before loading files
             this.reqHandler.servePublicContent(fullpath.split('?')[0]);
