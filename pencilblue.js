@@ -1,3 +1,7 @@
+console.time("startup");
+if(process.env.NEW_RELIC_LICENSE_KEY && process.env.NEW_RELIC_APP_NAME){
+    require('newrelic');
+}
 /*
     Copyright (C) 2015  PencilBlue, LLC
 
@@ -21,7 +25,6 @@ var fs          = require('fs');
 var http        = require('http');
 var https       = require('https');
 var async       = require('async');
-var npm         = require('npm');
 var util        = require('./include/util.js');
 var ServerInitializer = require('./include/http/server_initializer.js');
 var HtmlEncoder = require('htmlencode');
@@ -44,7 +47,8 @@ function PencilBlue(config){
      * @property pb
      * @type {Object}
      */
-    var pb = require('./lib')(config);
+    var pb = require('./include')(config);
+    this.requirements = pb;
 
     /**
      * The number of requests served by this instance
@@ -63,26 +67,27 @@ function PencilBlue(config){
      */
     this.init = function(){
         var tasks = [
-            util.wrapTimedTask(this, this.initModules, 'initModules'),
-            util.wrapTimedTask(this, this.initRequestHandler, 'initRequestHandler'),
-            util.wrapTimedTask(this, this.initDBConnections, 'initDBConnections'),
-            util.wrapTimedTask(this, this.initDBIndices, 'initDBIndices'),
-            util.wrapTimedTask(this, this.initServerRegistration, 'initServerRegistration'),
-            util.wrapTimedTask(this, this.initCommandService, 'initCommandService'),
-            util.wrapTimedTask(this, this.initSiteMigration, 'initSiteMigration'),
-            util.wrapTimedTask(this, this.initSessions, 'initSessions'),
-            util.wrapTimedTask(this, this.initMiddleware, 'initMiddleware'),
-            util.wrapTimedTask(this, this.initPlugins, 'initPlugins'),
-            util.wrapTimedTask(this, this.initSites, 'initSites'),
-            util.wrapTimedTask(this, this.initLibraries, 'initLibraries'),
-            util.wrapTimedTask(this, this.registerMetrics, 'registerMetrics'),
-            util.wrapTimedTask(this, this.initServer, 'initServer')
+            util.wrapTask(this, this.initModules, 'initModules'),
+            util.wrapTask(this, this.initRequestHandler, 'initRequestHandler'),
+            util.wrapTask(this, this.initDBConnections, 'initDBConnections'),
+            util.wrapTask(this, this.initDBIndices, 'initDBIndices'),
+            util.wrapTask(this, this.initServerRegistration, 'initServerRegistration'),
+            util.wrapTask(this, this.initCommandService, 'initCommandService'),
+            //util.wrapTask(this, this.initSiteMigration, 'initSiteMigration'),
+            util.wrapTask(this, this.initSessions, 'initSessions'),
+            util.wrapTask(this, this.initMiddleware, 'initMiddleware'),
+            util.wrapTask(this, this.initPlugins, 'initPlugins'),
+            util.wrapTask(this, this.initSites, 'initSites'),
+            util.wrapTask(this, this.initLocales, 'initLocales'),
+            util.wrapTask(this, this.registerMetrics, 'registerMetrics'),
+            util.wrapTask(this, this.initServer, 'initServer')
         ];
         async.series(tasks, function(err, results) {
             if (util.isError(err)) {
                 throw err;
             }
             pb.log.info('PencilBlue: Ready to run!');
+            console.timeEnd("startup");
 
             //print out stats
             if (pb.log.isDebug()) {
@@ -104,10 +109,6 @@ function PencilBlue(config){
      * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
     this.initModules = function(cb) {
-        npm.on('log', function(message) {
-            pb.log.info(message);
-        });
-
         HtmlEncoder.EncodeType = 'numerical';
 
         pb.Localization.init(cb);
@@ -170,7 +171,6 @@ function PencilBlue(config){
      * @param {Function} cb - callback function
      */
     this.initSiteMigration = function(cb) {
-        pb.SiteService.init();
         pb.dbm.processMigration(cb);
     };
 
@@ -181,8 +181,20 @@ function PencilBlue(config){
      * @param {Function} cb - callback function
      */
     this.initSites = function(cb) {
+        pb.SiteService.init();
         var siteService = new pb.SiteService();
         siteService.initSites(cb);
+    };
+
+    /**
+     * Initializes Locales(s).
+     * @method initLocales
+     * @static
+     * @param {Function} cb - callback function
+     */
+    this.initLocales = function(cb) {
+        pb.LocalizationService.init();
+        cb(null, true);
     };
 
     /**
@@ -275,13 +287,17 @@ function PencilBlue(config){
             pb.log.silly('New Request: %s', (req.uid = util.uniqueId()));
         }
 
+        function isIpAddress(ipAddress) {
+            return /(\d+\.\d+\.\d+\.\d+)|:(\d+)/.test(ipAddress);
+        }
+        //check to see if we should inspect the x-forwarded-proto header for SSL
         //bump the counter for the instance
         requestsServed++;
 
         //check to see if we should inspect the x-forwarded-proto header for SSL
         //load balancers use this for SSL termination relieving the stress of SSL
         //computation on more powerful load balancers.
-        if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https') {
+        if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https' && !isIpAddress(req.headers.host)) {
             return this.onHttpConnectForHandoff(req, res);
         }
 
@@ -331,16 +347,6 @@ function PencilBlue(config){
      */
     this.initCommandService = function(cb) {
         pb.CommandService.getInstance().init(cb);
-    };
-
-    /**
-     * Initializes the libraries service
-     * @static
-     * @method initLibraries
-     * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
-     */
-    this.initLibraries = function(cb) {
-        pb.LibrariesService.init(cb);
     };
 
     /**

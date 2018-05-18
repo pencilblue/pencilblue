@@ -1,2 +1,15 @@
-.DS_Store
 .*.md.html
+.github/
+
+.jshintrc
+.project
+.idea
+.vscode
+public/media/
+public/docs/
+log/
+coverage/
+out
+**/.DS_Store
+**/dump.rdb
+npm-debug.log

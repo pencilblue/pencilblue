@@ -42,11 +42,9 @@ module.exports = function PluginPublicContentControllerModule(pb) {
      */
     PluginPublicContentController.prototype.render = function(cb) {
         var plugin          = this.pathVars.plugin;
-        var pathParts       = this.req.url.split('/');
-        pathParts.splice(0, 3);
-
-        var postPluginPath  = pathParts.join(path.sep);
+        var postPluginPath  = this.pathVars.path;
         var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
+        var publicRoutes = ['js/', 'css/', 'fonts/', 'img/', 'localization/', 'favicon.ico', 'docs/', 'dist/'];
 
         //do check for valid strings otherwise serve 404
         if (!util.isString(postPluginPath) || !util.isString(pluginPublicDir)) {
@@ -56,10 +54,20 @@ module.exports = function PluginPublicContentControllerModule(pb) {
         }
 
         //serve up the content
-        var resourcePath = path.join(pluginPublicDir, postPluginPath);
-
-        //remove qsvars before loading files
-        this.reqHandler.servePublicContent(resourcePath.split('?')[0]);
+        //mitigates path traversal attacks by using path.normalize to resolve any
+        //directory changes (./ and ../) and verifying that the path has one of
+        //the prefixes in publicRoutes
+        var normalized = path.normalize(postPluginPath).replace(/^(\.\.[\/\\])+/, '');
+        
+        if (publicRoutes.some(prefix => normalize.startsWith(prefix))) {
+            var fullpath = path.join(pluginPublicDir, normalized);
+            
+            //remove qsvars before loading files
+            this.reqHandler.servePublicContent(fullpath.split('?')[0]);
+        } else {
+            this.reqHandler.serve404();
+            return;
+        }
     };
 
     //exports

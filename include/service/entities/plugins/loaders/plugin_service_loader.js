@@ -17,7 +17,6 @@
 "use strict";
 
 //dependencies
-var npm = require('npm');
 var semver = require('semver');
 var path = require('path');
 var fs = require('fs');

@@ -120,11 +120,11 @@ module.exports = function(pb) {
         var code = params.error.code || HttpStatusCodes.INTERNAL_SERVER_ERROR;
         var ErrorController  = null;
         var paths = [
-            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error', code + '.js'),
-            path.join(pb.config.docRoot, 'plugins', params.activeTheme, 'controllers/error/index.js')
+            path.join(pb.config.plugins.directory, params.activeTheme, 'controllers/error', code + '.js'),
+            path.join(pb.config.plugins.directory, params.activeTheme, 'controllers/error/index.js')
         ];
         if (params.activeTheme !== pb.config.plugins.default) {
-            paths.push(path.join(pb.config.docRoot, 'plugins', pb.config.plugins.default, 'controllers/error', code + '.js'));
+            paths.push(path.join(pb.config.plugins.directory, pb.config.plugins.default, 'controllers/error', code + '.js'));
         }
         paths.push(path.join(pb.config.docRoot, 'controllers/error_controller.js'));
 
@@ -149,10 +149,9 @@ module.exports = function(pb) {
 
         params.request.controllerInstance = new ErrorController();
         params.request.controllerInstance.error = params.error;
-        params.request.themeRoute = !!params.request.themeRoute ? _.clone(params.request.themeRoute) : {};
-        params.request.routeTheme = params.request.routeTheme || {};
+        params.request.route = !!params.request.route ? _.clone(params.request.route) : {};
         params.request.siteObj = params.request.siteObj || pb.SiteService.getGlobalSiteContext();
-        params.request.themeRoute.handler = 'render';
+        params.request.route.handler = 'render';
         params.request.router.continueAfter('parseRequestBody');
     };
 

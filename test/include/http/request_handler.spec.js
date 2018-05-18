@@ -9,77 +9,6 @@ describe('RequestHandler', function() {
 
     TestHelpers.registerReset();
 
-    describe('RequestHandler.getBodyParsers', function() {
-
-        it('should return the default list of body parsers', function() {
-           var result = this.pb.RequestHandler.getBodyParsers();
-            result.should.be.type('object');
-            result['application/json'].should.be.type('function');
-            result['application/x-www-form-urlencoded'].should.be.type('function');
-            result['multipart/form-data'].should.be.type('function');
-            Object.keys(result).length.should.be.exactly(3);
-        });
-    });
-
-    describe('RequestHandler.registerBodyParser', function(){
-
-        [null, undefined, ''].forEach(function(mime){
-
-            it('should return false when an invalid mime '+mime+' is provided', function(){
-                var result = this.pb.RequestHandler.registerBodyParser(mime, function(){});
-                result.should.be.false();
-            });
-        });
-
-        [null, undefined, '', false, true, 1, 10.0, {}].forEach(function(parser){
-
-            it('should return false when an invalid parser '+parser+' is provided', function(){
-                var result = this.pb.RequestHandler.registerBodyParser('application/xml', parser);
-                result.should.be.false();
-            });
-        });
-
-        it('should replace the default parser when supplied with a mime that is already registered', function(){
-
-            var parsers = this.pb.RequestHandler.getBodyParsers();
-            var originalJsonParser = parsers['application/json'];
-            originalJsonParser.should.be.type('function');
-
-            var newParser = function(){};
-            var result = this.pb.RequestHandler.registerBodyParser('application/json', newParser);
-            result.should.be.true();
-
-            parsers = this.pb.RequestHandler.getBodyParsers();
-            parsers['application/json'].should.not.eql(originalJsonParser);
-            parsers['application/json'].should.eql(newParser);
-        });
-    });
-
-    describe('RequestHandler.emitThemeRouteRetieved', function() {
-
-        it('should emit the theme route retrieved to the listener and provide the proper context', function(done) {
-
-            var themeRoute = {a: '1', b: 2};
-            var site = 'abc123';
-            var reqHandler = new this.pb.RequestHandler(null, {url: '/hello/world', headers: {}});
-            reqHandler.routeTheme = themeRoute;
-            reqHandler.site = site;
-            var cnt = 0;
-            this.pb.RequestHandler.on(this.pb.RequestHandler.THEME_ROUTE_RETIEVED, function(ctx, cb) {
-                cnt++;
-                ctx.themeRoute.should.eql(themeRoute);
-                ctx.requestHandler.should.eql(reqHandler);
-                ctx.site.should.eql(site);
-                cb();
-            });
-            reqHandler.emitThemeRouteRetrieved(function(err) {
-                (err === null).should.eql(true);
-                cnt.should.eql(1);
-                done();
-            });
-        });
-    });
-
     describe('buildControllerContext', function() {
 
         it('should build out the controller context and merge in any extra properties', function() {
@@ -135,7 +64,7 @@ describe('RequestHandler', function() {
         var ctx, expected;
         beforeEach(function() {
             ctx = {
-                themeRoute: {
+                route: {
                     auth_required: true
                 },
                 session: {
@@ -152,7 +81,7 @@ describe('RequestHandler', function() {
         });
 
         it('should return a successful result when authentication is not required for a route', function() {
-            ctx.themeRoute.auth_required = false;
+            ctx.route.auth_required = false;
             this.pb.RequestHandler.checkRequiresAuth(ctx).should.eql(expected);
         });
 
@@ -207,7 +136,7 @@ describe('RequestHandler', function() {
         var ctx, expected;
         beforeEach(function() {
             ctx = {
-                themeRoute: {
+                route: {
                     access_level: this.pb.SecurityService.ACCESS_EDITOR
                 },
                 session: {
@@ -220,7 +149,7 @@ describe('RequestHandler', function() {
         });
 
         it('should return a successful result when the route does not require a specified role level', function() {
-            delete ctx.themeRoute.access_level;
+            delete ctx.route.access_level;
             this.pb.RequestHandler.checkAdminLevel(ctx).should.eql(expected);
         });
 
@@ -229,7 +158,7 @@ describe('RequestHandler', function() {
         });
 
         it('should return an unsuccessful result when the route has a more elevated role level than the user', function() {
-            ctx.themeRoute.access_level = this.pb.SecurityService.ACCESS_ADMINISTRATOR;
+            ctx.route.access_level = this.pb.SecurityService.ACCESS_ADMINISTRATOR;
             expected.success = false;
             expected.content = '403 Forbidden';
             expected.code = HttpStatusCodes.FORBIDDEN;
@@ -242,7 +171,7 @@ describe('RequestHandler', function() {
         var ctx, expected;
         beforeEach(function() {
             ctx = {
-                themeRoute: {
+                route: {
                     permissions: ['sample-1']
                 },
                 session: {
@@ -280,7 +209,7 @@ describe('RequestHandler', function() {
         });
 
         it('should return a successful result when the route is not assigned any permissions', function() {
-            delete ctx.themeRoute.permissions;
+            delete ctx.route.permissions;
             this.pb.RequestHandler.checkPermissions(ctx).should.eql(expected);
         });
 
@@ -310,9 +239,9 @@ describe('RequestHandler', function() {
             ico: 'image/x-icon',
             tff: 'application/octet-stream',
             eot: 'application/vnd.ms-fontobject',
-            woff: 'application/font-woff',
-            otf: 'font/opentype',
-            ttf: 'application/x-font-ttf',
+            woff: 'font/woff',
+            otf: 'font/otf',
+            ttf: 'font/ttf',
             pdf: 'application/pdf',
             html: 'text/html',
             notanext: 'application/octet-stream'

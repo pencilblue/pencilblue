@@ -84,15 +84,6 @@ module.exports = function(pb) {
             href: '/admin/site_settings/content'
         }];
 
-        if(data && data.site === SiteService.GLOBAL_SITE) {
-            pills.push({
-                name: 'libraries',
-                title: ls.g('site_settings.LIBRARIES'),
-                icon: 'book',
-                href: '/admin/site_settings/libraries'
-            });
-        }
-
         return pills;
     };
 

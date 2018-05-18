@@ -913,15 +913,6 @@ describe('Util', function() {
             });
         });
 
-        it('should callback with an error when an absolute file path is not provided', function(done) {
-
-            util.mkdirs('./test/playground/'+new Date().getTime(), function(err) {
-
-                should.exist(err);
-                done();
-            });
-        });
-
         it('should callback with no error and dir path should exist', function(done) {
 
             var dirsPath = getNextTestDir('mdirs-async');
@@ -939,11 +930,6 @@ describe('Util', function() {
         it('should throw an error when passed a null path', function() {
 
             util.mkdirsSync.bind(null,null).should.throwError();
-        });
-
-        it('should throw an error when an absolute file path is not provided', function() {
-
-            util.mkdirsSync.bind(null, './test/playground/'+new Date().getTime() + '-' + (cnt++)).should.throwError();
         });
 
         it('should return void and dir path should exist', function() {

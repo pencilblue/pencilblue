@@ -17,7 +17,7 @@
 
 var async = require('async');
 var url = require('url');
-var util  = require('../../util.js');
+var util = require('../../util.js');
 
 module.exports = function SiteServiceModule(pb) {
     /**
@@ -34,17 +34,18 @@ module.exports = function SiteServiceModule(pb) {
         SiteService.super_.call(this, context);
         this.dao = new pb.DAO();
     }
+
     util.inherits(SiteService, pb.BaseObjectService);
 
-  /**
-   * The name of the DB collection where the resources are persisted
-   * @private
-   * @static
-   * @readonly
-   * @property TYPE
-   * @type {String}
-   */
-  var TYPE = 'site';
+    /**
+     * The name of the DB collection where the resources are persisted
+     * @private
+     * @static
+     * @readonly
+     * @property TYPE
+     * @type {String}
+     */
+    var TYPE = 'site';
 
     /**
      * represents default configuration, not actually a full site
@@ -98,10 +99,10 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String} uid - unique id of site
      * @param {Function} cb - the callback function
      */
-    SiteService.prototype.getByUid = function(uid, cb) {
-        if(!uid || uid === SiteService.GLOBAL_SITE) {
+    SiteService.prototype.getByUid = function (uid, cb) {
+        if (!uid || uid === SiteService.GLOBAL_SITE) {
             cb(null, {
-                displayName:pb.config.siteName,
+                displayName: pb.config.siteName,
                 hostname: pb.config.siteRoot,
                 uid: SiteService.GLOBAL_SITE,
                 defaultLocale: pb.Localization.defaultLocale,
@@ -120,7 +121,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method getAllSites
      * @param {Function} cb - the callback function
      */
-    SiteService.prototype.getAllSites = function(cb) {
+    SiteService.prototype.getAllSites = function (cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.PROJECT_ALL, where: {} }, cb);
     };
@@ -130,7 +131,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method getActiveSites
      * @param {Function} cb - the callback function
      */
-    SiteService.prototype.getActiveSites = function(cb) {
+    SiteService.prototype.getActiveSites = function (cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, { select: pb.DAO.PROJECT_ALL, where: {active: true} }, cb);
     };
@@ -140,7 +141,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method getInactiveSites
      * @param {Function} cb - the callback function
      */
-    SiteService.prototype.getInactiveSites = function(cb) {
+    SiteService.prototype.getInactiveSites = function (cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, {where: {active: false}}, cb);
     };
@@ -150,19 +151,44 @@ module.exports = function SiteServiceModule(pb) {
      * @method getSiteMap
      * @param {Function} cb - the callback function
      */
-    SiteService.prototype.getSiteMap = function(cb) {
-        var self  = this;
-        var tasks = {
-             active: function(callback) {
-                 self.getActiveSites(callback);
-             },
-
-             inactive: function(callback) {
-                 self.getInactiveSites(callback);
-             }
-        };
-        async.series(tasks, cb);
+    SiteService.prototype.getSiteMap = function (cb) {
+        var self = this;
+        async.parallel({
+            active: function (callback) {
+                self.getActiveSites(callback);
+            },
+            inactive: function (callback) {
+                self.getInactiveSites(callback);
+            }
+        }, function (err, result) {
+            if (util.isError(err)) {
+                return cb(err);
+            }
+            var tasks = {
+                active: function (callback) {
+                    addActiveTheme(result.active, callback);
+                },
+                inactive: function (callback) {
+                    addActiveTheme(result.inactive, callback);
+                }
+            };
+            async.series(tasks, cb);
+        });
     };
+
+    function addActiveTheme(siteMap, cb) {
+        async.each(siteMap,
+            function(item, callback){
+                pb.SettingServiceFactory.getServiceBySite(item.uid).get('active_theme', function (err, theme) {
+                    item.activeTheme = theme || '';
+                    callback(null, item);
+                });
+            },
+            function(){
+                cb(null, siteMap);
+            }
+        );
+    }
 
     /**
      * Get site name given a unique id.
@@ -170,7 +196,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String} uid - unique id
      * @param {Function} cb - the callback function
      */
-    SiteService.prototype.getSiteNameByUid = function(uid, cb) {
+    SiteService.prototype.getSiteNameByUid = function (uid, cb) {
         var dao = new pb.DAO();
         dao.q(SITE_COLL, {select: pb.DAO.PROJECT_ALL, where: {uid: uid} }, function(err, result) {
             var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
@@ -194,12 +220,12 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String}   id - Site object Id to exclude from the search
      * @param {Function} cb - Callback function
      */
-    SiteService.prototype.isDisplayNameOrHostnameTaken = function(displayName, hostname, id, cb) {
-        this.getExistingDisplayNameHostnameCounts(displayName, hostname, id, function(err, results) {
+    SiteService.prototype.isDisplayNameOrHostnameTaken = function (displayName, hostname, id, cb) {
+        this.getExistingDisplayNameHostnameCounts(displayName, hostname, id, function (err, results) {
 
             var result = results === null;
             if (!result) {
-                util.forEach(results, function(value) {
+                util.forEach(results, function (value) {
                     result |= value > 0;
                 });
             }
@@ -216,13 +242,13 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String}   id - Site object Id to exclude from the search
      * @param {Function} cb - Callback function
      */
-    SiteService.prototype.getExistingDisplayNameHostnameCounts = function(displayName, hostname, id, cb) {
+    SiteService.prototype.getExistingDisplayNameHostnameCounts = function (displayName, hostname, id, cb) {
         if (util.isFunction(id)) {
             cb = id;
             id = null;
         }
 
-        var getWhere = function(where) {
+        var getWhere = function (where) {
             if (id) {
                 where[pb.DAO.getIdField()] = pb.DAO.getNotIdField(id);
             }
@@ -230,11 +256,11 @@ module.exports = function SiteServiceModule(pb) {
         };
         var dao   = new pb.DAO();
         var tasks = {
-            displayName: function(callback) {
+            displayName: function (callback) {
                 var expStr = '^' + util.escapeRegExp(displayName.toLowerCase()) + '$';
                 dao.count('site', getWhere({displayName: new RegExp(expStr, 'i')}), callback);
             },
-            hostname: function(callback) {
+            hostname: function (callback) {
                 dao.count('site', getWhere({hostname: hostname.toLowerCase()}), callback);
             }
         };
@@ -248,7 +274,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - callback to run after job is completed
      * @return {String} the job id
      */
-    SiteService.prototype.activateSite = function(siteUid, cb) {
+    SiteService.prototype.activateSite = function (siteUid, cb) {
         cb = cb || util.cb;
         var name = util.format("ACTIVATE_SITE_%s", siteUid);
         var job = new pb.SiteActivateJob();
@@ -267,7 +293,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - callback to run after job is completed
      * @return {String} the job id
      */
-    SiteService.prototype.deactivateSite = function(siteUid, cb) {
+    SiteService.prototype.deactivateSite = function (siteUid, cb) {
         cb = cb || util.cb;
         var name = util.format("DEACTIVATE_SITE_%s", siteUid);
         var job = new pb.SiteDeactivateJob();
@@ -288,7 +314,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - callback to run after job is completed
      * @return {String} the job id
      */
-    SiteService.prototype.editSite = function(options, cb) {
+    SiteService.prototype.editSite = function (options, cb) {
         cb = cb || util.cb;
         var name = util.format("EDIT_SITE%s", options.uid);
         var job = new pb.SiteCreateEditJob();
@@ -307,7 +333,7 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String} options.displayName - result of site display name edit/create
      * @param {Function} cb - callback function
      */
-    SiteService.prototype.createSite = function(options, cb) {
+    SiteService.prototype.createSite = function (options, cb) {
         cb = cb || util.cb;
         options.active = false;
         options.uid = util.uniqueId();
@@ -320,10 +346,10 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String} siteUid - site unique id
      * @param {Function} cb - callback function
      */
-    SiteService.prototype.startAcceptingSiteTraffic = function(siteUid, cb) {
+    SiteService.prototype.startAcceptingSiteTraffic = function (siteUid, cb) {
         var dao = new pb.DAO();
-        dao.loadByValue('uid', siteUid, 'site', function(err, site) {
-            if(util.isError(err)) {
+        dao.loadByValue('uid', siteUid, 'site', function (err, site) {
+            if (util.isError(err)) {
                 cb(err, null);
             }
             else if (!site) {
@@ -345,10 +371,10 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String} siteUid - site unique id
      * @param {Function} cb - callback function
      */
-    SiteService.prototype.stopAcceptingSiteTraffic = function(siteUid, cb) {
+    SiteService.prototype.stopAcceptingSiteTraffic = function (siteUid, cb) {
         var dao = new pb.DAO();
-        dao.loadByValue('uid', siteUid, 'site', function(err, site) {
-            if(util.isError(err)) {
+        dao.loadByValue('uid', siteUid, 'site', function (err, site) {
+            if (util.isError(err)) {
                 cb(err, null);
             }
             else if (!site) {
@@ -369,7 +395,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method initSites
      * @param {Function} cb
      */
-    SiteService.prototype.initSites = function(cb) {
+    SiteService.prototype.initSites = function (cb) {
         if (pb.config.multisite.enabled && !pb.config.multisite.globalRoot) {
             return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
         }
@@ -396,6 +422,26 @@ module.exports = function SiteServiceModule(pb) {
             // When multisite, use the configured hostname for global, turn off public facing routes,
             // and maintain admin routes (active is false).
             pb.RequestHandler.loadSite(SiteService.getGlobalSiteContext());
+
+            var os = require('os');
+
+            var interfaces = os.networkInterfaces();
+            for (var k in interfaces) {
+                for (var k2 in interfaces[k]) {
+                    var address = interfaces[k][k2];
+                    if (address.family === 'IPv4' && !address.internal) {
+                        pb.RequestHandler.loadSite({
+                            displayName: 'healthCheck',
+                            uid: 'healthCheck',
+                            hostname: address.address,
+                            active: true,
+                            defaultLocale: defaultLocale,
+                            supportedLocales: defaultSupportedLocales,
+                            prevHostnames: []
+                        });
+                    }
+                }
+            }
             cb(err, true);
         });
     };
@@ -406,7 +452,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method onActivateSiteCommandReceived
      * @param {Object} command - the command to react to.
      */
-    SiteService.onActivateSiteCommandReceived = function(command) {
+    SiteService.onActivateSiteCommandReceived = function (command) {
         if (!util.isObject(command)) {
             pb.log.error('SiteService: an invalid activate_site command object was passed. %s', util.inspect(command));
             return;
@@ -417,7 +463,7 @@ module.exports = function SiteServiceModule(pb) {
         job.setRunAsInitiator(false);
         job.init(name, command.jobId);
         job.setSite(command.site);
-        job.run(function(err, result) {
+        job.run(function (err, result) {
             var response = {
                 error: err ? err.stack : undefined,
                 result: result ? true : false
@@ -432,7 +478,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method onDeactivateSiteCommandReceived
      * @param {Object} command - the command to react to.
      */
-    SiteService.onDeactivateSiteCommandReceived = function(command) {
+    SiteService.onDeactivateSiteCommandReceived = function (command) {
         if (!util.isObject(command)) {
             pb.log.error('SiteService: an invalid deactivate_site command object was passed. %s', util.inspect(command));
             return;
@@ -443,7 +489,7 @@ module.exports = function SiteServiceModule(pb) {
         job.setRunAsInitiator(false);
         job.init(name, command.jobId);
         job.setSite(command.site);
-        job.run(function(err, result) {
+        job.run(function (err, result) {
             var response = {
                 error: err ? err.stack : undefined,
                 result: result ? true : false
@@ -458,7 +504,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method onCreateEditSiteCommandReceived
      * @param {Object} command - the command to react to.
      */
-    SiteService.onCreateEditSiteCommandReceived = function(command) {
+    SiteService.onCreateEditSiteCommandReceived = function (command) {
         if (!util.isObject(command)) {
             pb.log.error('SiteService: an invalid create_edit_site command object was passed. %s', util.inspect(command));
             return;
@@ -469,7 +515,7 @@ module.exports = function SiteServiceModule(pb) {
         job.setRunAsInitiator(false);
         job.init(name, command.jobId);
         job.setSite(command.site);
-        job.run(function(err, result) {
+        job.run(function (err, result) {
             var response = {
                 error: err ? err.stack : undefined,
                 result: result ? true : false
@@ -483,10 +529,10 @@ module.exports = function SiteServiceModule(pb) {
      * @static
      * @method init
      */
-    SiteService.init = function() {
+    SiteService.init = function () {
         var commandService = pb.CommandService.getInstance();
         commandService.registerForType('activate_site', SiteService.onActivateSiteCommandReceived);
-        commandService.registerForType('deactivate_site'  , SiteService.onDeactivateSiteCommandReceived);
+        commandService.registerForType('deactivate_site', SiteService.onDeactivateSiteCommandReceived);
         commandService.registerForType('create_edit_site', SiteService.onCreateEditSiteCommandReceived);
     };
 
@@ -554,10 +600,10 @@ module.exports = function SiteServiceModule(pb) {
      * @param {String} hostname
      * @return {String} hostname with protocol attached
      */
-    SiteService.getHostWithProtocol = function(hostname) {
+    SiteService.getHostWithProtocol = function (hostname) {
         hostname = hostname.match(/^http/g) ? hostname : "//" + hostname;
         var urlObject = url.parse(hostname, false, true);
-        urlObject.protocol = pb.config.server.ssl.enabled ? 'https' : 'http';
+        urlObject.protocol = pb.config.server.ssl.enabled || pb.config.server.ssl.use_x_forwarded ? 'https' : 'http';
         return url.format(urlObject).replace(/\/$/, '');
     };
 
@@ -568,7 +614,7 @@ module.exports = function SiteServiceModule(pb) {
      */
     SiteService.prototype.deleteSiteSpecificContent = function (siteId, cb) {
         var siteQueryService = new pb.SiteQueryService();
-        siteQueryService.getCollections(function(err, allCollections) {
+        siteQueryService.getCollections(function (err, allCollections) {
             var dao = new pb.DAO();
 
             var tasks = util.getTasks(allCollections, function (collections, i) {
@@ -599,7 +645,7 @@ module.exports = function SiteServiceModule(pb) {
      * @method getGlobalSiteContext
      * @return {Object}
      */
-    SiteService.getGlobalSiteContext = function() {
+    SiteService.getGlobalSiteContext = function () {
         return {
             displayName: pb.config.siteName,
             uid: pb.SiteService.GLOBAL_SITE,
@@ -611,7 +657,7 @@ module.exports = function SiteServiceModule(pb) {
         };
     };
 
-    SiteService.buildPrevHostnames = function(data, object) {
+    SiteService.buildPrevHostnames = function (data, object) {
         var prevHostname = object.hostname;
         var newHostname = data.hostname;
         // If this site's hostname has been changed, save off a redirectHost

@@ -368,7 +368,7 @@ form .error
     margin: 0 .5em .5em 0;
 }
 
-.add_field_button {
+.add_field_button, .toggle-wysiswyg-button {
     margin-bottom: .5em;
 }
 
@@ -404,7 +404,9 @@ form .error
     padding: 0;
     min-height: 200px;
 }
-
+.float-right {
+    float: right;
+}
 .layout_editable
 {
     overflow-x: hidden;
@@ -591,3 +593,31 @@ form .error
     box-sizing: border-box;
     -moz-box-sizing: border-box;
 }
+
+/*
+ * jQuery File Upload Plugin CSS
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2013, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ */
+
+ .fileinput-button {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+  .fileinput-button input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    opacity: 0;
+    -ms-filter: 'alpha(opacity=0)';
+    font-size: 200px !important;
+    direction: ltr;
+    cursor: pointer;
+  }

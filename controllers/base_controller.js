@@ -19,6 +19,10 @@
 //dependencies
 var url  = require('url');
 var util = require('../include/util.js');
+if(process.env.NEW_RELIC_LICENSE_KEY && process.env.NEW_RELIC_APP_NAME){
+    var newrelic = require('newrelic');
+}
+
 
 module.exports = function BaseControllerModule(pb) {
 
@@ -181,7 +185,7 @@ module.exports = function BaseControllerModule(pb) {
          * @type {string}
          */
         this.pageName            = '';
-        this.siteObj             = props.siteObj;
+        this.siteObj             = props.siteObj || {hostname:pb.config.siteRoot};
         this.site                = props.site;
         this.siteName            = props.siteName;
         this.hostname            = SiteService.getHostWithProtocol(self.siteObj.hostname) || pb.config.siteRoot;
@@ -224,6 +228,13 @@ module.exports = function BaseControllerModule(pb) {
             siteObj: this.siteObj
         };
 
+        if(process.env.NEW_RELIC_LICENSE_KEY && process.env.NEW_RELIC_APP_NAME) {
+            newrelic.addCustomParameter('hostname', this.hostname);
+            newrelic.addCustomParameter('pathVars', JSON.stringify(this.pathVars));
+            newrelic.addCustomParameter('query', JSON.stringify(this.query));
+            newrelic.addCustomParameter('referer', this.referer);
+            newrelic.addCustomParameter('x-forwarded-for', this.req.headers["x-forwarded-for"]);
+        }
         //call the initSync function
         this.initSync(props);
 

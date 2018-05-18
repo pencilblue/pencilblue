@@ -1,0 +1,34 @@
+<div class="row" ng-repeat="localField in localizationKVSet">
+    <div class="col-xs-5">
+        <div class="form-group" ng-class="{'has-error': !isKeyValid($index)}">
+            <input name="localFieldKey_{{$index}}" type="text" class="form-control"
+                   placeholder="^loc_LOCALIZATION_KEY_PLACEHOLDER^"
+                   ng-model="localField.key" ng-model-options="{allowInvalid: true}" required>
+
+            <div class="form_error" ng-if="!isKeyValid($index)">
+                ^loc_THIS_FIELD_IS_REQUIRED^
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-5">
+        <div class="form-group" ng-class="{'has-error': !isValueValid($index)}">
+            <input ng-if="!useWYSIWYG" name="localFieldValue_{{$index}}" type="text" class="form-control"
+                   placeholder="^loc_LOCALIZATION_VALUE_PLACEHOLDER^"
+                   ng-model="localField.value" ng-model-options="{allowInvalid: true}" ng-required="!useWYSIWYG">
+            <div ng-if="useWYSIWYG" class="form-group" ng-class="{'has-error': !isWysiwygValid(layout)}">
+                <wysiwyg id="localFieldValue_{{$index}}" layout="localField.value" media="[]"></wysiwyg>
+                <div class="form_error" ng-if="!isWysiwygValid(layout)" style="margin-top: -1em">^loc_REQUIRED_FIELD^</div>
+            </div>
+            <div class="form_error" ng-if="!isValueValid($index)">
+                ^loc_THIS_FIELD_IS_REQUIRED^
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-1">
+        <div class="form-group">
+            <div class="btn btn-default" ng-click="removeField($index)">
+                <i class="fa fa-minus"></i>
+            </div>
+        </div>
+    </div>
+</div>

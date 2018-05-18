@@ -20,6 +20,7 @@
 var path   = require('path');
 var crypto = require('crypto');
 var util   = require('../util.js');
+const Promise = require('bluebird');
 
 /**
  * Tools for session storage
@@ -27,7 +28,6 @@ var util   = require('../util.js');
  * @module Session
  */
 module.exports = function SessionModule(pb) {
-
     /**
      * Responsible for managing user sessions
      *
@@ -39,6 +39,7 @@ module.exports = function SessionModule(pb) {
     function SessionHandler(sessionStore){
 
         //ensure a session store was started
+        Promise.promisifyAll(sessionStore);
         this.sessionStore = sessionStore;
     }
 
@@ -94,7 +95,7 @@ module.exports = function SessionModule(pb) {
      * @property COOKIE_NAME
      * @type {String}
      */
-    SessionHandler.COOKIE_NAME = 'session_id';
+    SessionHandler.COOKIE_NAME = 'cms_tn_session_id';
 
     /**
      *
@@ -154,17 +155,23 @@ module.exports = function SessionModule(pb) {
         //update timeout
         session[SessionHandler.TIMEOUT_KEY] = new Date().getTime() + pb.config.session.timeout;
 
-        //last active request using this session, persist it back to storage
         if (session.end) {
-            this.sessionStore.clear(session.uid, cb);
+            return this.sessionStore.clear(session.uid, cb);
         }
-        else {
-            this.sessionStore.set(session, cb);
+        this.sessionStore.set(session, cb);
+    };
+
+    SessionHandler.prototype.merge = function(sid, mergeFn, cb) {
+        if (!mergeFn || !mergeFn instanceof Function) {
+            return Promise.reject(new Error('SessionHandler: Invalid merge function')).asCallback(cb);
         }
 
-        //another request is using the session object so just call back OK
-        cb(null, true);
-    };
+        return Promise.using(this.sessionStore.lock(sid), _lock => {
+            return this.sessionStore.getAsync(sid)
+                .then(mergeFn)
+                .then(Promise.promisify(this.close).bind(this))
+        }).asCallback(cb)
+    }
 
     /**
      * Sets the session in a state that it should be terminated after the last request has completed.
@@ -192,7 +199,7 @@ module.exports = function SessionModule(pb) {
                 permissions: [],
                 admin_level: pb.SecurityService.ACCESS_USER
             },
-            ip: request.connection.remoteAddress,
+            ip: SessionHandler.getRemoteIP(request),
             client_id: SessionHandler.getClientId(request)
         };
         session[SessionHandler.SID_KEY] = util.uniqueId();
@@ -223,6 +230,24 @@ module.exports = function SessionModule(pb) {
     };
 
     /**
+     * Retrieves user's remote IP address (Returns first address in x-forwarded-for header if using a proxy)
+     * @static
+     * @method getRemoteIP
+     * @param {Object} request
+     * @returns {String} User's true remote IP address
+     */
+    SessionHandler.getRemoteIP = function(request) {
+        if(request.headers && request.headers['x-forwarded-for']) {
+            var ipList = request.headers['x-forwarded-for'].split(/[\s,]+/);
+            if(ipList.length > 0) {
+                return ipList[0];
+            }
+        }
+
+        return request.connection.remoteAddress;
+    };
+
+    /**
      * Loads a session store prototype based on the system configuration
      * @static
      * @method getSessionStore
@@ -230,9 +255,9 @@ module.exports = function SessionModule(pb) {
      */
     SessionHandler.getSessionStore = function(){
         var possibleStores = [
-              SessionHandler.HANDLER_PATH + pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
-              pb.config.session.storage
-         ];
+            SessionHandler.HANDLER_PATH + pb.config.session.storage + SessionHandler.HANDLER_SUFFIX,
+            pb.config.session.storage
+        ];
 
         var SessionStoreModule = null;
         for(var i = 0; i < possibleStores.length; i++){
@@ -247,7 +272,7 @@ module.exports = function SessionModule(pb) {
 
         //ensure session store was loaded
         if (SessionStoreModule === null){
-            throw new Error("Failed to initialize a session store. Exhausted posibilities: "+JSON.stringify(possibleStores));
+            throw new Error(`Failed to initialize a session store. Exhausted possibilities: ${JSON.stringify(possibleStores)}`);
         }
         return SessionStoreModule(pb);
     };
@@ -271,16 +296,14 @@ module.exports = function SessionModule(pb) {
      * @return {string} Session Id if available NULL if it cannot be found
      */
     SessionHandler.getSessionIdFromCookie = function(request){
+        let sessionId = null;
 
-        var sessionId = null;
-        if (request.headers[SessionHandler.COOKIE_HEADER]) {
-
-            // Discovered that sometimes the cookie string has trailing spaces
-            for(var key in request.headers[SessionHandler.COOKIE_HEADER]){
-                if(key.trim() == 'session_id'){
-                    sessionId = request.headers[SessionHandler.COOKIE_HEADER][key];
-                    break;
-                }
+        let cookieHeader = request.headers[SessionHandler.COOKIE_HEADER];
+        if (cookieHeader) {
+            let key = Object.keys(cookieHeader).find(x => x.trim() === SessionHandler.COOKIE_NAME) ||
+                Object.keys(cookieHeader).find(x => x.trim() === 'session_id');
+            if (key) {
+                return cookieHeader[key];
             }
         }
         return sessionId;
@@ -294,7 +317,7 @@ module.exports = function SessionModule(pb) {
      * @return {Object}
      */
     SessionHandler.getSessionCookie = function(session) {
-        return {session_id: session.uid, path: '/'};
+        return {[SessionHandler.COOKIE_NAME]: session.uid, path: '/'};
     };
 
     return SessionHandler;

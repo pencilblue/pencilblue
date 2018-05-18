@@ -50,6 +50,12 @@ module.exports = function(pb) {
 
     ManagePlugins.prototype.render = function (cb) {
         var self = this;
+        let isStaging = (this.siteObj && this.siteObj.hostname === 'global-cms-staging.cbtalentnetwork.com');
+        let isLocal = pb.config.siteRoot === 'http://localhost:8080';
+        
+        if(this.site === 'global' && !isStaging && !isLocal && !(this.query && this.query.forceAllow)){
+            return self.reqHandler.serve404();
+        }
 
         var tasks = {
             sitePluginMap: [util.wrapTask(this.pluginService, this.pluginService.getPluginMap)],

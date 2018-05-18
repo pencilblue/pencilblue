@@ -435,6 +435,9 @@ module.exports = function(pb) {
      * @return {String}
      */
     ArticleRenderer.prototype.getLayout = function(content) {
+        if(util.isObject(content.article_layout)){
+            return "";
+        }
         return content.article_layout;
     };
 

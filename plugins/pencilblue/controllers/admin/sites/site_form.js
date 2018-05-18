@@ -56,8 +56,10 @@ module.exports = function SiteFormModule(pb) {
         options.host = data.hostname.toString();
         options.savedLocales = data.supportedLocales;
         options.defaultLocale = data.defaultLocale;
+        options.forceLocale = data.forceLocale;
         options.isActive = data.active;
         options.uid = data.uid;
+        options.useBundledScripts = data.useBundledScripts;
       }
 
       setupAngularObj(self, options, cb);

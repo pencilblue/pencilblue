@@ -24,14 +24,14 @@ module.exports = function Routes(pb){
     return [
         {
             method: 'get',
-            path: '/media/*',
+            path: '/media/:path*',
             auth_required: false,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'media_content_controller.js')
         },
         {
             method: 'get',
-            path: "/public/:plugin/*",
+            path: "/public/:plugin/:path*",
             access_level: 0,
             auth_required: false,
             setup_required: false,
@@ -1129,24 +1129,6 @@ module.exports = function Routes(pb){
         },
         {
             method: 'get',
-            path: "/admin/site_settings/libraries",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
-            auth_required: true,
-            inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'site_settings', 'libraries.js'),
-            content_type: 'text/html'
-        },
-        {
-            method: 'post',
-            path: "/actions/admin/site_settings/libraries",
-            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
-            auth_required: true,
-            inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'admin', 'site_settings', 'libraries.js'),
-            content_type: 'text/html'
-        },
-        {
-            method: 'get',
             path: "/api/localization/script",
             handler: "getAsScript",
             auth_required: false,
@@ -1162,6 +1144,26 @@ module.exports = function Routes(pb){
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage_sites.js'),
             content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/admin/sites/search",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage_sites.js'),
+            content_type: 'text/html',
+            handler: 'search'
+        },
+        {
+            method: 'get',
+            path: "/admin/sites/paginate",
+            access_level: pb.SecurityService.ACCESS_ADMINISTRATOR,
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'admin', 'sites', 'manage_sites.js'),
+            content_type: 'text/html',
+            handler: 'getPage'
         },
         {
             method: 'get',

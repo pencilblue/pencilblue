@@ -4,6 +4,7 @@ var path          = require('path');
 var should        = require('should');
 var Configuration = require('../../include/config.js');
 var Lib           = require('../../lib');
+const sinon       = require('sinon');
 
 describe('Localization', function() {
 
@@ -18,7 +19,10 @@ describe('Localization', function() {
 
         pb = new Lib(Configuration.getBaseConfig());
         Localization = pb.Localization;
+        pb.SiteQueryService = sinon.stub();
+        pb.SiteQueryService.prototype.q = sinon.stub().yields(null, [{storage:{}}]);
         Localization.init(next);
+
     });
 
     describe('Localization.getLocalizationPackage', function() {
@@ -56,7 +60,7 @@ describe('Localization', function() {
 
     describe('Localization.isSupported', function() {
 
-        var acceptable = ['pl-PL', 'en-us', 'es-es', 'ro-RO', 'fr-fr', 'pt-br'];
+        var acceptable = ['pl-PL', 'en-us', 'es-es', 'de-DE', 'fr-fr', 'pt-br'];
         acceptable.forEach(function(locale) {
 
             it('should return true when provided '+locale, function() {
@@ -221,7 +225,7 @@ describe('Localization', function() {
             ['C:\\windows\\file\\path\\en.js', 'en', null],
             ['en-US', 'en', 'US'],
             ['PO-us', 'po', 'US'],
-            ['Ro-Ro', 'ro', 'RO'],
+            ['DE-De', 'de', 'DE'],
             ['eS-Es', 'es', 'ES'],
             ['/unix/file/path/en-US.json', 'en', 'US'],
             ['C:\\windows\\file\\path\\EN-us.js', 'en', 'US']
@@ -329,7 +333,7 @@ describe('Localization', function() {
     describe('Localization.unregisterLocale', function() {
 
         it('should return true and no longer be supported when a valid locale is unregistered', function() {
-            var locale = 'nl-BE';
+            var locale = 'nl-NL';
             Localization.unregisterLocale(locale).should.eql(true);
             Localization.isSupported(locale).should.eql(false);
             Localization.getSupported().filter(function(localeObj) {
