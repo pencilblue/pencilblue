@@ -44,7 +44,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
         var plugin          = this.pathVars.plugin;
         var postPluginPath  = this.pathVars.path;
         var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
-        var publicRoutes = ['js/', 'css/', 'fonts/', 'img/', 'images/', 'localization/', 'favicon.ico', 'dist/', 'widgets/', 'version/'];
+        var publicRoutes = ['angular/', 'js/', 'css/', 'fonts/', 'img/', 'images/', 'localization/', 'favicon.ico', 'dist/', 'widgets/', 'version/'];
 
         //do check for valid strings otherwise serve 404
         if (!util.isString(postPluginPath) || !util.isString(pluginPublicDir)) {
