@@ -16,13 +16,13 @@
  */
 
 //Wrap an async function in a middleware callback interface
-const next = fn => (req, res, next) => Promise.resolve(fn).then(fn => fn(req, res)).then(() => next(), next)
+const next = fn => (ctx, next) => Promise.resolve(fn).then(fn => fn(ctx.req, ctx.res)).then(() => next(), next)
 
 module.exports = function(pb) {
-    const { startTime, endTime } = require('./timing')(pb)
-    const { openSession, closeSession, writeSessionCookie } = require('./session')(pb)
-    const { urlParse, checkPublicRoute, checkModuleRoute, systemSetupCheck, parseRequestBody } = require('./system')(pb)
-    const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb)
+    const { startTime, endTime } = require('./timing')(pb);
+    const { openSession, closeSession } = require('./session')(pb);
+    const { urlParse, checkPublicRoute, checkModuleRoute, systemSetupCheck } = require('./system')(pb);
+    const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb);
     const { requiresAuthenticationCheck, authorizationCheck, ipFilterCheck } = require('./auth')(pb)
     const { localizedRouteCheck, initializeLocalization } = require('./localization')(pb)
     const { instantiateController, initializeController, render, writeResponse } = require('./controller')(pb)
@@ -47,7 +47,6 @@ module.exports = function(pb) {
         initializeLocalization,
         initializeController,
         render,
-        writeSessionCookie,
         writeResponse,
         endTime,
         closeSession
@@ -56,7 +55,7 @@ module.exports = function(pb) {
     return {
         getAll: () => stack.map(fn => ({
             name: fn.name,
-            action: next(fn)
+            action: async (ctx, next) => {let end = await fn(ctx); !end ? await next() : '';}
         }))
     }
 };

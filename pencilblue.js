@@ -2,33 +2,12 @@ console.time("startup");
 if(process.env.NEW_RELIC_LICENSE_KEY && process.env.NEW_RELIC_APP_NAME){
     require('newrelic');
 }
-/*
-    Copyright (C) 2015  PencilBlue, LLC
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 'use strict';
 
 //dependencies
-var fs          = require('fs');
-var http        = require('http');
-var https       = require('https');
-var async       = require('async');
-var util        = require('./include/util.js');
-var ServerInitializer = require('./include/http/server_initializer.js');
-var HtmlEncoder = require('htmlencode');
-
+const Promise = require('bluebird');
+const util = require('./include/util.js');
+const ServerInitializer = Promise.promisifyAll(require('./include/http/server_initializer.js'));
 
 /**
  * The main driver file for PencilBlue.  Provides the function necessary to
@@ -38,362 +17,223 @@ var HtmlEncoder = require('htmlencode');
  * @class PencilBlue
  * @constructor
  */
-function PencilBlue(config){
+class PencilBlue {
+    constructor (config) {
+        this.config = config;
+    }
 
-    /**
-     *
-     * @private
-     * @static
-     * @property pb
-     * @type {Object}
-     */
-    var pb = require('./include')(config);
-    this.requirements = pb;
+    get requirements () {
+        return this.pb;
+    }
+    get pb () {
+        if(this._pb){
+            return this._pb;
+        }
+        this._pb = require('./include')(this.config);
+        Object.keys(this._pb).forEach((key) => this._pb[key] = Promise.promisifyAll(this._pb[key]));
+        return this._pb;
+    }
+    get requestsServed () {
+        return this._requestServed;
+    }
+    set requestsServed (value) {
+        this._requestServed = value;
+    }
 
-    /**
-     * The number of requests served by this instance
-     * @private
-     * @static
-     * @property requestsServed
-     * @type {Integer}
-     */
-    var requestsServed = 0;
+    static startInstance () {
+        let Configuration = require('./include/config.js');
+        let config        = Configuration.load();
+        let pb            = new PencilBlue(config);
+        pb.start();
+        return pb;
+    }
 
+    async start () {
+        this.pb.system.registerSignalHandlers(true);
+        this.pb.system = Promise.promisifyAll(this.pb.system);
+        this.pb.system.onStartAsync();
+        return this.runInitTasks();
+    };
     /**
      * To be called when the configuration is loaded.  The function is responsible
      * for triggered the startup of the HTTP connection listener as well as start a
      * connection pool to the core DB.
      * @method init
      */
-    this.init = function(){
-        var tasks = [
-            util.wrapTask(this, this.initModules, 'initModules'),
-            util.wrapTask(this, this.initRequestHandler, 'initRequestHandler'),
-            util.wrapTask(this, this.initDBConnections, 'initDBConnections'),
-            util.wrapTask(this, this.initDBIndices, 'initDBIndices'),
-            util.wrapTask(this, this.initServerRegistration, 'initServerRegistration'),
-            util.wrapTask(this, this.initCommandService, 'initCommandService'),
-            //util.wrapTask(this, this.initSiteMigration, 'initSiteMigration'),
-            util.wrapTask(this, this.initSessions, 'initSessions'),
-            util.wrapTask(this, this.initMiddleware, 'initMiddleware'),
-            util.wrapTask(this, this.initPlugins, 'initPlugins'),
-            util.wrapTask(this, this.initSites, 'initSites'),
-            util.wrapTask(this, this.initLocales, 'initLocales'),
-            util.wrapTask(this, this.registerMetrics, 'registerMetrics'),
-            util.wrapTask(this, this.initServer, 'initServer')
-        ];
-        async.series(tasks, function(err, results) {
-            if (util.isError(err)) {
-                throw err;
-            }
-            pb.log.info('PencilBlue: Ready to run!');
-            console.timeEnd("startup");
+    async runInitTasks () {
+        await this._initLocalizationServices();
+        this._initRoutes(); // Replaced
 
-            //print out stats
-            if (pb.log.isDebug()) {
-                var stats = results.reduce(function (obj, result) {
-                    obj[result.name] = result.time;
-                    obj.total += result.time;
-                    return obj;
-                }, {total: 0});
-                pb.log.debug('Startup Stats (ms):\n%s', JSON.stringify(stats, null, 2));
-            }
-        });
-    };
+        // Setup Database
+        await this._initDBConnections();
+        await this._initDBIndices();
 
-    /**
-     * Ensures that any log messages by the NPM module are forwarded as output
-     * to the system logs
-     * @static
-     * @method initLogWrappers
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    this.initModules = function(cb) {
-        HtmlEncoder.EncodeType = 'numerical';
+        // Init clustering services -- Replace with Koa Cluster? eventually
+        await this._initServerRegistration();
+        await this._initCommandService();
 
-        pb.Localization.init(cb);
-    };
+        // await this._initSiteMigration();
 
-    /**
-     * Initializes the request handler.  This causes all system routes to be
-     * registered.
-     * @static
-     * @method initRequestHandler
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    this.initRequestHandler = function(cb) {
-        pb.RequestHandler.init();
-        cb(null, true);
-    };
+        await this.pb.session.startAsync(); // init session
+        await this._initMiddleware();
+        await this._initPlugins();
 
-    /**
-     * Starts the session handler
-     * @method initSessions
-     * @param {Function} cb
-     */
-    this.initSessions = function(cb) {
-        pb.session.start(cb);
-    };
+        await this._initSites();
+        this._initLocales();
 
-    /**
-     * Registers all default middleware
-     * @method initMiddleware
-     * @param {function} cb (Error, boolean)
-     */
-    this.initMiddleware = function (cb) {
-        //register default middleware
-        pb.Middleware.getAll().forEach(function(middleware) {
-            pb.Router.addMiddlewareAfterAll(middleware);
-        });
-        cb(null, true);
-    };
+        this._registerMetrics();
+        await this.initServer();
 
-    /**
-     * Initializes the installed plugins.
-     * @static
-     * @method initPlugins
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    this.initPlugins = function(cb) {
+        this.pb.log.info('PencilBlue: Ready to run!');
+        console.timeEnd("startup");
+        this._printStartupLog([]);
+    }
+    _printStartupLog(results) {
+        let stats = results.reduce((obj, result) => {
+            obj[result.name] = result.time;
+            obj.total += result.time;
+            return obj;
+        }, {total: 0});
 
-        //initialize command listeners
-        pb.PluginService.init();
+        this.pb.log.debug('Startup Stats (ms):\n%s', JSON.stringify(stats, null, 2));
+    }
 
-        //initialize the plugins
-        var pluginService = new pb.PluginService();
-        pluginService.initPlugins(cb);
-    };
+    async _initLocalizationServices () {
+        return this.pb.Localization.initAsync();
+    }
+    _initRoutes () {
+        this.pb.RequestHandler.init(); // TODO: Registers system routes, replace with KOA
+    }
+    _initMiddleware () {
+        let middleware = this.pb.Middleware.getAll(); // TODO: Replace with KOA
+        middleware
+            .forEach((middleware) => this.pb.Router.addMiddleware(middleware));
+    }
+    async _initPlugins () {
+        this.pb.PluginService.init(); // initialize command listeners
+        let pluginService = new this.pb.PluginService();
+        return pluginService.initPluginsAsync(); // initialize all plugins
+    }
+    async _initSiteMigration () {
+        return this.pb.dbm.processMigrationAsync();
+    } // Shut this off, we might delete it as we dont need it
+    async _initSites() {
+        this.pb.SiteService.init();
+        let siteService = new this.pb.SiteService();
+        return siteService.initSitesAsync();
+    }
+    _initLocales () {
+        this.pb.LocalizationService.init();
+    }
 
-    /**
-     * Move a single tenant solution to a multi-tenant solution.
-     * @static
-     * @method initSiteMigration
-     * @param {Function} cb - callback function
-     */
-    this.initSiteMigration = function(cb) {
-        pb.dbm.processMigration(cb);
-    };
-
-    /**
-     * Initializes site(s).
-     * @method initSites
-     * @static
-     * @param {Function} cb - callback function
-     */
-    this.initSites = function(cb) {
-        pb.SiteService.init();
-        var siteService = new pb.SiteService();
-        siteService.initSites(cb);
-    };
-
-    /**
-     * Initializes Locales(s).
-     * @method initLocales
-     * @static
-     * @param {Function} cb - callback function
-     */
-    this.initLocales = function(cb) {
-        pb.LocalizationService.init();
-        cb(null, true);
-    };
-
-    /**
-     * Attempts to initialize a connection pool to the core database
-     * @static
-     * @method initDBConnections
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    this.initDBConnections = function(cb){
+    async _initDBConnections (){
         //setup database connection to core database
-        pb.dbm.getDb(pb.config.db.name, function(err, result){
-            if (util.isError(err)) {
-                return cb(err, false);
-            }
-            else if (!result.databaseName) {
-                return cb(new Error("Failed to establish a connection to: "+pb.config.db.name), false);
-            }
-
-            pb.log.debug('PencilBlue: Established connection to DB: %s', result.databaseName);
-            cb(null, true);
-        });
+        let dbName = this.pb.config.db.name;
+        let result = await this.pb.dbm.getDbAsync(dbName) || {};
+        if (!result.databaseName) {
+            throw new Error(`Failed to establish a connection to: ${dbName}`);
+        }
+        this.pb.log.debug(`PencilBlue: Established connection to DB: ${result.databaseName}`);
     };
-
-    /**
-     * Checks to see if the process should verify that the indices are valid and in
-     * place.
-     * @static
-     * @method initDBIndices
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    this.initDBIndices = function(cb) {
-        if (pb.config.db.skip_index_check || !util.isArray(pb.config.db.indices)) {
-            pb.log.info('PencilBlue: Skipping ensurance of indices');
-            return cb(null, true);
+    async _initDBIndices () {
+        let skipIndex = this.pb.config.db.skip_index_check;
+        let indices = this.pb.config.db.indices;
+        let indexIsNotArray = !util.isArray(indices);
+        if (skipIndex || indexIsNotArray){
+            return this.pb.log.info('PencilBlue: Skipping ensurance of indices');
         }
 
-        pb.log.info('PencilBlue: Ensuring indices...');
-        pb.dbm.processIndices(pb.config.db.indices, function(err/*, results*/) {
-            cb(err, !util.isError(err));
-        });
+        this.pb.log.info('PencilBlue: Ensuring indices...');
+        return this.pb.dbm.processIndicesAsync(indices);
     };
 
-    /**
-     * Initializes the HTTP server(s).  When SSL is enabled two servers are created.
-     * One to handle incoming HTTP traffic and one to handle HTTPS traffic.
-     * @static
-     * @method initServer
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    this.initServer = function(cb){
 
-        //build server setup
-        var self = this;
-        var context = {
-            config: pb.config,
-            log: pb.log,
-            onRequest: function(req, res) {
-                self.onHttpConnect(req, res);
+    // TODO: replace with KOA?
+    async initServer () {
+        let context = {
+            config: this.pb.config,
+            log: this.pb.log,
+            onRequest: (req, res) => {
+                this._onHttpConnect(req, res);
             },
-            onHandoffRequest: function(req, res) {
-                self.onHttpConnectForHandoff(req, res);
+            onHandoffRequest: (req, res) => {
+                this._onHttpConnectForHandoff(req, res);
             }
         };
-        var Initializer = pb.config.server.initializer || ServerInitializer;
-        var initializer = new Initializer(pb);
-        initializer.init(context, function(err, servers) {
-            if (util.isError(err)) {
-                return cb(err);
-            }
-            pb.server = servers.server;
-            pb.handOffServer = servers.handOffServer;
+        let Initializer = this.pb.config.server.initializer || ServerInitializer;
+        let initializer = Promise.promisifyAll(new Initializer(this.pb));
+        // let servers = await initializer.initAsync(context); // TODO: Replace with app.listen
 
-            cb(err, true);
-        });
+        this.pb.Router.listen(this.pb.config.sitePort);
+
+        this.pb.server = this.pb.Router;
+        this.pb.handOffServer = this.pb.Router.handOffServer;
     };
 
-    /**
-     * The function that handles normal server traffic.  The function ensures that
-     * the incoming request is delegated out appropriately.  When SSL Termination
-     * is in use if the 'x-forwarded-proto' header does equal 'https' then the
-     * request is delegated to the handoff function so the request can be
-     * redirected appropriately.
-     * @static
-     * @method onHttpConnect
-     * @param {Request} req The incoming request
-     * @param {Response} res The outgoing response
-     */
-    this.onHttpConnect = function(req, res){
-        if (pb.log.isSilly()) {
-            pb.log.silly('New Request: %s', (req.uid = util.uniqueId()));
-        }
-
+    _onHttpConnect (req, res){
         function isIpAddress(ipAddress) {
             return /(\d+\.\d+\.\d+\.\d+)|:(\d+)/.test(ipAddress);
         }
-        //check to see if we should inspect the x-forwarded-proto header for SSL
-        //bump the counter for the instance
-        requestsServed++;
+        this.requestsServed++;
 
+        // TODO: move to middleware?  KOA?
         //check to see if we should inspect the x-forwarded-proto header for SSL
         //load balancers use this for SSL termination relieving the stress of SSL
         //computation on more powerful load balancers.
-        if (pb.config.server.ssl.use_x_forwarded && req.headers['x-forwarded-proto'] !== 'https' && !isIpAddress(req.headers.host)) {
-            return this.onHttpConnectForHandoff(req, res);
+        if (this.pb.config.server.ssl.use_x_forwarded &&
+            req.headers['x-forwarded-proto'] !== 'https' &&
+            !isIpAddress(req.headers.host)) {
+            return this._onHttpConnectForHandoff(req, res);
         }
 
-        //route the request
-        (new pb.Router(req, res)).handle(req, res);
+        this.pb.Router.listen(this.pb.config.sitePort);
     };
-
-    /**
-     * Handles traffic that comes in for HTTP when SSL is enabled.  The request is
-     * redirected to the appropriately protected HTTPS url.
-     * @static
-     * @method onHttpConnectForHandoff
-     * @param {Request} req The incoming request
-     * @param {Response} res The outgoing response
-     */
-    this.onHttpConnectForHandoff = function(req, res) {
-        var host = req.headers.host;
+    // Replace with KOA/Middleware?
+    _onHttpConnectForHandoff (req, res) {
+        let host = req.headers.host;
         if (host) {
             var index = host.indexOf(':');
             if (index >= 0) {
                 host = host.substring(0, index);
             }
         }
-        if (pb.config.server.ssl.use_handoff_port_in_redirect) {
-            host += ':'+pb.config.sitePort;
+        if (this.pb.config.server.ssl.use_handoff_port_in_redirect) {
+            host += ':'+ this.pb.config.sitePort;
         }
 
-        res.writeHead(301, { "Location": "https://" + host + req.url });
+        res.writeHead(301, { "Location": `https://${host}${req.url}`});
         res.end();
     };
 
-    /**
-     * Initializes server registration.
-     * @static
-     * @method initServerRegistration
-     * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
+    /***
+     * Clustering Actions
+     * @private
      */
-    this.initServerRegistration = function(cb) {
-        pb.ServerRegistration.getInstance().init(cb);
+    _initCommandService () {
+         this.pb.CommandService.getInstance().init(function(err, data) {});
     };
 
-    /**
-     * Initializes the command service by calling its "init" function.
-     * @static
-     * @method initCommandService
-     * @param {Function} cb A callback that provides two parameters: cb(Error, [RESULT])
-     */
-    this.initCommandService = function(cb) {
-        pb.CommandService.getInstance().init(cb);
+    _initServerRegistration () {
+        this.pb.ServerRegistration.getInstance().init(function() {});
     };
-
-    /**
-     * Initializes the metric registrations to measure request counts
-     * @static
-     * @method registerMetrics
-     * @param {Function} cb
-     */
-    this.registerMetrics = function(cb) {
-
+    _registerMetrics () {
         //total number of requests served
-        pb.ServerRegistration.addItem('requests', function(callback) {
-            callback(null, requestsServed);
+        this.pb.ServerRegistration.addItem('requests', (callback) => {
+            callback(null, this.requestsServed);
         });
 
         //current requests
-        pb.ServerRegistration.addItem('currentRequests', function(callback) {
-            pb.server.getConnections(callback);
+        this.pb.ServerRegistration.addItem('currentRequests', (callback) => {
+           callback(null, true);// this.pb.server.getConnections(callback);
         });
 
         //analytics average
-        pb.ServerRegistration.addItem('analytics', function(callback) {
-            callback(null, pb.AnalyticsManager.getStats());
-        });
-
-        cb(null, true);
-    };
-
-    /**
-     * Starts up the instance of PencilBlue
-     * @method start
-     */
-    this.start = function() {
-        var self = this;
-        pb.system.registerSignalHandlers(true);
-        pb.system.onStart(function(){
-            self.init();
+        this.pb.ServerRegistration.addItem('analytics', (callback) => {
+            callback(null, this.pb.AnalyticsManager.getStats());
         });
     };
 }
 
-/**
- * The default entry point to a stand-alone instance of PencilBlue
- * @static
- * @method startInstance
- * @return {PencilBlue}
- */
 PencilBlue.startInstance = function() {
     var Configuration = require('./include/config.js');
     var config        = Configuration.load();

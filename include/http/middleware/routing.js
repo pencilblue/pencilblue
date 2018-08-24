@@ -5,61 +5,66 @@ const HttpStatus = require('http-status-codes');
 const ErrorUtils = require('../../error/error_utils');
 
 module.exports = pb => ({
-    deriveSite: (req, res) => {
-        var hostname = req.handler.hostname;
-        var siteObj = pb.RequestHandler.sites[hostname];
-        var redirectHost = pb.RequestHandler.redirectHosts[hostname];
+    deriveSite: (ctx) => {
+        let req = ctx.req;
+        let siteObj = ctx.sites[req.hostname]; // TODO: move sites to start on the ctx
+        let redirectHost = pb.RequestHandler.redirectHosts[req.hostname]; //TODO: wtf is this? attach it to ctx
 
         // If we need to redirect to a different host
         if (!siteObj && redirectHost && pb.RequestHandler.sites[redirectHost]) {
-            req.handler.url.protocol = pb.config.server.ssl.enabled || pb.config.server.ssl.use_x_forwarded ? 'https' : 'http';
-            req.handler.url.host = redirectHost;
-            return req.router.redirect(url.format(req.handler.url), HttpStatus.MOVED_PERMANENTLY);
+            req.url.protocol = pb.config.server.ssl.enabled || pb.config.server.ssl.use_x_forwarded ? 'https' : 'http';
+            req.url.host = redirectHost;
+            ctx.status = HttpStatus.MOVED_PERMANENTLY;
+            ctx.redirect(url.format(req.url));
+            ctx.body = `Redirecting to ${redirectHost}`;
+            return true;
         }
-        req.handler.siteObj = req.siteObj = siteObj;
+        req.siteObj = siteObj;
 
         //make sure we have a site
         if (!siteObj) {
-            throw ErrorUtils.notFound()
+            ctx.status = HttpStatus.NOT_FOUND;
+            return true;
         }
 
-        req.handler.site = req.site = req.handler.siteObj.uid;
-        req.handler.siteName = req.siteName = req.handler.siteObj.displayName;
+        req.site = req.siteObj.uid;
+        req.siteName = req.siteObj.displayName;
     },
-    deriveActiveTheme: async (req, res) => {
-        const settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, req.siteObj.uid);
-        let activeTheme = await util.promisify(settings.get).call(settings, 'active_theme')
+    deriveActiveTheme: async (ctx) => {
+        const settings = pb.SettingServiceFactory.getService(pb.config.settings.use_memory, pb.config.settings.use_cache, ctx.req.siteObj.uid);
+        let activeTheme = await util.promisify(settings.get).call(settings, 'active_theme');
         if (!activeTheme) {
-            pb.log.warn("RequestHandler: The active theme is not set.  Defaulting to '%s'", pb.config.plugins.default);
+            pb.log.warn(`RequestHandler: The active theme is not set.  Defaulting to '${pb.config.plugins.default}'`);
             activeTheme = pb.config.plugins.default;
         }
-        req.activeTheme = activeTheme;
+        ctx.req.activeTheme = activeTheme;
     },
-    deriveRoute: (req, res) => {
+    deriveRoute: (ctx) => { // TODO: Evaluate if we need most of this or not, I think we will need some but not all
         //Get plugins in priority order
-        const pluginService = new pb.PluginService({site: req.site})
+        let req = ctx;
+        const pluginService = new pb.PluginService({site: req.site});
         const plugins = _.uniq([req.activeTheme, ...pluginService.getActivePluginNames(), pb.config.plugins.default])
             .map(plugin => pb.RequestHandler.storage[plugin])
-            .filter(x => !!x)
+            .filter(x => !!x);
 
-        const pathname = req.handler.url.pathname
+        const pathname = req.url.pathname;
 
-        let descriptor
-        let pathVars = {}
+        let descriptor;
+        let pathVars = {};
 
         const findDescriptor = route => {
-            const descriptors = _.get(route, 'descriptors', {})
-            return descriptors[req.method] || descriptors['ALL']
-        }
+            const descriptors = _.get(route, 'descriptors', {});
+            return descriptors[req.method] || descriptors['all'];
+        };
 
         let exactMatch = plugins.some(plugin => {
-            descriptor = findDescriptor(plugin[pathname]) || findDescriptor(plugin['/:locale?' + pathname])
-            return descriptor
-        })
+            descriptor = findDescriptor(plugin[pathname]) || findDescriptor(plugin['/:locale?' + pathname]);
+            return descriptor;
+        });
 
         let found = !exactMatch && plugins.some(plugin => {
             return Object.values(plugin).some(route => {
-                let match = route.pattern.exec(req.handler.url.pathname)
+                let match = route.pattern.exec(req.url.pathname);
                 if (!match) {
                     return false
                 }
@@ -67,29 +72,35 @@ module.exports = pb => ({
                     .map((key, i) => ({
                         [key.name]: match[i + 1]
                     }))
-                    .reduce(Object.assign, {})
-                descriptor = findDescriptor(route)
+                    .reduce(Object.assign, {});
+                descriptor = findDescriptor(route);
                 return descriptor
             })
         })
         if (!exactMatch && !found) {
             throw ErrorUtils.notFound();
         }
-        req.route = req.handler.route = descriptor
-        req.pathVars = pathVars
+        req.route = descriptor;
+        req.pathVars = pathVars;
     },
-    inactiveAccessCheck: (req, res) => {
-        var inactiveSiteAccess = req.route.inactive_site_access;
+    inactiveAccessCheck: (ctx) => {
+        let req = ctx.req;
+        let inactiveSiteAccess = req.route.inactive_site_access;
         if (req.siteObj.active || inactiveSiteAccess) {
-            return
+            return;
         }
         if (req.siteObj.uid === pb.SiteService.GLOBAL_SITE) {
-            return req.router.redirect('/admin')
+            ctx.status = 301;
+            ctx.redirect('/admin');
+            ctx.body = 'redirecting to admin panel';
         }
-        if (req.siteObj.useCustomRedirect || pb.config.multisite.forceCustomRedirectForInactive) {
-            var redirectLink = req.siteObj.redirectLink || pb.config.multisite.defaultRedirectLink;
-            return req.router.redirect(redirectLink)
+        else if (req.siteObj.useCustomRedirect || pb.config.multisite.forceCustomRedirectForInactive) {
+            let redirectLink = req.siteObj.redirectLink || pb.config.multisite.defaultRedirectLink;
+            ctx.redirect(redirectLink);
         }
-        throw ErrorUtils.notFound()
+        else {
+            ctx.status = 404;
+        }
+        return true;
     }
-})
+});

@@ -1,16 +1,15 @@
 
 module.exports = pb => ({
-    startTime: (req, res) => {
-        req.startTime = (new Date()).getTime();
+    startTime: (ctx) => {
+        ctx.req.startTime = (new Date()).getTime();
     },
 
-    endTime: (req, res) => {
-        req.endTime = (new Date()).getTime();
+    endTime: (ctx) => {
+        ctx.req.endTime = (new Date()).getTime();
         if (pb.log.isDebug()) {
-            const duration = req.endTime = req.startTime
-            const redirect = req.didRedirect ? ` Redirect=${req.controllerResult.redirect}` : ''
-            const code = req.controllerResult.code ? ` CODE=${req.controllerResult.code}` : ''
-            pb.log.debug(`Response Time: ${duration}ms URL=${req.url}${duration}${code}`)
+            const duration = ctx.req.endTime = ctx.req.startTime;
+            const code = ctx.req.controllerResult.code ? ` CODE=${ctx.req.controllerResult.code}` : '';
+            pb.log.debug(`Response Time: ${duration}ms URL=${ctx.req.url}${duration}${code}`);
         }
     }
-})
+});
