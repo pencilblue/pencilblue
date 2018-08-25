@@ -29,6 +29,7 @@ var RegExpUtils = require('./utils/reg_exp_utils');
 /**
  * Provides a set of utility functions used throughout the code base
  *
+ * @deprecated as of 0.9.0, will be removed in 1.0.0
  * @module Services
  * @class Util
  * @constructor

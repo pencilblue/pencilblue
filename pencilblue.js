@@ -79,7 +79,7 @@ class PencilBlue {
         await this._initPlugins();
 
         await this._initSites();
-        this._initLocales();
+        this._initLocales(); // Command Service Tasks
 
         this._registerMetrics();
         await this.initServer();

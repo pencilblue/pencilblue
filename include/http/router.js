@@ -1,6 +1,8 @@
 const Koa = require('koa');
 const Router = require('koa-router');
 const Session = require('../koa/Session')();
+const bodyParser = require('koa-bodyparser');
+
 
 module.exports = function (pb) {
 
@@ -9,8 +11,12 @@ module.exports = function (pb) {
         constructor () {
             this.internalMiddlewareStack = [];
             this.app = new Koa();
+            this.app.keys = ['9011fa34-41a6-4a4d-8ad7-d591c5d3ca01']; // Random GUID
+
             this.router = new Router();
             this.internalRouteList = [];
+
+            this.app.use(bodyParser());
             this.app.use(Session(this.app));
         }
 
@@ -51,7 +57,10 @@ module.exports = function (pb) {
             return false;
         }
         _indexOfMiddleware (name) {
-            this.internalMiddlewareStack.findIndex(middleware => middleware.name === name);
+            return this.internalMiddlewareStack.findIndex(middleware => middleware.name === name);
+        }
+        _getMiddlewareByName (name) {
+            return this.internalMiddlewareStack.find(middleware => middleware.name === name);
         }
         _isValidName(name) {
             return this.internalMiddlewareStack
@@ -61,13 +70,36 @@ module.exports = function (pb) {
         _getMiddlewareListForRoutes () {
             return this.internalMiddlewareStack.map(middleware => middleware.action);
         }
+
         _loadInMiddleware() {
             this.internalRouteList.forEach(route => {
-               this.router[route.descriptor.method](route.descriptor.path, async (ctx, next) => {
-                   ctx.routeDescription = route.descriptor;
-                   await next();
-               }, ...this._getMiddlewareListForRoutes());
+                Object.keys(route.descriptors).forEach(method => {
+                    let routeDescriptor = route.descriptors[method];
+                    this.router[method](routeDescriptor.path, async (ctx, next) => {
+                        ctx.routeDescription = routeDescriptor;
+                        ctx.serve404 = () => {
+                            ctx.status = 404;
+                            ctx.body = 'Page not found on PB';
+                        };
+                        ctx.serve403 = () => {
+                            ctx.status = 403;
+                            ctx.body = '403 Forbidden';
+                        };
+                        await next();
+                    }, ...this._getMiddlewareListForRoutes());
+                });
             });
+        }
+        _loadPublicRoutes () {
+            let routeParserMiddleware = this._getMiddlewareByName('parseUrl');
+            let publicRouteHandlerMiddleware = this._getMiddlewareByName('checkPublicRoute');
+            let mimeTypeMiddleware = this._getMiddlewareByName('setMimeType');
+            pb.RouterLoader.publicRoutes.forEach(route => {
+                this.router.get(route, routeParserMiddleware.action, mimeTypeMiddleware.action, publicRouteHandlerMiddleware.action);
+            });
+
+            let nodeModuleMiddleware = this._getMiddlewareByName('checkModuleRoute');
+            this.router.get('/node_modules/*', routeParserMiddleware.action, mimeTypeMiddleware.action, nodeModuleMiddleware.action);
         }
 
         /***
@@ -76,6 +108,7 @@ module.exports = function (pb) {
          */
         listen (port) {
             if(!this.calledOnce) {
+                this._loadPublicRoutes(); // Loads PB public routes, not regular public routes. -- Need to remove eventually
                 this._loadInMiddleware();
 
                 this.app
@@ -83,7 +116,8 @@ module.exports = function (pb) {
                     .use(this.router.allowedMethods())
                     .listen(port);
 
-                pb.log.info("Pencilblue is running...");
+                pb.log.info('PencilBlue is ready!');
+                console.timeEnd("startup");
                 this.calledOnce = 1;
             }
             else {

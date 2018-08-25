@@ -44,6 +44,7 @@
     "jquery-validation": "^1.17.0",
     "jsonformatter": "^0.7.0",
     "koa": "^2.5.2",
+    "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
     "koa-session": "^5.8.3",
     "locale": "^0.1.0",
@@ -63,7 +64,8 @@
     "semver": "^5.4.1",
     "to-markdown": "0.0.3",
     "uuid": "^3.0.1",
-    "winston": "^2.3.0"
+    "winston": "^2.3.0",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "coveralls": "^2.11.15",

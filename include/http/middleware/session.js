@@ -17,21 +17,23 @@ const mergeSession = (cachedSession, newSession) => {
 };
 
 module.exports = pb => ({
-    openSession: async (ctx) => {
+    openSession: async (ctx, next) => {
         //Setup key deletion
         ctx.session._toDelete = [];
         ctx.session.delete = function (key) {
             delete this[key];
             this._toDelete.push(key);
         };
+        await next();
     },
-    closeSession: async (ctx) => {
+    closeSession: async (ctx, next) => {
         //close session after data sent
         //public content doesn't require a session so in order to not error out we
         //check if the session exists first.
-        if (!ctx.session) {
-            return
-        }
+        // if (!ctx.session) {
+        //     return;
+        // }
+        await next();
         // const mergeFn = (cachedSession) => mergeSession(cachedSession, ctx.session);
         // try {
         //     await util.promisify(pb.session.merge).call(pb.session, ctx.session.uid, mergeFn)

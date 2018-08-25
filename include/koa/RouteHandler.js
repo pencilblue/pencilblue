@@ -3,22 +3,22 @@ module.exports = (pb) => {
     const _ = require('lodash');
     const pathToRegexp = require('path-to-regexp');
 
+    const coreRoutes =  require(path.join(pb.config.plugins.directory, '/pencilblue/include/routes.js'))(pb);
     class RouteHandler {
-        constructor () {
-            this.coreRoutes = require(path.join(pb.config.plugins.directory, '/pencilblue/include/routes.js'))(pb);
-            this.storage = {};
+        static registerCoreRoutes () {
+            RouteHandler.storage = RouteHandler.storage || {};
+            coreRoutes.forEach(descriptor => this.registerRoute(descriptor, pb.config.plugins.default));
         }
-
-        getCoreRouteList (router) {
-            this.coreRoutes.forEach(descriptor => this.registerRoute(router, descriptor, pb.config.plugins.default));
-        }
-        registerRoute(router, descriptor, plugin) {
+        static registerRoute(descriptor, plugin) {
+            RouteHandler.storage = RouteHandler.storage || {};
             descriptor = this._modifyDescriptor(descriptor);
-            let route = this._buildRoute(descriptor, plugin);
-            router.registerRoute(route);
+            this._buildRoute(descriptor, plugin);
+        }
+        static getRoutesForRouter() {
+            return RouteHandler.storage || {};
         }
 
-        _modifyDescriptor(descriptor) {
+        static _modifyDescriptor(descriptor) {
             descriptor.method = (descriptor.method || 'ALL').toLowerCase();
             descriptor.controller = pb.util.isString(descriptor.controller) ? require(descriptor.controller)(pb) : descriptor.controller;
             if (descriptor.localization) {
@@ -26,7 +26,7 @@ module.exports = (pb) => {
             }
             return descriptor;
         }
-        _buildRoute(descriptor, plugin) {
+        static _buildRoute(descriptor, plugin) {
             const routePath = `['${plugin}']['${descriptor.path}']`;
             let route = _.get(this.storage, routePath);
 
@@ -40,12 +40,12 @@ module.exports = (pb) => {
                 _.set(this.storage, routePath, route)
             }
 
-            route.descriptor = Object.freeze(descriptor);
+            _.set(route, `descriptors['${descriptor.method}']`, Object.freeze(descriptor));
 
             return route;
         }
-
     }
 
+    RouteHandler.publicRoutes = ['/js/*', '/css/*', '/fonts/*', '/img/*', '/localization/*', '/favicon.ico', '/docs/*'];
     return RouteHandler;
 };

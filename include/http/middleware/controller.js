@@ -1,40 +1,49 @@
-const util = require('util')
-const _ = require('lodash')
+const util = require('util');
+const _ = require('lodash');
 module.exports = pb => ({
-    instantiateController: (req, res) => {
-        const Controller = _.get(req, 'route.controller');
-        req.controllerInstance = new Controller();
+    instantiateController: async (ctx, next) => {
+        const Controller = _.get(ctx.req, 'route.controller');
+        ctx.req.controllerInstance = new Controller();
+        await next();
     },
-    initializeController: (req, res) => {
-        const props = pb.RequestHandler.buildControllerContext(req, res, {});
-        return new Promise((resolve, reject) => {
-            req.controllerInstance.init(props, (err) => {
+    initializeController: async (ctx, next) => {
+        const props = pb.RequestHandler.buildControllerContext(ctx);
+        await new Promise((resolve, reject) => {
+            ctx.req.controllerInstance.init(props, (err) => {
                 if (util.isError(err)) {
                     return reject(err)
                 }
                 resolve()
-            })
-        })
+            });
+        });
+        await next();
     },
-    render: async (req, res) => {
-        let handler = _.get(req, 'route.handler', 'render')
-        req.controllerResult = await new Promise((resolve, reject) => {
-            req.controllerInstance[handler](result => {
+    render: async (ctx, next) => {
+        let handler = _.get(ctx.req, 'route.handler', 'render');
+        let content = await new Promise((resolve, reject) => {
+            ctx.req.controllerInstance[handler](result => {
                 if (util.isError(result)) {
-                    return reject(result)
+                    return reject(result);
                 }
-                resolve(result)
-            })
-        })
+                resolve(result);
+            });
+        });
+
+        ctx.type = content.content_type || ctx.type;
+        ctx.status = content.code || 200;
+        ctx.body = content.content;
+        await next();
     },
-    writeResponse: (req, res) => {
-        var data = req.controllerResult;
-        req.didRedirect = typeof data.redirect === 'string';
-        if (req.didRedirect) {
-            req.handler.doRedirect(data.redirect, data.code);
+    writeResponse: async (ctx, next) => { // TODO: Rename Write Headers
+        let headers = [];
+        if(pb.config.server.x_powered_by) {
+            headers.push({'x-powered-by': pb.config.server.x_powered_by});
         }
-        else {
-            req.handler.writeResponse(data);
-        }
+        headers.push({'Access-Control-Allow-Origin': pb.SiteService.getHostWithProtocol(ctx.hostname)});
+        //set any custom headers
+        Object.keys(headers)
+            .forEach((header) => ctx.res.setHeader(header, headers[header]));
+
+        await next();
     }
-})
+});

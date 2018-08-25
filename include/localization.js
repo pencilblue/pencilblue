@@ -556,7 +556,7 @@ module.exports = function LocalizationModule(pb) {
 
         queryService.q("localizations", opts, function (err, result) {
 
-            if (util.isError(err) || !result || result.length === 0) {
+            if (util.isError(err) || !result) {
                 let msg = `Failed to load custom locales: ${err}`;
                 pb.log.error(msg);
                 return cb(new Error(msg));

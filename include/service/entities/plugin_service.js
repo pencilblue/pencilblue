@@ -1054,9 +1054,8 @@ module.exports = function PluginServiceModule(pb) {
     /**
      * Attempts to initialize all installed plugins.
      * @method initPlugins
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
      */
-    PluginService.prototype.initPlugins = function(cb) {
+    PluginService.prototype.initPlugins = async function() {
         pb.log.debug('PluginService: Beginning plugin initialization...');
 
         const repository = this._pluginRepository;
@@ -1071,7 +1070,7 @@ module.exports = function PluginServiceModule(pb) {
         const processPlugins = plugins => {
             if (plugins.length === 0) {
                 pb.log.debug('PluginService: No plugins are installed');
-                return cb(null, []);
+                return [];
             }
 
             const tasks = plugins.map(plugin => {
@@ -1087,10 +1086,9 @@ module.exports = function PluginServiceModule(pb) {
             return Promise.all(tasks);
         };
 
-        Promise.resolve(preloadAllPlugins())
-            .then(() => Promise.promisify(this._pluginRepository.loadPluginsAcrossAllSites, {context:this._pluginRepository})())
-            .then(plugins => processPlugins(plugins))
-            .asCallback(cb);
+        await preloadAllPlugins();
+        let plugins = await repository.loadPluginsAcrossAllSites();
+        return processPlugins(plugins);
     };
 
     /**

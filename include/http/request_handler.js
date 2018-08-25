@@ -668,29 +668,24 @@ module.exports = function RequestHandlerModule(pb) {
              * @static
              * @method buildControllerContext
              * @param {Request} req
-             * @param {Response} res
-             * @param {object} extraData
              * @returns {Object}
              */
-        static buildControllerContext(req, res, extraData) {
-            req = req || {};
-            req.handler = req.handler || {};
-            return util.merge(extraData || {}, {
-                request_handler: req.handler,
-                request: req,
-                response: res,
-                session: req.session,
-                localization_service: req.localizationService,
-                path_vars: req.pathVars,
-                pathVars: req.pathVars,
-                query: req.handler.url.query,
-                body: req.body,
-                site: req.site,
-                siteObj: req.siteObj,
-                siteName: req.siteName,
-                activeTheme: req.activeTheme || 'pencilblue',
-                routeLocalized: !!(req.handler.route ? req.handler.route.localization : false)
-            });
+        static buildControllerContext(ctx) {
+            return {
+                request: ctx.req,
+                response: ctx.res,
+                session: ctx.session,
+                localization_service: ctx.req.localizationService,
+                path_vars: ctx.params, // TODO: Remove this one
+                pathVars: ctx.params,
+                query: ctx.query,
+                body: ctx.req.body,
+                site: ctx.req.site,
+                siteObj: ctx.req.siteObj,
+                siteName: ctx.req.siteName,
+                activeTheme: ctx.req.activeTheme || 'pencilblue',
+                routeLocalized: !!(ctx.req.route ? ctx.req.route.localization : false)
+            };
         }
     }
 

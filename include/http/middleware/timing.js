@@ -1,10 +1,12 @@
 
 module.exports = pb => ({
-    startTime: (ctx) => {
+    startTime: async (ctx, next) => {
         ctx.req.startTime = (new Date()).getTime();
+        await next();
     },
 
-    endTime: (ctx) => {
+    // Last middleware, does not need to call next.  Could combine with startTime
+    endTime: async (ctx) => {
         ctx.req.endTime = (new Date()).getTime();
         if (pb.log.isDebug()) {
             const duration = ctx.req.endTime = ctx.req.startTime;

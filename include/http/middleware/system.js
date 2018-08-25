@@ -7,36 +7,30 @@ const publicRoutes = ['/js/', '/css/', '/fonts/', '/img/', '/localization/', '/f
 const modulePattern = /^\/node_modules\/(.*)/
 
 async function servePublicContent(ctx, path) {
-    let content = '';
+    let content = {};
     try {
         content = await readFile(path);
     } catch (err) {
-        ctx.body = {};
         ctx.status = 404;
-        return true;
     }
 
     ctx.body = content;
-    return true;
 }
 module.exports = pb => ({
-    /**
-     * Parses the incoming URL
-     * @method urlParse
-     */
-    urlParse: (ctx) => {
-        let req = ctx.req;
-        req.url = url.parse(req.url, true);
-        req.hostname = req.headers.host || pb.SiteService.getGlobalSiteContext().hostname;
+    parseUrl: async (ctx, next) => {
+        ctx.req.hostname = ctx.req.headers.host;
+        ctx.req.url = url.parse(ctx.req.url);
+        await next();
     },
-    checkPublicRoute: async (ctx) => {
+    checkPublicRoute: async (ctx, next) => {
         let req = ctx.req;
         const pathname = req.url.pathname;
         if (publicRoutes.some(prefix => pathname.startsWith(prefix))) {
-            return servePublicContent(path.join(pb.config.docRoot, 'public', pathname));
+            return servePublicContent(ctx, path.join(pb.config.docRoot, 'public', pathname));
         }
+        await next();
     },
-    checkModuleRoute: (ctx) => { // WTF why is this a thing?
+    checkModuleRoute: async (ctx, next) => { // WTF why is this a thing?
         let req = ctx.req;
         const pathname = req.url.pathname;
         const match = modulePattern.exec(pathname);
@@ -46,17 +40,18 @@ module.exports = pb => ({
                 modulePath = require.resolve(match[1])
             } catch(_) {
                 ctx.status = 404;
-                return true;
+                return;
             }
-            return servePublicContent(modulePath);
+            return servePublicContent(ctx, modulePath);
         }
+        await next();
     },
-    systemSetupCheck: async (ctx) => {
+    systemSetupCheck: async (ctx, next) => {
         let req = ctx.req;
-        let route = req.route; /// determine if this is true or not
+        let route = req.route; // TODO: Figure out what this should be, probably routeDescriptor
 
         if (!req.route.setup_required) {
-            return;
+             return next();
         }
         let isSetup = false;
         try {
@@ -68,7 +63,14 @@ module.exports = pb => ({
             ctx.status = 301;
             ctx.redirect('/setup');
             ctx.body = 'Redirecting to setup';
-            return true;
+            return;
         }
+        await next();
+    },
+    setMimeType: async (ctx, next) => {
+        if(ctx.req.url.pathname.includes('.css')) {
+            ctx.type = 'text/css';
+        }
+        await next();
     }
 });

@@ -286,5 +286,7 @@ module.exports = function PB(config) {
 
     pb.PasswordResetService = require(path.join(config.docRoot, '/include/service/entities/password_reset_service.js'))(pb);
 
+    pb.RouterLoader = require(path.join(config.docRoot, '/include/koa/RouteHandler'))(pb);
+
     return pb;
 };
