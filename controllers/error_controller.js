@@ -29,156 +29,94 @@ module.exports = function(pb) {
      * @constructor
      * @extends BaseController
      */
-    function ErrorViewController(){}
-    util.inherits(ErrorViewController, pb.BaseController);
+    class ErrorViewController extends pb.BaseController {
+        initSync (context) {
+            this.error = context.error || this.error;
+            this.status = this.error && this.error.code ? this.error.code : 500;
+            this.contentSettingService = new pb.ContentService(this.getServiceContext());
+            this.topMenuService = new pb.TopMenuService(this.getServiceContext());
+            this.setPageName(this.status + '');
+        }
 
-    /**
-     * Initializes the controller
-     * @method init
-     * @param {Object} context
-     * @param {Function} cb
-     */
-    ErrorViewController.prototype.init = function(context, cb) {
-        var self = this;
-        var init = function(err, result) {
-
-            /**
-             *
-             * @property error
-             * @type {Error}
-             */
-            self.error = context.error || self.error;
-
-            /**
-             *
-             * @property status
-             * @type {Integer}
-             */
-            self.status = self.error && self.error.code ? self.error.code : 500;
-
-            /**
-             *
-             * @property contentSettingService
-             * @type {ContentService}
-             */
-            self.contentSettingService = new pb.ContentService(self.getServiceContext());
-
-            /**
-             *
-             * @property contentSettingService
-             * @type {TopMenuService}
-             */
-            self.topMenuService = new pb.TopMenuService(self.getServiceContext());
-
-            //set the default page name based on the status code if provided
-            self.setPageName(self.status + '');
-
-            //carry on
-            cb(err, result);
-        };
-        ErrorViewController.super_.prototype.init.apply(this, [context, init]);
-    };
-
-    /**
-     *
-     * @method render
-     * @param {Function} cb
-     */
-    ErrorViewController.prototype.render = function(cb) {
-        var self = this;
-
-
-        this.gatherData(function(err, data) {
-            if (util.isError(err)) {
-
-                //to prevent loops we just bury the error
-                pb.log.error('ErrorController: %s', err.stack);
-                data = {
-                    navItems: {}
-                };
-            }
-
-            //build angular controller
-            var angularController = pb.ClientJs.getAngularController(
-                {
-                    navigation: data.navItems.navigation,
-                    contentSettings: data.contentSettings,
-                    loggedIn: pb.security.isAuthenticated(self.session),
-                    accountButtons: data.navItems.accountButtons
-                }
-            );
-
-            //register the model with the template service
-            var errMsg = self.getErrorMessage();
-            var errStack = self.error && pb.config.logging.showErrors ? self.error.stack : '';
-            var model = {
-                navigation: new pb.TemplateValue(data.navItems.navigation, false),
-                account_buttons: new pb.TemplateValue(data.navItems.accountButtons, false),
-                angular_objects: new pb.TemplateValue(angularController, false),
-                status: self.status,
-                error_message: errMsg,
-                error_stack: errStack
-            };
-            self.ts.registerModel(model);
-
-            //load template
-            self.ts.load(self.getTemplatePath(), function(err, content) {
+        render (cb) {
+            this._gatherData((err, data) => {
                 if (util.isError(err)) {
-
                     //to prevent loops we just bury the error
                     pb.log.error('ErrorController: %s', err.stack);
+                    data = {
+                        navItems: {}
+                    };
                 }
 
-                cb({
-                    content: content,
-                    code: self.status,
-                    content_type: 'text/html'
+                //build angular controller
+                var angularController = pb.ClientJs.getAngularController(
+                    {
+                        navigation: data.navItems.navigation,
+                        contentSettings: data.contentSettings,
+                        loggedIn: pb.security.isAuthenticated(this.session),
+                        accountButtons: data.navItems.accountButtons
+                    }
+                );
+
+                //register the model with the template service
+                var errMsg = this.errorMessage;
+                var errStack = this.error && pb.config.logging.showErrors ? this.error.stack : '';
+                var model = {
+                    navigation: new pb.TemplateValue(data.navItems.navigation, false),
+                    account_buttons: new pb.TemplateValue(data.navItems.accountButtons, false),
+                    angular_objects: new pb.TemplateValue(angularController, false),
+                    status: this.status,
+                    error_message: errMsg,
+                    error_stack: errStack
+                };
+                this.ts.registerModel(model);
+
+                //load template
+                this.ts.load(this.templatePath, (err, content) => {
+                    if (util.isError(err)) {
+
+                        //to prevent loops we just bury the error
+                        pb.log.error('ErrorController: %s', err.stack);
+                    }
+
+                    cb({
+                        content: content,
+                        code: this.status,
+                        content_type: 'text/html'
+                    });
                 });
             });
-        });
-    };
-
-    /**
-     * @method getErrorMessage
-     * @return {String}
-     */
-    ErrorViewController.prototype.getErrorMessage = function() {
-        return this.error ? this.error.message : this.ls.g('error.ERROR');
-    };
-
-    /**
-     *
-     * @method getTemplatePath
-     * @return {String}
-     */
-    ErrorViewController.prototype.getTemplatePath = function() {
-        return 'error/default';
-    };
-
-    /**
-     * @method gatherData
-     * @param {Function} cb
-     */
-    ErrorViewController.prototype.gatherData = function(cb) {
-        var self = this;
-
-        var tasks = {
-            contentSettings: function(callback) {
-                self.contentSettingService.getSettings(callback);
-            },
-
-            navItems: function(callback) {
-                var options = {
-                    ls: self.ls,
-                    activeTheme: self.activeTheme,
-                    session: self.session,
-                    currUrl: self.req.url
-                };
-                self.topMenuService.getNavItems(options, callback);
-            }
         };
-        async.parallel(tasks, cb);
-    };
+
+        get errorMessage () {
+            return this.error ? this.error.message : this.ls.g('error.ERROR');
+        };
+
+        get templatePath () {
+            return 'error/default';
+        };
+
+        _gatherData (cb) {
+            var self = this;
+
+            var tasks = {
+                contentSettings: function(callback) {
+                    self.contentSettingService.getSettings(callback);
+                },
+
+                navItems: function(callback) {
+                    var options = {
+                        ls: self.ls,
+                        activeTheme: self.activeTheme,
+                        session: self.session,
+                        currUrl: self.req.url
+                    };
+                    self.topMenuService.getNavItems(options, callback);
+                }
+            };
+            async.parallel(tasks, cb);
+        };
+    }
 
     //exports
     return ErrorViewController;

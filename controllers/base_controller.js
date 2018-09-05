@@ -115,6 +115,7 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.init = function(props, cb) {
         var self = this;
+        this.ctx = props.ctx; // used to redirect with koa
 
         /**
          * The instance of the request handler that processed the request
@@ -322,7 +323,7 @@ module.exports = function BaseControllerModule(pb) {
         var val = '';
         var self = this;
         Object.keys(this.siteObj.supportedLocales).forEach(function(locale) {
-            var path = self.req.url;
+            var path = self.req.url.path;
             var isLocalizedPath = !!self.pathVars.locale && path.indexOf(self.pathVars.locale) >= 0;
             if (self.ls.language === locale && !isLocalizedPath) {
                 //skip current language.  We don't need to list it as an alternate

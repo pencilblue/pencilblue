@@ -44,7 +44,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
             //do check for valid strings otherwise serve 404
             if (!util.isString(postPluginPath) || !util.isString(pluginPublicDir)) {
                 pb.log.silly('PluginPublicContentController: Invalid public path was provided. POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', postPluginPath, pluginPublicDir, this.req.url);
-                throw new pb.Errors.notFound();
+                cb(pb.Errors.notFound());
             }
 
             //serve up the content
@@ -61,7 +61,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
             } else {
                 pb.log.error('PluginPublicContentController: Path is not a valid public directory. NORMALIZED_POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', normalizedpath, pluginPublicDir, this.req.url);
 
-                throw new pb.Errors.forbidden('Path is not a valid public directory.');
+                cb(pb.Errors.forbidden('Path is not a valid public directory.'));
             }
         }
         _servePublicContent(absolutePath, cb) {
@@ -71,7 +71,7 @@ module.exports = function PluginPublicContentControllerModule(pb) {
             }
             fs.readFile(absolutePath, (err, content) => {
                 if (err) {
-                    throw new pb.Errors.notFound(err.message);
+                    cb(pb.Errors.notFound(err.message));
                 }
                 cb({
                     content: content,

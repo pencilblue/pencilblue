@@ -95,6 +95,7 @@ module.exports = function RequestHandlerModule(pb) {
         }
         /**
              * Serves up public content from an absolute file path
+         * @deprecated
              * @method servePublicContent
              * @param {String} [absolutePath] An absolute file path to the resource
              */
@@ -672,6 +673,7 @@ module.exports = function RequestHandlerModule(pb) {
              */
         static buildControllerContext(ctx) {
             return {
+                ctx,
                 request: ctx.req,
                 response: ctx.res,
                 session: ctx.session,
