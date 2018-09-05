@@ -38,6 +38,10 @@ module.exports = function LoginActionControllerModule(pb) {
      * @param {Object} post
      * @param {Function} cb
      */
+    LoginActionController.prototype.render = function (cb) {
+            this.sanitizeObject(this.body);
+            this.onPostParamsRetrieved(this.body, cb);
+    };
     LoginActionController.prototype.onPostParamsRetrieved = function(post, cb) {
         var self         = this;
         var adminAttempt = this.query.admin_attempt ? true : false;

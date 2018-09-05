@@ -50,7 +50,7 @@ module.exports = pb => ({
         let req = ctx.req;
         let route = req.route; // TODO: Figure out what this should be, probably routeDescriptor
 
-        if (!req.route.setup_required) {
+        if (!req.route.setup_required) { // TODO: fix this
              return next();
         }
         let isSetup = false;

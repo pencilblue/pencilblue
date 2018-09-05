@@ -653,8 +653,8 @@ module.exports = function BaseControllerModule(pb) {
      * @param {String} location
      * @param {Function} cb
      */
-    BaseController.prototype.redirect = function(location, cb){
-        cb(pb.RequestHandler.generateRedirect(location));
+    BaseController.prototype.redirect = function (location, cb) {
+        cb(pb.Errors.redirect(location));
     };
 
     /**

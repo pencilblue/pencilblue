@@ -681,7 +681,7 @@ module.exports = function RequestHandlerModule(pb) {
                 path_vars: ctx.params, // TODO: Remove this one
                 pathVars: ctx.params,
                 query: ctx.query,
-                body: ctx.req.body,
+                body: ctx.request.body || ctx.req.body || {},
                 site: ctx.req.site,
                 siteObj: ctx.req.siteObj,
                 siteName: ctx.req.siteName,

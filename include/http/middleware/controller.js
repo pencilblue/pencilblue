@@ -20,6 +20,9 @@ module.exports = pb => ({
     },
     render: async (ctx, next) => {
         let handler = _.get(ctx.req, 'route.handler', 'render');
+        if(!ctx.req.controllerInstance[handler]) {
+            throw pb.Errors.internalServerError(`Controller found for route description ${ctx.req.route.path} does not have a handler: ${handler}`);
+        }
         let content = await new Promise((resolve, reject) => {
             ctx.req.controllerInstance[handler](result => {
                 if (util.isError(result)) {
@@ -31,6 +34,7 @@ module.exports = pb => ({
 
         ctx.type = content.content_type || ctx.type;
         ctx.status = content.code || 200;
+
         ctx.body = content.content;
         await next();
     },

@@ -259,7 +259,7 @@ module.exports = function(pb) {
 
         //check if authentication is required
         if (requirements[SecurityService.AUTHENTICATED]) {
-            if (session.authentication.user_id === null) {
+            if (!session.authentication.user_id) {
                 return false;
             }
         }
