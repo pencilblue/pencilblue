@@ -17,6 +17,7 @@
 
 module.exports = function(pb) {
     const { startTime, endTime } = require('./timing')(pb);
+    const { errorHandler } = require('./errors')(pb);
     const { openSession, closeSession } = require('./session')(pb); // TODO: Deprecate?
     const { parseUrl, checkPublicRoute, checkModuleRoute, systemSetupCheck, setMimeType } = require('./system')(pb);
     const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb);
@@ -29,6 +30,7 @@ module.exports = function(pb) {
         parseUrl,
         checkModuleRoute,
         checkPublicRoute,
+        errorHandler,
         openSession,
         deriveSite,
         deriveActiveTheme,

@@ -1,7 +1,7 @@
 const Promise = require('bluebird');
 const Configuration = require('./include/config.js');
 
-const pb = createPencilblueInstance(Configuration.load());
+// const pb = createPencilblueInstance(Configuration.load());
 
 
 function createPencilblueInstance(config) {
@@ -11,9 +11,16 @@ function createPencilblueInstance(config) {
 }
 
 
-class Pencilblue {
+let pb;
 
-    constructor() {
+class Pencilblue {
+    constructor(config) {
+        this.config = config;
+        pb = createPencilblueInstance(config);
+
+        this.requirements = pb;
+        this.pb = pb;
+
         this.router = new pb.Router();
     }
 
@@ -95,9 +102,13 @@ class Pencilblue {
         let pluginService = new pb.PluginService();
         return pluginService.initPlugins(); // initialize all plugins
     }
-
 }
 
-new Pencilblue().startup();
+//start system only when the module is called directly
+if (require.main === module) {
+    new Pencilblue(Configuration.load()).startup();
+}
+
+module.exports = Pencilblue;
 
 

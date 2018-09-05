@@ -17,7 +17,9 @@
 'use strict';
 
 //dependencies
-var path = require('path');
+const path = require('path');
+const fs = require('fs');
+const mime = require('mime');
 
 module.exports = function PluginPublicContentControllerModule(pb) {
 
@@ -32,47 +34,52 @@ module.exports = function PluginPublicContentControllerModule(pb) {
      * @constructor
      * @extends BaseController
      */
-    function PluginPublicContentController(){}
-    util.inherits(PluginPublicContentController, BaseController);
+    class PluginPublicContentController extends pb.BaseController{
+        render (cb) {
+            let plugin          = this.pathVars.plugin;
+            let postPluginPath  = this.pathVars.path;
+            let pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
+            let publicRoutes = ['angular/', 'js/', 'css/', 'fonts/', 'img/', 'images/', 'localization/', 'favicon.ico', 'dist/', 'widgets/', 'version/'];
 
-    /**
-     * @see BaseController.render
-     * @method render
-     * @param {Function} cb
-     */
-    PluginPublicContentController.prototype.render = function(cb) {
-        var plugin          = this.pathVars.plugin;
-        var postPluginPath  = this.pathVars.path;
-        var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
-        var publicRoutes = ['angular/', 'js/', 'css/', 'fonts/', 'img/', 'images/', 'localization/', 'favicon.ico', 'dist/', 'widgets/', 'version/'];
+            //do check for valid strings otherwise serve 404
+            if (!util.isString(postPluginPath) || !util.isString(pluginPublicDir)) {
+                pb.log.silly('PluginPublicContentController: Invalid public path was provided. POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', postPluginPath, pluginPublicDir, this.req.url);
+                throw new pb.Errors.notFound();
+            }
 
-        //do check for valid strings otherwise serve 404
-        if (!util.isString(postPluginPath) || !util.isString(pluginPublicDir)) {
-            pb.log.silly('PluginPublicContentController: Invalid public path was provided. POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', postPluginPath, pluginPublicDir, this.req.url);
-            this.reqHandler.serve404();
-            return;
+            //serve up the content
+            //mitigates path traversal attacks by using path.normalize to resolve any
+            //directory changes (./ and ../) and verifying that the path has one of
+            //the prefixes in publicRoutes
+            let normalizedpath = path.normalize(postPluginPath).replace(/^(\.\.[\/\\])+/, '');
+
+            if (publicRoutes.some(prefix => normalizedpath.startsWith(prefix))) {
+                let fullpath = path.join(pluginPublicDir, normalizedpath);
+
+                //remove qsvars before loading files
+                this._servePublicContent(fullpath.split('?')[0], cb);
+            } else {
+                pb.log.error('PluginPublicContentController: Path is not a valid public directory. NORMALIZED_POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', normalizedpath, pluginPublicDir, this.req.url);
+
+                throw new pb.Errors.forbidden('Path is not a valid public directory.');
+            }
         }
-
-        //serve up the content
-        //mitigates path traversal attacks by using path.normalize to resolve any
-        //directory changes (./ and ../) and verifying that the path has one of
-        //the prefixes in publicRoutes
-        var normalizedpath = path.normalize(postPluginPath).replace(/^(\.\.[\/\\])+/, '');
-        
-        if (publicRoutes.some(prefix => normalizedpath.startsWith(prefix))) {
-            var fullpath = path.join(pluginPublicDir, normalizedpath);
-            
-            //remove qsvars before loading files
-            this.reqHandler.servePublicContent(fullpath.split('?')[0]);
-        } else {
-            pb.log.error('PluginPublicContentController: Path is not a valid public directory. NORMALIZED_POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', normalizedpath, pluginPublicDir, this.req.url);
-
-            var forbidden = new Error('Path is not a valid public directory.');
-            forbidden.code = 403;
-
-            return this.reqHandler.serveError(forbidden);
+        _servePublicContent(absolutePath, cb) {
+            //check for provided path, then default if necessary
+            if (!absolutePath) {
+                absolutePath = path.join(pb.config.docRoot, 'public', this.url.pathname);
+            }
+            fs.readFile(absolutePath, (err, content) => {
+                if (err) {
+                    throw new pb.Errors.notFound(err.message);
+                }
+                cb({
+                    content: content,
+                    content_type: mime.lookup(absolutePath)
+                });
+            });
         }
-    };
+    }
 
     //exports
     return PluginPublicContentController;

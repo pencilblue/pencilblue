@@ -78,7 +78,7 @@
     "sinon": "1.17.6",
     "sinon-as-promised": "^4.0.3"
   },
-  "main": "./pencilblue.js",
+  "main": "./new_main.js",
   "engines": {
     "node": ">=4"
   },
