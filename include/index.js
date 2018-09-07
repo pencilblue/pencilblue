@@ -55,8 +55,8 @@ module.exports = function PB(config) {
     pb.AsyncEventEmitter = require(path.join(config.docRoot, '/include/utils/async_event_emitter.js'))(pb);
 
     //setup the System instance
-    pb.System = require(path.join(config.docRoot, 'include/system/system.js'));
-    pb.system = new pb.System(pb);
+    // TODO: Rename this
+    pb.system = require(path.join(config.docRoot, 'include/system/cluster_manager.js'))(pb);
 
     //configure cache
     var CacheModule = require(path.join(config.docRoot, '/include/dao/cache.js'));
@@ -212,7 +212,6 @@ module.exports = function PB(config) {
     pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'))(pb);
     pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'))(pb);
     pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'))(pb);
-    pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'))(pb);
     pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
     pb.TokenService       = require(path.join(config.docRoot, '/include/service/entities/token_service.js'))(pb);
 

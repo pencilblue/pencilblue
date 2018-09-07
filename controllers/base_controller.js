@@ -440,33 +440,12 @@ module.exports = function BaseControllerModule(pb) {
 
     /**
      *
+     * @deprecated
      * @method getPostParams
      * @param {Function} cb
      */
     BaseController.prototype.getPostParams = function(cb) {
-        var self = this;
-
-        this.getPostData(function(err, raw){
-            //Handle error
-            if (util.isError(err)) {
-                pb.log.error("BaseController.getPostParams encountered an error. ERROR[%s]", err.stack);
-                return cb(err, null);
-            }
-
-            //lookup encoding
-            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
-            encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
-
-            //convert to string
-            var postParams = url.parse('?' + raw.toString(encoding), true).query;
-
-            //In Node v6 a breaking change was introduced into the "querystring" module to prevent reserved words from
-            // being passed in as query string parameters and overriding prototype functions.
-            // This fix allows for users to continue on with V6 until another viable option comes along
-            postParams.hawOwnProperty = Object.prototype.hasOwnProperty;
-
-            cb(null, postParams);
-        });
+        cb(null, this.body);
     };
 
     /**

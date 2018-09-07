@@ -32,6 +32,7 @@
     "async-eventemitter": "^0.2.4",
     "bluebird": "^3.5.0",
     "bootstrap": "~3.3.5",
+    "boring-cluster": "^3.0.0",
     "cookies": "^0.7.1",
     "fakeredis": "1.0.3",
     "font-awesome": "^4.3.0",

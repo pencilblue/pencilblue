@@ -1,3 +1,4 @@
+const cluster = require('cluster');
 const Koa = require('koa');
 const Router = require('koa-router');
 const Session = require('../koa/Session')();
@@ -12,6 +13,7 @@ module.exports = function (pb) {
             this.internalMiddlewareStack = [];
             this.app = new Koa();
             this.app.keys = ['9011fa34-41a6-4a4d-8ad7-d591c5d3ca01']; // Random GUID
+            this.app.requestsServed = this.app.requestsServed || 0;
 
             this.router = new Router();
             this.internalRouteList = [];
@@ -114,15 +116,19 @@ module.exports = function (pb) {
                 this.app
                     .use(this.router.routes())
                     .use(this.router.allowedMethods())
-                    .listen(port);
+                    .listen(port, () => {
+                        pb.log.info(`Process is master: ${cluster.isMaster}`);
+                        pb.log.info('PencilBlue is ready!');
+                    });
 
-                pb.log.info('PencilBlue is ready!');
-                console.timeEnd("startup");
                 this.calledOnce = 1;
             }
             else {
                 pb.log.error(`Listen function was called twice on the same server instance`);
             }
+        }
+        get requestsServed () {
+            return this.app.requestsServed;
         }
     }
 

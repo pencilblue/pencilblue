@@ -83,20 +83,11 @@ module.exports = function CacheModule(pb){
      * Shuts down the Redis or FakeRedis instance
      *
      * @method shutdown
-     * @param  {Function} cb Callback function
      */
-    CacheFactory.shutdown = function(cb) {
-        cb = cb || util.cb;
-
+    CacheFactory.shutdown = function() {
         if (CLIENT !== null) {
-            try {
-                CLIENT.quit();
-            }
-            catch(err) {
-                return cb(err);
-            }
+            CLIENT.quit();
         }
-        cb();
     };
 
     //return inner export

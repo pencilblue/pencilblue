@@ -20,6 +20,7 @@
 var async = require('async');
 var domain = require('domain');
 var util = require('../../util.js');
+const Promise = require('bluebird');
 
 module.exports = function CommandServiceModule(pb) {
 
@@ -34,7 +35,7 @@ module.exports = function CommandServiceModule(pb) {
         if (!broker) {
             throw new Error('The broker parameter is required');
         }
-        this.broker = broker;
+        this.broker = Promise.promisifyAll(broker);
         this.registrants = {};
         this.awaitingResponse = {};
     }
@@ -125,7 +126,7 @@ module.exports = function CommandServiceModule(pb) {
         });
 
         //register for events
-        pb.system.registerShutdownHook('CommandService', util.wrapTask(this, this.shutdown));
+        pb.system.registerShutdownHook('CommandService',  this.shutdown);
     };
 
     /**
@@ -133,14 +134,14 @@ module.exports = function CommandServiceModule(pb) {
      * @method shutdown
      * @param {Function} cb A callback that takes two parameters: cb(Error, TRUE/FALSE)
      */
-    CommandService.prototype.shutdown = function (cb) {
+    CommandService.prototype.shutdown = async function () {
         pb.log.debug('CommandService: Shutting down...');
 
         this.registrants = {};
         if (!this.broker) {
-            return cb(null, true);
+            return true;
         }
-        this.broker.shutdown(cb);
+        return this.broker.shutdownAsync();
     };
 
     /**

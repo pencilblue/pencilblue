@@ -318,7 +318,7 @@ Configuration.getBaseConfig = function(multisite) {
             //be set to "auto".  This will instruct the master process to inspect
             //the number of cores on the server and spawn a child process for each
             //core.
-            workers: 1,
+            workers: 5,
 
             //The self managed flag indicates whether or not PencilBlue should
             //start a master process who's sole responsibility is to watch over the

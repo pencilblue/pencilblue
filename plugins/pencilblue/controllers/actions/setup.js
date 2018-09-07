@@ -23,7 +23,6 @@ module.exports = function SetupActionControllerModule(pb) {
 
     //pb dependencies
     var util            = pb.util;
-    var CallHomeService = pb.CallHomeService;
 
     /**
      * Creates the initial admin user
@@ -82,16 +81,7 @@ module.exports = function SetupActionControllerModule(pb) {
      * @param {Function} cb
      */
     SetupActionController.prototype.doSetup = function(cb) {
-
-        var self = this;
-        this.getPostParams(function(err, post){
-            if (util.isError(err)) {
-                self.reqHandler.serveError(err);
-                return;
-            }
-
-            self.onPostParamsRetrieved(post, cb);
-        });
+        this.onPostParamsRetrieved(this.body, cb);
     };
 
     /**
@@ -102,7 +92,7 @@ module.exports = function SetupActionControllerModule(pb) {
     SetupActionController.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
 
-        var reqParams = ['username', 'email', 'password', 'confirm_password', 'call_home'];
+        var reqParams = ['username', 'email', 'password', 'confirm_password'];
         var message   = this.hasRequiredParams(post, reqParams);
         if(message) {
             this.formError(message, '/setup', cb);
@@ -113,9 +103,7 @@ module.exports = function SetupActionControllerModule(pb) {
         post.admin = pb.SecurityService.ACCESS_ADMINISTRATOR;
         post.locale = self.ls.language;
 
-        //get call home allowance
-        var callHome = 1 == post.call_home;
-        delete post.call_home;
+        delete post.call_home; // if it still exists
 
         //do setup events
         var tasks = [
@@ -139,12 +127,9 @@ module.exports = function SetupActionControllerModule(pb) {
                 pb.settings.set('system_initialized', true, callback);
             },
             function(callback) {
-                pb.settings.set('call_home', callHome, callback);
+                pb.settings.set('call_home', false, callback); // for now
             },
             function(callback) {
-                if (callHome) {
-                    CallHomeService.callHome(CallHomeService.SYSTEM_SETUP_EVENT);
-                }
                 callback(null, null);
             }
         ];

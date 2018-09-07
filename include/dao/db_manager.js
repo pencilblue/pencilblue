@@ -18,10 +18,9 @@
 
 //requirements
 var async    = require('async');
-var domain   = require('domain');
 var mongo    = require('mongodb').MongoClient;
-var ObjectID = require('mongodb').ObjectID;
 var util     = require('../util.js');
+const Promise = require('bluebird');
 
 module.exports = function DBManagerModule(pb) {
 
@@ -339,27 +338,18 @@ module.exports = function DBManagerModule(pb) {
          * @param {Function} cb Callback function
          * @return {Array}      Array of promise objects, one for each shutdown call
          */
-        this.shutdown = function(cb){
-            cb = cb || util.cb;
+        this.shutdown = function(){
+            return Object.keys(dbs).map(async (keys, i) => {
+                let database = Promise.promisifyAll(dbs[keys[i]]);
 
-            var tasks = util.getTasks(Object.keys(dbs), function(keys, i) {
-                return function(callback) {
-                    var d = domain.create();
-                    d.run(function() {
-                        dbs[keys[i]].close(true, function(err, result) {
-                            if (util.isError(err)) {
-                                throw err;
-                            }
-                            callback(null, result);
-                        });
-                    });
-                    d.on('error', function(err) {
-                        pb.log.error('DBManager: An error occurred while closing a DB connection. %s', err.stack);
-                        callback(null, false);
-                    });
-                };
+                try {
+                    await database.closeAsync(true);
+                    return true;
+                } catch(err) {
+                    pb.log.error('DBManager: An error occurred while closing a DB connection. %s', err.stack);
+                    return false;
+                }
             });
-            async.parallel(tasks, cb);
         };
 
 

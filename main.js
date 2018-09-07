@@ -1,34 +1,49 @@
-const Promise = require('bluebird');
-const Configuration = require('./include/config.js');
+const listOfServers = [];
 
-const pb = createPencilblueInstance(Configuration.load());
+const cluster = require('cluster');
+const { cpus } = require('os');
+const { resolve } = require('path');
+const pbServer = resolve('server');
 
-function createPencilblueInstance(config) {
-    let pb = require('./include')(config);
-    Object.keys(pb).forEach((key) => pb[key] = Promise.promisifyAll(pb[key]));
-    return pb;
+const boringCluster = (opts = {}) => {
+    const { workers = cpus().length, name = '' } = opts;
+
+    if (cluster.isMaster) {
+        Array(workers).fill(null).forEach(() => {
+            generateWorker();
+        });
+
+        cluster.on('exit', (worker) => {
+            let deadWorkerPid = worker.process.pid;
+            console.log(`${name || ''} ${deadWorkerPid} died; forking.`.trim());
+
+            // Remove the dead server from the list of working servers
+            let deadServerIdx = listOfServers.findIndex((server) => server.process.pid === deadWorkerPid);
+            listOfServers.splice(deadServerIdx, 1);
+
+            generateWorker();
+        })
+    } else {
+        let server = require(pbServer);
+        // When a child process receives a message, call the action with the data
+        process.on('message', (msg) => {
+            server[msg.action](msg.data);
+        });
+    }
+};
+
+function generateWorker () {
+    let worker = cluster.fork();
+
+    // When a master thread receives a message, broadcast it to the child processes
+    worker.on('message', (message) => {
+        // send command to the command service/broker
+        listOfServers.forEach((worker) => {
+            worker.send(message);
+        });
+    });
+
+    listOfServers.push(worker);
 }
 
-let app = new pb.Router();
-
-app.addMiddlewareBeforeAll({name: 'logger', action: async (ctx, next) => {
-   let start = console.time();
-   pb.log.info("Starting up...");
-   await next();
-   let end = console.time();
-   pb.log.info("Ending...");
-   pb.log.info(`took ${(end-start)} seconds?`);
-}});
-
-app.addMiddlewareAfterAll({name: 'render', action: async (ctx) => {
-   ctx.body = "This is my hello world => " + ctx.req.url;
-   pb.log.info('Rendering...');
-}});
-const RouteLoader = require('./include/koa/RouteHandler')(pb);
-let routeLoader = new RouteLoader();
-routeLoader.getCoreRouteList(app);
-
-// app.registerRoute({path: '/', method: 'get'});
-// app.registerRoute({path: '/search', method: 'get'});
-
-app.listen(3000);
+boringCluster({ name: 'My PencilBlue', workers: 2 });

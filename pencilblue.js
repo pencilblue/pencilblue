@@ -162,7 +162,7 @@ class PencilBlue {
         };
         let Initializer = this.pb.config.server.initializer || ServerInitializer;
         let initializer = Promise.promisifyAll(new Initializer(this.pb));
-        // let servers = await initializer.initAsync(context); // TODO: Replace with app.listen
+        let servers = await initializer.initAsync(context); // TODO: Replace with app.listen
 
         this.pb.Router.listen(this.pb.config.sitePort);
 

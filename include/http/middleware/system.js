@@ -18,6 +18,7 @@ async function servePublicContent(ctx, path) {
 }
 module.exports = pb => ({
     parseUrl: async (ctx, next) => {
+        ctx.app.requestsServed ? ctx.app.requestsServed++ : 1;
         ctx.req.hostname = ctx.req.headers.host;
         ctx.req.url = url.parse(ctx.req.url);
         await next();

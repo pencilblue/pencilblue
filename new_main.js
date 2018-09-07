@@ -1,9 +1,6 @@
 const Promise = require('bluebird');
 const Configuration = require('./include/config.js');
 
-// const pb = createPencilblueInstance(Configuration.load());
-
-
 function createPencilblueInstance(config) {
     let pb = require('./include')(config);
     Object.keys(pb).forEach((key) => pb[key] = Promise.promisifyAll(pb[key]));
@@ -18,8 +15,8 @@ class Pencilblue {
         this.config = config;
         pb = createPencilblueInstance(config);
 
-        this.requirements = pb;
         this.pb = pb;
+        this.requirements = pb;
 
         this.router = new pb.Router();
     }
@@ -30,7 +27,10 @@ class Pencilblue {
         // Start the Database connections and readers
         await this._initDBConnections();
         await this._initDBIndices();
-        
+
+        this.pb.ServerRegistration.getInstance().init(function() {});
+        this.pb.CommandService.getInstance().init(function(err, data) {});
+
         // Setup Routing and Middleware
         this._initMiddleware();
         this._initCoreRoutes();
@@ -38,6 +38,8 @@ class Pencilblue {
         // Load in Plugins and Sites
         await this._initPlugins();
         await this._initSites();
+
+        this._registerMetrics();
 
         this._addRoutesToRouter();
         this.router.listen(8080);
@@ -102,6 +104,26 @@ class Pencilblue {
         let pluginService = new pb.PluginService();
         return pluginService.initPlugins(); // initialize all plugins
     }
+
+    /**********
+     * Server Metrics
+     */
+    _registerMetrics () {
+        //total number of requests served
+        pb.ServerRegistration.addItem('requests', (callback) => {
+            callback(null, this.router.requestsServed);
+        });
+
+        //current requests
+        pb.ServerRegistration.addItem('currentRequests', (callback) => {
+            callback(null, true);// this.pb.server.getConnections(callback);
+        });
+
+        //analytics average
+        pb.ServerRegistration.addItem('analytics', (callback) => {
+            callback(null, pb.AnalyticsManager.getStats());
+        });
+    };
 }
 
 //start system only when the module is called directly

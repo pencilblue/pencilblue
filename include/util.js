@@ -822,5 +822,9 @@ Util.TIME = Object.freeze({
 	MILLIS_PER_DAY: 86400000
 });
 
+Util.timeout = async function (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
 //exports
 module.exports = Util;
