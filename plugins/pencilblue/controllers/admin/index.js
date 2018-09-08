@@ -101,11 +101,16 @@ module.exports = function (pb) {
             },
 
             //cluster status
-            clusterStatus: function(callback) {
-                var service = pb.ServerRegistration.getInstance();
-                service.getClusterStatus(function(err, cluster) {
-                    callback(err, cluster);
-                });
+            clusterStatus: async function(callback) {
+                let service = pb.ServerRegistry.getInstance();
+                let cluster;
+                try {
+                    cluster = await service.clusterStatus;
+                } catch (err) {
+                    return callback(err);
+                }
+                return callback(null, cluster);
+
             }
         };
         async.parallel(tasks, cb);

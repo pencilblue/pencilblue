@@ -16,7 +16,7 @@ module.exports = (pb) => {
             await this._initDBConnections();
             await this._initDBIndices();
 
-            this.pb.ServerRegistration.getInstance().init(function() {});
+            await this.pb.ServerRegistry.getInstance().init();
             this.pb.CommandService.getInstance().init(function(err, data) {});
 
             // Setup Routing and Middleware
@@ -98,19 +98,13 @@ module.exports = (pb) => {
          */
         _registerMetrics () {
             //total number of requests served
-            pb.ServerRegistration.addItem('requests', (callback) => {
-                callback(null, this.router.requestsServed);
-            });
+            pb.ServerRegistry.addItem('requests', () => this.router.requestsServed);
 
             //current requests
-            pb.ServerRegistration.addItem('currentRequests', (callback) => {
-                callback(null, true);// this.pb.server.getConnections(callback);
-            });
+            pb.ServerRegistry.addItem('currentRequests', () => true); // this.pb.server.getConnections(callback);
 
             //analytics average
-            pb.ServerRegistration.addItem('analytics', (callback) => {
-                callback(null, pb.AnalyticsManager.getStats());
-            });
+            pb.ServerRegistry.addItem('analytics', () => pb.AnalyticsManager.getStats());
         };
     }
 

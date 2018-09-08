@@ -115,7 +115,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * occurred, and a TemplateValue representing the HTML snippets for the analytic
      * providers.
      */
-    AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) {
+    AnalyticsManager.prototype.gatherData = function(req, session, ls, cb) { // used by a mountain of things, best keep cb interface for now
 
         //retrieve keys and ensure there are providers to process
         var providerKeys = AnalyticsManager.getKeys(this.site);
@@ -321,7 +321,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * HTML string that represents the snippet to be executed by the analytics
      * plugin.
      */
-    AnalyticsManager.registerProvider = function(name, site, onPageRendering) {
+    AnalyticsManager.registerProvider = function(name, site, onPageRendering) { // Used by GA Plugin
         if (util.isFunction(site)) {
             onPageRendering = site;
             site = pb.SiteService.GLOBAL_SITE;
@@ -355,7 +355,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * @param {String} [site='global']
      * @return {Boolean} TRUE if was unregistered, FALSE if not found
      */
-    AnalyticsManager.unregisterProvider = function(name, site) {
+    AnalyticsManager.unregisterProvider = function(name, site) { // Used by GA Plugin
         if (!util.isString(site)) {
             site = pb.SiteService.GLOBAL_SITE;
         }
@@ -396,7 +396,7 @@ module.exports = function AnalyticsManagerModule(pb) {
      * occurred, and a TemplateValue representing the HTML snippets for the analytic
      * providers.
      */
-    AnalyticsManager.onPageRender = function(req, session, ls, cb) {
+    AnalyticsManager.onPageRender = function(req, session, ls, cb) { // Used by Base Controller
         var context = {
             site: pb.RequestHandler.sites[req.headers.host] ? pb.RequestHandler.sites[req.headers.host].uid : null,
             timeout: pb.config.analytics.timeout

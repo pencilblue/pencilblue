@@ -119,7 +119,7 @@ module.exports = function CommandServiceModule(pb) {
                 return cb(err);
             }
 
-            self.broker.subscribe(pb.ServerRegistration.generateKey(), CommandService.onCommandReceived(self), function(error, result) {
+            self.broker.subscribe(pb.ServerRegistry.processKey, CommandService.onCommandReceived(self), function(error, result) {
                 INITIALIZED = !util.isError(error);
                 cb(err, result);
             });
@@ -274,7 +274,7 @@ module.exports = function CommandServiceModule(pb) {
      * index of the task being executed and the second is the total number of tasks.
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
-    CommandService.prototype.sendCommandToAllGetResponses = function (type, options, cb) {
+    CommandService.prototype.sendCommandToAllGetResponses = async function (type, options, cb) {
         if (util.isFunction(options)) {
             cb = options;
             options = {};
@@ -296,51 +296,53 @@ module.exports = function CommandServiceModule(pb) {
 
         //get all proceses in the cluster
         var self = this;
-        var serverResigration = pb.ServerRegistration.getInstance();
-        serverResigration.getClusterStatus(function (err, statuses) {
-            if (util.isError(err)) {
-                cb(err);
-                return;
+        let serverRegistry = pb.ServerRegistry.getInstance();
+
+        // registry
+        let statuses;
+        try {
+            statuses = await serverRegistry.clusterStatus;
+        } catch (err) {
+            return cb(err);
+        }
+
+        var me = null;
+        var myKey = pb.ServerRegistry.processKey;
+        var tasks = util.getTasks(statuses, function (statuses, i) {
+            if (myKey === statuses[i]._id) {
+                me = i;
             }
 
-            var me = null;
-            var myKey = pb.ServerRegistration.generateKey();
-            var tasks = util.getTasks(statuses, function (statuses, i) {
-                if (myKey === statuses[i]._id) {
-                    me = i;
+            //create the task function
+            return function (callback) {
+
+                //make progress callback
+                if (progressCb) {
+                    progressCb(i, statuses.length);
                 }
 
-                //create the task function
-                return function (callback) {
+                //create command
+                var opts = util.clone(options);
+                opts.to = statuses[i].id;
 
-                    //make progress callback
-                    if (progressCb) {
-                        progressCb(i, statuses.length);
-                    }
-
-                    //create command
-                    var opts = util.clone(options);
-                    opts.to = statuses[i].id;
-
-                    //execute command against the cluster
-                    self.sendCommandGetResponse(type, opts, function (err, command) {
-                        var result = {
-                            err: err ? err.stack : undefined,
-                            command: command
-                        };
-                        callback(null, result);
-                    });
-                };
-            });
-
-            //remove me if specified
-            if (options.ignoreme && me !== null) {
-                tasks.splice(me, 1);
-            }
-
-            //send commands for each process
-            async.series(tasks, cb);
+                //execute command against the cluster
+                self.sendCommandGetResponse(type, opts, function (err, command) {
+                    var result = {
+                        err: err ? err.stack : undefined,
+                        command: command
+                    };
+                    callback(null, result);
+                });
+            };
         });
+
+        //remove me if specified
+        if (options.ignoreme && me !== null) {
+            tasks.splice(me, 1);
+        }
+
+        //send commands for each process
+        async.series(tasks, cb);
     };
 
     /**
@@ -454,7 +456,7 @@ module.exports = function CommandServiceModule(pb) {
         }
 
         //set who its from
-        options.from = pb.ServerRegistration.generateKey();
+        options.from = pb.ServerRegistry.processKey;
         options.type = type;
         options.date = new Date();
 
@@ -487,7 +489,7 @@ module.exports = function CommandServiceModule(pb) {
     CommandService.onCommandReceived = function (commandService) {
         return function (channel, command) {
 
-            var uid = pb.ServerRegistration.generateKey();
+            var uid = pb.ServerRegistry.processKey;
             if (command.to === uid || command.to === null || command.to === undefined) {
                 commandService.notifyOfCommand(command);
             }

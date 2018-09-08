@@ -161,7 +161,7 @@ module.exports = function PB(config) {
     //server registration
     pb.MongoRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/mongo_registration_provider.js'))(pb);
     pb.RedisRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/redis_registration_provider.js'))(pb);
-    pb.ServerRegistration        = require(path.join(config.docRoot, '/include/system/server_registration.js'))(pb);
+    pb.ServerRegistry            = require(path.join(config.docRoot, '/include/system/server_registry.js'))(pb);
 
     //command service
     pb.RedisCommandBroker = require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js'))(pb);
