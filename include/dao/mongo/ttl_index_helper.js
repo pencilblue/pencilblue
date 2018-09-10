@@ -54,7 +54,7 @@ module.exports = function(pb) {
      * @param {Object} procedure
      * @param {Function} cb
      */
-    TTLIndexHelper.prototype.ensureIndex = function(procedure, cb) {
+    TTLIndexHelper.prototype.ensureIndex = async function(procedure, cb) {
         var self = this;
 
         var collection = procedure.collection;
@@ -131,7 +131,11 @@ module.exports = function(pb) {
         ];
         async.waterfall(tasks, function(err, result) {
             pb.log.silly('TTLIndexHelper: Attempted to ensure the TTL index for collection %s. RESULT=[%s] ERROR=[%s]', collection, result, err ? err.message : 'NONE');
-            cb(err, !util.isNullOrUndefined(result));
+            if(cb) {
+                return cb(err, !util.isNullOrUndefined(result));
+            }
+            return !util.isNullOrUndefined(result);
+            
         });
     };
 

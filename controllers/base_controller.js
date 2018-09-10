@@ -455,58 +455,16 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Function} cb
      */
     BaseController.prototype.getJSONPostParams = function(cb) {
-        var self = this;
-
-        this.getPostData(function(err, raw){
-            //Handle error
-            if (util.isError(err)) {
-                pb.log.error("BaseController.getJSONPostParams encountered an error. ERROR[%s]", err.stack);
-                return cb(err, null);
-            }
-
-            //lookup encoding
-            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
-            encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
-
-            var error      = null;
-            var postParams = null;
-            try {
-                postParams = JSON.parse(raw.toString(encoding));
-            }
-            catch(err) {
-                error = err;
-            }
-            cb(error, postParams);
-        });
+        cb(null, this.body);
     };
 
     /**
-     *
+     * @deprecated to be removed in version 1.0s
      * @method getPostData
      * @param {Function} cb
      */
     BaseController.prototype.getPostData = function(cb) {
-        var buffers     = [];
-        var totalLength = 0;
-
-        this.req.on('data', function (data) {
-            buffers.push(data);
-            totalLength += data.length;
-
-            // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
-            if (totalLength > 1e6) {
-                // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
-                var err = new Error("POST limit reached! Maximum of 1MB.");
-                err.code = 400;
-                cb(err, null);
-            }
-        });
-        this.req.on('end', function () {
-
-            //create one big buffer.
-            var body = Buffer.concat (buffers, totalLength);
-            cb(null, body);
-        });
+        cb(null, this.body);
     };
 
     /**
