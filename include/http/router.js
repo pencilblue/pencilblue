@@ -46,6 +46,12 @@ module.exports = function (pb) {
             return this._addMiddlewareAt(0, middleware);
         }
 
+        static replaceMiddleware(name, middleware) {
+            let index = this._indexOfMiddleware(name);
+            if(index >= 0 && middleware) {
+                this.internalMiddlewareStack[index] = middleware;
+            }
+        }
         /*****
          * Internal Helper Functions
          */
