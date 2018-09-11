@@ -79,12 +79,12 @@
     "sinon": "1.17.6",
     "sinon-as-promised": "^4.0.3"
   },
-  "main": "./new_main.js",
+  "main": "./pencilblue_cluster.js",
   "engines": {
     "node": ">=4"
   },
   "scripts": {
-    "start": "node pencilblue.js",
+    "start": "node pencilblue_cluster.js",
     "test": "nyc mocha --recursive"
   },
   "nyc": {
