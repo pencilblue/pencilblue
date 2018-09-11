@@ -45,7 +45,7 @@ module.exports = pb => ({
         let routeLocale = ctx.params.locale || '';
         let localeSources = [routeLocale, ctx.session.locale];
 
-        localeSources.concat(ctx.acceptsLanguages());
+        localeSources = localeSources.concat(ctx.acceptsLanguages());
 
         if (ctx.req.siteObj) {
             opts.supported = Object.keys(ctx.req.siteObj.supportedLocales);

@@ -58,7 +58,13 @@ module.exports = pb => ({
         };
 
         let exactMatch = plugins.some(plugin => {
-            descriptor = findDescriptor(plugin[pathname]) || findDescriptor(plugin['/:locale?' + pathname]);
+            descriptor = findDescriptor(plugin[pathname]);
+            if(!descriptor) {
+                descriptor = findDescriptor(plugin['/:locale?' + pathname]);
+                if(descriptor) {
+                    delete ctx.params.locale;
+                }
+            }
             return descriptor;
         });
 
