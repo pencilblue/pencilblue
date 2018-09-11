@@ -16,7 +16,6 @@ class Pencilblue {
         pb = createPencilblueInstance(config);
 
         this.pb = pb;
-        this.requirements = pb;
 
         this.router = new pb.Router();
     }
