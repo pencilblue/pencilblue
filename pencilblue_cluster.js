@@ -17,7 +17,6 @@ class PencilBlueCluster {
         pb = createPencilBlueInstance(config);
         pb.system.registerSignalHandlers(true);
         this.pb = pb;
-        this.requirements = pb;
     }
     async startup() {
         await pb.system.onStart(this.config);

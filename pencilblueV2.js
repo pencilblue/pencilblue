@@ -2,9 +2,8 @@ module.exports = (pb) => {
 
     class Pencilblue {
         constructor(config) {
-            this.config = config; // TODO: Deprecate?
+            this.config = config;
             this.pb = pb;
-            this.requirements = pb; // TODO: Deprecate?
 
             this.router = new pb.Router();
         }
@@ -63,7 +62,7 @@ module.exports = (pb) => {
          */
         _initMiddleware() {
             return pb.Middleware.getAll()
-                .forEach((middleware) => this.router.addMiddlewareAfterAll(middleware));
+                .forEach((middleware) => pb.Router.addMiddlewareAfterAll(middleware));
         }
 
         _initCoreRoutes() {
@@ -73,7 +72,7 @@ module.exports = (pb) => {
             let routes = pb.RouterLoader.getRoutesForRouter();
             Object.keys(routes).forEach(plugin => {
                 Object.keys(routes[plugin]).forEach(path => {
-                    this.router.registerRoute(routes[plugin][path]);
+                    pb.Router.registerRoute(routes[plugin][path]);
                 })
             });
         }

@@ -10,97 +10,100 @@ module.exports = function (pb) {
     class PencilblueRouter {
 
         constructor () {
-            this.internalMiddlewareStack = [];
             this.app = new Koa();
             this.app.keys = ['9011fa34-41a6-4a4d-8ad7-d591c5d3ca01']; // Random GUID
             this.app.requestsServed = this.app.requestsServed || 0;
 
             this.router = new Router();
-            this.internalRouteList = [];
 
             this.app.use(bodyParser());
             this.app.use(Session(this.app));
         }
 
-        registerRoute(routeDescriptor) {
+        static registerRoute(routeDescriptor) {
             this.internalRouteList.push(routeDescriptor);
         }
 
-        addMiddlewareAfter(name, middleware) {
+        static addMiddlewareAfter(name, middleware) {
             let index = this._indexOfMiddleware(name);
             if (index >= 0) {
                 return this._addMiddlewareAt(index + 1, middleware);
             }
             return false;
         }
-        addMiddlewareAfterAll(middleware) {
+        static addMiddlewareAfterAll(middleware) {
             return this._addMiddlewareAt(this.internalMiddlewareStack.length, middleware);
         }
 
-        addMiddlewareBefore(name, middleware) {
+        static addMiddlewareBefore(name, middleware) {
             let index = this._indexOfMiddleware(name);
             if (index >= 0) {
                 return this._addMiddlewareAt(index, middleware);
             }
             return false;
         }
-        addMiddlewareBeforeAll(middleware) {
+        static addMiddlewareBeforeAll(middleware) {
             return this._addMiddlewareAt(0, middleware);
         }
 
         /*****
          * Internal Helper Functions
          */
-        _addMiddlewareAt(index, middleware) {
+        static get internalMiddlewareStack () {
+            if(this._internalMiddlewareStack)
+                return this._internalMiddlewareStack;
+            this._internalMiddlewareStack = [];
+            return this._internalMiddlewareStack;
+        }
+        static get internalRouteList () {
+            if(this._internalRouteList)
+                return this._internalRouteList;
+            this._internalRouteList = [];
+            return this._internalRouteList;
+        }
+
+        static _addMiddlewareAt(index, middleware) {
             if(this._isValidName(middleware.name)) {
                 this.internalMiddlewareStack.splice(index, 0, middleware);
                 return true;
             }
             return false;
         }
-        _indexOfMiddleware (name) {
+        static _indexOfMiddleware (name) {
             return this.internalMiddlewareStack.findIndex(middleware => middleware.name === name);
         }
-        _getMiddlewareByName (name) {
+        static _getMiddlewareByName (name) {
             return this.internalMiddlewareStack.find(middleware => middleware.name === name);
         }
-        _isValidName(name) {
+        static _isValidName(name) {
             return this.internalMiddlewareStack
                 .filter(middleware => middleware.name === name).length === 0;
         }
 
-        _getMiddlewareListForRoutes () {
+        static _getMiddlewareListForRoutes () {
             return this.internalMiddlewareStack.map(middleware => middleware.action);
         }
 
         _loadInMiddleware() {
-            this.internalRouteList.forEach(route => {
+            PencilblueRouter.internalRouteList.forEach(route => {
                 Object.keys(route.descriptors).forEach(method => {
                     let routeDescriptor = route.descriptors[method];
                     this.router[method](routeDescriptor.path, async (ctx, next) => {
                         ctx.routeDescription = routeDescriptor;
-                        ctx.serve404 = () => {
-                            ctx.status = 404;
-                            ctx.body = 'Page not found on PB';
-                        };
-                        ctx.serve403 = () => {
-                            ctx.status = 403;
-                            ctx.body = '403 Forbidden';
-                        };
                         await next();
-                    }, ...this._getMiddlewareListForRoutes());
+                    }, ...PencilblueRouter._getMiddlewareListForRoutes());
                 });
             });
         }
         _loadPublicRoutes () {
-            let routeParserMiddleware = this._getMiddlewareByName('parseUrl');
-            let publicRouteHandlerMiddleware = this._getMiddlewareByName('checkPublicRoute');
-            let mimeTypeMiddleware = this._getMiddlewareByName('setMimeType');
+            let routeParserMiddleware = PencilblueRouter._getMiddlewareByName('parseUrl');
+            let publicRouteHandlerMiddleware = PencilblueRouter._getMiddlewareByName('checkPublicRoute');
+            let mimeTypeMiddleware = PencilblueRouter._getMiddlewareByName('setMimeType');
             pb.RouterLoader.publicRoutes.forEach(route => {
                 this.router.get(route, routeParserMiddleware.action, mimeTypeMiddleware.action, publicRouteHandlerMiddleware.action);
             });
 
-            let nodeModuleMiddleware = this._getMiddlewareByName('checkModuleRoute');
+            let nodeModuleMiddleware = PencilblueRouter._getMiddlewareByName('checkModuleRoute');
             this.router.get('/node_modules/*', routeParserMiddleware.action, mimeTypeMiddleware.action, nodeModuleMiddleware.action);
         }
 
@@ -117,7 +120,6 @@ module.exports = function (pb) {
                     .use(this.router.routes())
                     .use(this.router.allowedMethods())
                     .listen(port, () => {
-                        pb.log.info(`Process is master: ${cluster.isMaster}`);
                         pb.log.info('PencilBlue is ready!');
                     });
 
