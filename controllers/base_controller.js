@@ -153,6 +153,7 @@ module.exports = function BaseControllerModule(pb) {
          * @type {object|null}
          */
         this.body = props.body;
+        this.files = props.files; // This is the file node from the body, separate for security reasons
 
         /**
          * @deprecated Use this.ls

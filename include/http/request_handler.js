@@ -682,6 +682,7 @@ module.exports = function RequestHandlerModule(pb) {
                 pathVars: ctx.params,
                 query: ctx.query,
                 body: ctx.request.body || ctx.req.body || {},
+                files: ctx.request.files || {},
                 site: ctx.req.site,
                 siteObj: ctx.req.siteObj,
                 siteName: ctx.req.siteName,
