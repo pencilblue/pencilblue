@@ -45,6 +45,7 @@
     "jquery-validation": "^1.17.0",
     "jsonformatter": "^0.7.0",
     "koa": "^2.5.2",
+    "koa-body": "^4.0.4",
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^7.4.0",
     "koa-session": "^5.8.3",

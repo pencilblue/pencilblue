@@ -120,9 +120,10 @@ module.exports = function BaseControllerModule(pb) {
         /**
          * The instance of the request handler that processed the request
          * @property reqHandler
+         * @deprecated
          * @type {RequestHandler}
          */
-        this.reqHandler = props.request_handler;
+        this.reqHandler = props.request_handler || this.ctx.req;
 
         /**
          * The current request object
@@ -152,6 +153,7 @@ module.exports = function BaseControllerModule(pb) {
          * @type {object|null}
          */
         this.body = props.body;
+        this.files = props.files; // This is the file node from the body, separate for security reasons
 
         /**
          * @deprecated Use this.ls
@@ -593,7 +595,9 @@ module.exports = function BaseControllerModule(pb) {
     BaseController.prototype.redirect = function (location, cb) {
         cb(pb.Errors.redirect(location));
     };
-
+    BaseController.prototype.doRedirect = function (destination, code = 302) {
+        throw pb.Errors.redirect(destination, code);
+    };
     /**
      * Generates an generic API response object
      * @static

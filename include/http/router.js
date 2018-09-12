@@ -1,9 +1,7 @@
-const cluster = require('cluster');
 const Koa = require('koa');
 const Router = require('koa-router');
 const Session = require('../koa/Session')();
-const bodyParser = require('koa-bodyparser');
-
+const bodyParser = require('koa-body');
 
 module.exports = function (pb) {
 
@@ -16,7 +14,10 @@ module.exports = function (pb) {
 
             this.router = new Router();
 
-            this.app.use(bodyParser());
+            this.app.use(bodyParser({
+                multipart: true,
+                // formidable: { uploadDir: path.join(__dirname, 'tmp') }
+            }));
             this.app.use(Session(this.app));
         }
 

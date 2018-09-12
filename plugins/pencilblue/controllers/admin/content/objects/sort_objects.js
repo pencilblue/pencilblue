@@ -37,7 +37,7 @@ module.exports = function(pb) {
         var self = this;
         var vars = this.pathVars;
         if(!vars.type_id) {
-            return this.reqHandler.serve404();
+            return cb(pb.Errors.notFound());
         }
 
         var service = new pb.CustomObjectService(self.site, false);

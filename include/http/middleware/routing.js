@@ -44,7 +44,7 @@ module.exports = pb => ({
         let req = ctx.req;
         const pluginService = new pb.PluginService({site: req.site});
         const plugins = _.uniq([req.activeTheme, ...pluginService.getActivePluginNames(), pb.config.plugins.default])
-            .map(plugin => pb.RouterLoader.storage[plugin]) // TODO: move storage off request handler
+            .map(plugin => pb.RouterLoader.storage[plugin])
             .filter(x => !!x);
 
         const pathname = req.url.pathname;
@@ -81,8 +81,9 @@ module.exports = pb => ({
                     .reduce(Object.assign, {});
                 descriptor = findDescriptor(route);
                 return descriptor
-            })
-        })
+            });
+        });
+
         if (!exactMatch && !found) {
             return ctx.status = 404;
         }

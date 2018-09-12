@@ -23,6 +23,10 @@ module.exports = pb => ({
         ctx.req.url = url.parse(ctx.req.url);
         await next();
     },
+    sessionCheck: async (ctx, next) => {
+        ctx.session.uid = ctx.session.uid || pb.util.uniqueId();
+        await next();
+    },
     checkPublicRoute: async (ctx, next) => {
         let req = ctx.req;
         const pathname = req.url.pathname;
