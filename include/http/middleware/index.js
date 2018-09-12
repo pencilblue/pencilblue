@@ -18,7 +18,7 @@
 module.exports = function(pb) {
     const { startTime, endTime } = require('./timing')(pb);
     const { errorHandler } = require('./errors')(pb);
-    const { parseUrl, checkPublicRoute, checkModuleRoute, systemSetupCheck, setMimeType } = require('./system')(pb);
+    const { parseUrl, sessionCheck, checkPublicRoute, checkModuleRoute, systemSetupCheck, setMimeType } = require('./system')(pb);
     const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb);
     const { requiresAuthenticationCheck, authorizationCheck, ipFilterCheck } = require('./auth')(pb);
     const { localizedRouteCheck, initializeLocalization } = require('./localization')(pb);
@@ -27,6 +27,7 @@ module.exports = function(pb) {
     const stack = [
         startTime,
         parseUrl,
+        sessionCheck,
         checkModuleRoute,
         checkPublicRoute,
         errorHandler,

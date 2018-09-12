@@ -88,7 +88,7 @@ module.exports = function(pb) {
      */
     GetMediaPreviewApiController.prototype.renderComplete = function(err, html, cb) {
         if (util.isError(err)) {
-            return this.reqHandler.serveError(err);
+            return cb(err);
         }
         else if (!html) {
             return cb({
