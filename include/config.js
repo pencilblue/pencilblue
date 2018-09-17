@@ -196,7 +196,7 @@ Configuration.getBaseConfig = function(multisite) {
         //purposes the "fake-redis" module can be used by setting the fake property
         //to true.
         cache: {
-            fake: false,
+            fake: true,
             host: "localhost",
             port: 6379
             //auth_pass: "password here"
@@ -217,7 +217,7 @@ Configuration.getBaseConfig = function(multisite) {
         //be included in the serialization of the error.
         logging: {
 
-            level: "silly",
+            level: "info",
             file: LOG_FILE,
             showErrors: true
         },
