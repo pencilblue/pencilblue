@@ -1,7 +1,7 @@
 const path = require('path');
 module.exports = pb => {
 
-    async function initializeLocalization (ctx) {
+    function initializeLocalization (ctx) {
         let opts = {};
         let routeLocale = ctx.params.locale || '';
         let localeSources = [];
@@ -71,9 +71,15 @@ module.exports = pb => {
         // Load the Controller to render the error page
         let ControllerClass = getErrorController(ctx);
 
-        let instance = new ControllerClass();
-        await initController(ctx, instance);
-        await renderErrorPage(ctx, instance);
+        try {
+            let instance = new ControllerClass();
+            await initController(ctx, instance);
+            await renderErrorPage(ctx, instance);
+        } catch (criticalError) { // if we error-ed while rendering the error page, just serve that error.
+            pb.log.error(err); // Log original error
+            ctx.status = criticalError.status;
+            ctx.body = criticalError;
+        }
     }
     return {
         errorHandler: async (ctx, next) => {
