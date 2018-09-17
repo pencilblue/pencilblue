@@ -1,5 +1,5 @@
 const replaceAndRedirect = (ctx, pattern, replacement) => {
-    let newPath = ctx.url.replace(pattern, replacement);
+    let newPath = ctx.url.path.replace(pattern, replacement);
     ctx.status = 301;
     return ctx.redirect(newPath);
 };
