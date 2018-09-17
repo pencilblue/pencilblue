@@ -61,6 +61,12 @@ module.exports = function(pb) {
                 //register the model with the template service
                 var errMsg = this.errorMessage;
                 var errStack = this.error && pb.config.logging.showErrors ? this.error.stack : '';
+
+                if(this.error && this.error.code < 500) {
+                    errMsg = '';
+                    errStack = '';
+                }
+
                 var model = {
                     navigation: new pb.TemplateValue(data.navItems.navigation, false),
                     account_buttons: new pb.TemplateValue(data.navItems.accountButtons, false),

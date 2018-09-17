@@ -339,8 +339,9 @@ module.exports = function DBManagerModule(pb) {
          * @return {Array}      Array of promise objects, one for each shutdown call
          */
         this.shutdown = function(){
-            return Object.keys(dbs).map(async (keys, i) => {
-                let database = Promise.promisifyAll(dbs[keys[i]]);
+            return Object.keys(dbs).map(async (key) => {
+                let temp = dbs[key];
+                let database = !temp.closeAsync ? Promise.promisifyAll(temp) : temp;
 
                 try {
                     await database.closeAsync(true);

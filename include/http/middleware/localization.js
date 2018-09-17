@@ -25,7 +25,7 @@ module.exports = pb => ({
         }
         const isLocale = /^[a-z]{2}-([A-Z]{2,3}|(419))$/i; // Regex to match a locale en-US for sv-SE etc
         if (!isLocale.test(locale)) {
-            return ctx.status = 404;
+            throw pb.Errors.notFound();
         }
 
         if (siteObj.supportedLocales[locale]) {
