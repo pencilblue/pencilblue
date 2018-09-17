@@ -76,9 +76,11 @@ module.exports = pb => {
             await initController(ctx, instance);
             await renderErrorPage(ctx, instance);
         } catch (criticalError) { // if we error-ed while rendering the error page, just serve that error.
-            pb.log.error(err); // Log original error
-            ctx.status = criticalError.status;
-            ctx.body = criticalError;
+            if(err.code >= 500) { // Log original error if it is a 5xx
+                pb.log.error(err);
+            }
+            ctx.status = criticalError.code || 500;
+            ctx.body = criticalError.stack;
         }
     }
     return {
