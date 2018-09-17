@@ -5,10 +5,11 @@ module.exports = pb => {
         let opts = {};
         let routeLocale = ctx.params.locale || '';
         let localeSources = [];
-        if (true) {
-            localeSources.push(routeLocale, ctx.session.locale);
+        const isLocale = /^[a-z]{2}-([A-Z]{2,3}|(419))$/i; // Regex to match a locale en-US for sv-SE etc
+        if (isLocale.test(routeLocale)) {
+            localeSources.push(routeLocale);
         }
-
+        localeSources.push(ctx.session.locale);
         localeSources = localeSources.concat(ctx.acceptsLanguages());
 
         if (ctx.req.siteObj) {
