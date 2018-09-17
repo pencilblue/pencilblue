@@ -7,7 +7,7 @@ module.exports = pb => {
         let localeSources = [];
         if (true) {
             localeSources.push(routeLocale, ctx.session.locale);
-        } // Test Locale here
+        }
 
         localeSources = localeSources.concat(ctx.acceptsLanguages());
 
