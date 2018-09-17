@@ -18,15 +18,16 @@ module.exports = pb => ({
             ctx.redirect(url.format(req.url));
             return ctx.body = `Redirecting to ${redirectHost}`;
         }
-        req.siteObj = siteObj;
+        req.siteObj = siteObj || pb.SiteService.getGlobalSiteContext();
+        req.site = req.siteObj.uid;
+        req.siteName = req.siteObj.displayName;
 
         //make sure we have a site
         if (!siteObj) {
-            return ctx.status = HttpStatus.NOT_FOUND;
+            throw pb.Errors.notFound();
         }
 
-        req.site = req.siteObj.uid;
-        req.siteName = req.siteObj.displayName;
+
         await next();
     },
     deriveActiveTheme: async (ctx, next) => {

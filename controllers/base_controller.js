@@ -160,13 +160,13 @@ module.exports = function BaseControllerModule(pb) {
          * @property localizationService
          * @type {Localization}
          */
-        this.localizationService = props.localization_service;
+        this.localizationService = props.localization_service || {language: 'en-US', g: (key) => key};
 
         /**
          * @property ls
          * @type {Localization}
          */
-        this.ls = props.localization_service;
+        this.ls = props.localization_service || {language: 'en-US', g: (key) => key};
 
         /**
          * The hash of key/value pairs that represent the variables passed in the route path

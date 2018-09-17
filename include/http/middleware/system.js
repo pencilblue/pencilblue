@@ -25,6 +25,7 @@ module.exports = pb => ({
     },
     sessionCheck: async (ctx, next) => {
         ctx.session.uid = ctx.session.uid || pb.util.uniqueId();
+        ctx.session.authentication = ctx.session.authentication || {};
         await next();
     },
     checkPublicRoute: async (ctx, next) => {
