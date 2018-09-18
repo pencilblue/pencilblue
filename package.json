@@ -47,6 +47,7 @@
     "koa": "^2.5.2",
     "koa-body": "^4.0.4",
     "koa-bodyparser": "^4.2.1",
+    "koa-cookie": "^1.0.0",
     "koa-router": "^7.4.0",
     "koa-session": "^5.8.3",
     "locale": "^0.1.0",
