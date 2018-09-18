@@ -677,6 +677,7 @@ module.exports = function RequestHandlerModule(pb) {
                 request: ctx.req,
                 response: ctx.res,
                 session: ctx.session,
+                cookies: ctx.cookies,
                 localization_service: ctx.req.localizationService,
                 path_vars: ctx.params, // TODO: Remove this one
                 pathVars: ctx.params,
