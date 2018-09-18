@@ -145,6 +145,7 @@ module.exports = function BaseControllerModule(pb) {
          * @type {object}
          */
         this.session = props.session;
+        this.cookies = props.cookies;
 
         /**
          * The deserialized body of the request.  This field is only ever populted if the executing route specifies the

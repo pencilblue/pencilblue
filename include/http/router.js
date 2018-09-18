@@ -2,6 +2,8 @@ const Koa = require('koa');
 const Router = require('koa-router');
 const Session = require('../koa/Session')();
 const bodyParser = require('koa-body');
+const Cookies  = require('koa-cookie').default;
+
 
 module.exports = function (pb) {
 
@@ -19,6 +21,7 @@ module.exports = function (pb) {
                 // formidable: { uploadDir: path.join(__dirname, 'tmp') }
             }));
             this.app.use(Session(this.app));
+            this.app.use(Cookies());
         }
 
         static registerRoute(routeDescriptor) {
