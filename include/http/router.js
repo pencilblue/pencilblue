@@ -128,10 +128,15 @@ module.exports = function (pb) {
 
                 this.app
                     .use(this.router.routes())
-                    .use(this.router.allowedMethods())
-                    .listen(port, () => {
-                        pb.log.info('PencilBlue is ready!');
-                    });
+                    .use(this.router.allowedMethods());
+
+                // Add middleware stack for those routes that are unknown
+                PencilblueRouter._getMiddlewareListForRoutes()
+                    .forEach(middleware => this.app.use(middleware));
+
+                this.app.listen(port, () => {
+                    pb.log.info('PencilBlue is ready!');
+                });
 
                 this.calledOnce = 1;
             }

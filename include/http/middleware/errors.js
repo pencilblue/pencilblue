@@ -1,9 +1,10 @@
 const path = require('path');
+const _ = require('lodash');
 module.exports = pb => {
 
     function initializeLocalization (ctx) {
         let opts = {};
-        let routeLocale = ctx.params.locale || '';
+        let routeLocale = _.get(ctx, 'params.locale', '');
         let localeSources = [];
         const isLocale = /^[a-z]{2}-([A-Z]{2,3}|(419))$/i; // Regex to match a locale en-US for sv-SE etc
         if (isLocale.test(routeLocale)) {
