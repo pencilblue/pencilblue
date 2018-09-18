@@ -55,7 +55,7 @@ module.exports = (pb) => {
          * @returns {Promise} Array of statuses
          */
         async getClusterStatus() {
-            return dao.qAsync(pb.config.registry.key, {where: pb.DAO.ANYWHERE});
+            return this.dao.qAsync(pb.config.registry.key, {where: pb.DAO.ANYWHERE});
         }
 
         /**
