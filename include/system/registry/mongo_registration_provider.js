@@ -66,7 +66,7 @@ module.exports = (pb) => {
          * @returns {Promise}
          */
         async setNodeStatus(id, status) {
-            if (!util.isObject(status)) {
+            if (!pb.util.isObject(status)) {
                 throw new Error('The status parameter must be a valid object');
             }
 
