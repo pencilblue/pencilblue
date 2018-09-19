@@ -20,7 +20,7 @@ module.exports = pb => ({
     parseUrl: async (ctx, next) => {
         ctx.app.requestsServed ? ctx.app.requestsServed++ : 1;
         ctx.req.hostname = ctx.req.headers.host;
-        ctx.req.url = url.parse(ctx.req.url);
+        ctx.req.url = url.parse(ctx.req.url, true);
         await next();
     },
     sessionCheck: async (ctx, next) => {
