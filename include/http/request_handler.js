@@ -201,6 +201,7 @@ module.exports = function RequestHandlerModule(pb) {
         /**
              * Parses the incoming request body when the body type specified matches one of
              * those explicitly allowed by the rotue.
+         * @deprecated
              * @method parseBody
              * @param {Array} mimes An array of allowed MIME strings.
              * @param {Function} cb A callback that takes 2 parameters: An Error, if

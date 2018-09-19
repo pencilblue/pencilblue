@@ -66,13 +66,13 @@ module.exports = (pb) => {
          * @returns {Promise}
          */
         async setNodeStatus(id, status) {
-            if (!util.isObject(status)) {
+            if (!pb.util.isObject(status)) {
                 throw new Error('The status parameter must be a valid object');
             }
 
             status[pb.DAO.getIdField()] = id;
             status.object_type = pb.config.registry.key;
-            return this.dao.save(status);
+            return this.dao.saveAsync(status);
         }
 
         /**
