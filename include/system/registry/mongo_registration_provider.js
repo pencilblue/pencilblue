@@ -72,7 +72,7 @@ module.exports = (pb) => {
 
             status[pb.DAO.getIdField()] = id;
             status.object_type = pb.config.registry.key;
-            return this.dao.save(status);
+            return this.dao.saveAsync(status);
         }
 
         /**
