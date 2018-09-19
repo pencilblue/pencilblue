@@ -100,7 +100,16 @@ module.exports = (pb) => {
             pb.ServerRegistry.addItem('requests', () => this.router.requestsServed);
 
             //current requests
-            pb.ServerRegistry.addItem('currentRequests', () => true); // this.pb.server.getConnections(callback);
+            pb.ServerRegistry.addItem('currentRequests', () => {
+                return new Promise((resolve, reject) => {
+                    this.router.__server.getConnections((err, data) => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        resolve(data);
+                    });
+                });
+            });
 
             //analytics average
             pb.ServerRegistry.addItem('analytics', () => pb.AnalyticsManager.getStats());

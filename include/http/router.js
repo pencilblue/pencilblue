@@ -12,7 +12,7 @@ module.exports = function (pb) {
         constructor () {
             this.app = new Koa();
             this.app.keys = ['9011fa34-41a6-4a4d-8ad7-d591c5d3ca01']; // Random GUID
-            this.app.requestsServed = this.app.requestsServed || 0;
+            this.app._requestsServed = this.app._requestsServed || 0;
 
             this.router = new Router();
 
@@ -99,6 +99,7 @@ module.exports = function (pb) {
                 Object.keys(route.descriptors).forEach(method => {
                     let routeDescriptor = route.descriptors[method];
                     this.router[method](routeDescriptor.path, async (ctx, next) => {
+                        this.app._requestsServed++;
                         ctx.routeDescription = routeDescriptor;
                         await next();
                     }, ...PencilblueRouter._getMiddlewareListForRoutes());
@@ -116,6 +117,15 @@ module.exports = function (pb) {
             let nodeModuleMiddleware = PencilblueRouter._getMiddlewareByName('checkModuleRoute');
             this.router.get('/node_modules/*', routeParserMiddleware.action, mimeTypeMiddleware.action, nodeModuleMiddleware.action);
         }
+        _addDefaultMiddleware() {
+            // Add middleware stack for those routes that are unknown
+            this.app.use(async(ctx, next) => {
+                this.app._requestsServed++;
+                await next();
+            });
+            PencilblueRouter._getMiddlewareListForRoutes()
+                .forEach(middleware => this.app.use(middleware));
+        }
 
         /***
          * Listen function that starts the server
@@ -130,11 +140,9 @@ module.exports = function (pb) {
                     .use(this.router.routes())
                     .use(this.router.allowedMethods());
 
-                // Add middleware stack for those routes that are unknown
-                PencilblueRouter._getMiddlewareListForRoutes()
-                    .forEach(middleware => this.app.use(middleware));
+                this._addDefaultMiddleware();
 
-                this.app.listen(port, () => {
+                this.__server = this.app.listen(port, () => {
                     pb.log.info('PencilBlue is ready!');
                 });
 
@@ -145,7 +153,7 @@ module.exports = function (pb) {
             }
         }
         get requestsServed () {
-            return this.app.requestsServed;
+            return this.app._requestsServed;
         }
     }
 
