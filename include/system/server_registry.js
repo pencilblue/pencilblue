@@ -1,6 +1,7 @@
 const cluster = require('cluster');
 const os = require('os');
 const _ = require('lodash');
+const Promise = require('bluebird');
 
 module.exports = (pb) => {
 
@@ -58,15 +59,16 @@ module.exports = (pb) => {
 
             return this._saveRegistryData(registryData);
         };
-        _runTasks() {
+        async _runTasks() {
             let tasks = ServerRegistry.tasks;
             let results = null;
             try {
-                results =  _.mapValues(tasks, (func) => typeof func === 'function' && func());
+                results =  _.mapValues(tasks, async (func) => typeof func === 'function' && await func());
             } catch (err) {
                 pb.log.error(`ServerRegistration: Failed to gather all data for registration: ${err.message}`);
             }
-            return results;
+            let a = await Promise.props(results);
+            return a;
         }
         // registry
         async _saveRegistryData(registryData) {
