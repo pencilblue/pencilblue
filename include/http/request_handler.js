@@ -682,7 +682,7 @@ module.exports = function RequestHandlerModule(pb) {
                 localization_service: ctx.req.localizationService,
                 path_vars: ctx.params, // TODO: Remove this one
                 pathVars: ctx.params,
-                query: ctx.query,
+                query: ctx.req.url.query || ctx.query,
                 body: ctx.request.body || ctx.req.body || {},
                 files: ctx.request.files || {},
                 site: ctx.req.site,
