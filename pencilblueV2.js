@@ -9,6 +9,7 @@ module.exports = (pb) => {
         }
 
         async startup() {
+            pb.LocalizationService.init();
             await pb.Localization.initAsync();
 
             // Start the Database connections and readers
