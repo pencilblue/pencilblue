@@ -39,7 +39,7 @@ module.exports = function(pb) {
         };
         self.siteQueryService.q('section', opts, function (err, sections) {
             if (util.isError(err)) {
-                return self.reqHandler.serveError(err);
+                return cb(err);
             }
             else if(sections.length === 0) {
 

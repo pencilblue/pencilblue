@@ -61,8 +61,7 @@ module.exports = function SetupActionControllerModule(pb) {
         var self = this;
         pb.settings.get('system_initialized', function(err, isSetup){
             if (util.isError(err)) {
-                self.reqHandler.serveError(err);
-                return;
+                return cb(err);
             }
 
             //when user count is 1 or higher the system has already been initialized
