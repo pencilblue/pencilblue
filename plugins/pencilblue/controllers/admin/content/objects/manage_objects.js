@@ -47,12 +47,12 @@ module.exports = function(pb) {
                 return self.serveError(err);
             }
             else if (!util.isObject(custObjType)) {
-                return self.reqHandler.serve404();
+                return cb(pb.Errors.notFound());
             }
 
             service.findByTypeWithOrdering(custObjType, function(err, customObjects) {
                 if (util.isError(customObjects)) {
-                    return self.reqHandler.serveError(err);
+                    return cb(err);
                 }
 
                 //none to manage

@@ -49,8 +49,7 @@ module.exports = function(pb) {
             }
 
             if (!obj.details) {
-                self.reqHandler.serve404();
-                return;
+                return cb(pb.Errors.notFound());
             }
 
             var angularObjects = pb.ClientJs.getAngularObjects({
