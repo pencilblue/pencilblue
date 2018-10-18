@@ -16,6 +16,8 @@
 */
 'use strict';
 
+const passport = require('koa-passport');
+
 module.exports = function LoginActionControllerModule(pb) {
 
     //dependencies
@@ -43,29 +45,42 @@ module.exports = function LoginActionControllerModule(pb) {
             this.onPostParamsRetrieved(this.body, cb);
     };
     LoginActionController.prototype.onPostParamsRetrieved = function(post, cb) {
-        var self         = this;
+        var self = this;
         var adminAttempt = this.query.admin_attempt ? true : false;
 
         var options = post;
         options.access_level = adminAttempt ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_USER;
         options.site = self.site;
-        pb.security.authenticateSession(this.session, options, new FormAuthentication(), function(err, user) {
-            if(util.isError(err) || user === null)  {
-                self.loginError(adminAttempt, cb);
-                return;
-            }
+        console.log('______ session ______\n', this.session);
+        console.log('______ options ______\n', options);
+        //redirect
+        var location = '/';
+        if (self.session.on_login !== undefined) {
+            location = self.session.on_login;
+            delete self.session.on_login;
+        } else if (adminAttempt) {
+            location = '/admin';
+        }
+        passport.authenticate('local', {
+            successRedirect: location,
+            failureRedirect: '/'
+        }, cb);
+        // pb.security.authenticateSession(this.session, options, new FormAuthentication(), function(err, user) {
+        //     if (util.isError(err) || user === null) {
+        //         self.loginError(adminAttempt, cb);
+        //         return;
+        //     }
 
-            //redirect
-            var location = '/';
-            if (self.session.on_login !== undefined) {
-                location = self.session.on_login;
-                delete self.session.on_login;
-            }
-            else if(adminAttempt) {
-                location = '/admin';
-            }
-            self.redirect(location, cb);
-        });
+        //     //redirect
+        //     var location = '/';
+        //     if (self.session.on_login !== undefined) {
+        //         location = self.session.on_login;
+        //         delete self.session.on_login;
+        //     } else if (adminAttempt) {
+        //         location = '/admin';
+        //     }
+        //     self.redirect(location, cb);
+        // });
     };
 
     LoginActionController.prototype.loginError = function(adminAttempt, cb) {
