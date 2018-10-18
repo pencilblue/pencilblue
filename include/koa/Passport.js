@@ -16,7 +16,7 @@ module.exports = () => {
         passport.deserializeUser(async function (user, done) {
             done(null, user);
         });
-        passport.use(new CustomStrategy(async function (req, done) {
+        passport.use('custom-local', new CustomStrategy(async function (req, done) {
             let loginContext = req.session._loginContext || {};
             if(!loginContext.username || !loginContext.password) {
                 return done(new Error("UsernamePasswordAuthentication: The username and password must be passed as part of the credentials object: " + credentials), null);

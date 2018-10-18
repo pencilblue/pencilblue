@@ -48,7 +48,7 @@ module.exports = function LoginActionControllerModule(pb) {
         _doLogin (cb) {
             let redirectLocation = this.redirectLink;
 
-            return passport.authenticate('custom', (err, user) => {
+            return passport.authenticate('custom-local', (err, user) => {
                 if (!user) {
                     return this.loginError(this.isAdminLogin, cb);
                 }
