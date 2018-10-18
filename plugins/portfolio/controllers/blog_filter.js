@@ -50,8 +50,7 @@ module.exports = function BlogFilterModule(pb) {
                 if(pb.validation.isIdStr(custUrl)) {
                     self.siteQueryService.loadById(custUrl, objectType, function(err, result) {
                         if (util.isError(err) || result === null || result.draft) {
-                            self.reqHandler.serve404();
-                            return;
+                            return cb(pb.Errors.notFound());
                         }
 
                         self.req['pencilblue_' + objectType] = result._id.toString();
@@ -60,15 +59,14 @@ module.exports = function BlogFilterModule(pb) {
                     });
                 }
                 else {
-                    self.reqHandler.serve404();
+                    return cb(pb.Errors.notFound());
                 }
 
                 return;
             }
 
             if(result.draft) {
-                self.reqHandler.serve404();
-                return;
+                return cb(pb.Errors.notFound());
             }
 
             self.req['pencilblue_' + objectType] = result._id.toString();

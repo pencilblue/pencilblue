@@ -62,7 +62,7 @@ module.exports = function (pb) {
         //load the media if available
         this.service.getContentStreamByPath(mediaPath, function(err, mstream) {
             if(util.isError(err)) {
-                return self.reqHandler.serveError(err);
+                return cb(err);
             }
 
             mstream.once('end', function() {
