@@ -21,9 +21,11 @@ module.exports = function (pb) {
                 multipart: true,
                 // formidable: { uploadDir: path.join(__dirname, 'tmp') }
             }));
-            this.app.use(Passport(pb, this.app));
+            let passport = Passport(pb);
             this.app.use(Session(this.app));
             this.app.use(Cookies());
+            this.app.use(passport.initialize());
+            this.app.use(passport.session());
         }
 
         static registerRoute(routeDescriptor) {

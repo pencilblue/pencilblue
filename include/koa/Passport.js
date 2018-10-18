@@ -1,64 +1,83 @@
-module.exports = () => {
-    return (pb, app) => {
-        console.log('_____ here I am _____');
-        const util = require('../util.js');
-        const RegExpUtils = require('../utils/reg_exp_utils');
+const Promise = require('bluebird');
+const CustomStrategy = require('passport-custom').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
 
-        const Promise = require('bluebird');
+module.exports = () => {
+    return (pb) => {
+        const RegExpUtils = require('../utils/reg_exp_utils');
 
         // Passport dependencies
         const passport = require('koa-passport');
-        const LocalStrategy = require('passport-local').Strategy;
-        return async (ctx, next) => {
-            console.log('_____ rock you like a hurricane _____\n');
-            passport.serializeUser(function(user, done) {
-                done(null, user);
-            });
 
-            passport.deserializeUser(async function(user, done) {
-                done(null, user);
-            });
-            passport.use(new LocalStrategy(async function(credentials, done) {
-                console.log('_____ credentials _____\n', credentials);
-                if (!util.isObject(credentials) || !util.isString(credentials.username) || !util.isString(credentials.password)) {
-                    return done(new Error("UsernamePasswordAuthentication: The username and password must be passed as part of the credentials object: " + credentials), null);
-                }
+        passport.serializeUser(function (user, done) {
+            done(null, user);
+        });
 
-                const usernameSearchExp = RegExpUtils.getCaseInsensitiveExact(credentials.username);
+        passport.deserializeUser(async function (user, done) {
+            done(null, user);
+        });
+        passport.use(new CustomStrategy(async function (req, done) {
+            let loginContext = req.session._loginContext || {};
+            if(!loginContext.username || !loginContext.password) {
+                return done(new Error("UsernamePasswordAuthentication: The username and password must be passed as part of the credentials object: " + credentials), null);
+            }
 
-                let query = {
-                    object_type: 'user',
-                    '$or': [{
-                        username: usernameSearchExp
-                    }, {
-                        email: usernameSearchExp
-                    }],
-                    password: credentials.password
+            const usernameSearchExp = RegExpUtils.getCaseInsensitiveExact(loginContext.username);
+
+            let query = {
+                object_type: 'user',
+                '$or': [{
+                    username: usernameSearchExp
+                }, {
+                    email: usernameSearchExp
+                }],
+                password: pb.security.encrypt(loginContext.password)
+            };
+
+            //check for required access level
+            if (!isNaN(loginContext.access_level)) {
+                query.admin = {
+                    '$gte': loginContext.access_level
                 };
+            }
 
-                //check for required access level
-                if (!isNaN(credentials.access_level)) {
-                    query.admin = {
-                        '$gte': credentials.access_level
-                    };
-                }
+            let dao;
+            if (loginContext.site) {
+                dao = Promise.promisifyAll(new pb.SiteQueryService({
+                    site: loginContext.site,
+                    onlyThisSite: false
+                }));
+            } else {
+                dao = Promise.promisifyAll(new pb.DAO());
+            }
 
-                let dao;
-                if (credentials.site) {
-                    dao = Promise.promisifyAll(new pb.SiteQueryService({
-                        site: credentials.site,
-                        onlyThisSite: false
-                    }));
-                } else {
-                    dao = Promise.promisifyAll(new pb.DAO());
-                }
-                //search for user
-                const result = await dao.loadByValuesAsync(query, 'user');
-                done();
-            }));
-            app.use(passport.initialize());
-            app.use(passport.session());
-            await next();
-        };
+            //search for user
+            let user;
+
+            try {
+                user = await dao.loadByValuesAsync(query, 'user') || {};
+            } catch (err) {
+                pb.log.error(`Failed to get user during authentication. ${err}`);
+                return done(null, false);
+            }
+
+            delete user.password;
+
+            //build out session object
+            user.permissions                   = pb.PluginService.getPermissionsForRole(user.admin);
+            req.session.authentication.user        = user;
+            req.session.authentication.user_id     = user[pb.DAO.getIdField()].toString();
+            req.session.authentication.admin_level = user.admin;
+
+            //set locale if no preference already indicated for the session
+            if (!req.session.locale) {
+                req.session.locale = user.locale;
+            }
+
+            delete req.session._loginContext;
+            done(null, user);
+        }));
+
+        return passport;
     };
 };
