@@ -3,7 +3,7 @@ const Router = require('koa-router');
 const Session = require('../koa/Session')();
 const bodyParser = require('koa-body');
 const Cookies  = require('koa-cookie').default;
-const Passport = require('../koa/Passport')();
+const Passport = require('../koa/authentication/Passport')();
 
 
 module.exports = function (pb) {
