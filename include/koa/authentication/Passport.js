@@ -1,6 +1,6 @@
 module.exports = () => {
     return (pb) => {
-        const LocalAuthenticationStrategy = require('./local_authentication_strategy');
+        const LocalAuthenticationStrategy = require('./passport-strategies/local_authentication_strategy');
 
         // Passport dependencies
         const passport = require('koa-passport');

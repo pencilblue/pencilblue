@@ -18,7 +18,6 @@
 
 //dependencies
 var util = require('../../util.js');
-var RegExpUtils = require('../../utils/reg_exp_utils');
 
 module.exports = function AuthenticationModule(pb) {
 
@@ -43,7 +42,7 @@ module.exports = function AuthenticationModule(pb) {
         }
 
         //build query
-        var usernameSearchExp = RegExpUtils.getCaseInsensitiveExact(credentials.username);
+        var usernameSearchExp = pb.regexUtil.getCaseInsensitiveExact(credentials.username);
         var query = {
             object_type : 'user',
             '$or' : [

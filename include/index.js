@@ -42,7 +42,7 @@ module.exports = function PB(config) {
     pb.config = config;
 
     //setup utils
-    pb.regexUtil = require('../utils/reg_exp_utils');
+    pb.regexUtil = require('./utils/reg_exp_utils');
 
     pb.util    = require(path.join(config.docRoot, '/include/util.js'));
     Object.defineProperty(pb, 'utils', {
