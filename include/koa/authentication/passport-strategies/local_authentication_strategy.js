@@ -1,18 +1,8 @@
 const CustomStrategy = require('passport-custom').Strategy;
+const strategyServices = require('./strategy_services');
 
 module.exports = (pb) => {
-
-    function _getDao (loginContext) {
-        if (loginContext.site) {
-            return new pb.SiteQueryService({
-                site: loginContext.site,
-                onlyThisSite: false
-            });
-        } else {
-            return new pb.DAO();
-        }
-    }
-    function _getQuery (loginContext) {
+    function _getQuery(loginContext) {
         const usernameSearchExp = pb.regexUtil.getCaseInsensitiveExact(loginContext.username);
 
         let query = {
@@ -33,23 +23,7 @@ module.exports = (pb) => {
         }
 
         return query;
-    }
-    function _addUserToSession (req, user) {
-        delete user.password;
-
-        //build out session object
-        user.permissions = pb.PluginService.getPermissionsForRole(user.admin);
-        req.session.authentication.user = user;
-        req.session.authentication.user_id = user[pb.DAO.getIdField()].toString();
-        req.session.authentication.admin_level = user.admin;
-
-        //set locale if no preference already indicated for the session
-        if (!req.session.locale) {
-            req.session.locale = user.locale;
-        }
-
-        delete req.session._loginContext; // Remove login context from session now its used
-    }
+    };
 
     async function action(req, done) {
         let loginContext = req.session._loginContext || {};
@@ -58,7 +32,7 @@ module.exports = (pb) => {
         }
 
         let query = _getQuery(loginContext);
-        let dao = _getDao(loginContext);
+        let dao = strategyServices._getDao(loginContext, pb);
 
 
         //search for user
@@ -71,10 +45,10 @@ module.exports = (pb) => {
             return done(null, false);
         }
 
-        _addUserToSession(req, user);
+        strategyServices._addUserToSession(req, user, pb);
 
         done(null, user);
     }
-    
+
     return new CustomStrategy(action);
 };

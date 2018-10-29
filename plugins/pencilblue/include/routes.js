@@ -69,6 +69,24 @@ module.exports = function Routes(pb){
             content_type: 'text/html'
         },
         {
+            method: 'get',
+            path: "/login/salesforce",
+            access_level: 0,
+            auth_required: false,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'login_salesforce.js'),
+            content_type: 'text/html'
+        },
+        {
+            method: 'get',
+            path: "/login/salesforce/callback",
+            access_level: 0,
+            auth_required: false,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'login_salesforce_callback.js'),
+            content_type: 'application/json'
+        },
+        {
             method: 'post',
             path: "/actions/login",
             access_level: 0,

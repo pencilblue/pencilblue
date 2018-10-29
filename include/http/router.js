@@ -2,15 +2,16 @@ const Koa = require('koa');
 const Router = require('koa-router');
 const Session = require('../koa/Session')();
 const bodyParser = require('koa-body');
-const Cookies  = require('koa-cookie').default;
+const Cookies = require('koa-cookie').default;
 const Passport = require('../koa/authentication/Passport')();
+const https = require('https');
+const fs = require('fs');
 
-
-module.exports = function (pb) {
+module.exports = function(pb) {
 
     class PencilblueRouter {
 
-        constructor () {
+        constructor() {
             this.app = new Koa();
             this.app.keys = ['9011fa34-41a6-4a4d-8ad7-d591c5d3ca01']; // Random GUID
             this.app._requestsServed = this.app._requestsServed || 0;
@@ -55,38 +56,38 @@ module.exports = function (pb) {
         }
 
         static replaceMiddleware(name, middleware) {
-            let index = this._indexOfMiddleware(name);
-            if(index >= 0 && middleware) {
-                this.internalMiddlewareStack[index] = middleware;
+                let index = this._indexOfMiddleware(name);
+                if (index >= 0 && middleware) {
+                    this.internalMiddlewareStack[index] = middleware;
+                }
             }
-        }
-        /*****
-         * Internal Helper Functions
-         */
-        static get internalMiddlewareStack () {
-            if(this._internalMiddlewareStack)
+            /*****
+             * Internal Helper Functions
+             */
+        static get internalMiddlewareStack() {
+            if (this._internalMiddlewareStack)
                 return this._internalMiddlewareStack;
             this._internalMiddlewareStack = [];
             return this._internalMiddlewareStack;
         }
-        static get internalRouteList () {
-            if(this._internalRouteList)
+        static get internalRouteList() {
+            if (this._internalRouteList)
                 return this._internalRouteList;
             this._internalRouteList = [];
             return this._internalRouteList;
         }
 
         static _addMiddlewareAt(index, middleware) {
-            if(this._isValidName(middleware.name)) {
+            if (this._isValidName(middleware.name)) {
                 this.internalMiddlewareStack.splice(index, 0, middleware);
                 return true;
             }
             return false;
         }
-        static _indexOfMiddleware (name) {
+        static _indexOfMiddleware(name) {
             return this.internalMiddlewareStack.findIndex(middleware => middleware.name === name);
         }
-        static _getMiddlewareByName (name) {
+        static _getMiddlewareByName(name) {
             return this.internalMiddlewareStack.find(middleware => middleware.name === name);
         }
         static _isValidName(name) {
@@ -94,7 +95,7 @@ module.exports = function (pb) {
                 .filter(middleware => middleware.name === name).length === 0;
         }
 
-        static _getMiddlewareListForRoutes () {
+        static _getMiddlewareListForRoutes() {
             return this.internalMiddlewareStack.map(middleware => middleware.action);
         }
 
@@ -102,7 +103,7 @@ module.exports = function (pb) {
             PencilblueRouter.internalRouteList.forEach(route => {
                 Object.keys(route.descriptors).forEach(method => {
                     let routeDescriptor = route.descriptors[method];
-                    this.router[method](routeDescriptor.path, async (ctx, next) => {
+                    this.router[method](routeDescriptor.path, async(ctx, next) => {
                         this.app._requestsServed++;
                         ctx.routeDescription = routeDescriptor;
                         await next();
@@ -110,7 +111,7 @@ module.exports = function (pb) {
                 });
             });
         }
-        _loadPublicRoutes () {
+        _loadPublicRoutes() {
             let routeParserMiddleware = PencilblueRouter._getMiddlewareByName('parseUrl');
             let publicRouteHandlerMiddleware = PencilblueRouter._getMiddlewareByName('checkPublicRoute');
             let mimeTypeMiddleware = PencilblueRouter._getMiddlewareByName('setMimeType');
@@ -135,8 +136,8 @@ module.exports = function (pb) {
          * Listen function that starts the server
          * @param port
          */
-        listen (port) {
-            if(!this.calledOnce) {
+        listen(port) {
+            if (!this.calledOnce) {
                 this._loadPublicRoutes(); // Loads PB public routes, not regular public routes. -- Need to remove eventually
                 this._loadInMiddleware();
 
@@ -145,23 +146,39 @@ module.exports = function (pb) {
                     .use(this.router.allowedMethods());
 
                 this._addDefaultMiddleware();
+                const config = {
+                    https: {
+                        port: 8080,
+                        options: {
+                            key: fs.readFileSync('../OAuthFlows/key.pem', 'utf8'),
+                            cert: fs.readFileSync('../OAuthFlows/server.crt', 'utf8')
+                        }
+                    }
+                };
+                const serverCallback = this.app.callback();
+                const httpsServer = https.createServer(config.https.options, serverCallback);
+                this.__server = httpsServer
+                    .listen(config.https.port, function(err) {
+                        if (!!err) {
+                            pb.log.info('PencilBlue is not ready!');
+                        } else {
+                            pb.log.info('PencilBlue is ready!');
+                        }
+                    });
 
-                this.__server = this.app.listen(port, () => {
-                    pb.log.info('PencilBlue is ready!');
-                });
+                // this.__server = this.app.listen(port, () => {
+                //     pb.log.info('PencilBlue is ready!');
+                // });
 
                 this.calledOnce = 1;
-            }
-            else {
+            } else {
                 pb.log.error(`Listen function was called twice on the same server instance`);
             }
         }
-        get requestsServed () {
+        get requestsServed() {
             return this.app._requestsServed;
         }
     }
 
     return PencilblueRouter;
 };
-
-

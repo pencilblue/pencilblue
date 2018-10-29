@@ -1,6 +1,7 @@
 module.exports = () => {
     return (pb) => {
         const LocalAuthenticationStrategy = require('./passport-strategies/local_authentication_strategy');
+        const SalesforceAuthenticationStrategy = require('./passport-strategies/salesforce_authentication_strategy');
 
         // Passport dependencies
         const passport = require('koa-passport');
@@ -15,6 +16,7 @@ module.exports = () => {
         });
 
         passport.use('custom-local', LocalAuthenticationStrategy(pb));
+        passport.use('salesforce', SalesforceAuthenticationStrategy(pb));
 
         return passport;
     };
