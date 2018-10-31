@@ -15,7 +15,7 @@ function _addUserToSession(req, user, pb) {
     //build out session object
     user.permissions = pb.PluginService.getPermissionsForRole(user.admin);
     req.session.authentication.user = user || {};
-    req.session.authentication.user_id = user[pb.DAO.getIdField()].toString();
+    req.session.authentication.user_id = user[pb.DAO.getIdField()] ? user[pb.DAO.getIdField()].toString() : null;
     req.session.authentication.admin_level = user.admin;
 
     //set locale if no preference already indicated for the session

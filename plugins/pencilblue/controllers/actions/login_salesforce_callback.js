@@ -48,6 +48,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
 
 
         _doLogin(cb) {
+            this.ctx.__site = this.site;
             let redirectLocation = this.redirectLink;
             return passport.authenticate('salesforce-callback', (err, user) => {
                 if (!user) {

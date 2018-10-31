@@ -36,8 +36,8 @@ module.exports = function LoginSFSSOControllerModule(pb) {
             this.salesforceSSO(cb);
         }
 
-
-        salesforceSSO(cb) {
+        async salesforceSSO(cb) {
+            this.ctx.__site = this.site;
             return passport.authenticate('salesforce', (err, options) => {
                 request(options).pipe(this.res);
             })(this.ctx);
