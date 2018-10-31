@@ -20,18 +20,18 @@ const passport = require('koa-passport');
 const request = require('request');
 const request_promise = require('request-promise');
 
-module.exports = function LoginSalesforceActionControllerModule(pb) {
+module.exports = function LoginSalesforceCallbackControllerModule(pb) {
 
     //dependencies
     var FormController = pb.FormController;
 
     /**
      * Authenticates a user
-     * @class LoginActionController
+     * @class LoginSalesforceCallbackController
      * @constructor
      * @extends FormController
      */
-    class LoginActionController extends pb.BaseController {
+    class LoginSalesforceCallbackController extends pb.BaseController {
         render(cb) {
             this.sanitizeObject(this.body);
             this._setupLoginContext();
@@ -83,5 +83,5 @@ module.exports = function LoginSalesforceActionControllerModule(pb) {
     }
 
     //exports
-    return LoginActionController;
+    return LoginSalesforceCallbackController;
 };
