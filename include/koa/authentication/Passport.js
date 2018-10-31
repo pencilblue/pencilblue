@@ -16,7 +16,9 @@ module.exports = () => {
         });
 
         passport.use('custom-local', LocalAuthenticationStrategy(pb));
-        passport.use('salesforce', SalesforceAuthenticationStrategy(pb));
+        const salesforceStrategies = SalesforceAuthenticationStrategy(pb);
+        passport.use('salesforce', salesforceStrategies.salesforce);
+        passport.use('salesforce-callback', salesforceStrategies.salesforceCallback);
 
         return passport;
     };

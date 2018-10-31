@@ -1,7 +1,29 @@
+/*
+    Copyright (C) 2016  PencilBlue, LLC
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+'use strict';
 
 const passport = require('koa-passport');
+const request = require('request');
+const request_promise = require('request-promise');
 
 module.exports = function LoginSalesforceActionControllerModule(pb) {
+
+    //dependencies
+    var FormController = pb.FormController;
 
     /**
      * Authenticates a user
@@ -10,14 +32,14 @@ module.exports = function LoginSalesforceActionControllerModule(pb) {
      * @extends FormController
      */
     class LoginActionController extends pb.BaseController {
-        render (cb) {
+        render(cb) {
             this.sanitizeObject(this.body);
             this._setupLoginContext();
             this._doLogin(cb);
         }
-        loginError (cb) {
+        loginError(cb) {
             this.session.error = this.ls.g('login.INVALID_LOGIN');
-            if(this.isAdminLogin){
+            if (this.isAdminLogin) {
                 return this.redirect('/admin/login', cb);
             }
 
@@ -25,23 +47,30 @@ module.exports = function LoginSalesforceActionControllerModule(pb) {
         };
 
 
-        _doLogin (cb) {
+        _doLogin(cb) {
             let redirectLocation = this.redirectLink;
-
-            return this.redirect(redirectLocation, cb);
+            return passport.authenticate('salesforce-callback', (err, user) => {
+                if (!user) {
+                    return this.loginError(this.isAdminLogin, cb);
+                }
+                cb({
+                    code: 200,
+                    content: user
+                });
+            })(this.ctx);
         }
 
-        _setupLoginContext () {
+        _setupLoginContext() {
             let options = this.body;
             options.access_level = this.isAdminLogin ? pb.SecurityService.ACCESS_WRITER : pb.SecurityService.ACCESS_USER;
             options.site = this.site;
             this.ctx.session._loginContext = options;
         }
 
-        get isAdminLogin () {
+        get isAdminLogin() {
             return !!this.query.admin_attempt;
         }
-        get redirectLink () {
+        get redirectLink() {
             let location = '/';
             if (this.session.on_login) {
                 location = this.session.on_login;

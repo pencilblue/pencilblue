@@ -1,50 +1,58 @@
-const OAuth2Strategy = require('passport-oauth2').Strategy;
+const CustomStrategy = require('passport-custom').Strategy;
 const strategyServices = require('./strategy_services');
-const options = {
-    authorizationURL: 'https://login.salesforce.com/services/oauth2/authorize',
-    tokenURL: 'https://login.salesforce.com/services/oauth2/token',
-    clientID: '3MVG9zlTNB8o8BA2.9x0lWeUFcLcXLWfQT4tN5R5vkK2Dh9eJjBBSH9l1RY1nP8gkR7UY0ll7B3srQgpxs00h',
-    clientSecret: '1051763833577322271',
-    callbackURL: 'https://bravo.lvh.me:8080/login/salesforce/callback'
-};
 const request = require('request-promise');
 
 module.exports = (pb) => {
-    function _getQuery(loginContext) {
-        const usernameSearchExp = pb.regexUtil.getCaseInsensitiveExact(loginContext.username);
-
-        let query = {
-            object_type: 'user',
-            '$or': [{
-                username: usernameSearchExp
-            }, {
-                email: usernameSearchExp
-            }],
-            password: pb.security.encrypt(loginContext.password)
-        };
-
-        //check for required access level
-        if (!isNaN(loginContext.access_level)) {
-            query.admin = {
-                '$gte': loginContext.access_level
-            };
+    async function salesforceCallback(req, done) {
+        var state = req.url.query.state;
+        var sfdcURL = 'https://login.salesforce.com/services/oauth2/token';
+        if (state == 'webServerSandbox') {
+            sfdcURL = 'https://test.salesforce.com/services/oauth2/token';
         }
 
-        return query;
-    };
+        const clientId = '3MVG9zlTNB8o8BA2.9x0lWeUFcLcXLWfQT4tN5R5vkK2Dh9eJjBBSH9l1RY1nP8gkR7UY0ll7B3srQgpxs00h',
+            consumer_secret = '1051763833577322271',
+            jwt_aud = 'https://login.salesforce.com',
+            callbackURL = 'https://bravo.lvh.me:8080/login/salesforce/callback';
 
-    async function action(req, accessToken, refreshToken, profile, done) {
-        console.log('_______ x _______\n', {
-            accessToken,
-            refreshToken,
-            profile
+        let response = await request({
+            url: sfdcURL + '?client_id=' +
+                clientId + '&redirect_uri=' +
+                callbackURL + '&grant_type=authorization_code&code=' +
+                req.url.query.code + '&client_secret' + consumer_secret,
+            method: 'POST'
         });
-        const user = await request.get(`https://login.salesforce.com/services/oauth2/userinfo?format=json&access_token=${accessToken}`);
-        console.log('_______ user _______\n', {
-            user
+        response = JSON.parse(response);
+        const accessToken = response.access_token;
+        console.log('______ token ______\n', accessToken, response);
+        let user = await request.get(`https://login.salesforce.com/services/oauth2/userinfo?format=json&access_token=${accessToken}`);
+        user = JSON.parse(user);
+        user.token = accessToken;
+        done(null, {
+            code: 200,
+            content: user
         });
-        done(null, user);
+
     }
 
-    return new OAuth2Strategy(options, action);
+    async function salesforce(req, done) {
+        const state = 'webServerProd';
+        const sfdcURL = 'https://login.salesforce.com/services/oauth2/authorize';
+        const clientId = '3MVG9zlTNB8o8BA2.9x0lWeUFcLcXLWfQT4tN5R5vkK2Dh9eJjBBSH9l1RY1nP8gkR7UY0ll7B3srQgpxs00h',
+            consumer_secret = '1051763833577322271',
+            jwt_aud = 'https://login.salesforce.com',
+            callbackURL = 'https://bravo.lvh.me:8080/login/salesforce/callback'
+        const options = {
+            url: sfdcURL + '?client_id=' +
+                clientId + '&redirect_uri=' +
+                callbackURL + '&response_type=code&state=' + state,
+            method: 'GET'
+        };
+        return done(null, options);
+    }
+
+    return {
+        salesforceCallback: new CustomStrategy(salesforceCallback),
+        salesforce: new CustomStrategy(salesforce)
+    };
 };
