@@ -42,6 +42,8 @@ module.exports = function PB(config) {
     pb.config = config;
 
     //setup utils
+    pb.regexUtil = require('./utils/reg_exp_utils');
+
     pb.util    = require(path.join(config.docRoot, '/include/util.js'));
     Object.defineProperty(pb, 'utils', {
         get: function() {
@@ -214,6 +216,7 @@ module.exports = function PB(config) {
     pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'))(pb);
     pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
     pb.TokenService       = require(path.join(config.docRoot, '/include/service/entities/token_service.js'))(pb);
+    pb.TokenServiceV2     = require(path.join(config.docRoot, '/include/koa/authentication/token_service.js'))(pb);
 
     //create plugin service
     pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);

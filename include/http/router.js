@@ -3,6 +3,7 @@ const Router = require('koa-router');
 const Session = require('../koa/Session')();
 const bodyParser = require('koa-body');
 const Cookies  = require('koa-cookie').default;
+const Passport = require('../koa/authentication/Passport')();
 
 
 module.exports = function (pb) {
@@ -20,8 +21,11 @@ module.exports = function (pb) {
                 multipart: true,
                 // formidable: { uploadDir: path.join(__dirname, 'tmp') }
             }));
+            let passport = Passport(pb);
             this.app.use(Session(this.app));
             this.app.use(Cookies());
+            this.app.use(passport.initialize());
+            this.app.use(passport.session());
         }
 
         static registerRoute(routeDescriptor) {
