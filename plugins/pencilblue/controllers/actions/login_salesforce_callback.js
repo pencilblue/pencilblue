@@ -54,10 +54,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                 if (!user) {
                     return this.loginError(this.isAdminLogin, cb);
                 }
-                cb({
-                    code: 200,
-                    content: user
-                });
+                this.redirect(redirectLocation, cb);
             })(this.ctx);
         }
 

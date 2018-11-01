@@ -16,6 +16,7 @@ module.exports = (pb) => {
     }
 
     async function salesforceCallback(req, done) {
+        const loginContext = req.session._loginContext || {};
         const state = req.url.query.state;
         const code = req.url.query.code;
         const settings = await getSalesforceSettings(req);
@@ -26,9 +27,20 @@ module.exports = (pb) => {
         };
         const response = await request(options);
         const accessToken = response.access_token;
-        let user = await request.get(`https://login.salesforce.com/services/oauth2/userinfo?format=json&access_token=${accessToken}`);
-        user = JSON.parse(user);
-        user.token = accessToken;
+        let salesforceUser = await request.get(`https://login.salesforce.com/services/oauth2/userinfo?format=json&access_token=${accessToken}`);
+        salesforceUser = JSON.parse(salesforceUser);
+        let user = {
+            first_name: salesforceUser.given_name,
+            last_name: salesforceUser.family_name,
+            username: salesforceUser.preferred_username,
+            email: salesforceUser.email,
+            admin: 0,
+            object_type: 'user',
+            site: loginContext.site || ''
+        };
+        user = await strategyServices.saveUser(user, loginContext, done, pb, true);
+        user.salesforce = response;
+        strategyServices._addUserToSession(req, user, pb);
         done(null, {
             code: 200,
             content: user
