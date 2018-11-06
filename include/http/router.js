@@ -132,6 +132,11 @@ module.exports = function(pb) {
                 .forEach(middleware => this.app.use(middleware));
         }
 
+        useSSL() {
+            const hasKeyAndCert = pb.config.server && pb.config.server.ssl && pb.config.server.ssl.key && pb.config.server.ssl.cert;
+            return process.env.USE_SSL === '1' && hasKeyAndCert;
+        }
+
         /***
          * Listen function that starts the server
          * @param port
@@ -146,29 +151,31 @@ module.exports = function(pb) {
                     .use(this.router.allowedMethods());
 
                 this._addDefaultMiddleware();
-                const config = {
-                    https: {
-                        port: 8080,
-                        options: {
-                            key: fs.readFileSync('../OAuthFlows/key.pem', 'utf8'),
-                            cert: fs.readFileSync('../OAuthFlows/server.crt', 'utf8')
+                if (this.useSSL()) {
+                    const config = {
+                        https: {
+                            port,
+                            options: {
+                                key: fs.readFileSync(pb.config.server.ssl.key, 'utf8'),
+                                cert: fs.readFileSync(pb.config.server.ssl.cert, 'utf8')
+                            }
                         }
-                    }
-                };
-                const serverCallback = this.app.callback();
-                const httpsServer = https.createServer(config.https.options, serverCallback);
-                this.__server = httpsServer
-                    .listen(config.https.port, function(err) {
-                        if (!!err) {
-                            pb.log.info('PencilBlue is not ready!');
-                        } else {
-                            pb.log.info('PencilBlue is ready!');
-                        }
+                    };
+                    const serverCallback = this.app.callback();
+                    const httpsServer = https.createServer(config.https.options, serverCallback);
+                    this.__server = httpsServer
+                        .listen(config.https.port, function(err) {
+                            if (!!err) {
+                                pb.log.error('PencilBlue is not ready!');
+                            } else {
+                                pb.log.info('PencilBlue is ready!');
+                            }
+                        });
+                } else {
+                    this.__server = this.app.listen(port, () => {
+                        pb.log.info('PencilBlue is ready!');
                     });
-
-                // this.__server = this.app.listen(port, () => {
-                //     pb.log.info('PencilBlue is ready!');
-                // });
+                }
 
                 this.calledOnce = 1;
             } else {
