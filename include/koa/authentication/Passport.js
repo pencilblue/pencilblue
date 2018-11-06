@@ -17,7 +17,7 @@ module.exports = () => {
 
         passport.use('custom-local', LocalAuthenticationStrategy(pb));
         const salesforceStrategies = SalesforceAuthenticationStrategy(pb);
-        passport.use('salesforce', salesforceStrategies.salesforce);
+        passport.use('salesforce', salesforceStrategies.salesforceSSO);
         passport.use('salesforce-callback', salesforceStrategies.salesforceCallback);
 
         return passport;

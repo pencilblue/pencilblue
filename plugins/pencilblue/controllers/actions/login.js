@@ -50,7 +50,7 @@ module.exports = function LoginActionControllerModule(pb) {
 
             return passport.authenticate('custom-local', (err, user) => {
                 if (!user) {
-                    return this.loginError(this.isAdminLogin, cb);
+                    return this.loginError(cb);
                 }
                 this.redirect(redirectLocation, cb);
             })(this.ctx);

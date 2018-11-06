@@ -52,7 +52,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
             let redirectLocation = this.redirectLink;
             return passport.authenticate('salesforce-callback', (err, user) => {
                 if (!user) {
-                    return this.loginError(this.isAdminLogin, cb);
+                    return this.loginError(cb);
                 }
                 this.redirect(redirectLocation, cb);
             })(this.ctx);
