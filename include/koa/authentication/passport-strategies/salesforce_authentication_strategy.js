@@ -52,10 +52,7 @@ module.exports = (pb) => {
             user = await strategyServices.saveUser(user, loginContext, done, pb, true);
             user.salesforce = response;
             strategyServices._addUserToSession(req, user, pb);
-            done(null, {
-                code: 200,
-                content: user
-            });
+            return done(null, user);
         } catch (e) {
             pb.log.error('Something went wrong during passport\'s salesforce callback strategy: ', e);
             return done(e, null);
