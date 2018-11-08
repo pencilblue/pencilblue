@@ -38,8 +38,11 @@ module.exports = (pb) => {
             };
             const response = await request(options);
             const accessToken = response.access_token;
-            let salesforceUser = await request.get(`${SALESFORCE_API_URL}/services/oauth2/userinfo?format=json&access_token=${accessToken}`);
-            salesforceUser = JSON.parse(salesforceUser);
+            let salesforceUser = await request({
+                url: `${SALESFORCE_API_URL}/services/oauth2/userinfo?format=json&access_token=${accessToken}`,
+                method: 'GET',
+                json: true
+            });
             let user = {
                 first_name: salesforceUser.given_name,
                 last_name: salesforceUser.family_name,
