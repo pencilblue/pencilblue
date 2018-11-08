@@ -65,14 +65,16 @@ module.exports = function(pb) {
              * Internal Helper Functions
              */
         static get internalMiddlewareStack() {
-            if (this._internalMiddlewareStack)
+            if (this._internalMiddlewareStack) {
                 return this._internalMiddlewareStack;
+            }
             this._internalMiddlewareStack = [];
             return this._internalMiddlewareStack;
         }
         static get internalRouteList() {
-            if (this._internalRouteList)
+            if (this._internalRouteList) {
                 return this._internalRouteList;
+            }
             this._internalRouteList = [];
             return this._internalRouteList;
         }
@@ -137,6 +139,28 @@ module.exports = function(pb) {
             return process.env.USE_SSL === '1' && hasKeyAndCert;
         }
 
+        startSSLServer(port) {
+            const config = {
+                https: {
+                    port,
+                    options: {
+                        key: fs.readFileSync(pb.config.server.ssl.key, 'utf8'),
+                        cert: fs.readFileSync(pb.config.server.ssl.cert, 'utf8')
+                    }
+                }
+            };
+            const serverCallback = this.app.callback();
+            const httpsServer = https.createServer(config.https.options, serverCallback);
+            this.__server = httpsServer
+                .listen(config.https.port, function(err) {
+                    if (!!err) {
+                        pb.log.error('PencilBlue is not ready!');
+                    } else {
+                        pb.log.info('PencilBlue is ready!');
+                    }
+                });
+        }
+
         /***
          * Listen function that starts the server
          * @param port
@@ -152,25 +176,7 @@ module.exports = function(pb) {
 
                 this._addDefaultMiddleware();
                 if (this.useSSL()) {
-                    const config = {
-                        https: {
-                            port,
-                            options: {
-                                key: fs.readFileSync(pb.config.server.ssl.key, 'utf8'),
-                                cert: fs.readFileSync(pb.config.server.ssl.cert, 'utf8')
-                            }
-                        }
-                    };
-                    const serverCallback = this.app.callback();
-                    const httpsServer = https.createServer(config.https.options, serverCallback);
-                    this.__server = httpsServer
-                        .listen(config.https.port, function(err) {
-                            if (!!err) {
-                                pb.log.error('PencilBlue is not ready!');
-                            } else {
-                                pb.log.info('PencilBlue is ready!');
-                            }
-                        });
+                    this.startSSLServer(port);
                 } else {
                     this.__server = this.app.listen(port, () => {
                         pb.log.info('PencilBlue is ready!');
