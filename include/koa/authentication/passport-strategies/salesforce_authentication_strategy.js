@@ -2,8 +2,19 @@ const CustomStrategy = require('passport-custom').Strategy;
 const strategyServices = require('./strategy_services');
 const request = require('request-promise');
 const Promise = require('bluebird');
-const SALESFORCE_OAUTH_TOKEN_URL = process.env.SALESFORCE_OAUTH_TOKEN_URL || '';
-const SALESFORCE_OAUTH_AUTHORIZE_URL = process.env.SALESFORCE_OAUTH_AUTHORIZE_URL || '';
+let SALESFORCE_OAUTH_TOKEN_URL, SALESFORCE_OAUTH_AUTHORIZE_URL, state, SALESFORCE_API_URL;
+const isSandbox = process.env.USE_SALESFORCE_SANDBOX === 'true';
+if (isSandbox) {
+    SALESFORCE_OAUTH_TOKEN_URL = process.env.SALESFORCE_SANDBOX_OAUTH_TOKEN_URL || '';
+    SALESFORCE_OAUTH_AUTHORIZE_URL = process.env.SALESFORCE_SANDBOX_OAUTH_AUTHORIZE_URL || '';
+    state = 'webServerSandbox';
+    SALESFORCE_API_URL = 'https://test.salesforce.com';
+} else {
+    SALESFORCE_OAUTH_TOKEN_URL = process.env.SALESFORCE_OAUTH_TOKEN_URL || '';
+    SALESFORCE_OAUTH_AUTHORIZE_URL = process.env.SALESFORCE_OAUTH_AUTHORIZE_URL || '';
+    state = 'webServerProd';
+    SALESFORCE_API_URL = 'https://login.salesforce.com';
+}
 
 module.exports = (pb) => {
     async function getSalesforceSettings(req) {
@@ -18,7 +29,6 @@ module.exports = (pb) => {
     async function salesforceCallback(req, done) {
         try {
             const loginContext = req.session._loginContext || {};
-            const state = req.url.query.state;
             const code = req.url.query.code;
             const settings = await getSalesforceSettings(req);
             const options = {
@@ -28,7 +38,7 @@ module.exports = (pb) => {
             };
             const response = await request(options);
             const accessToken = response.access_token;
-            let salesforceUser = await request.get(`https://login.salesforce.com/services/oauth2/userinfo?format=json&access_token=${accessToken}`);
+            let salesforceUser = await request.get(`${SALESFORCE_API_URL}/services/oauth2/userinfo?format=json&access_token=${accessToken}`);
             salesforceUser = JSON.parse(salesforceUser);
             let user = {
                 first_name: salesforceUser.given_name,
@@ -54,7 +64,6 @@ module.exports = (pb) => {
 
     async function salesforceSSO(req, done) {
         try {
-            const state = 'webServerProd';
             const settings = await getSalesforceSettings(req);
             const options = {
                 url: `${SALESFORCE_OAUTH_AUTHORIZE_URL}?client_id=${settings.salesforce_client_id}&redirect_uri=${settings.salesforce_callback_url}&response_type=code&state=${state}`,
