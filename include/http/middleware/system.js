@@ -20,6 +20,7 @@ module.exports = pb => ({
     parseUrl: async (ctx, next) => {
         ctx.app.requestsServed ? ctx.app.requestsServed++ : 1;
         ctx.req.hostname = ctx.req.headers.host;
+        ctx.req.urlObj = url.parse(ctx.req.url, true);
         ctx.req.url = url.parse(ctx.req.url, true);
         await next();
     },
@@ -74,7 +75,7 @@ module.exports = pb => ({
         await next();
     },
     setMimeType: async (ctx, next) => {
-        if(ctx.req.url.pathname.includes('.css')) {
+        if(ctx.req.url.pathname && ctx.req.url.pathname.includes('.css')) {
             ctx.type = 'text/css';
         }
         await next();

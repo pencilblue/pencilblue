@@ -30,13 +30,14 @@ module.exports = (pb) => {
             this._registerMetrics();
 
             this._addRoutesToRouter();
+
             this.router.listen(8080);
         }
 
         /******************************
          * Database Connections
          */
-        async _initDBConnections (){
+        async _initDBConnections() {
             //setup database connection to core database
             let dbName = pb.config.db.name;
             let result = await pb.dbm.getDbAsync(dbName) || {};
@@ -45,11 +46,11 @@ module.exports = (pb) => {
             }
             pb.log.info(`PencilBlue: Established connection to DB: ${result.databaseName}`);
         };
-        async _initDBIndices () {
+        async _initDBIndices() {
             let skipIndex = pb.config.db.skip_index_check;
             let indices = pb.config.db.indices;
             let indexIsNotArray = !pb.util.isArray(indices);
-            if (skipIndex || indexIsNotArray){
+            if (skipIndex || indexIsNotArray) {
                 return pb.log.info('PencilBlue: Skipping ensurance of indices');
             }
 
@@ -69,7 +70,7 @@ module.exports = (pb) => {
         _initCoreRoutes() {
             pb.RouterLoader.registerCoreRoutes();
         }
-        _addRoutesToRouter () {
+        _addRoutesToRouter() {
             let routes = pb.RouterLoader.getRoutesForRouter();
             Object.keys(routes).forEach(plugin => {
                 Object.keys(routes[plugin]).forEach(path => {
@@ -96,7 +97,7 @@ module.exports = (pb) => {
         /**********
          * Server Metrics
          */
-        _registerMetrics () {
+        _registerMetrics() {
             //total number of requests served
             pb.ServerRegistry.addItem('requests', () => this.router.requestsServed);
 
