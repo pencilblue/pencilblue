@@ -74,7 +74,7 @@ module.exports = function Routes(pb){
             auth_required: true,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce', 'change_password.js'),
-            content_type: 'text/html'
+            content_type: 'application/json'
         },
         {
             method: 'get',
