@@ -46,7 +46,7 @@ module.exports = function LoginViewControllerModule(pb) {
             this.redirect('/', cb);
             return;
         }
-
+        // console.log('_______ user _______', JSON.stringify(this.ctx.session.authentication));
         this.setPageName(' ' + this.ls.g('generic.LOGIN'));
         this.ts.load('admin/login',  function(err, data) {
             cb({content: data});
