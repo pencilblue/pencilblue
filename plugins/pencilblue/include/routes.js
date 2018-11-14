@@ -77,6 +77,14 @@ module.exports = function Routes(pb){
             content_type: 'application/json'
         },
         {
+            method: 'patch',
+            path: "/salesforce/change_email",
+            auth_required: true,
+            inactive_site_access: true,
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce', 'change_email.js'),
+            content_type: 'application/json'
+        },
+        {
             method: 'get',
             path: "/login/salesforce",
             auth_required: false,
