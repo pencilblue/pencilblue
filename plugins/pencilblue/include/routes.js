@@ -73,7 +73,7 @@ module.exports = function Routes(pb){
             path: "/salesforce/change_password",
             auth_required: true,
             inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce', 'change_password.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'salesforce', 'change_password.js'),
             content_type: 'application/json'
         },
         {
@@ -81,7 +81,7 @@ module.exports = function Routes(pb){
             path: "/salesforce/change_email",
             auth_required: true,
             inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce', 'change_email.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'salesforce', 'change_email.js'),
             content_type: 'application/json'
         },
         {
@@ -89,7 +89,7 @@ module.exports = function Routes(pb){
             path: "/login/salesforce",
             auth_required: false,
             inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce', 'login.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce_login', 'login.js'),
             content_type: 'text/html'
         },
         {
@@ -97,7 +97,7 @@ module.exports = function Routes(pb){
             path: "/login/salesforce/callback",
             auth_required: false,
             inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce', 'login_callback.js'),
+            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce_login', 'login_callback.js'),
             content_type: 'text/html'
         },
         {

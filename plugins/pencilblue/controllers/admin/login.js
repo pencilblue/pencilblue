@@ -38,14 +38,14 @@ module.exports = function LoginViewControllerModule(pb) {
     LoginViewController.prototype.render = function(cb) {
 
 
-        if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: pb.SecurityService.ACCESS_WRITER})) {
-            this.redirect('/admin', cb);
-            return;
-        }
-        else if(pb.security.isAuthenticated(this.session)) {
-            this.redirect('/', cb);
-            return;
-        }
+        // if(pb.security.isAuthorized(this.session, {authenticated: true, admin_level: pb.SecurityService.ACCESS_WRITER})) {
+        //     this.redirect('/admin', cb);
+        //     return;
+        // }
+        // else if(pb.security.isAuthenticated(this.session)) {
+        //     this.redirect('/', cb);
+        //     return;
+        // }
         this.setPageName(' ' + this.ls.g('generic.LOGIN'));
         this.ts.load('admin/login',  function(err, data) {
             cb({content: data});
