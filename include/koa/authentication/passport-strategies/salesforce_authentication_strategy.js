@@ -53,7 +53,12 @@ module.exports = (pb) => {
                 site: loginContext.site || ''
             };
             user = await strategyServices.saveUser(user, loginContext, done, pb, true);
-            user.salesforce = response;
+            user.salesforce = {
+                authorize: response,
+                profile: {
+                    id: salesforceUser.user_id
+                }
+            };
             strategyServices._addUserToSession(req, user, pb);
             return done(null, user);
         } catch (e) {
