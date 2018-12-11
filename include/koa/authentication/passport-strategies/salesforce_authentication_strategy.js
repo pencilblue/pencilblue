@@ -23,6 +23,11 @@ module.exports = (pb) => {
         });
         pluginService = Promise.promisifyAll(pluginService);
         const settings = await pluginService.getSettingsKVAsync('tn_join');
+        if (settings.app_url && settings.app_url !== '') {
+            SALESFORCE_OAUTH_TOKEN_URL = `${settings.app_url}/services/oauth2/token`;
+            SALESFORCE_OAUTH_AUTHORIZE_URL = `${settings.app_url}/services/oauth2/authorize`;
+            SALESFORCE_API_URL = settings.app_url;
+        }
         return settings;
     }
 
@@ -72,7 +77,7 @@ module.exports = (pb) => {
             const settings = await getSalesforceSettings(req);
             const options = {
                 url: `${SALESFORCE_OAUTH_AUTHORIZE_URL}?client_id=${settings.salesforce_client_id}&redirect_uri=${settings.salesforce_callback_url}&response_type=code&state=${state}`,
-                method: 'GET'
+                method: 'POST'
             };
             return done(null, options);
         } catch (e) {
