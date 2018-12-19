@@ -37,7 +37,7 @@ module.exports = (pb) => {
             const code = req.url.query.code;
             const settings = await getSalesforceSettings(req);
             const options = {
-                url: `${SALESFORCE_OAUTH_TOKEN_URL}?client_id=${settings.salesforce_client_id}&redirect_uri=${settings.salesforce_callback_url}&grant_type=authorization_code&code=${code}&client_secret=${settings.salesforce_client_secret}`,
+                url: `${SALESFORCE_OAUTH_TOKEN_URL}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.header.host}/login/salesforce/callback&grant_type=authorization_code&code=${code}&client_secret=${settings.salesforce_client_secret}`,
                 method: 'POST',
                 json: true
             };
@@ -76,7 +76,7 @@ module.exports = (pb) => {
         try {
             const settings = await getSalesforceSettings(req);
             const options = {
-                url: `${SALESFORCE_OAUTH_AUTHORIZE_URL}?client_id=${settings.salesforce_client_id}&redirect_uri=${settings.salesforce_callback_url}&response_type=code&state=${state}`,
+                url: `${SALESFORCE_OAUTH_AUTHORIZE_URL}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.header.host}/login/salesforce/callback&response_type=code&state=${state}`,
                 method: 'POST'
             };
             return done(null, options);
