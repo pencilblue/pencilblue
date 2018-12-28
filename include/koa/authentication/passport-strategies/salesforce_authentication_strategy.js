@@ -2,19 +2,20 @@ const CustomStrategy = require('passport-custom').Strategy;
 const strategyServices = require('./strategy_services');
 const request = require('request-promise');
 const Promise = require('bluebird');
-let SALESFORCE_OAUTH_TOKEN_URL, SALESFORCE_OAUTH_AUTHORIZE_URL, state, SALESFORCE_API_URL;
+let state, salesforceAPIUrl;
 const isSandbox = process.env.USE_SALESFORCE_SANDBOX === 'true';
+const OAUTH_TOKEN_SERVICE = '/services/oauth2/token';
+const OAUTH_AUTHORIZE_SERVICE = '/services/oauth2/authorize';
 if (isSandbox) {
-    SALESFORCE_OAUTH_TOKEN_URL = process.env.SALESFORCE_SANDBOX_OAUTH_TOKEN_URL || '';
-    SALESFORCE_OAUTH_AUTHORIZE_URL = process.env.SALESFORCE_SANDBOX_OAUTH_AUTHORIZE_URL || '';
+    salesforceAPIUrl = process.env.SALESFORCE_SANDBOX_API_URL;
     state = 'webServerSandbox';
-    SALESFORCE_API_URL = 'https://test.salesforce.com';
 } else {
-    SALESFORCE_OAUTH_TOKEN_URL = process.env.SALESFORCE_OAUTH_TOKEN_URL || '';
-    SALESFORCE_OAUTH_AUTHORIZE_URL = process.env.SALESFORCE_OAUTH_AUTHORIZE_URL || '';
+    salesforceAPIUrl = process.env.salesforceAPIUrl;
     state = 'webServerProd';
-    SALESFORCE_API_URL = 'https://login.salesforce.com';
 }
+
+let salesforceOAUTHTokenService = salesforceAPIUrl + OAUTH_TOKEN_SERVICE,
+    salesforceOAUTHAuthorizeService = salesforceAPIUrl + OAUTH_AUTHORIZE_SERVICE;
 
 module.exports = (pb) => {
     async function getSalesforceSettings(req) {
@@ -24,9 +25,9 @@ module.exports = (pb) => {
         pluginService = Promise.promisifyAll(pluginService);
         const settings = await pluginService.getSettingsKVAsync('tn_join');
         if (settings.app_url && settings.app_url !== '') {
-            SALESFORCE_OAUTH_TOKEN_URL = `${settings.app_url}/services/oauth2/token`;
-            SALESFORCE_OAUTH_AUTHORIZE_URL = `${settings.app_url}/services/oauth2/authorize`;
-            SALESFORCE_API_URL = settings.app_url;
+            salesforceOAUTHTokenService = settings.app_url + OAUTH_TOKEN_SERVICE;
+            salesforceOAUTHAuthorizeService = settings.app_url + OAUTH_AUTHORIZE_SERVICE;
+            salesforceAPIUrl = settings.app_url;
         }
         return settings;
     }
@@ -37,14 +38,14 @@ module.exports = (pb) => {
             const code = req.url.query.code;
             const settings = await getSalesforceSettings(req);
             const options = {
-                url: `${SALESFORCE_OAUTH_TOKEN_URL}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.header.host}/login/salesforce/callback&grant_type=authorization_code&code=${code}&client_secret=${settings.salesforce_client_secret}`,
+                url: `${salesforceOAUTHTokenService}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.header.host}/login/salesforce/callback&grant_type=authorization_code&code=${code}&client_secret=${settings.salesforce_client_secret}`,
                 method: 'POST',
                 json: true
             };
             const response = await request(options);
             const accessToken = response.access_token;
             let salesforceUser = await request({
-                url: `${SALESFORCE_API_URL}/services/oauth2/userinfo?format=json&access_token=${accessToken}`,
+                url: `${salesforceAPIUrl}/services/oauth2/userinfo?format=json&access_token=${accessToken}`,
                 method: 'GET',
                 json: true
             });
@@ -55,7 +56,8 @@ module.exports = (pb) => {
                 email: salesforceUser.email,
                 admin: 0,
                 object_type: 'user',
-                site: loginContext.site || ''
+                site: loginContext.site || '',
+                identity_provider: 'salesforce'
             };
             user = await strategyServices.saveUser(user, loginContext, done, pb, true);
             user.salesforce = {
@@ -76,7 +78,7 @@ module.exports = (pb) => {
         try {
             const settings = await getSalesforceSettings(req);
             const options = {
-                url: `${SALESFORCE_OAUTH_AUTHORIZE_URL}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.header.host}/login/salesforce/callback&response_type=code&state=${state}`,
+                url: `${salesforceOAUTHAuthorizeService}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.header.host}/login/salesforce/callback&response_type=code&state=${state}`,
                 method: 'POST'
             };
             return done(null, options);

@@ -8,7 +8,7 @@ module.exports = (pb) => {
             if (!loginContext.username || !loginContext.password) {
                 return done(new Error("UsernamePasswordAuthentication: The username and password must be passed as part of the credentials object: " + credentials), null);
             }
-            user = await strategyServices.getUser(loginContext, done, pb);
+            user = await strategyServices.getUser(loginContext, null, done, pb); //pass null as the identity provider of the local strategy
             if (!user) {
                 return done(new Error("UsernamePasswordAuthentication: Invalid username or password"), null);
             }
