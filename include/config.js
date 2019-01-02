@@ -133,7 +133,7 @@ Configuration.getBaseConfig = function(multisite) {
 
         //enables/disables multiple sites in a single pencilblue instance (multitenancy)
         multisite: {
-            enabled: false,
+            enabled: true,
 
             // When multisite.enabled is true, this is the hostname that will resolve to the global namespace.
             // Only Admin routes will be activated for this hostname.
