@@ -26,7 +26,7 @@ function _addUserToSession(req, user, pb) {
     delete req.session._loginContext; // Remove login context from session now its used
 };
 
-function _getQuery(loginContext, pb, ignorePassword) {
+function _getQuery(loginContext, identityProvider, pb, ignorePassword) {
     const usernameSearchExp = pb.regexUtil.getCaseInsensitiveExact(loginContext.username);
 
     let query = {
@@ -35,7 +35,8 @@ function _getQuery(loginContext, pb, ignorePassword) {
             username: usernameSearchExp
         }, {
             email: usernameSearchExp
-        }]
+        }],
+        identity_provider: identityProvider
     };
     if (!ignorePassword) {
         query.password = pb.security.encrypt(loginContext.password);
@@ -50,10 +51,10 @@ function _getQuery(loginContext, pb, ignorePassword) {
     return query;
 };
 
-async function getUser(loginContext, done, pb, ignorePassword = false) {
+async function getUser(loginContext, identityProvider, done, pb, ignorePassword = false) {
     //search for user
     let user;
-    let query = _getQuery(loginContext, pb, ignorePassword);
+    let query = _getQuery(loginContext, identityProvider, pb, ignorePassword);
     const dao = _getDao(loginContext, pb);
     try {
         user = await dao.loadByValuesAsync(query, 'user');
@@ -72,10 +73,10 @@ async function saveUser(user, loginContext, done, pb, ignorePassword = false) {
             site: loginContext.site,
             username: user.username
         };
-        createdUser = await getUser(_loginContext, done, pb, true);
+        createdUser = await getUser(_loginContext, user.identity_provider, done, pb, true);
         if (!createdUser) {
             await dao.saveAsync(user);
-            createdUser = await getUser(_loginContext, done, pb, true);
+            createdUser = await getUser(_loginContext, user.identity_provider, done, pb, true);
         }
     } catch (err) {
         pb.log.error(`Failed to get createdUser during authentication. ${err}`);
