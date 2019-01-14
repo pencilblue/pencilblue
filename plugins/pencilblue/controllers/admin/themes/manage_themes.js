@@ -35,7 +35,7 @@ module.exports = function(pb) {
         var self = this;
 
         if(this.site === 'global' && pb.config.siteRoot !== 'http://localhost:8080'){
-            return self.reqHandler.serve404();
+            return cb(pb.Errors.notFound());
         }
 
         //get plugs with themes

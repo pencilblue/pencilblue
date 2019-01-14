@@ -18,7 +18,7 @@
     "website",
     "platform"
   ],
-  "version": "0.8.1-69",
+  "version": "0.9.1-3543",
   "repository": {
     "type": "git",
     "url": "https://github.com/careerbuilder/pencilblue.git"
@@ -32,6 +32,7 @@
     "async-eventemitter": "^0.2.4",
     "bluebird": "^3.5.0",
     "bootstrap": "~3.3.5",
+    "boring-cluster": "^3.0.0",
     "cookies": "^0.7.1",
     "fakeredis": "1.0.3",
     "font-awesome": "^4.3.0",
@@ -43,6 +44,13 @@
     "jquery-ui-dist": "^1.12.1",
     "jquery-validation": "^1.17.0",
     "jsonformatter": "^0.7.0",
+    "koa": "^2.5.2",
+    "koa-body": "^4.0.4",
+    "koa-bodyparser": "^4.2.1",
+    "koa-cookie": "^1.0.0",
+    "koa-passport": "^4.1.1",
+    "koa-router": "^7.4.0",
+    "koa-session": "^5.8.3",
     "locale": "^0.1.0",
     "lodash": "^4.17.2",
     "markdown": "~0.5.0",
@@ -52,15 +60,20 @@
     "ng-sortable": "~1.3.8",
     "node.extend": "1.1.6",
     "nodemailer": "^4.1.3",
+    "passport-custom": "^1.0.5",
+    "passport-local": "^1.0.0",
     "path-to-regexp": "^2.1.0",
     "rangy": "~1.3.0",
     "redis": "^2.6.3",
     "redlock": "^3.0.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
     "sanitize-html": "^1.14.1",
     "semver": "^5.4.1",
     "to-markdown": "0.0.3",
     "uuid": "^3.0.1",
-    "winston": "^2.3.0"
+    "winston": "^2.3.0",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "coveralls": "^2.11.15",
@@ -73,12 +86,12 @@
     "sinon": "1.17.6",
     "sinon-as-promised": "^4.0.3"
   },
-  "main": "./pencilblue.js",
+  "main": "./pencilblue_cluster.js",
   "engines": {
     "node": ">=4"
   },
   "scripts": {
-    "start": "node pencilblue.js",
+    "start": "node pencilblue_cluster.js",
     "test": "nyc mocha --recursive"
   },
   "nyc": {

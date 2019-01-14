@@ -1,15 +1,9 @@
 ^tmp_admin=head^
 <div class="col-md-9" style="margin-top: 1em">
     <div class="alert alert-info news_alert">
-        <h3 style="margin-top: 0">PencilBlue News:</h3>
-        <p id="news_loader" ng-if="!newsCopy.length">
-            <i class="fa fa-2x fa-spinner fa-spin"></i>
-        </p>
+        <h3 style="margin-top: 0">^loc_NEWS_TITLE^</h3>
         <span>
-            <a ng-href="{{newsLink}}">
-                <h4 ng-bind="newsTitle"></h4>
-            </a>
-            <p><span ng-bind-html="getNewsCopyHtml()"></span>&nbsp;<a ng-href="{{newsLink}}" target="_blank">^loc_generic.READ_FULL^...</a></p>
+            ^loc_NEWS_BODY^
         </span>
     </div>
     <div class="row">

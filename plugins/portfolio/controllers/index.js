@@ -105,7 +105,7 @@ module.exports = function IndexModule(pb) {
                         };
                         self.siteQueryService.q('portfolio_theme_settings', opts, function(err, settings) {
                             if (util.isError(err)) {
-                                self.reqHandler.serveError(err);
+                                return cb(err);
                             }
                             if(settings.length > 0) {
                                 settings = settings[0];

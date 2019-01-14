@@ -54,7 +54,7 @@ module.exports = function DeleteSiteActionModule(pb) {
         var siteid = self.pathVars.siteid;
         this.service.deleteSingle({where: {uid: siteid}}, function (err, site) {
             if (util.isError(err) || !site) {
-                return self.reqHandler.serve404();
+                return cb(pb.Errors.notFound());
             }
             cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('sites.REMOVE_SUCCESSFUL'), site)});
         });

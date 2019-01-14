@@ -42,7 +42,7 @@ module.exports = function(pb) {
 
         self.siteQueryService.q('user', opts, function(err, users) {
             if(util.isError(err)) {
-                return self.reqHandler.serveError(err);
+                return cb(err);
             }
             else if (users.length === 0) {
                 return self.redirect('/admin/users/new', cb);

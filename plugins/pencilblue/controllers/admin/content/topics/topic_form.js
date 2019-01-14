@@ -43,8 +43,7 @@ module.exports = function(pb) {
                 throw err;
             }
             else if(!data.topic) {
-                self.reqHandler.serve404();
-                return;
+                return cb(pb.Errors.notFound());
             }
 
             self.topic = data.topic;

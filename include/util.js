@@ -29,6 +29,7 @@ var RegExpUtils = require('./utils/reg_exp_utils');
 /**
  * Provides a set of utility functions used throughout the code base
  *
+ * @deprecated as of 0.9.0, will be removed in 1.0.0
  * @module Services
  * @class Util
  * @constructor
@@ -820,6 +821,10 @@ Util.TIME = Object.freeze({
 	MILLIS_PER_HOUR: 3600000,
 	MILLIS_PER_DAY: 86400000
 });
+
+Util.timeout = async function (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
 
 //exports
 module.exports = Util;

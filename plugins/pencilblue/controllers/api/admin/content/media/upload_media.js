@@ -67,48 +67,27 @@ module.exports = function(pb) {
     };
 
 
-    UploadMediaController.prototype.render = function(cb) {
-        var self  = this;
+    UploadMediaController.prototype.render = function (cb) {
+        var keys = Object.keys(this.files);
+        if (keys.length === 0) {
+            return this.onDone(new Error('No file inputs were submitted'), null, this.files, cb);
+        }
+        var fileDescriptor = this.files[keys[0]];
 
-        //set the limits on the file size
-        var form = new formidable.IncomingForm();
-        form.maxFieldSize = pb.config.media.max_upload_size;
-        form.on('progress', function(bytesReceived, bytesExpected) {
-            if (bytesReceived > pb.config.media.max_upload_size || bytesExpected > pb.config.max_upload_size) {
-                if (!self.errored) {
-                    this.emit('error', new Error(self.ls.g('media.FILE_TOO_BIG')));
-                }
-                self.errored++;
-            }
-        });
-
-        //parse the form out and let us know when its done
-        form.parse(this.req, function(err, fields, files) {
+        var stream = fs.createReadStream(fileDescriptor.path);
+        this.service.setContentStream(stream, fileDescriptor.name, (err, sresult) => {
             if (util.isError(err)) {
-                return self.onDone(err, null, files, cb);
+                return this.onDone(err, null, this.files, cb);
             }
 
-            var keys = Object.keys(files);
-            if (keys.length === 0) {
-                return self.onDone(new Error('No file inputs were submitted'), null, files, cb);
-            }
-            var fileDescriptor = files[keys[0]];
-
-            var stream = fs.createReadStream(fileDescriptor.path);
-            self.service.setContentStream(stream, fileDescriptor.name, function(err, sresult) {
-                if (util.isError(err)) {
-                    return self.onDone(err, null, files, cb);
-                }
-
-                //write the response
-                var content = {
-                    content: JSON.stringify({
-                        filename: sresult.mediaPath
-                    }),
-                    content_type: 'application/json'
-                };
-                self.onDone(null, content, files, cb);
-            });
+            //write the response
+            var content = {
+                content: JSON.stringify({
+                    filename: sresult.mediaPath
+                }),
+                content_type: 'application/json'
+            };
+            this.onDone(null, content, this.files, cb);
         });
     };
 

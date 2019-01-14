@@ -60,7 +60,7 @@ module.exports = function AdminChangePasswordControllerModule(pb) {
         var vars = this.pathVars;
 
         if(!pb.validation.isIdStr(vars.id, true)) {
-            return self.reqHandler.serve404();
+            return cb(pb.Errors.notFound());
         }
         if(self.session.authentication.user_id != vars.id) {
             this.redirect('/admin/users', cb);

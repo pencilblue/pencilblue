@@ -93,12 +93,12 @@ module.exports = function(pb) {
 
                     //check for file level not found
                     if (err.message.indexOf('ENOENT') === 0) {
-                        self.reqHandler.serve404();
+                        return cb(pb.Errors.notFound());
                     }
                     else {//some provider error - just serve it up
                         pb.log.error('Failed to load media: MIME=%s ID=%s', streamWrapper.mime, id);
                         err.code = isNaN(err.code) ? 500 : err.code;
-                        self.reqHandler.serveError(err);
+                        cb(err);
                     }
                 })
                 .pipe(self.res);

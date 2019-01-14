@@ -62,7 +62,9 @@ module.exports = (pb) => {
         // Platform Wide Tasks (Only need to run once)
         _getDetails() {
             const filePath = path.join(PLUGINS_DIR, this.pluginuid, DETAILS_FILE_NAME);;
-            return fs.readFileAsync(filePath).then(JSON.parse);
+            return fs.readFileAsync(filePath).then(JSON.parse).catch(err => {
+                console.log(this.pluginuid + err);
+            });
         }
 
         _mainModuleHandler(mainModule, details) {

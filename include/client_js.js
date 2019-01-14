@@ -24,6 +24,7 @@ module.exports = function ClientJsModule(pb) {
     /**
      * Service for creating JavaScript tags
      *
+     * @deprecated since v 0.9.0 will be removed in 1.0.0
      * @module Services
      * @class ClientJs
      * @constructor

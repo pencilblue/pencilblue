@@ -219,9 +219,9 @@ module.exports = function PluginRepositoryModule(pb) {
      * @static
      * @param {Function} cb - the callback function
      */
-    PluginRepository.loadPluginsAcrossAllSites = function (cb) {
-        var dao = new pb.DAO();
-        dao.q(PLUGIN_COLL, cb);
+    PluginRepository.loadPluginsAcrossAllSites = async function () {
+        let dao = new pb.DAO();
+        return dao.qAsync(PLUGIN_COLL);
     };
 
     /**

@@ -115,13 +115,15 @@ module.exports = function BaseControllerModule(pb) {
      */
     BaseController.prototype.init = function(props, cb) {
         var self = this;
+        this.ctx = props.ctx; // used to redirect with koa
 
         /**
          * The instance of the request handler that processed the request
          * @property reqHandler
+         * @deprecated
          * @type {RequestHandler}
          */
-        this.reqHandler = props.request_handler;
+        this.reqHandler = props.request_handler || this.ctx.req;
 
         /**
          * The current request object
@@ -143,6 +145,7 @@ module.exports = function BaseControllerModule(pb) {
          * @type {object}
          */
         this.session = props.session;
+        this.cookies = props.cookies;
 
         /**
          * The deserialized body of the request.  This field is only ever populted if the executing route specifies the
@@ -151,19 +154,20 @@ module.exports = function BaseControllerModule(pb) {
          * @type {object|null}
          */
         this.body = props.body;
+        this.files = props.files; // This is the file node from the body, separate for security reasons
 
         /**
          * @deprecated Use this.ls
          * @property localizationService
          * @type {Localization}
          */
-        this.localizationService = props.localization_service;
+        this.localizationService = props.localization_service || {language: 'en-US', g: (key) => key};
 
         /**
          * @property ls
          * @type {Localization}
          */
-        this.ls = props.localization_service;
+        this.ls = props.localization_service || {language: 'en-US', g: (key) => key};
 
         /**
          * The hash of key/value pairs that represent the variables passed in the route path
@@ -322,7 +326,7 @@ module.exports = function BaseControllerModule(pb) {
         var val = '';
         var self = this;
         Object.keys(this.siteObj.supportedLocales).forEach(function(locale) {
-            var path = self.req.url;
+            var path = self.req.url.path;
             var isLocalizedPath = !!self.pathVars.locale && path.indexOf(self.pathVars.locale) >= 0;
             if (self.ls.language === locale && !isLocalizedPath) {
                 //skip current language.  We don't need to list it as an alternate
@@ -439,33 +443,12 @@ module.exports = function BaseControllerModule(pb) {
 
     /**
      *
+     * @deprecated
      * @method getPostParams
      * @param {Function} cb
      */
     BaseController.prototype.getPostParams = function(cb) {
-        var self = this;
-
-        this.getPostData(function(err, raw){
-            //Handle error
-            if (util.isError(err)) {
-                pb.log.error("BaseController.getPostParams encountered an error. ERROR[%s]", err.stack);
-                return cb(err, null);
-            }
-
-            //lookup encoding
-            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
-            encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
-
-            //convert to string
-            var postParams = url.parse('?' + raw.toString(encoding), true).query;
-
-            //In Node v6 a breaking change was introduced into the "querystring" module to prevent reserved words from
-            // being passed in as query string parameters and overriding prototype functions.
-            // This fix allows for users to continue on with V6 until another viable option comes along
-            postParams.hawOwnProperty = Object.prototype.hasOwnProperty;
-
-            cb(null, postParams);
-        });
+        cb(null, this.body);
     };
 
     /**
@@ -475,58 +458,16 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Function} cb
      */
     BaseController.prototype.getJSONPostParams = function(cb) {
-        var self = this;
-
-        this.getPostData(function(err, raw){
-            //Handle error
-            if (util.isError(err)) {
-                pb.log.error("BaseController.getJSONPostParams encountered an error. ERROR[%s]", err.stack);
-                return cb(err, null);
-            }
-
-            //lookup encoding
-            var encoding = pb.BaseBodyParser.getContentEncoding(self.req);
-            encoding = ENCODING_MAPPING[encoding] ? ENCODING_MAPPING[encoding] : 'utf8';
-
-            var error      = null;
-            var postParams = null;
-            try {
-                postParams = JSON.parse(raw.toString(encoding));
-            }
-            catch(err) {
-                error = err;
-            }
-            cb(error, postParams);
-        });
+        cb(null, this.body);
     };
 
     /**
-     *
+     * @deprecated to be removed in version 1.0s
      * @method getPostData
      * @param {Function} cb
      */
     BaseController.prototype.getPostData = function(cb) {
-        var buffers     = [];
-        var totalLength = 0;
-
-        this.req.on('data', function (data) {
-            buffers.push(data);
-            totalLength += data.length;
-
-            // 1e6 === 1 * Math.pow(10, 6) === 1 * 1000000 ~~~ 1MB
-            if (totalLength > 1e6) {
-                // FLOOD ATTACK OR FAULTY CLIENT, NUKE REQUEST
-                var err = new Error("POST limit reached! Maximum of 1MB.");
-                err.code = 400;
-                cb(err, null);
-            }
-        });
-        this.req.on('end', function () {
-
-            //create one big buffer.
-            var body = Buffer.concat (buffers, totalLength);
-            cb(null, body);
-        });
+        cb(null, this.body);
     };
 
     /**
@@ -652,10 +593,12 @@ module.exports = function BaseControllerModule(pb) {
      * @param {String} location
      * @param {Function} cb
      */
-    BaseController.prototype.redirect = function(location, cb){
-        cb(pb.RequestHandler.generateRedirect(location));
+    BaseController.prototype.redirect = function (location, cb) {
+        cb(pb.Errors.redirect(location));
     };
-
+    BaseController.prototype.doRedirect = function (destination, code = 302) {
+        throw pb.Errors.redirect(destination, code);
+    };
     /**
      * Generates an generic API response object
      * @static

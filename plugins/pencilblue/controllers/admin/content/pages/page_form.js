@@ -41,8 +41,7 @@ module.exports = function(pb) {
                 throw err;
             }
             else if(!results.page) {
-                self.reqHandler.serve404();
-                return;
+                return cb(pb.Errors.notFound());
             }
 
             self.page = results.page;

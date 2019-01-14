@@ -80,7 +80,7 @@ module.exports = function(pb) {
         };
         this.service.renderById(get.id, options, function(err, html) {
             if (util.isError(err)) {
-                return this.reqHandler.serveError(err);
+                return cb(err);
             }
             else if (!html) {
                 return cb({

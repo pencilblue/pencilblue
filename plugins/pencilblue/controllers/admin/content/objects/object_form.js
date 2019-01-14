@@ -44,10 +44,10 @@ module.exports = function(pb) {
 
         this.gatherData(vars, function(err, data) {
             if (util.isError(err)) {
-                return self.reqHandler.serveError(err);
+                return cb(err);
             }
             else if(!data.customObject) {
-                return self.reqHandler.serve404();
+                return cb(pb.Errors.notFound());
             }
 
             //TODO: exclude the IDs from the load options query when type is child objects
@@ -124,7 +124,7 @@ module.exports = function(pb) {
                     }
 
                     if (!util.isObject(objectType)) {
-                        return self.reqHandler.serve404();
+                        return cb(pb.Errors.notFound());
                     }
 
                     self.loadFieldOptions(cos, objectType, callback);

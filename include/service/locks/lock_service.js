@@ -63,8 +63,8 @@ module.exports = function(pb) {
             timeout: options.timeout || pb.config.locks.timeout,
             payload: options.payload || {
 
-                server: pb.ServerRegistration.generateServerKey(),
-                instance: pb.ServerRegistration.generateKey(),
+                server: pb.ServerRegistry.serverKey,
+                instance: pb.ServerRegistry.processKey,
                 date: new Date()
             }
         };

@@ -1,297 +1,197 @@
-'use strict';
+const Koa = require('koa');
+const Router = require('koa-router');
+const Session = require('../koa/Session')();
+const bodyParser = require('koa-body');
+const Cookies = require('koa-cookie').default;
+const Passport = require('../koa/authentication/Passport')();
+const https = require('https');
+const fs = require('fs');
 
-//dependencies
-var url = require('url');
-var util = require('util');
-var domain = require('domain');
+module.exports = function(pb) {
 
-module.exports = function (pb) {
+    class PencilblueRouter {
 
-    //pb dependencies
-    var RequestHandler = pb.RequestHandler;
+        constructor() {
+            this.app = new Koa();
+            this.app.keys = ['9011fa34-41a6-4a4d-8ad7-d591c5d3ca01']; // Random GUID
+            this.app._requestsServed = this.app._requestsServed || 0;
 
-    /**
-     * Responsible for routing a request through the registered middleware to serve up a response
-     * @class Router
-     * @constructor
-     * @param {Request} req
-     * @param {Response} res
-     */
-    class Router {
-        constructor(req, res) {
+            this.router = new Router();
 
-            /**
-             * Represents the current position of the middleware that is currently executing
-             * @property index
-             * @type {number}
-             */
-            this.index = 0;
-
-            /**
-             * @property req
-             * @type {Request}
-             */
-            this.req = req;
-
-            /**
-             * @property res
-             * @type {Response}
-             */
-            this.res = res;
+            this.app.use(bodyParser({
+                multipart: true,
+                // formidable: { uploadDir: path.join(__dirname, 'tmp') }
+            }));
+            let passport = Passport(pb);
+            this.app.use(Session(this.app));
+            this.app.use(Cookies());
+            this.app.use(passport.initialize());
+            this.app.use(passport.session());
         }
 
-        /**
-         * Starts the execution of the middleware pipeline against the specified request/response pair
-         * @method handle
-         */
-        handle() {
+        static registerRoute(routeDescriptor) {
+            this.internalRouteList.push(routeDescriptor);
+        }
 
-            //set reference to the handler
-            this.req.handler = new RequestHandler(this.req, this.res);
-            this.req.router = this;
+        static addMiddlewareAfter(name, middleware) {
+            let index = this._indexOfMiddleware(name);
+            if (index >= 0) {
+                return this._addMiddlewareAt(index + 1, middleware);
+            }
+            return false;
+        }
+        static addMiddlewareAfterAll(middleware) {
+            return this._addMiddlewareAt(this.internalMiddlewareStack.length, middleware);
+        }
 
-            return this._handle(this.req, this.res).catch((err) => {
-                this.res.statusCode = 500;
-                this.res.end();
+        static addMiddlewareBefore(name, middleware) {
+            let index = this._indexOfMiddleware(name);
+            if (index >= 0) {
+                return this._addMiddlewareAt(index, middleware);
+            }
+            return false;
+        }
+        static addMiddlewareBeforeAll(middleware) {
+            return this._addMiddlewareAt(0, middleware);
+        }
+
+        static replaceMiddleware(name, middleware) {
+                let index = this._indexOfMiddleware(name);
+                if (index >= 0 && middleware) {
+                    this.internalMiddlewareStack[index] = middleware;
+                }
+            }
+            /*****
+             * Internal Helper Functions
+             */
+        static get internalMiddlewareStack() {
+            if (this._internalMiddlewareStack) {
+                return this._internalMiddlewareStack;
+            }
+            this._internalMiddlewareStack = [];
+            return this._internalMiddlewareStack;
+        }
+        static get internalRouteList() {
+            if (this._internalRouteList) {
+                return this._internalRouteList;
+            }
+            this._internalRouteList = [];
+            return this._internalRouteList;
+        }
+
+        static _addMiddlewareAt(index, middleware) {
+            if (this._isValidName(middleware.name)) {
+                this.internalMiddlewareStack.splice(index, 0, middleware);
+                return true;
+            }
+            return false;
+        }
+        static _indexOfMiddleware(name) {
+            return this.internalMiddlewareStack.findIndex(middleware => middleware.name === name);
+        }
+        static _getMiddlewareByName(name) {
+            return this.internalMiddlewareStack.find(middleware => middleware.name === name);
+        }
+        static _isValidName(name) {
+            return this.internalMiddlewareStack
+                .filter(middleware => middleware.name === name).length === 0;
+        }
+
+        static _getMiddlewareListForRoutes() {
+            return this.internalMiddlewareStack.map(middleware => middleware.action);
+        }
+
+        _loadInMiddleware() {
+            PencilblueRouter.internalRouteList.forEach(route => {
+                Object.keys(route.descriptors).forEach(method => {
+                    let routeDescriptor = route.descriptors[method];
+                    this.router[method](routeDescriptor.path, async(ctx, next) => {
+                        this.app._requestsServed++;
+                        ctx.routeDescription = routeDescriptor;
+                        await next();
+                    }, ...PencilblueRouter._getMiddlewareListForRoutes());
+                });
             });
         }
+        _loadPublicRoutes() {
+            let routeParserMiddleware = PencilblueRouter._getMiddlewareByName('parseUrl');
+            let publicRouteHandlerMiddleware = PencilblueRouter._getMiddlewareByName('checkPublicRoute');
+            let mimeTypeMiddleware = PencilblueRouter._getMiddlewareByName('setMimeType');
+            pb.RouterLoader.publicRoutes.forEach(route => {
+                this.router.get(route, routeParserMiddleware.action, mimeTypeMiddleware.action, publicRouteHandlerMiddleware.action);
+            });
 
-        /**
-         * Handles the incoming request by executing each of the middleware in the pipeline
-         * @private
-         * @method _handle
-         * @param {Request} req
-         * @param {Response} res
-         */
-        _handle (req, res) {
-            var resolve, reject;
-            var promise = new Promise(function(reso, rej) { resolve = reso; reject = rej; });
+            let nodeModuleMiddleware = PencilblueRouter._getMiddlewareByName('checkModuleRoute');
+            this.router.get('/node_modules/*', routeParserMiddleware.action, mimeTypeMiddleware.action, nodeModuleMiddleware.action);
+        }
+        _addDefaultMiddleware() {
+            // Add middleware stack for those routes that are unknown
+            this.app.use(async(ctx, next) => {
+                this.app._requestsServed++;
+                await next();
+            });
+            PencilblueRouter._getMiddlewareListForRoutes()
+                .forEach(middleware => this.app.use(middleware));
+        }
 
-            // initialize completion function
-            var self = this;
-            var done = function (err) {
-                if (!util.isError(err)) {
-                    return resolve();
+        useSSL() {
+            const hasKeyAndCert = pb.config.server && pb.config.server.ssl && pb.config.server.ssl.key && pb.config.server.ssl.cert;
+            return process.env.USE_SSL === '1' && hasKeyAndCert;
+        }
+
+        startSSLServer(port) {
+            const config = {
+                https: {
+                    port,
+                    options: {
+                        key: fs.readFileSync(pb.config.server.ssl.key, 'utf8'),
+                        cert: fs.readFileSync(pb.config.server.ssl.cert, 'utf8')
+                    }
                 }
-
-                req.handler.serveError(err, { handler: function(data) {
-                    req.controllerResult = data;
-                    self.continueAfter('render')
-                        .then(resolve, reject);
-                }});
             };
-
-            //create execution loop
-            var execute = function () {
-                if (self.index >= Router.middleware.length) {
-                    return done();
-                }
-
-                //execute the next task
-                var sync = true;
-                var action = Router.middleware[self.index].action;
-                action(req, res, function (err) {
-                    if (err) {
-                        return done(err);
-                    }
-
-                    // delay by a tick when reaching here synchronously otherwise just proceed
-                    self.index++;
-                    if (sync) {
-                        process.nextTick(function() {
-                            execute();
-                        });
-                    }
-                    else {
-                        execute();
+            const serverCallback = this.app.callback();
+            const httpsServer = https.createServer(config.https.options, serverCallback);
+            this.__server = httpsServer
+                .listen(config.https.port, function(err) {
+                    if (!!err) {
+                        pb.log.error('PencilBlue is not ready!');
+                    } else {
+                        pb.log.info('PencilBlue is ready!');
                     }
                 });
-                sync = false;
-            };
-
-            domain.create()
-                .once('error', function(err) {
-                    var middleWareName = Router.middleware[self.index] ? Router.middleware[self.index].name : 'UNKNOWN';
-                    pb.log.error(`Router: An unhandled error occurred after calling middleware ${middleWareName}: ${err.stack}`);
-                    reject(err);
-                })
-                .run(function() {
-                    process.nextTick(execute);
-                });
-            return promise;
         }
 
-        /**
-         * Instructs the router to continue pipeline execution after the specified middleware.
-         * @method continueAfter
-         * @param {string} middlewareName
+        /***
+         * Listen function that starts the server
+         * @param port
          */
-        continueAfter (middlewareName) {
-            var index = Router.indexOfMiddleware(middlewareName);
-            return this.continueAt(index + 1);
-        }
+        listen(port) {
+            if (!this.calledOnce) {
+                this._loadPublicRoutes(); // Loads PB public routes, not regular public routes. -- Need to remove eventually
+                this._loadInMiddleware();
 
-        /**
-         * Instructs the router to continue processing at the specified position in the set of middleware being executed
-         * @method continueAt
-         * @param {number} index
-         */
-        continueAt (index) {
-            this.index = index;
-            return this._handle(this.req, this.res);
-        }
+                this.app
+                    .use(this.router.routes())
+                    .use(this.router.allowedMethods());
 
-        /**
-         * Causes a redirect result to be created and set off of the Request object as the controllerResult.
-         * The pipeline is then instructed to continue after the "render" middleware
-         * @static
-         * @method redirect
-         * @param {string} location The location to redirect to
-         * @param {number} httpStatusCode The integer that represents the status code to be returned
-         */
-        redirect (location, httpStatusCode) {
-            this.req.controllerResult = {
-                redirect: location,
-                code: httpStatusCode
-            };
-            return this.continueAfter('render');
-        }
-
-        /**
-         * Removes the specified middleware from the pipeline
-         * @static
-         * @method removeMiddleware
-         * @param {string} name
-         * @returns {boolean}
-         */
-        static removeMiddleware(name) {
-            var index = Router.indexOfMiddleware(name);
-            if (index >= 0) {
-                Router.middleware.splice(index, 1);
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * Replaces the middleware with the specified name at its current position in the middleware pipeline
-         * @static
-         * @method replaceMiddleware
-         * @param {string} name
-         * @param {object} middleware
-         * @param {string} middleware.name
-         * @param {function} middleware.action
-         * @returns {boolean}
-         */
-        static replaceMiddleware(name, middleware) {
-            var index = Router.indexOfMiddleware(name);
-            if (index >= 0) {
-                Router.middleware.splice(index, 1, middleware);
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * Adds middleware after the middleware with the specified name
-         * @static
-         * @method addMiddlewareAfter
-         * @param {string} name
-         * @param {object} middleware
-         * @param {string} middleware.name
-         * @param {function} middleware.action
-         * @returns {boolean}
-         */
-        static addMiddlewareAfter(name, middleware) {
-            var index = Router.indexOfMiddleware(name);
-            if (index >= 0) {
-                return Router.addMiddlewareAt(index + 1, middleware);
-            }
-            return false;
-        }
-
-        /**
-         * Adds middleware after all other registered middleware
-         * @static
-         * @method addMiddlewareAfterAll
-         * @param {object} middleware
-         * @param {string} middleware.name
-         * @param {function} middleware.action
-         * @returns {boolean}
-         */
-        static addMiddlewareAfterAll(middleware) {
-            return Router.addMiddlewareAt(Router.middleware.length, middleware);
-        }
-
-        /**
-         * Adds middleware before the middleware with the specified name
-         * @static
-         * @method addMiddlewareBefore
-         * @param {string} name
-         * @param {object} middleware
-         * @param {string} middleware.name
-         * @param {function} middleware.action
-         * @returns {boolean}
-         */
-        static addMiddlewareBefore(name, middleware) {
-            var index = Router.indexOfMiddleware(name);
-            if (index >= 0) {
-                return Router.addMiddlewareAt(index, middleware);
-            }
-            return false;
-        }
-
-        /**
-         * Adds middleware before all other registered middleware
-         * @static
-         * @method addMiddlewareBeforeAll
-         * @param {object} middleware
-         * @param {string} middleware.name
-         * @param {function} middleware.action
-         * @returns {boolean}
-         */
-        static addMiddlewareBeforeAll(middleware) {
-            return Router.addMiddlewareAt(0, middleware);
-        }
-
-        /**
-         * Adds middleware at the specified index
-         * @static
-         * @method addMiddlewareAt
-         * @param {number} index
-         * @param {object} middleware
-         * @param {string} middleware.name
-         * @param {function} middleware.action
-         * @returns {boolean} TRUE if added, FALSE if the middleware already exists in the pipeline
-         */
-        static addMiddlewareAt(index, middleware) {//TODO add check to ensure you can't add middleware with the same name, valid name, valid action
-            Router.middleware.splice(index, 0, middleware);
-            return true;
-        }
-
-        /**
-         * Determines the position in the middleware pipeline where the middleware executes.
-         * @static
-         * @method indexOfMiddleware
-         * @param {string} name
-         * @returns {number} The position of the middleware or -1 when not found
-         */
-        static indexOfMiddleware(name) {
-            for (var i = 0; i < Router.middleware.length; i++) {
-                if (Router.middleware[i].name === name) {
-                    return i;
+                this._addDefaultMiddleware();
+                if (this.useSSL()) {
+                    this.startSSLServer(port);
+                } else {
+                    this.__server = this.app.listen(port, () => {
+                        pb.log.info('PencilBlue is ready!');
+                    });
                 }
+
+                this.calledOnce = 1;
+            } else {
+                pb.log.error(`Listen function was called twice on the same server instance`);
             }
-            return -1;
+        }
+        get requestsServed() {
+            return this.app._requestsServed;
         }
     }
 
-    /**
-     * @static
-     * @property middleware
-     * @type {Array}
-     */
-    Router.middleware = [];
-
-    return Router;
+    return PencilblueRouter;
 };

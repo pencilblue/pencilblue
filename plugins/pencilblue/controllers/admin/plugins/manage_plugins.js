@@ -54,7 +54,7 @@ module.exports = function(pb) {
         let isLocal = pb.config.siteRoot === 'http://localhost:8080';
         
         if(this.site === 'global' && !isStaging && !isLocal && !(this.query && this.query.forceAllow)){
-            return self.reqHandler.serve404();
+            return cb(pb.Errors.notFound());
         }
 
         var tasks = {

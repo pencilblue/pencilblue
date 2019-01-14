@@ -64,7 +64,7 @@ module.exports = function(pb) {
 
         this.service.getMediaDescriptor(get.url, function(err, descriptor) {
             if (util.isError(err)) {
-                return self.reqHandler.serveError(err);
+                return cb(err);
             }
             else if (!descriptor) {
                 return cb({

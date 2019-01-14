@@ -356,7 +356,7 @@ module.exports = function MemoryEntityServiceModule(pb) {
      * @method dispose
      * @param {Function} cb
      */
-    MemoryEntityService.dispose = function(cb) {
+    MemoryEntityService.dispose = function() {
 
         //release data and timeout hashes
         STORAGE = {};
@@ -366,11 +366,10 @@ module.exports = function MemoryEntityServiceModule(pb) {
         if (REAPER_HANDLE !== null) {
             clearInterval(REAPER_HANDLE);
         }
+        // TODO: Come back and investigate this file more
 
         //clean up by un registering the change handler to prevent memory leaks
         pb.CommandService.getInstance().unregisterForType(MemoryEntityService.getOnChangeType(), MemoryEntityService.changeHandler);
-
-        cb(null, true);
     };
 
     return MemoryEntityService;

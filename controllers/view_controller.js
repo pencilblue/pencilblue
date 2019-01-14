@@ -101,7 +101,7 @@ module.exports = function ViewControllerModule(pb) {
      */
     ViewController.prototype.onRenderComplete = function(err, viewContent, cb) {
         if (util.isError(err)) {
-            return this.reqHandler.serveError(err);
+            return cb(err);
         }
         
         //all ok send back what we rendered

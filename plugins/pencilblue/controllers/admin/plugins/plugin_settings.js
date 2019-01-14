@@ -65,8 +65,7 @@ module.exports = function(pb) {
                 throw err;
             }
             else if (plugin === null) {
-                self.reqHandler.serve404();
-                return;
+                return cb(pb.Errors.notFound());
             }
 
             //retrieve settings
@@ -76,8 +75,7 @@ module.exports = function(pb) {
                     throw err;
                 }
                 else if (settings === null) {
-                    self.reqHandler.serve404();
-                    return;
+                    return cb(pb.Errors.notFound());
                 }
 
                 var clone = util.copyArray(settings);
@@ -206,7 +204,7 @@ module.exports = function(pb) {
         var uid = this.pathVars.id;
         self.getSettings(uid, function(err, settings) {
             if(util.isError(err)) {
-                return self.reqHandler.serveError(err);
+                return cb(err);
             }
             else if (util.isNullOrUndefined(settings)) {
                 return cb({
