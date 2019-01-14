@@ -50,6 +50,7 @@ module.exports = (pb) => {
                 json: true
             });
             let user = {
+                external_user_id: salesforceUser.user_id,
                 first_name: salesforceUser.given_name,
                 last_name: salesforceUser.family_name,
                 username: salesforceUser.preferred_username,
