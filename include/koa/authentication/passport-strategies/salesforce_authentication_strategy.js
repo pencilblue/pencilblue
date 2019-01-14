@@ -23,7 +23,7 @@ module.exports = (pb) => {
             site: req.ctx.__site
         });
         pluginService = Promise.promisifyAll(pluginService);
-        const settings = await pluginService.getSettingsKVAsync('tn_join');
+        const settings = await pluginService.getSettingsKVAsync('tn_profile');
         if (settings.app_url && settings.app_url !== '') {
             salesforceOAUTHTokenService = settings.app_url + OAUTH_TOKEN_SERVICE;
             salesforceOAUTHAuthorizeService = settings.app_url + OAUTH_AUTHORIZE_SERVICE;
