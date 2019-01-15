@@ -28,16 +28,19 @@ function _addUserToSession(req, user, pb) {
 
 function _getQuery(loginContext, identityProvider, pb, ignorePassword) {
     const usernameSearchExp = pb.regexUtil.getCaseInsensitiveExact(loginContext.username);
-
     let query = {
         object_type: 'user',
-        '$or': [{
+        identity_provider: identityProvider
+    };
+    if (identityProvider) {
+        query.external_user_id = loginContext.externalUserId;
+    } else {
+        query['$or'] = [{
             username: usernameSearchExp
         }, {
             email: usernameSearchExp
-        }],
-        identity_provider: identityProvider
-    };
+        }];
+    }
     if (!ignorePassword) {
         query.password = pb.security.encrypt(loginContext.password);
     }
@@ -47,7 +50,6 @@ function _getQuery(loginContext, identityProvider, pb, ignorePassword) {
             '$gte': loginContext.access_level
         };
     }
-
     return query;
 };
 
@@ -71,7 +73,8 @@ async function saveUser(user, loginContext, done, pb, ignorePassword = false) {
     try {
         let _loginContext = {
             site: loginContext.site,
-            username: user.username
+            username: user.username,
+            externalUserId: user.external_user_id
         };
         createdUser = await getUser(_loginContext, user.identity_provider, done, pb, true);
         if (!createdUser) {
