@@ -46,7 +46,8 @@ module.exports = function(pb) {
                 throw err;
             }
             else if(!data.navItem) {
-                return cb(pb.Errors.notFound());
+                self.reqHandler.serve404();
+                return;
             }
 
             self.navItem = data.navItem;

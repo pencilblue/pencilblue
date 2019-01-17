@@ -72,6 +72,21 @@ module.exports = function SamplePluginModule(pb) {
     SamplePlugin.onStartupWithContext = function (context, cb) {
 
         /**
+         * Example for hooking into the RequestHandler for custom control flow.  The context will also provide the site.
+         * This means that for multi-site implementations where the plugin is installed on a per plugin basis the hook
+         * should only be registered ONCE.  Otherwise it will execute multiple times causing performance to degrade
+         * @param ctx {object}
+         * @param {RequestHandler} ctx.requestHandler
+         * @param {object} ctx.themeRoute
+         * @param {function} (Error)
+         */
+        pb.RequestHandler.on(pb.RequestHandler.THEME_ROUTE_RETIEVED, function (ctx, callback) {
+            //do what ever needs to be done.  Use the callback to continue normal control flow or don't if you need to do redirects
+            pb.log.debug('SamplePlugin: The request handler hook triggered for request: %s', ctx.requestHandler.url.path);
+            callback();
+        });
+
+        /**
          * Administration Navigation sample
          */
         var site = pb.SiteService.getCurrentSite(context.site);

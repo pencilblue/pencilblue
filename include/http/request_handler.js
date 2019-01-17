@@ -95,7 +95,6 @@ module.exports = function RequestHandlerModule(pb) {
         }
         /**
              * Serves up public content from an absolute file path
-         * @deprecated
              * @method servePublicContent
              * @param {String} [absolutePath] An absolute file path to the resource
              */
@@ -201,7 +200,6 @@ module.exports = function RequestHandlerModule(pb) {
         /**
              * Parses the incoming request body when the body type specified matches one of
              * those explicitly allowed by the rotue.
-         * @deprecated
              * @method parseBody
              * @param {Array} mimes An array of allowed MIME strings.
              * @param {Function} cb A callback that takes 2 parameters: An Error, if
@@ -670,27 +668,29 @@ module.exports = function RequestHandlerModule(pb) {
              * @static
              * @method buildControllerContext
              * @param {Request} req
+             * @param {Response} res
+             * @param {object} extraData
              * @returns {Object}
              */
-        static buildControllerContext(ctx) {
-            return {
-                ctx,
-                request: ctx.req,
-                response: ctx.res,
-                session: ctx.session,
-                cookies: ctx.cookie,
-                localization_service: ctx.req.localizationService,
-                path_vars: ctx.params, // TODO: Remove this one
-                pathVars: ctx.params,
-                query: ctx.req.url.query || ctx.query,
-                body: ctx.request.body || ctx.req.body || {},
-                files: ctx.request.files || {},
-                site: ctx.req.site,
-                siteObj: ctx.req.siteObj,
-                siteName: ctx.req.siteName,
-                activeTheme: ctx.req.activeTheme || 'pencilblue',
-                routeLocalized: !!(ctx.req.route ? ctx.req.route.localization : false)
-            };
+        static buildControllerContext(req, res, extraData) {
+            req = req || {};
+            req.handler = req.handler || {};
+            return util.merge(extraData || {}, {
+                request_handler: req.handler,
+                request: req,
+                response: res,
+                session: req.session,
+                localization_service: req.localizationService,
+                path_vars: req.pathVars,
+                pathVars: req.pathVars,
+                query: req.handler.url.query,
+                body: req.body,
+                site: req.site,
+                siteObj: req.siteObj,
+                siteName: req.siteName,
+                activeTheme: req.activeTheme || 'pencilblue',
+                routeLocalized: !!(req.handler.route ? req.handler.route.localization : false)
+            });
         }
     }
 

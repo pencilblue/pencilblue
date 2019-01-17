@@ -37,21 +37,21 @@ module.exports = function(pb) {
         var self = this;
         var vars = this.pathVars;
         if(!vars.type_id) {
-            return cb(pb.Errors.notFound());
+            return this.reqHandler.serve404();
         }
 
         var service = new pb.CustomObjectService(self.site, false);
         service.loadTypeById(vars.type_id, function(err, objectType) {
             if(util.isError(err)) {
-                return cb(err);
+                return self.reqHandler.serveError(err);
             }
             else if (!util.isObject(objectType)) {
-                return cb(pb.Errors.notFound());
+                return self.reqHandler.serve404();
             }
 
             service.findByTypeWithOrdering(objectType, function(err, customObjects) {
                 if (util.isError(customObjects)) {
-                    return cb(err);
+                    return self.reqHandler.serveError(err);
                 }
 
                 //none to manage

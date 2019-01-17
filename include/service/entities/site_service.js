@@ -18,8 +18,6 @@
 var async = require('async');
 var url = require('url');
 var util = require('../../util.js');
-const os = require('os');
-const _ = require('lodash');
 
 module.exports = function SiteServiceModule(pb) {
     /**
@@ -95,9 +93,6 @@ module.exports = function SiteServiceModule(pb) {
      */
     var SITE_COLL = SiteService.SITE_COLLECTION;
 
-    SiteService.sites = {};
-    SiteService.redirectHosts = {};
-
     /**
      * Load full site config from the database using the unique id.
      * @method getByUid
@@ -115,8 +110,9 @@ module.exports = function SiteServiceModule(pb) {
             });
         }
         else {
+            var dao = new pb.DAO();
             var where = {uid: uid};
-            this.dao.loadByValues(where, SITE_COLL, cb);
+            dao.loadByValues(where, SITE_COLL, cb);
         }
     };
 
@@ -125,9 +121,9 @@ module.exports = function SiteServiceModule(pb) {
      * @method getAllSites
      * @param {Function} cb - the callback function
      */
-    SiteService.prototype.getAllSites = async function () {
-        let dao = new pb.DAO();
-        return dao.qAsync(SITE_COLL, { select: pb.DAO.PROJECT_ALL, where: {} });
+    SiteService.prototype.getAllSites = function (cb) {
+        var dao = new pb.DAO();
+        dao.q(SITE_COLL, { select: pb.DAO.PROJECT_ALL, where: {} }, cb);
     };
 
     /**
@@ -136,7 +132,8 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - the callback function
      */
     SiteService.prototype.getActiveSites = function (cb) {
-        this.dao.q(SITE_COLL, { select: pb.DAO.PROJECT_ALL, where: {active: true} }, cb);
+        var dao = new pb.DAO();
+        dao.q(SITE_COLL, { select: pb.DAO.PROJECT_ALL, where: {active: true} }, cb);
     };
 
     /**
@@ -145,7 +142,8 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - the callback function
      */
     SiteService.prototype.getInactiveSites = function (cb) {
-        this.dao.q(SITE_COLL, {where: {active: false}}, cb);
+        var dao = new pb.DAO();
+        dao.q(SITE_COLL, {where: {active: false}}, cb);
     };
 
     /**
@@ -199,7 +197,8 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - the callback function
      */
     SiteService.prototype.getSiteNameByUid = function (uid, cb) {
-        this.dao.q(SITE_COLL, {select: pb.DAO.PROJECT_ALL, where: {uid: uid} }, function(err, result) {
+        var dao = new pb.DAO();
+        dao.q(SITE_COLL, {select: pb.DAO.PROJECT_ALL, where: {uid: uid} }, function(err, result) {
             var siteName = (!uid || uid === SiteService.GLOBAL_SITE) ? 'global' : '';
 
             if (pb.util.isError(err)) {
@@ -348,7 +347,8 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - callback function
      */
     SiteService.prototype.startAcceptingSiteTraffic = function (siteUid, cb) {
-        this.dao.loadByValue('uid', siteUid, 'site', function (err, site) {
+        var dao = new pb.DAO();
+        dao.loadByValue('uid', siteUid, 'site', function (err, site) {
             if (util.isError(err)) {
                 cb(err, null);
             }
@@ -372,7 +372,8 @@ module.exports = function SiteServiceModule(pb) {
      * @param {Function} cb - callback function
      */
     SiteService.prototype.stopAcceptingSiteTraffic = function (siteUid, cb) {
-        this.dao.loadByValue('uid', siteUid, 'site', function (err, site) {
+        var dao = new pb.DAO();
+        dao.loadByValue('uid', siteUid, 'site', function (err, site) {
             if (util.isError(err)) {
                 cb(err, null);
             }
@@ -389,62 +390,60 @@ module.exports = function SiteServiceModule(pb) {
         });
     };
 
-
     /**
      * Load all sites into memory.
      * @method initSites
+     * @param {Function} cb
      */
-    SiteService.prototype.initSites = async function () {
+    SiteService.prototype.initSites = function (cb) {
         if (pb.config.multisite.enabled && !pb.config.multisite.globalRoot) {
-           throw new Error("A Global Hostname must be configured with multisite turned on.");
+            return cb(new Error("A Global Hostname must be configured with multisite turned on."), false);
         }
+        this.getAllSites(function (err, results) {
+            if (err) {
+                return cb(err);
+            }
 
-        let results = await this.getAllSites();
+            var defaultLocale = pb.Localization.getDefaultLocale();
+            var defaultSupportedLocales = {};
+            defaultSupportedLocales[defaultLocale] = true;
+            //only load the sites when we are in multi-site mode
+            if (pb.config.multisite.enabled) {
+                util.forEach(results, function (site) {
+                    site.defaultLocale = site.defaultLocale || defaultLocale;
+                    site.supportedLocales = site.supportedLocales || defaultSupportedLocales;
+                    site.prevHostnames = site.prevHostnames || [];
+                    pb.RequestHandler.loadSite(site);
+                });
+            }
 
-        let defaultLocale = pb.Localization.getDefaultLocale();
-        let supportedLocales = {
-            [defaultLocale]: true
-        };
-        let defaultSiteObj = {defaultLocale, supportedLocales, prevHostnames: []};
+            // To remain backwards compatible, hostname is siteRoot for single tenant
+            // and active allows all routes to be hit.
+            // When multisite, use the configured hostname for global, turn off public facing routes,
+            // and maintain admin routes (active is false).
+            pb.RequestHandler.loadSite(SiteService.getGlobalSiteContext());
 
-        //only load the sites when we are in multi-site mode
-        if (pb.config.multisite.enabled) {
-            results.forEach(site => SiteService.loadSite(Object.assign({}, defaultSiteObj, site)));
-        }
-        SiteService.loadSite(SiteService.getGlobalSiteContext()); // Register the Global Site
+            var os = require('os');
 
-        this._registerHealthCheckSite(defaultSiteObj);
-    };
-    SiteService.getSiteObjectByHostname = function (hostname) {
-        let siteObject = SiteService.sites[hostname];
-        if(siteObject) {
-            return _.clone(siteObject);
-        }
-        return null;
-    };
-
-    SiteService.loadSite = function(site) {
-        SiteService.sites[site.hostname] = site;
-
-        site.prevHostnames.forEach((oldHostname) => {
-            SiteService.redirectHosts[oldHostname] = site.hostname;
-        });
-    };
-    SiteService.prototype._registerHealthCheckSite = function (defaultSiteObj) {
-        let interfaces = os.networkInterfaces();
-        for (let k in interfaces) {
-            for (let k2 in interfaces[k]) {
-                let address = interfaces[k][k2];
-                if (address.family === 'IPv4' && !address.internal) {
-                    SiteService.loadSite(Object.assign({}, defaultSiteObj, {
-                        displayName: 'healthCheck',
-                        uid: 'healthCheck',
-                        hostname: address.address,
-                        active: true
-                    }));
+            var interfaces = os.networkInterfaces();
+            for (var k in interfaces) {
+                for (var k2 in interfaces[k]) {
+                    var address = interfaces[k][k2];
+                    if (address.family === 'IPv4' && !address.internal) {
+                        pb.RequestHandler.loadSite({
+                            displayName: 'healthCheck',
+                            uid: 'healthCheck',
+                            hostname: address.address,
+                            active: true,
+                            defaultLocale: defaultLocale,
+                            supportedLocales: defaultSupportedLocales,
+                            prevHostnames: []
+                        });
+                    }
                 }
             }
-        }
+            cb(err, true);
+        });
     };
 
     /**

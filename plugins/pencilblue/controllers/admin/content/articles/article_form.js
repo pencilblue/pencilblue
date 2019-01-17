@@ -41,7 +41,8 @@ module.exports = function(pb) {
                 throw err;
             }
             else if(!results.article) {
-                return cb(pb.Errors.notFound());
+                self.reqHandler.serve404();
+                return;
             }
 
             self.article = results.article;

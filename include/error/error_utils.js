@@ -85,9 +85,6 @@ class ErrorUtils {
         return ErrorUtils.custom(message);
     }
 
-    static redirect(url, code = 302) {
-        return ErrorUtils.custom(url, code);
-    }
     /**
      * Creates a custom error with a specific message and status code
      * @static

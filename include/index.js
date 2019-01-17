@@ -42,8 +42,6 @@ module.exports = function PB(config) {
     pb.config = config;
 
     //setup utils
-    pb.regexUtil = require('./utils/reg_exp_utils');
-
     pb.util    = require(path.join(config.docRoot, '/include/util.js'));
     Object.defineProperty(pb, 'utils', {
         get: function() {
@@ -57,8 +55,8 @@ module.exports = function PB(config) {
     pb.AsyncEventEmitter = require(path.join(config.docRoot, '/include/utils/async_event_emitter.js'))(pb);
 
     //setup the System instance
-    // TODO: Rename this
-    pb.system = require(path.join(config.docRoot, 'include/system/cluster_manager.js'))(pb);
+    pb.System = require(path.join(config.docRoot, 'include/system/system.js'));
+    pb.system = new pb.System(pb);
 
     //configure cache
     var CacheModule = require(path.join(config.docRoot, '/include/dao/cache.js'));
@@ -153,7 +151,6 @@ module.exports = function PB(config) {
 
     //setup errors
     pb.PBError    = require(path.join(config.docRoot, '/include/error/pb_error.js'))(pb);
-    pb.Errors    = require(path.join(config.docRoot, '/include/error/error_utils.js')); // Does not need PB
     pb.ErrorsOverTime = require(path.join(config.docRoot, '/include/error/errors_over_time.js'))(pb);
     pb.ErrorFormatters = require(path.join(config.docRoot, '/include/error/formatters/error_formatters.js'))(pb);
 
@@ -163,7 +160,7 @@ module.exports = function PB(config) {
     //server registration
     pb.MongoRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/mongo_registration_provider.js'))(pb);
     pb.RedisRegistrationProvider = require(path.join(config.docRoot, '/include/system/registry/redis_registration_provider.js'))(pb);
-    pb.ServerRegistry            = require(path.join(config.docRoot, '/include/system/server_registry.js'))(pb);
+    pb.ServerRegistration        = require(path.join(config.docRoot, '/include/system/server_registration.js'))(pb);
 
     //command service
     pb.RedisCommandBroker = require(path.join(config.docRoot, '/include/system/command/redis_command_broker.js'))(pb);
@@ -214,9 +211,9 @@ module.exports = function PB(config) {
     pb.AdminSubnavService = require(path.join(config.docRoot, '/include/service/admin/admin_subnav_service.js'))(pb);
     pb.AnalyticsManager   = require(path.join(config.docRoot, '/include/system/analytics_manager.js'))(pb);
     pb.UrlService         = require(path.join(config.docRoot, '/include/service/entities/url_service.js'))(pb);
+    pb.CallHomeService    = require(path.join(config.docRoot, '/include/system/call_home_service.js'))(pb);
     pb.JobService         = require(path.join(config.docRoot, '/include/service/entities/job_service.js'))(pb);
     pb.TokenService       = require(path.join(config.docRoot, '/include/service/entities/token_service.js'))(pb);
-    pb.TokenServiceV2     = require(path.join(config.docRoot, '/include/koa/authentication/token_service.js'))(pb);
 
     //create plugin service
     pb.PluginService = require(path.join(config.docRoot, '/include/service/entities/plugin_service.js'))(pb);
@@ -288,8 +285,6 @@ module.exports = function PB(config) {
     pb.SitePluginInitializationService = require(path.join(config.docRoot, '/include/service/entities/plugins/site_plugin_initialization_service.js'))(pb);
 
     pb.PasswordResetService = require(path.join(config.docRoot, '/include/service/entities/password_reset_service.js'))(pb);
-
-    pb.RouterLoader = require(path.join(config.docRoot, '/include/koa/RouteHandler'))(pb);
 
     return pb;
 };

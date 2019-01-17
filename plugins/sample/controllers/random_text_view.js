@@ -222,7 +222,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
 
                     //when an error occurs it is possible to hand back off to the
                     //RequestHandler to serve the error.
-                    return cb(err);
+                    self.reqHandler.serveError(err);
                 }
 
                 //The callback to the RequestHandler can specify more than just the

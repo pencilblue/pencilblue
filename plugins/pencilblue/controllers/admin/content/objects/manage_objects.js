@@ -38,7 +38,7 @@ module.exports = function(pb) {
         var vars = this.pathVars;
 
         if(!pb.validation.isIdStr(vars.type_id, true)) {
-            return cb(pb.Errors.notFound());
+            return this.reqHandler.serve404();
         }
 
         var service = new pb.CustomObjectService(self.site, false);
@@ -47,12 +47,12 @@ module.exports = function(pb) {
                 return self.serveError(err);
             }
             else if (!util.isObject(custObjType)) {
-                return cb(pb.Errors.notFound());
+                return self.reqHandler.serve404();
             }
 
             service.findByTypeWithOrdering(custObjType, function(err, customObjects) {
                 if (util.isError(customObjects)) {
-                    return cb(err);
+                    return self.reqHandler.serveError(err);
                 }
 
                 //none to manage

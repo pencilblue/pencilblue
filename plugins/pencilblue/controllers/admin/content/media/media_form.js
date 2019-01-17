@@ -54,7 +54,8 @@ module.exports = function(pb) {
                 throw err;
             }
             else if(!data.media) {
-                return cb(pb.Errors.notFound());
+                self.reqHandler.serve404();
+                return;
             }
 
             self.media = data.media;

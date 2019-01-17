@@ -42,7 +42,8 @@ module.exports = function(pb) {
                 throw err;
             }
             else if(!data.objectType) {
-                return cb(pb.Errors.notFound());
+                self.reqHandler.serve404();
+                return;
             }
 
             self.objectType = data.objectType;

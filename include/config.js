@@ -133,7 +133,7 @@ Configuration.getBaseConfig = function(multisite) {
 
         //enables/disables multiple sites in a single pencilblue instance (multitenancy)
         multisite: {
-            enabled: true,
+            enabled: false,
 
             // When multisite.enabled is true, this is the hostname that will resolve to the global namespace.
             // Only Admin routes will be activated for this hostname.
@@ -318,7 +318,7 @@ Configuration.getBaseConfig = function(multisite) {
             //be set to "auto".  This will instruct the master process to inspect
             //the number of cores on the server and spawn a child process for each
             //core.
-            workers: 5,
+            workers: 1,
 
             //The self managed flag indicates whether or not PencilBlue should
             //start a master process who's sole responsibility is to watch over the

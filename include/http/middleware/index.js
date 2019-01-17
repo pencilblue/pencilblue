@@ -15,26 +15,27 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//Wrap an async function in a middleware callback interface
+const next = fn => (req, res, next) => Promise.resolve(fn).then(fn => fn(req, res)).then(() => next(), next)
+
 module.exports = function(pb) {
-    const { startTime, endTime } = require('./timing')(pb);
-    const { errorHandler } = require('./errors')(pb);
-    const { parseUrl, sessionCheck, checkPublicRoute, checkModuleRoute, systemSetupCheck, setMimeType } = require('./system')(pb);
-    const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb);
-    const { requiresAuthenticationCheck, authorizationCheck, ipFilterCheck } = require('./auth')(pb);
-    const { localizedRouteCheck, initializeLocalization } = require('./localization')(pb);
-    const { instantiateController, initializeController, render, writeResponse } = require('./controller')(pb);
+    const { startTime, endTime } = require('./timing')(pb)
+    const { openSession, closeSession, writeSessionCookie } = require('./session')(pb)
+    const { urlParse, checkPublicRoute, checkModuleRoute, systemSetupCheck, parseRequestBody } = require('./system')(pb)
+    const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb)
+    const { requiresAuthenticationCheck, authorizationCheck, ipFilterCheck } = require('./auth')(pb)
+    const { localizedRouteCheck, initializeLocalization } = require('./localization')(pb)
+    const { instantiateController, initializeController, render, writeResponse } = require('./controller')(pb)
 
     const stack = [
         startTime,
-        parseUrl,
-        sessionCheck,
+        urlParse,
         checkModuleRoute,
         checkPublicRoute,
-        errorHandler,
+        openSession,
         deriveSite,
         deriveActiveTheme,
         deriveRoute,
-        initializeLocalization,
         localizedRouteCheck,
         inactiveAccessCheck,
         systemSetupCheck,
@@ -42,17 +43,20 @@ module.exports = function(pb) {
         authorizationCheck,
         ipFilterCheck,
         instantiateController,
+        parseRequestBody,
+        initializeLocalization,
         initializeController,
         render,
+        writeSessionCookie,
         writeResponse,
-        setMimeType,
-        endTime
-    ];
+        endTime,
+        closeSession
+    ]
 
     return {
         getAll: () => stack.map(fn => ({
             name: fn.name,
-            action: fn
+            action: next(fn)
         }))
     }
 };

@@ -46,7 +46,7 @@ module.exports = function(pb) {
         var cos = new pb.CustomObjectService(self.site, false);
         cos.loadById(vars.id, function(err, customObject) {
             if (util.isError(err)) {
-                return cb(err);
+                return self.reqHandler.serveError(err);
             }
             else if(!customObject) {
                 return self.redirect('/admin/content/custom_objects/manage_object_types', cb);

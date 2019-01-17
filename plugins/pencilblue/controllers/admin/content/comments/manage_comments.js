@@ -55,7 +55,7 @@ module.exports = function(pb) {
         };
         self.siteQueryService.q('comment', opts, function(err, comments) {
             if (util.isError(err)) {
-                return cb(err);
+                return self.reqHandler.serveError(err);
             }
 
             //retrieve the content settings or defaults if they have not yet been configured

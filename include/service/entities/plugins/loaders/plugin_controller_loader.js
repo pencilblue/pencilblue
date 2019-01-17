@@ -89,8 +89,8 @@ module.exports = function (pb) {
 
             routes.forEach(route => {
                 route.controller = ControllerPrototype;
-                pb.RouterLoader.registerRoute(route, self.pluginUid);
-            });
+                RequestHandler.registerRoute(route, self.pluginUid)
+            })
 
             cb();
         });

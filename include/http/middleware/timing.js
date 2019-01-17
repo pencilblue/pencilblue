@@ -1,17 +1,16 @@
 
 module.exports = pb => ({
-    startTime: async (ctx, next) => {
-        ctx.req.startTime = (new Date()).getTime();
-        await next();
+    startTime: (req, res) => {
+        req.startTime = (new Date()).getTime();
     },
 
-    // Last middleware, does not need to call next.  Could combine with startTime
-    endTime: async (ctx) => {
-        ctx.req.endTime = (new Date()).getTime();
+    endTime: (req, res) => {
+        req.endTime = (new Date()).getTime();
         if (pb.log.isDebug()) {
-            const duration = ctx.req.endTime = ctx.req.startTime;
-            const code = ctx.status ? ` CODE=${ctx.status}` : '';
-            pb.log.debug(`Response Time: ${duration}ms URL=${ctx.req.url.path}${duration}${code}`);
+            const duration = req.endTime = req.startTime
+            const redirect = req.didRedirect ? ` Redirect=${req.controllerResult.redirect}` : ''
+            const code = req.controllerResult.code ? ` CODE=${req.controllerResult.code}` : ''
+            pb.log.debug(`Response Time: ${duration}ms URL=${req.url}${duration}${code}`)
         }
     }
-});
+})

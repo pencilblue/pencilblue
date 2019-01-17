@@ -43,7 +43,7 @@ module.exports = function DeleteCommentModule(pb) {
         var dao = new pb.DAO();
         dao.loadById(vars.id, 'comment', function(err, comment) {
             if(util.isError(err)) {
-                return cb(err);
+                return self.reqHandler.serveError(err);
             }
             else if (!comment) {
                 return cb({

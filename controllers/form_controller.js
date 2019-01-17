@@ -48,10 +48,18 @@ module.exports = function(pb) {
      * @param {Function} cb
      */
     FormController.prototype.render = function(cb) {
-        if (this.getAutoSanitize()) {
-            this.sanitizeObject(this.body);
-        }
-        this.onPostParamsRetrieved(this.body, cb);
+        var self = this;
+        this.getPostParams(function(err, params) {
+            if (util.isError(err)) {
+                self.onPostParamsError(err, cb);
+                return;
+            }
+
+            if (self.getAutoSanitize()) {
+                self.sanitizeObject(params);
+            }
+            self.onPostParamsRetrieved(params, cb);
+        });
     };
 
     /**

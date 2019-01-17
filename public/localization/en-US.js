@@ -46,8 +46,6 @@ module.exports = {
         MANAGE: 'Manage',
         SORT: 'Sort',
         NOW: 'Now',
-        NEWS_TITLE: "PencilBlue News:",
-        NEWS_BODY: "Nothing right now... Check back later!",
         CONFIRM_DELETE: 'Are you sure you want to delete',
         LOAD_FILE: 'Load file',
         SELECT_FILE: 'Select file',

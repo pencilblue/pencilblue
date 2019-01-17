@@ -20,7 +20,6 @@
 var async = require('async');
 var domain = require('domain');
 var util = require('../../util.js');
-const Promise = require('bluebird');
 
 module.exports = function CommandServiceModule(pb) {
 
@@ -35,7 +34,7 @@ module.exports = function CommandServiceModule(pb) {
         if (!broker) {
             throw new Error('The broker parameter is required');
         }
-        this.broker = Promise.promisifyAll(broker);
+        this.broker = broker;
         this.registrants = {};
         this.awaitingResponse = {};
     }
@@ -119,14 +118,14 @@ module.exports = function CommandServiceModule(pb) {
                 return cb(err);
             }
 
-            self.broker.subscribe(pb.ServerRegistry.processKey, CommandService.onCommandReceived(self), function(error, result) {
+            self.broker.subscribe(pb.ServerRegistration.generateKey(), CommandService.onCommandReceived(self), function(error, result) {
                 INITIALIZED = !util.isError(error);
                 cb(err, result);
             });
         });
 
         //register for events
-        pb.system.registerShutdownHook('CommandService',  this.shutdown);
+        pb.system.registerShutdownHook('CommandService', util.wrapTask(this, this.shutdown));
     };
 
     /**
@@ -134,14 +133,14 @@ module.exports = function CommandServiceModule(pb) {
      * @method shutdown
      * @param {Function} cb A callback that takes two parameters: cb(Error, TRUE/FALSE)
      */
-    CommandService.prototype.shutdown = async function () {
+    CommandService.prototype.shutdown = function (cb) {
         pb.log.debug('CommandService: Shutting down...');
 
         this.registrants = {};
         if (!this.broker) {
-            return true;
+            return cb(null, true);
         }
-        return this.broker.shutdownAsync();
+        this.broker.shutdown(cb);
     };
 
     /**
@@ -274,7 +273,7 @@ module.exports = function CommandServiceModule(pb) {
      * index of the task being executed and the second is the total number of tasks.
      * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
      */
-    CommandService.prototype.sendCommandToAllGetResponses = async function (type, options, cb) {
+    CommandService.prototype.sendCommandToAllGetResponses = function (type, options, cb) {
         if (util.isFunction(options)) {
             cb = options;
             options = {};
@@ -296,53 +295,51 @@ module.exports = function CommandServiceModule(pb) {
 
         //get all proceses in the cluster
         var self = this;
-        let serverRegistry = pb.ServerRegistry.getInstance();
-
-        // registry
-        let statuses;
-        try {
-            statuses = await serverRegistry.clusterStatus;
-        } catch (err) {
-            return cb(err);
-        }
-
-        var me = null;
-        var myKey = pb.ServerRegistry.processKey;
-        var tasks = util.getTasks(statuses, function (statuses, i) {
-            if (myKey === statuses[i]._id) {
-                me = i;
+        var serverResigration = pb.ServerRegistration.getInstance();
+        serverResigration.getClusterStatus(function (err, statuses) {
+            if (util.isError(err)) {
+                cb(err);
+                return;
             }
 
-            //create the task function
-            return function (callback) {
-
-                //make progress callback
-                if (progressCb) {
-                    progressCb(i, statuses.length);
+            var me = null;
+            var myKey = pb.ServerRegistration.generateKey();
+            var tasks = util.getTasks(statuses, function (statuses, i) {
+                if (myKey === statuses[i]._id) {
+                    me = i;
                 }
 
-                //create command
-                var opts = util.clone(options);
-                opts.to = statuses[i].id;
+                //create the task function
+                return function (callback) {
 
-                //execute command against the cluster
-                self.sendCommandGetResponse(type, opts, function (err, command) {
-                    var result = {
-                        err: err ? err.stack : undefined,
-                        command: command
-                    };
-                    callback(null, result);
-                });
-            };
+                    //make progress callback
+                    if (progressCb) {
+                        progressCb(i, statuses.length);
+                    }
+
+                    //create command
+                    var opts = util.clone(options);
+                    opts.to = statuses[i].id;
+
+                    //execute command against the cluster
+                    self.sendCommandGetResponse(type, opts, function (err, command) {
+                        var result = {
+                            err: err ? err.stack : undefined,
+                            command: command
+                        };
+                        callback(null, result);
+                    });
+                };
+            });
+
+            //remove me if specified
+            if (options.ignoreme && me !== null) {
+                tasks.splice(me, 1);
+            }
+
+            //send commands for each process
+            async.series(tasks, cb);
         });
-
-        //remove me if specified
-        if (options.ignoreme && me !== null) {
-            tasks.splice(me, 1);
-        }
-
-        //send commands for each process
-        async.series(tasks, cb);
     };
 
     /**
@@ -456,7 +453,7 @@ module.exports = function CommandServiceModule(pb) {
         }
 
         //set who its from
-        options.from = pb.ServerRegistry.processKey;
+        options.from = pb.ServerRegistration.generateKey();
         options.type = type;
         options.date = new Date();
 
@@ -489,7 +486,7 @@ module.exports = function CommandServiceModule(pb) {
     CommandService.onCommandReceived = function (commandService) {
         return function (channel, command) {
 
-            var uid = pb.ServerRegistry.processKey;
+            var uid = pb.ServerRegistration.generateKey();
             if (command.to === uid || command.to === null || command.to === undefined) {
                 commandService.notifyOfCommand(command);
             }

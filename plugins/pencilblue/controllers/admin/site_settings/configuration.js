@@ -38,7 +38,8 @@ module.exports = function(pb) {
 
         pb.settings.get('call_home', function(err, callHome) {
             if(util.isError(err)) {
-                return cb(err);
+                self.reqHandler.serveError(err);
+                return;
             }
 
             if(typeof callHome === 'undefined') {

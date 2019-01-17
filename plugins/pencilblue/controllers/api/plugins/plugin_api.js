@@ -231,7 +231,8 @@ module.exports = function(pb) {
 
             //plugin wasn't found & has theme
             if (uid !== RequestHandler.DEFAULT_THEME && (!plugin || !util.isObject(plugin.theme))) {
-                return cb(pb.Errors.notFound());
+                self.reqHandler.serve404();
+                return;
             }
 
             var theme = plugin ? plugin.uid : uid;

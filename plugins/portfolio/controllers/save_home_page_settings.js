@@ -41,7 +41,7 @@ module.exports = function SaveHomePageSettingsModule(pb) {
             };
             self.siteQueryService.q('portfolio_theme_settings', opts, function(err, homePageSettings) {
                 if (util.isError(err)) {
-                    return cb(err);
+                    return self.reqHandler.serveError(err);
                 }
                 if(homePageSettings.length > 0) {
                     homePageSettings = homePageSettings[0];

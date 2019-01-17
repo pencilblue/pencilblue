@@ -70,38 +70,6 @@ module.exports = function Routes(pb){
         },
         {
             method: 'post',
-            path: "/salesforce/change_password",
-            auth_required: true,
-            inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'salesforce', 'change_password.js'),
-            content_type: 'application/json'
-        },
-        {
-            method: 'patch',
-            path: "/salesforce/change_email",
-            auth_required: true,
-            inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'salesforce', 'change_email.js'),
-            content_type: 'application/json'
-        },
-        {
-            method: 'get',
-            path: "/login/salesforce",
-            auth_required: false,
-            inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce_login', 'login.js'),
-            content_type: 'text/html'
-        },
-        {
-            method: 'get',
-            path: "/login/salesforce/callback",
-            auth_required: false,
-            inactive_site_access: true,
-            controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce_login', 'login_callback.js'),
-            content_type: 'text/html'
-        },
-        {
-            method: 'post',
             path: "/actions/login",
             access_level: 0,
             auth_required: false,

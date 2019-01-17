@@ -72,7 +72,7 @@ module.exports = function(pb) {
                 return cb(err);
             }
             else if (article === null) {
-                return cb(pb.Errors.notFound());
+                return self.reqHandler.serve404();
             }
 
             var options = {};

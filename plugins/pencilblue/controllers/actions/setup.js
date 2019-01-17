@@ -23,6 +23,7 @@ module.exports = function SetupActionControllerModule(pb) {
 
     //pb dependencies
     var util            = pb.util;
+    var CallHomeService = pb.CallHomeService;
 
     /**
      * Creates the initial admin user
@@ -61,7 +62,8 @@ module.exports = function SetupActionControllerModule(pb) {
         var self = this;
         pb.settings.get('system_initialized', function(err, isSetup){
             if (util.isError(err)) {
-                return cb(err);
+                self.reqHandler.serveError(err);
+                return;
             }
 
             //when user count is 1 or higher the system has already been initialized
@@ -80,7 +82,16 @@ module.exports = function SetupActionControllerModule(pb) {
      * @param {Function} cb
      */
     SetupActionController.prototype.doSetup = function(cb) {
-        this.onPostParamsRetrieved(this.body, cb);
+
+        var self = this;
+        this.getPostParams(function(err, post){
+            if (util.isError(err)) {
+                self.reqHandler.serveError(err);
+                return;
+            }
+
+            self.onPostParamsRetrieved(post, cb);
+        });
     };
 
     /**
@@ -91,7 +102,7 @@ module.exports = function SetupActionControllerModule(pb) {
     SetupActionController.prototype.onPostParamsRetrieved = function(post, cb) {
         var self = this;
 
-        var reqParams = ['username', 'email', 'password', 'confirm_password'];
+        var reqParams = ['username', 'email', 'password', 'confirm_password', 'call_home'];
         var message   = this.hasRequiredParams(post, reqParams);
         if(message) {
             this.formError(message, '/setup', cb);
@@ -102,7 +113,9 @@ module.exports = function SetupActionControllerModule(pb) {
         post.admin = pb.SecurityService.ACCESS_ADMINISTRATOR;
         post.locale = self.ls.language;
 
-        delete post.call_home; // if it still exists
+        //get call home allowance
+        var callHome = 1 == post.call_home;
+        delete post.call_home;
 
         //do setup events
         var tasks = [
@@ -126,9 +139,12 @@ module.exports = function SetupActionControllerModule(pb) {
                 pb.settings.set('system_initialized', true, callback);
             },
             function(callback) {
-                pb.settings.set('call_home', false, callback); // for now
+                pb.settings.set('call_home', callHome, callback);
             },
             function(callback) {
+                if (callHome) {
+                    CallHomeService.callHome(CallHomeService.SYSTEM_SETUP_EVENT);
+                }
                 callback(null, null);
             }
         ];

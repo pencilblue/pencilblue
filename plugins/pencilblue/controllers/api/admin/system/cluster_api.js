@@ -23,7 +23,7 @@ module.exports = function(pb) {
     var BaseController     = pb.BaseController;
     var BaseApiController  = pb.BaseApiController;
     var UrlService         = pb.UrlService;
-    var ServerRegistry = pb.ServerRegistry;
+    var ServerRegistration = pb.ServerRegistration;
 
     /**
      * Controller to properly route and handle remote calls to interact with
@@ -47,9 +47,9 @@ module.exports = function(pb) {
             /**
              *
              * @property service
-             * @type {ServerRegistry}
+             * @type {ServerRegistration}
              */
-            self.service = ServerRegistry.getInstance();
+            self.service = ServerRegistration.getInstance();
 
             cb(err, true);
         };
@@ -63,22 +63,18 @@ module.exports = function(pb) {
      * @method refresh
      * @param {Function} cb
      */
-    ClusterApiController.prototype.refresh = async function(cb) {
-        let result;
-        try {
-            result = await this.service.flush();
-        } catch (err) {
-            return cb(err);
-        }
-        let data = {
-            update_interval: pb.config.registry.update_interval,
-            result,
+    ClusterApiController.prototype.refresh = function(cb) {
+        this.service.flush(function(err, result) {
+            var data = {
+                update_interval: pb.config.registry.update_interval,
+                result: result,
 
-            //for backward compatibility
-            wait: pb.config.registry.update_interval
-        };
-        let content = BaseController.apiResponse(BaseController.API_SUCCESS, '', data);
-        cb({content: content});
+                //for backward compatibility
+                wait: pb.config.registry.update_interval
+            };
+            var content = BaseController.apiResponse(BaseController.API_SUCCESS, '', data);
+            cb({content: content});
+        });
     };
 
     /**
@@ -86,19 +82,8 @@ module.exports = function(pb) {
      * @method getAll
      * @param {Function} cb
      */
-    ClusterApiController.prototype.getAll = async function(cb) {
-        let clusterStatus;
-        let error;
-
-        try {
-            clusterStatus = await this.service.clusterStatus;
-        } catch (err) {
-            error = err;
-        }
-
-        let wrappedCallback = this.handleGet(cb);
-        wrappedCallback(error, clusterStatus);
-
+    ClusterApiController.prototype.getAll = function(cb) {
+        this.service.getClusterStatus(this.handleGet(cb));
     };
 
     //exports

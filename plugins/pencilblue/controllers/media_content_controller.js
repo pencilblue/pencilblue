@@ -53,16 +53,16 @@ module.exports = function (pb) {
     MediaContentController.prototype.render = function(cb) {
         var self = this;
 
-        let mediaPath = this.req.url.path;
-        var mime = pb.RequestHandler.getMimeFromPath(mediaPath);
+        var mime = pb.RequestHandler.getMimeFromPath(this.req.url);
         if (mime) {
             this.res.setHeader('content-type', mime);
         }
 
         //load the media if available
+        var mediaPath = this.req.url;
         this.service.getContentStreamByPath(mediaPath, function(err, mstream) {
             if(util.isError(err)) {
-                return cb(err);
+                return self.reqHandler.serveError(err);
             }
 
             mstream.once('end', function() {
@@ -70,11 +70,11 @@ module.exports = function (pb) {
             })
             .once('error', function(err) {
                 if (err.message.indexOf('ENOENT') === 0) {
-                    cb(pb.Errors.notFound());
+                    self.reqHandler.serve404();
                 }
                 else {
                     err.code = isNaN(err.code) ? 500 : err.code;
-                    cb(err);
+                    self.reqHandler.serveError(err);
                 }
             })
             .pipe(self.res);

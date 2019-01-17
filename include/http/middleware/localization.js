@@ -1,7 +1,9 @@
-const replaceAndRedirect = (ctx, pattern, replacement) => {
-    let newPath = ctx.url.path.replace(pattern, replacement);
-    ctx.status = 301;
-    return ctx.redirect(newPath);
+const _ = require('lodash')
+const ErrorUtils = require('../../error/error_utils');
+
+const replaceAndRedirect = (req, pattern, replacement) => {
+    let newPath = req.url.replace(pattern, replacement);
+    return req.router.redirect(newPath);
 };
 
 const splitLocale = (locale) => {
@@ -9,56 +11,42 @@ const splitLocale = (locale) => {
     language = language.toLowerCase();
     countryCode = countryCode.toUpperCase();
     return { language, countryCode };
-};
+}
 
 const normalizeLocale = (locale) => {
     const { language, countryCode } = splitLocale(locale);
     return `${language}-${countryCode}`;
-};
+}
 
 module.exports = pb => ({
-    localizedRouteCheck: async (ctx, next) => {
-        const locale = ctx.params.locale;
-        let siteObj = ctx.req.siteObj;
-        if (!locale) { // If we dont have a locale in the route, don't worry about it
-            return await next();
+    localizedRouteCheck: (req, res) => {
+        const locale = _.get(req, 'pathVars.locale');
+        if (!locale) {
+            return;
         }
         const isLocale = /^[a-z]{2}-([A-Z]{2,3}|(419))$/i; // Regex to match a locale en-US for sv-SE etc
         if (!isLocale.test(locale)) {
-            throw pb.Errors.notFound();
+            throw ErrorUtils.notFound();
         }
 
-        if (siteObj.supportedLocales[locale]) {
-            return await next();
+        if (req.siteObj.supportedLocales[locale]) {
+            return;
         }
 
         const correctedLocale = normalizeLocale(locale);
 
-        if (siteObj.supportedLocales[correctedLocale]) {
-            return replaceAndRedirect(ctx, locale, correctedLocale);
+        if (req.siteObj.supportedLocales[correctedLocale]) {
+            return replaceAndRedirect(req, locale, correctedLocale);
         }
 
-        return replaceAndRedirect(ctx, locale, siteObj.defaultLocale);
+        return replaceAndRedirect(req, locale, req.siteObj.defaultLocale);
+
     },
-    initializeLocalization: async (ctx, next) => {
-        let opts = {};
-        let routeLocale = ctx.params.locale || '';
-        let localeSources = [routeLocale, ctx.session.locale];
-
-        localeSources = localeSources.concat(ctx.acceptsLanguages());
-
-        if (ctx.req.siteObj) {
-            opts.supported = Object.keys(ctx.req.siteObj.supportedLocales);
-            opts.site = ctx.req.site;
-            localeSources.push(ctx.req.siteObj.defaultLocale);
-        }
-        let localePrefStr = localeSources.reduce(function (prev, curr, i) {
-            return prev + (curr ? (!!i && !!prev ? ',' : '') + curr : '');
-        }, '');
-
-        opts.activeTheme = ctx.req.activeTheme;
-        ctx.req.localizationService = new pb.Localization(localePrefStr, opts);
-
-        await next();
+    initializeLocalization: (req, res) => {
+        const locale = _.get(req, 'pathVars.locale')
+        req.handler.localizationService = req.localizationService = req.handler.deriveLocalization({
+            session: req.session,
+            routeLocalization: locale
+        });
     }
-});
+})

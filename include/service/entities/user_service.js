@@ -19,6 +19,7 @@
 //dependencies
 var async = require('async');
 var util  = require('../../util.js');
+var RegExpUtils = require('../../utils/reg_exp_utils');
 
 module.exports = function(pb) {
 
@@ -262,7 +263,7 @@ module.exports = function(pb) {
             options = {};
         }
 
-        var usernameEmailSearchExp = pb.regexUtil.getCaseInsensitiveExact(usernameOrEmail);
+        var usernameEmailSearchExp = RegExpUtils.getCaseInsensitiveExact(usernameOrEmail);
         options.where = {
             $or : [
                 {
