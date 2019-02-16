@@ -482,9 +482,6 @@ module.exports = {
         DB_NAME: 'Název databáze',
         DB_SERVERS: 'Databázový server',
         CONTENT_SETTINGS: 'Nastavení obsahu',
-        LIBRARIES: 'Knihovny',
-        LIBRARY_SETTINGS: 'Nastavení knihoven',
-        LIBRARY_CLUSTER: 'Pokud provozujete PencilBlue na serverovém clusteru, změny se v plném rozsahu projeví až po restartu',
         ARTICLES_PER_PAGE: 'Počet článků na stránku',
         AUTO_BREAK_ARTICLES: 'Automaticky zalamovat články po # odstavcích',
         READ_MORE_TEXT: 'Podoba odkazu pro zobrazení celého článku',
@@ -518,8 +515,6 @@ module.exports = {
         EMAIL_DIRECTIVES_DESCRIPTION: 'Direktivy: ^verification_url^, ^first_name^, ^last_name^',
         SEND_TEST_EMAIL: 'Odeslat testovací email',
         SEND: 'Odeslat',
-        USE_CDN: 'Použít CDNs (výchozí volba)',
-        USE_BOWER: 'Použít Bower',
         TEST_EMAIL_SUCCESS: 'Testovací email byl úspěšně odeslán',
         CANNOT_SIGN_UP_GLOBAL: 'Pouze administrátor může vytvořit globální účet'
     }

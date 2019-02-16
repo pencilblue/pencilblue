@@ -1,0 +1,251 @@
+<script type="text/javascript" src="/js/angular/directives/wysiwyg.js"></script>
+<script type="text/javascript" src="/js/angular/filters/parsable_date.js"></script>
+<script type="text/javascript" src="/js/angular/services/form_validation.js"></script>
+<script type="text/javascript">
+    angular.module('pencilblueApp', ['wysiwygElement', 'validation'])
+            .controller('PencilBlueController', function ($scope, $sce, $http, $filter, $timeout, $window) {
+                ^angular_objects^
+
+                ^tmp_angular=admin=elements=is_field_valid^
+                ^tmp_angular=admin=elements=is_wysiwyg_valid^
+
+                $scope.useWYSIWYG = false;
+
+
+                $scope.toggleWYSIWYG = function(){
+                    $scope.useWYSIWYG = !$scope.useWYSIWYG;
+                };
+                $scope.getAllLocalizations = function() {
+                    if($scope.currentPlugin && $scope.currentLocale && $scope.site){
+
+                        $http.get('/api/localizations/overrides?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&site=' + $scope.site)
+                            .success(function (result) {
+                                $scope.allLocales = result.message;
+                                var siteSpecificLocales = [];
+                                if(result.message.generic){
+                                    $scope.generics = getGenerics(result.message.generic);
+                                    siteSpecificLocales = $scope.allLocales.site;
+
+                                } else {
+                                    $scope.generics = getGenerics(result.message);
+                                    siteSpecificLocales = $scope.allLocales[$scope.site];
+                                }
+                                $scope.localizationKVSet = siteSpecificLocales ? [siteSpecificLocales] : [];
+                                $scope.siteLocales = getGenerics($scope.localizationKVSet[0]);
+                                formatLocalizationKVSet();
+                            })
+                            .error(function (error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                            });
+                    }
+                    else{
+                        return [];
+                    }
+                };
+                function formatLocalizationKVSet(){
+                    var temp = [];
+                    for(var pos in $scope.localizationKVSet) {
+
+                        for (var key in $scope.localizationKVSet[pos]) {
+                            if ($scope.localizationKVSet[pos].hasOwnProperty(key)) {
+                                temp.push({key: key, value: $scope.localizationKVSet[pos][key]});
+                            }
+                        }
+                    }
+                    $scope.localizationKVSet = temp;
+                }
+                for(var i = 0; i < $scope.selectedLocales.length; i++){
+                    if($scope.selectedLocales[i] === $scope.defaultLocale){
+                        $scope.currentLocale = $scope.selectedLocales[i];
+                        break;
+                    }
+                }
+                for(var i = 0; i < $scope.activePlugins.length; i++){
+                    if($scope.activePlugins[i] === $scope.activeTheme){
+                        $scope.currentPlugin = $scope.activePlugins[i];
+                        break;
+                    }
+                }
+                $scope.enabledLocales = [];
+                for(var i in $scope.supportedLocales){
+                    if($scope.supportedLocales[i]){
+                        $scope.enabledLocales.push(i);
+                    }
+                }
+                if($scope.enabledLocales.length === 0)
+                    $scope.enabledLocales = ['en-US'];
+
+                $scope.currentPlugin = $scope.currentPlugin || '';
+                $scope.currentLocale = $scope.currentLocale || '';
+                $scope.customType = "custom";
+                $scope.getAllLocalizations();
+
+
+                $scope.isKeyValid = function(index) {
+                    return (($scope.localizationKVSet[index].key) && ($scope.localizationKVSet[index].key.indexOf('"') === -1) && ($scope.localizationKVSet[index].key.indexOf(' ') === -1));
+                };
+
+                $scope.isValueValid = function(index) {
+                    return (($scope.localizationKVSet[index].value) && ($scope.localizationKVSet[index].value.indexOf('"') === -1));
+                };
+
+                $scope.addField = function (urlType) {
+                    var redirect = { urlType: urlType };
+                    $scope.localizationKVSet.push(redirect);
+                };
+
+                $scope.removeField = function (index) {
+                    var redirect = $scope.localizationKVSet.splice(index, 1)[0];
+                    if (redirect.urlType == $scope.jobResultsType) {
+                        $scope.jobResultsPresent = false;
+                    } else if (redirect.urlType == $scope.jobDetailsType) {
+                        $scope.jobDetailsPresent = false;
+                    }
+                };
+
+
+
+                $scope.saveLocales = function () {
+                    $scope.errorMessage = "";
+                    $scope.successMessage = "";
+
+                    // Sets up the data to be passed to the backend on save
+                    var payload = {};
+                    payload.translations = cleanData($scope.localizationKVSet);
+                    payload.site = $scope.site || "global";
+                    payload.plugin = $scope.currentPlugin || "pencilblue";
+                    payload.lang = $scope.currentLocale || 'en-US';
+
+                    // Variables used for running a mutex to prevent spamming the save button.
+                    $scope.saving = true;
+                    $scope.actionProgress = '0';
+                    $scope.consoleOutput = '';
+
+                    angular.element('#progress_modal').modal();
+
+                    $http.post('/api/localizations/overrides', payload)
+                            .success(function (result) {
+                                $scope.onCreateOrEditComplete(result);
+                            })
+                            .error(function (error, status) {
+                                $scope.errorMessage = error.message;
+                                $scope.saving = false;
+                                angular.element('#progress_modal').modal('hide');
+                            });
+                };
+
+                $scope.onCreateOrEditComplete = function(result) {
+                    $scope.actionPlugin = {name: result.message};
+
+                    var jobId = result.data;
+                    //poll for logs
+                    var logHandle = null;
+                    var starting  = 0;
+                    var doLogRetrieve = function() {
+                        $scope.jobAction('getLogs', jobId, {starting: starting}, function(result) {
+                            if (!result || !result.data || !result.data.length) {
+                                return;
+                            }
+                            var nextStarting = starting;
+                            for(var i = 0; i < result.data.length; i++) {
+                                var item = result.data[i];
+                                $scope.consoleOutput += ($scope.consoleOutput.length ? '\n' : '') + item.created + ':[' + item.worker_id + '] ' + item.message;
+                                var date = new Date(item.created).getTime();
+                                if(date > nextStarting) {
+                                    nextStarting = date;
+                                }
+                            }
+                            //offset so we don't get repeats
+                            starting = nextStarting + 1;
+                            //check for more log entries
+                            logHandle = setTimeout(doLogRetrieve, 2000);
+                        });
+                    };
+
+                    doLogRetrieve();
+                    //check for job completion
+                    var retrieveHandle = null;
+                    var doJobRetrieve = function() {
+                        $scope.jobAction('get', jobId, {}, function(result) {
+                            if(!result || !result.data) {
+                                return;
+                            }
+                            //set progress bar
+                            if(!isNaN(result.data.progress)) {
+                                $scope.actionProgress = result.data.progress.toString();
+                            }
+                            //verify status
+                            if(result.data.status === 'RUNNING') {
+                                retrieveHandle = setTimeout(doJobRetrieve, 1000);
+                            }
+                            else {
+                                //allow any trailing logs to come in
+                                setTimeout(function() {
+                                    clearTimeout(logHandle);
+                                    var line = result.data.status;
+                                    if (result.data.error) {
+                                        line += ': ' + result.data.error;
+                                    }
+                                    $scope.consoleOutput += ($scope.consoleOutput.length ? '\n' : '') + line;
+                                    $scope.onActionSuccess();
+                                    $scope.$apply();
+                                }, 1500);
+                            }
+                        });
+                    };
+                    doJobRetrieve();
+                };
+
+                $scope.jobAction = function(actionType, identifier, data, cb) {
+                    $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
+                            .success(function(result) {
+                                cb(result);
+                            })
+                            .error(function(error, status) {
+                                $scope.onActionFailure(error);
+                            });
+                };
+
+                $scope.onActionSuccess = function() {
+                    $scope.actionIsComplete = true;
+                    $window.location.href = '/admin/localization';
+                };
+
+                $scope.onActionFailure = function(error) {
+                    $scope.actionIsComplete = true;
+                    $scope.actionError = error.message;
+                };
+
+
+                // Helper Function
+                function cleanData(settings) {
+                    var result = [];
+                    for (var i = 0; i < settings.length; i++) {
+                        if (settings[i].key && settings[i].value) {
+                            result.push(settings[i]);
+                        }
+                    }
+                    return result;
+                }
+
+
+                //View Tab functions
+
+                function getGenerics(data) {
+                    var arr = [];
+                    for(x in data){
+                        if(!(typeof data[x] === "object")) {
+                                arr.push({key: x, val:data[x]});
+                        }
+                    }
+                    return arr;
+                }
+
+                $scope.clearSearch = function(query){
+                    $scope[query] = '';
+                };
+
+
+            });
+</script>

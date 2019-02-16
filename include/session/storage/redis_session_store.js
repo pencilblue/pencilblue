@@ -18,12 +18,13 @@
 
 //dependencies
 var util = require('../../util.js');
+const Redlock = require('redlock');
 
 /**
  * @module Session
  */
 module.exports = function RedisSessionStoreModule(pb) {
-
+    const redlock = new Redlock([pb.cache])
     /**
      * Session storage backed by Redis
      *
@@ -112,6 +113,18 @@ module.exports = function RedisSessionStoreModule(pb) {
         pb.log.debug("RedisSessionStore: Shutting down...");
         cb(null, true);
     };
+
+    /**
+     * Returns a disposer representing a lock resource for a session
+     * @method lock
+     * @param {String} sessionId
+     */
+    RedisSessionStore.prototype.lock = function(sessionId) {
+        const resource = `${RedisSessionStore.SESSION_KEY_PREFIX}lock-${sessionId}`
+        const ttl = 1000
+        const unlockErrorHandler = err => pb.log.error('Failed to unlock resource', err)
+        return redlock.disposer(resource, ttl, unlockErrorHandler);
+    }
 
     /**
      * Constructs a session cache key provided a session id.

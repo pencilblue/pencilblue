@@ -49,6 +49,15 @@ Configuration.DOCUMENT_ROOT = __dirname.substr(0, __dirname.indexOf(path.sep+'in
  *
  * @static
  * @readonly
+ * @property PLUGINS_DIR
+ * @type {String}
+ */
+Configuration.PLUGINS_DIR = path.resolve('plugins');
+
+/**
+ *
+ * @static
+ * @readonly
  * @property EXTERNAL_ROOT
  * @type {String}
  */
@@ -128,9 +137,10 @@ Configuration.getBaseConfig = function(multisite) {
 
             // When multisite.enabled is true, this is the hostname that will resolve to the global namespace.
             // Only Admin routes will be activated for this hostname.
-            globalRoot: 'http://global.localhost:8080'
+            globalRoot: 'http://global.localhost:8080',
+            forceCustomRedirectForInactive: false,
+            defaultRedirectLink: ''
         },
-
         //provides a configuration for connecting to persistent storage.  The
         //default configuration is meant for mongodb.
         db: {
@@ -143,9 +153,9 @@ Configuration.getBaseConfig = function(multisite) {
             name: 'pencil_blue',
 
             options: {
-
-                //http://docs.mongodb.org/manual/core/write-concern/
-                w: 1
+                w: 1,
+                replicaSet: 'replset-1',
+                readPreference: 'secondaryPreferred'
             },
 
             //PB provides the ability to log queries.  This is handy during
@@ -220,6 +230,14 @@ Configuration.getBaseConfig = function(multisite) {
             use_memory: true,
             use_cache: false,
 
+            // syncSettingsAtStartup will automatically keep all plugins
+            // per site up to date with its details.json counterpart.
+            // Existing plugin settings will not be affected. New
+            // settings will be added, removed settings will be deleted.
+            // NOTE: This can affect your spin up time slightly. This
+            // delay will scale with your number of sites and plugins.
+            syncSettingsAtStartup: process.env.PLUGIN_SETTING_AUTOSYNC == 'true',
+
             //The timeout specifies how long in milliseconds a setting will exist
             //in memory before being flushed.  A value of 0 indicates that the
             //values will not be purged from memory once expired.
@@ -251,6 +269,7 @@ Configuration.getBaseConfig = function(multisite) {
         //Plugins can also take advantage of the caching.  This prevents a DB call
         //to lookup active plugins and their settings.
         plugins: {
+            directory: Configuration.PLUGINS_DIR,
             caching: {
                 use_memory: true,
                 use_cache: false,
@@ -336,6 +355,12 @@ Configuration.getBaseConfig = function(multisite) {
                 chain: null
             },
 
+            //When enabled, it uses a whitelist specified by plugin to authorize
+            //admin requests.
+            ipFilter: {
+                enabled: false
+            },
+
             //when non-empty, a header (X-POWERED-BY) will be added to each outgoing
             //response with "PencilBlue".  Cheesy but it helps the BuiltWith tools
             //of the world kep track of who uses what
@@ -379,6 +404,15 @@ Configuration.getBaseConfig = function(multisite) {
 
         //Contains all of the configuration for localization and internationalization.
         localization: {
+
+            //enables/disables localization service using the database
+            "db":true,
+
+            //enables/disables localization directives being resolved in the nav
+            "nav":false,
+
+            //enables/disables localization directives being resolved in the content pages
+            "pages": false,
 
             //The default locale is the fallback when localization fails for the user's desired language.
             defaultLocale: 'en-US'

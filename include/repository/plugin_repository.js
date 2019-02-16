@@ -19,6 +19,9 @@
 //dependencies
 var async = require('async');
 var util = require('../util.js');
+const Promise = require('bluebird');
+const path = require('path');
+const fs = require('fs');
 
 module.exports = function PluginRepositoryModule(pb) {
 
@@ -219,6 +222,25 @@ module.exports = function PluginRepositoryModule(pb) {
     PluginRepository.loadPluginsAcrossAllSites = function (cb) {
         var dao = new pb.DAO();
         dao.q(PLUGIN_COLL, cb);
+    };
+
+    /**
+     * Load a list of plugin ids from the current file system, except pencilblue as that's not a real plugin
+     * @returns {Promise<string[]>}
+     */
+    PluginRepository.loadAllPluginIds = async function () {
+        const readDirAsync = Promise.promisify(fs.readdir.bind(fs));
+        const statAsync = Promise.promisify(fs.stat.bind(fs));
+        const pluginsDir = pb.PluginService.PLUGINS_DIR;
+
+        let directoryContents = await readDirAsync(pluginsDir);
+        let fileStats = await Promise.props(
+            directoryContents.reduce((agg, item) => Object.assign(agg, {
+                [item]: statAsync(path.join(pluginsDir, item))
+            }), {}));
+
+        return directoryContents
+            .filter(id => id !== pb.config.plugins.default && fileStats[id].isDirectory());
     };
 
     function getIdsNotInListQuery(pluginIDs) {

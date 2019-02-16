@@ -141,7 +141,7 @@ module.exports = function (pb) {
      */
     PluginValidationService.prototype.validatePbVersionCompatibility = function(plugin, opts, cb) {
         var err = null;
-        if (util.isString(plugin.pb_version)) {
+        if (!semver.prerelease(pb.config.version) && util.isString(plugin.pb_version)) {
             if (!v.isVersionExpression(plugin.pb_version, true)) {
                 err = BaseObjectService.validationFailure('pb_version', 'An invalid version expression was provided.');
             }

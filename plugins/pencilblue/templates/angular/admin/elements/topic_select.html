@@ -1,7 +1,7 @@
 <script type="text/javascript" src="/js/angular/services/search.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
 <script type="text/javascript">
-    angular.module('topicSelect', ['ui.sortable', 'search', 'paginate'])
+    angular.module('topicSelect', ['as.sortable', 'search', 'paginate'])
     .controller('TopicSelectController', function($scope, searchService, paginationService) {
         $scope.searchText = '';
         $scope.paginationIndex = 0;

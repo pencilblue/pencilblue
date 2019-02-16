@@ -21,13 +21,24 @@ module.exports = function LocalizationApiControllerModule(pb) {
     //pb dependencies
     var util = pb.util;
 
+    //services
+    var dbLocalizationService = require("../../services/localization/db_localizations.js")(pb);
+    var fileLocalizationService = require("../../services/localization/file_localizations.js")(pb);
+
     /**
      *
      * @class LocalizationApiController
      * @constructor
      * @extends BaseController
      */
-    function LocalizationApiController(){}
+    function LocalizationApiController(){
+        //rename saveLocaleService
+        if(pb.config.localization && pb.config.localization.db){
+            this.LocaleService = new dbLocalizationService();
+        } else {
+            this.LocaleService = new fileLocalizationService();
+        }
+    }
     util.inherits(LocalizationApiController, pb.BaseController);
 
     /**
@@ -46,6 +57,37 @@ module.exports = function LocalizationApiControllerModule(pb) {
             content_type: 'text/javascript'
         };
         cb(content);
+    };
+
+    LocalizationApiController.prototype.saveLocales = function(cb) {
+        var post = this.body;
+        this.LocaleService.saveLocales(post, function(message){
+            if(message.code && message.code === 500){
+                return cb(message);
+            }
+            cb(message);
+        });
+    };
+
+    LocalizationApiController.prototype.getLocales = function (cb) {
+        var self = this;
+
+        if (!self.query.site || !self.query.plugin || !self.query.lang) {
+            return cb({
+                code: 500,
+                content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'no site passed in')
+            });
+        }
+
+        self.LocaleService.getLocales(self.query, function(err, data){
+            if(err){
+                return cb({
+                    code: 500,
+                    content: pb.BaseController.apiResponse(pb.BaseController.API_FAILURE, 'found no locales for this site/lang/plugin combination')
+                });
+            }
+            cb({content: pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, data)});
+        });
     };
 
     //exports

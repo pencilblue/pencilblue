@@ -1,12 +1,11 @@
-<script type="text/javascript" src="^angular_upload_src^"></script>
 <script type="text/javascript" src="/js/angular/services/media.js"></script>
 <script type="text/javascript" src="/js/angular/services/search.js"></script>
 <script type="text/javascript" src="/js/angular/services/paginate.js"></script>
 <script type="text/javascript">
     var getActiveMedia;
 
-    angular.module('inlineMedia', ['media', 'ui.sortable', 'angularFileUpload', 'search', 'paginate'])
-    .controller('InlineMediaController', function($scope, $sce, $http, $upload, mediaService, searchService, paginationService) {
+    angular.module('inlineMedia', ['media', 'as.sortable', 'ngFileUpload', 'search', 'paginate'])
+    .controller('InlineMediaController', function($scope, $sce, $http, Upload, mediaService, searchService, paginationService) {
         $scope.mediaPreview = '';
         $scope.addedMedia = {
             link: '',
@@ -98,9 +97,9 @@
                 var file = $files[i];
                 $scope.uploading = true;
                 $scope.uploadPercent = 0;
-                $scope.upload = $upload.upload({
+                $scope.upload = Upload.upload({
                     url: '/api/admin/content/media/upload_media',
-                    file: file
+                    data: { file: file }
                 }).progress(function(evt) {
                     $scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
                 }).success(function(data, status, headers, config) {
@@ -110,7 +109,7 @@
                             console.log(err);
                             return;
                         }
-                        
+
                         $scope.addedMedia.media_type = result.data.media_type;
                         $scope.addedMedia.location = result.data.location;
                         $scope.addedMedia.thumb = result.data.thumb;

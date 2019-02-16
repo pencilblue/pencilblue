@@ -445,9 +445,6 @@ module.exports = {
         DB_NAME: 'Nom de base de données',
         DB_SERVERS: 'Serveur(s) de base de données',
         CONTENT_SETTINGS: 'Paramètres de contenu',
-        LIBRARIES: 'Librairies',
-        LIBRARY_SETTINGS: 'Paramètres de librairies',
-        LIBRARY_CLUSTER: 'Si vous exécutez PencilBlue sur une grappe de serveur, un rédémarrage est nécessaire pour que les changements prennent effets',
         ARTICLES_PER_PAGE: 'Articles par page',
         AUTO_BREAK_ARTICLES: 'Césure automatique des articles après # paragraphes',
         READ_MORE_TEXT: 'Texte du "Lire plus"',
@@ -481,8 +478,6 @@ module.exports = {
         EMAIL_DIRECTIVES_DESCRIPTION: 'Directives: ^verification_url^, ^first_name^, ^last_name^',
         SEND_TEST_EMAIL: 'Envoyer un email de test',
         SEND: 'Envoyer',
-        USE_CDN: 'Utiliser des CDNs (par défaut)',
-        USE_BOWER: 'Utiliser Bower',
         TEST_EMAIL_SUCCESS: 'Email de test bien envoyé'
     }
 };

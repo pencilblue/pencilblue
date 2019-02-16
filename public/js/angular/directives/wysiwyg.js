@@ -11,7 +11,7 @@
       },
       link: function(scope, element, attrs) {
         scope.wysiwyg = {
-          currentView: 'editable',
+          currentView: angular.element('#layout-view-buttons').length ? 'editable' : 'html',
           layout: scope.layout ? scope.layout.toString() : '',
           markdown: toMarkdown(scope.layout ? scope.layout.toString() : ''),
           selectedMediaItem: null,
@@ -243,7 +243,6 @@
 
         scope.setPublicLayout = function() {
           if(!scope.wysiwyg.layout.length) {
-            scope.layout = '';
             return;
           }
 

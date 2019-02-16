@@ -168,7 +168,7 @@ module.exports = function(pb) {
      * @property CUSTOM_PATH_PREFIX
      * @type {String}
      */
-    var CUSTOM_PATH_PREFIX = path.join(pb.config.docRoot, 'plugins') + path.sep;
+    var CUSTOM_PATH_PREFIX = path.join(pb.config.plugins.directory) + path.sep;
 
     /**
      * A container that provides the mapping for global call backs.  These should
@@ -507,21 +507,30 @@ module.exports = function(pb) {
                 return self.handleReplacement(flag, tmp, cb);
             }
             else if (flag.indexOf(LOCALIZATION_PREFIX) === 0 && self.localizationService) {//localization
+		var model = {};
+		var params = flag.split('/')[1];
+		if (params) {
+		    params = params.split(',');
+		    for (var i = 0; i < params.length; i++) {
+			var paramParts = params[i].split(':');
+			model[paramParts[0]] = paramParts[1];
+		    }
+		}
 
                 //TODO how do we express params?  Other template vars?
-                var key = flag.substring(LOCALIZATION_PREFIX_LEN);
+		var key = flag.substring(LOCALIZATION_PREFIX_LEN, flag.indexOf('/') !== -1 ? flag.indexOf('/') : flag.length);
                 var opts = {
                     site: self.siteUid,
                     plugin: self.activeTheme,
                     defaultVal: null,
-                    params: {/*TODO use the model for this*/}
+		    params: model
                 };
                 var val = self.localizationService.g(key, opts);
                 if (!util.isString(val)) {
-
                     //TODO this is here to be backwards compatible. Remove in 1.0
                     val = self.localizationService.get(key);
                 }
+
                 return cb(null, val);
             }
             else if (flag.indexOf(TEMPLATE_PREFIX) === 0) {//sub-templates
@@ -627,7 +636,7 @@ module.exports = function(pb) {
      * @return {Boolean} TRUE when registered successfully, FALSE if not
      */
     TemplateService.prototype.registerLocal = function(flag, callbackFunctionOrValue) {
-        this.localCallbacks[flag] = callbackFunctionOrValue;
+        this.localCallbacks[flag] = callbackFunctionOrValue || '';
         return true;
     };
 
@@ -849,7 +858,7 @@ module.exports = function(pb) {
      */
     TemplateService.compile = function(text, start, end) {
         if (!pb.ValidationService.isNonEmptyStr(text, true)) {
-            pb.log.warn('TemplateService: Cannot parse the content because it is not a valid string: '+text);
+            pb.log.silly('TemplateService: Cannot parse the content because it is not a valid string: '+text);
             return [];
         }
         if (!pb.ValidationService.isNonEmptyStr(start, true)) {

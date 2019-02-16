@@ -1,0 +1,16 @@
+<div class="row">
+    <div class="input-group" style="width:100%; margin-bottom:20px">
+        <div class="col-xs-6 col-sm-2" >
+            <span class="btn btn-primary" ng-click="previousPage(false)" ng-if="inactivePage > 1">< Previous</span>
+        </div>
+        <div class="col-sm-4 col-sm-offset-2">
+            <div>
+                <input style="width:15%" ng-model="jumpToInactivePage"> of {{totalPagesInactive}} pages
+                <span class="btn btn-primary" ng-click="goToPage(false)" ng-disabled="$scope.jumpToInactivePage < 1 && $scope.jumpToInactivePage > $scope.totalPagesInactive">Go</span>
+            </div>
+        </div>
+        <div class="col-sm-2 col-sm-offset-2" ng-if="inactivePage < totalPagesInactive">
+            <span class="btn btn-primary float-right" ng-click="nextPage(false)">Next ></span>
+        </div>
+    </div>
+</div>

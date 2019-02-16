@@ -212,10 +212,7 @@ module.exports = function DBManagerModule(pb) {
                     dao.ensureIndex(procedures[i], function(err, result) {
                         if (util.isError(err)) {
                             errors.push(err);
-                            pb.log.error('DBManager: Failed to create INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(procedures[i]), util.inspect(result), err.stack);
-                        }
-                        else if (pb.log.isDebug()) {
-                            pb.log.silly('DBManager: Attempted to create INDEX=[%s] RESULT=[%s]', JSON.stringify(procedures[i]), util.inspect(result));
+                            pb.log.silly('DBManager: Failed to create INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(procedures[i]), util.inspect(result), err.stack);
                         }
                         callback(null, result);
                     });
@@ -277,7 +274,12 @@ module.exports = function DBManagerModule(pb) {
 
                         dao.dropIndex(indexCollection, index.name, function (err, result) {
                             if (util.isError(err)) {
-                                pb.log.error('DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack);
+                                let info = ['DBManager: Failed to drop undeclared INDEX=[%s] RESULT=[%s] ERROR[%s]', JSON.stringify(index), util.inspect(result), err.stack];
+                                if (err.name === 'MongoError' && err.codeName === 'IndexNotFound') {
+                                    pb.log.warn(...info);
+                                    return callback(null, result);  // index not found should not be treated as a fatal error when deleting undeclared indices for start up
+                                }
+                                pb.log.error(...info);
                             }
                             callback(err, result);
                         });

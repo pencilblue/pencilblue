@@ -95,11 +95,8 @@ module.exports = function SiteCreateEditJobModule(pb) {
                         site = pb.DocumentCreator.create('site', mySite);
                     }
 
-                    site.hostname = mySite.hostname || site.hostname;
-                    site.displayName = mySite.displayName || site.displayName;
-                    site.supportedLocales = mySite.supportedLocales || site.supportedLocales;
-                    site.defaultLocale = mySite.defaultLocale || site.defaultLocale;
-
+                    site = Object.assign({}, site, mySite);
+                    
                     siteService.save(site, function(err, result) {
                         if(util.isError(err)) {
                             return cb(err, null);

@@ -63,6 +63,8 @@ module.exports = function EditSiteActionModule(pb) {
                 }
                 data.supportedLocales = self.body.supportedLocales;
                 data.defaultLocale = self.body.defaultLocale;
+                data.forceLocale = self.body.forceLocale;
+                data.useBundledScripts = self.body.useBundledScripts;
 
                 var jobId = siteService.editSite(data, function(err, result) {
                     var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('sites.UPDATING_SITE'), jobId);

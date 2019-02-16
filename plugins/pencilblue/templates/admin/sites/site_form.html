@@ -35,6 +35,17 @@
                         </select>
                         <div class="form_error" ng-if="defaultLocale==''">^loc_generic.REQUIRED_FIELD^</div>
                     </div>
+                    <div class="form-group"> 
+                        <label>Use Custom Redirect</label> 
+                        <div class="btn-group"> 
+                            <button type="button" id="enable-custom-redirect" class="btn btn-default" ng-class="{'active': useCustomRedirect}" ng-click="useCustomRedirect = true">^loc_YES^</button> 
+                            <button type="button" id="disable-custom-redirect" class="btn btn-default" ng-class="{'active': !useCustomRedirect}" ng-click="useCustomRedirect = false">^loc_NO^</button> 
+                        </div> 
+                     </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.redirectLink)}">
+                        <label>Redirect Link</label>
+                        <input type="text" name="redirectLink" class="form-control" ng-model="redirectLink">
+                    </div>
                 </div>
                 <br>
                 <a class="btn btn-default" href="/admin/sites">
@@ -43,7 +54,7 @@
                 <button type="button" class="btn btn-primary" ng-click="newSite()" ng-if="isNew">
                     <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_generic.SAVE^
                 </button>
-                <button type="button" class="btn btn-primary" ng-click="editSite()" ng-if="!isNew">
+                <button type="button" id="save-site-button" class="btn btn-primary" ng-click="editSite()" ng-if="!isNew">
                     <i class="fa" ng-class="{'fa-save': !saving, 'fa-circle-o-notch fa-spin': saving}"></i>&nbsp;^loc_generic.SAVE^
                 </button>
             </div>

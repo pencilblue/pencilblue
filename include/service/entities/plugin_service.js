@@ -18,12 +18,13 @@
 
 //dependencies
 var fs      = require('fs');
-var npm     = require('npm');
 var path    = require('path');
 var async   = require('async');
-var domain  = require('domain');
-var semver  = require('semver');
 var util    = require('../../util.js');
+
+
+const Promise = require('bluebird');
+const _ = require('lodash');
 
 module.exports = function PluginServiceModule(pb) {
 
@@ -88,7 +89,8 @@ module.exports = function PluginServiceModule(pb) {
      * @property PLUGINS_DIR
      * @type {String}
      */
-    var PLUGINS_DIR = path.join(pb.config.docRoot, 'plugins');
+    var PLUGINS_DIR = path.join(pb.config.plugins.directory);
+    PluginService.PLUGINS_DIR = PLUGINS_DIR;
 
     /**
      * The name of the file that defines the plugin's properties
@@ -111,6 +113,13 @@ module.exports = function PluginServiceModule(pb) {
      * @type {Object}
      */
     var ACTIVE_PLUGINS = {};
+
+    /**
+     * A hash of the plugin specs for use when plugin is installed at runtime.
+     * @property PLUGIN_SPECS
+     * @type {Object}
+     */
+    var PLUGIN_SPECS = {};
 
     /**
      * A hash of shared plugin information used during plugin initialization
@@ -279,20 +288,6 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
-     * Replaces a single setting for the specified plugin
-     * @method setSetting
-     * @param name The name of the setting to change
-     * @param value The new value for the setting
-     * @param pluginName The plugin who's setting is being changed.
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
-     * TRUE if the setting was persisted successfully, FALSE if not.
-     */
-    PluginService.prototype.setSetting = function(name, value, pluginName, cb) {
-        var settingService = getPluginSettingService(this);
-        settingService.setSetting(name, value, pluginName, cb);
-    };
-
-    /**
      * Replaces the settings for the specified plugin.
      * @method setSettings
      * @param settings The settings object to be validated and persisted
@@ -303,20 +298,6 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.setSettings = function(settings, pluginName, cb) {
         var settingService = getPluginSettingService(this);
         settingService.setSettings(settings, pluginName, cb);
-    };
-
-    /**
-     * Replaces a single theme setting for the specified plugin
-     * @method setThemeSetting
-     * @param name The name of the setting to change
-     * @param value The new value for the setting
-     * @param pluginName The plugin who's setting is being changed.
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
-     * TRUE if the setting was persisted successfully, FALSE if not.
-     */
-    PluginService.prototype.setThemeSetting = function(name, value, pluginName, cb) {
-        var settingService = getPluginSettingService(this);
-        settingService.setThemeSetting(name, value, pluginName, cb);
     };
 
     /**
@@ -559,7 +540,7 @@ module.exports = function PluginServiceModule(pb) {
                 }
                 return cb(err, !isError);
             }
-            
+
             //create lookup
             settings = settings.reduce(function(rv, setting) {
                 rv[setting.name] = setting;
@@ -579,11 +560,11 @@ module.exports = function PluginServiceModule(pb) {
                     formattedSettings.push({name: settingName, value: val, displayName: setting.displayName, group: setting.group});
                 }
                 else {
-                    if(setting.group !== val.group){
+                    if(setting.group && setting.group && setting.group !== val.group){
                         val.group = setting.group;
                         discrepancy = true;
                     }
-                    else if(settings.displayName !== val.displayName){
+                    else if(setting.displayName && setting.displayName !== val.displayName){
                         val.displayName = setting.displayName;
                         discrepancy = true;
                     }
@@ -825,6 +806,23 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
+     * Retrieves an object of all the active plugins by the site initialized with this plugin service
+     * @returns {*}
+     */
+    PluginService.prototype.getActivePluginsByCurrentSite = function () {
+        return PluginService.getActivePluginsBySite(this.site);
+    };
+
+    /**
+     * Returns an object of all the active plugins by the specified site id; if the site id is falsy, the active plugins of the global site are returned
+     * @param siteId
+     * @returns {*}
+     */
+    PluginService.getActivePluginsBySite = function (siteId) {
+        return ACTIVE_PLUGINS[siteId || GLOBAL_SITE];
+    };
+
+    /**
      * Retrieves the content templates for all of the active plugins
      * @static
      * @method getActiveContentTemplates
@@ -1061,30 +1059,47 @@ module.exports = function PluginServiceModule(pb) {
     PluginService.prototype.initPlugins = function(cb) {
         pb.log.debug('PluginService: Beginning plugin initialization...');
 
-        var self = this;
-        async.waterfall([
-            util.wrapTask(this._pluginRepository, this._pluginRepository.loadPluginsAcrossAllSites),
-            function(plugins, callback) {
-                if (plugins.length === 0) {
-                    pb.log.debug('PluginService: No plugins are installed');
-                    return callback(null, []);
-                }
-                var tasks  = util.getTasks(plugins, function(plugins, i) {
-                    return function(callback) {
+        const repository = this._pluginRepository;
 
-                        try {
-                            self.initPlugin(plugins[i], function(err, didInitialize) {
-                                callback(null, {plugin: plugins[i], error: err, initialized: didInitialize});
-                            });
-                        }
-                        catch(err) {
-                            callback(null, {plugin: plugins[i], error: err, initialized: false});
-                        }
-                    };
-                });
-                async.series(tasks, callback);
+        const preloadAllPlugins = async function() {
+            let allAvailablePlugins = await repository.loadAllPluginIds();
+            let specPromises = allAvailablePlugins.reduce((agg, pId) =>
+                Object.assign(agg, {[pId]: new pb.PluginInitializationService(pId).initialize()}), {});
+            return PLUGIN_SPECS = await Promise.props(specPromises);
+        };
+
+        const processPlugins = plugins => {
+            if (plugins.length === 0) {
+                pb.log.debug('PluginService: No plugins are installed');
+                return cb(null, []);
             }
-        ], cb);
+
+            const tasks = plugins.map(plugin => {
+                //For each site plugin pair activate each plugin per site.
+                const sitePluginService = new pb.SitePluginInitializationService(PLUGIN_SPECS[plugin.uid], plugin.site);
+                return sitePluginService.initialize()
+                    .then(_ => { return { plugin: plugin, initialized: true } })
+                    .catch(err => {
+                        pb.log.error(`PluginService: failure during site plugin initialization for ${plugin.site}: ${err.stack}`);
+                        return { plugin: plugin, error: err, initialized: false }
+                    });
+            });
+            return Promise.all(tasks);
+        };
+
+        Promise.resolve(preloadAllPlugins())
+            .then(() => Promise.promisify(this._pluginRepository.loadPluginsAcrossAllSites, {context:this._pluginRepository})())
+            .then(plugins => processPlugins(plugins))
+            .asCallback(cb);
+    };
+
+    /**
+     * Load the plugin spec (details) from memory if available, or from disk if not
+     * @param pluginId
+     * @returns {Promise.<T>}
+     */
+    PluginService.getPluginSpec = function (pluginId) {
+        return Promise.resolve(PLUGIN_SPECS[pluginId] || new pb.PluginInitializationService(pluginId).initialize());
     };
 
     /**
@@ -1097,59 +1112,10 @@ module.exports = function PluginServiceModule(pb) {
         if (typeof plugin !== 'object') {
             return cb(new Error('PluginService:[INIT] The plugin object must be passed in order to initialize the plugin'), null);
         }
-
-        var service = new pb.PluginInitializationService({
-            pluginService: this.site === plugin.site ? this : new PluginService({ site: plugin.site }),
-            pluginCache: PLUGIN_INIT_CACHE
-        });
-        service.initialize(plugin, {}, function(err, result) {
-            PLUGIN_INIT_CACHE = {};
-            cb(err, result);
-        });
-    };
-
-    /**
-     * Verifies that a plugin has all of the required dependencies installed from NPM
-     * @method hasDependencies
-     * @param {Object} plugin
-     * @param {Function} cb
-     */
-    PluginService.prototype.hasDependencies = function(plugin, cb) {
-        var npmPluginDependencyService = new pb.NpmPluginDependencyService();
-        npmPluginDependencyService.hasDependencies(plugin, {}, cb);
-    };
-
-    /**
-     * Installs the dependencies for a plugin via NPM.
-     * @method installPluginDependencies
-     * @param {String} pluginDirName
-     * @param {Object} dependencies
-     * @param {Object} plugin
-     * @param {Function} cb
-     */
-    PluginService.prototype.installPluginDependencies = function(pluginDirName, dependencies, plugin, cb) {
-
-        //verify parameters
-        if (!pb.ValidationService.isNonEmptyStr(pluginDirName, true) || !util.isObject(dependencies)) {
-            return cb(new Error('The plugin directory name and the dependencies are required'));
-        }
-
-        var npmDependencyService = new pb.NpmPluginDependencyService();
-        npmDependencyService.installAll(plugin, {}, cb);
-    };
-
-    /**
-     * Loads a module dependencies for the specified plugin.
-     * @deprecated
-     * @static
-     * @method require
-     * @param {String} pluginDirName
-     * @param {String} moduleName
-     * @return {*} The entity returned by the "require" call.
-     */
-    PluginService.require = function(pluginDirName, moduleName) {
-        pb.log.warn('PluginService: require is deprecated. Use NpmPluginDependencyService.require');
-        return pb.NpmPluginDependencyService.require(pluginDirName, moduleName);
+        const pluginSpec = PluginService.getPluginSpec(plugin.uid);
+        return pluginSpec
+            .then(spec => new pb.SitePluginInitializationService(spec, plugin.site).initialize())
+            .asCallback(cb);
     };
 
     /**
@@ -1383,56 +1349,6 @@ module.exports = function PluginServiceModule(pb) {
     };
 
     /**
-     * Validates a setting from a details.json file.
-     * @deprecated
-     * @method validateSetting
-     * @param setting The setting to validate
-     * @param position The position in the settings array where the setting resides
-     * as a 0 based index.
-     * @return {Array} The array of errors that were generated.  If no errors were
-     * produced an empty array is returned.
-     */
-    PluginService.validateSetting = function(setting, position) {
-
-        //setup
-        var errors = [];
-        var v      = pb.validation;
-
-        //validate object
-        if (util.isObject(setting)) {
-
-            //validate name
-            if (!v.isNonEmptyStr(setting.name, true)) {
-                errors.push(new Error("The setting name at position "+position+" must be provided"));
-            }
-
-            //validate value
-            if (!pb.PluginDependencyService.validateSettingValue(setting.value)) {
-                errors.push(new Error("The setting value at position "+position+" must be provided"));
-            }
-        }
-        else {
-            errors.push(new Error("The setting value at position "+position+" must be an object"));
-        }
-
-        return errors;
-    };
-
-    /**
-     * Validates a details.json file's setting value.  The value is required to be a
-     * string or a number.  Null, undefined, Arrays, Objects, and prototypes are NOT
-     * allowed.
-     * @deprecated
-     * @static
-     * @method validateSettingValue
-     * @param {Boolean|Integer|Number|String} value The value to validate
-     * @return {Boolean} TRUE if the value is valid, FALSE if not
-     */
-    PluginService.validateSettingValue = function(value) {
-        return pb.PluginDependencyService.validateSettingValue(value);
-    };
-
-    /**
      * Retrieves all services (initialized).  The services are provided in the
      * callback.
      * @deprecated
@@ -1470,113 +1386,6 @@ module.exports = function PluginServiceModule(pb) {
             }
             cb(err, serviceWrapper);
         });
-    };
-
-    /**
-     * Loads the controllers for a plugin by iterating through the files in the
-     * plugin's controllers directory.
-     * @deprecated
-     * @static
-     * @method loadControllers
-     * @param {String} pathToPlugin The absolute file path to the plugin =
-     * @param {String} pluginUid The unique identifier for the plugin
-     * @param {string} site
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Array)
-     */
-    PluginService.loadControllers = function(pathToPlugin, pluginUid, site, cb) {
-        var knownControllerPaths = PLUGIN_INIT_CACHE[pluginUid].controllerPaths;
-        if(knownControllerPaths && knownControllerPaths.length > 0) {
-            var tasks =  util.getTasks(knownControllerPaths, function(knownControllerPaths, index) {
-                return function(callback) {
-                    PluginService.loadController(knownControllerPaths[index], pluginUid, site, callback);
-                };
-            });
-
-            return async.parallel(tasks, cb);
-        }
-        var controllersDir = path.join(pathToPlugin, 'controllers');
-
-        var options = {
-            recursive: true,
-            filter: function(fullPath/*, stat*/) {
-                return fullPath.lastIndexOf('.js') === (fullPath.length - '.js'.length);
-            }
-        };
-        util.getFiles(controllersDir, options, function(err, files) {
-            if (util.isError(err)) {
-                pb.log.debug('PluginService[INIT]: The controllers directory [%s] does not exist or could not be read.', controllersDir);
-                pb.log.silly('PluginService[INIT]: %s', err.stack);
-                cb(null, []);
-                return;
-            }
-
-            PLUGIN_INIT_CACHE[pluginUid].controllerPaths = PLUGIN_INIT_CACHE[pluginUid].controllerPaths || [];
-            var tasks = util.getTasks(files, function(files, index) {
-                return function(callback) {
-
-                    var pathToController = files[index];
-                    PLUGIN_INIT_CACHE[pluginUid].controllerPaths.push(pathToController);
-                    PluginService.loadController(pathToController, pluginUid, site, function(err/*, service*/) {
-                        if (util.isError(err)) {
-                            pb.log.warn('PluginService: Failed to load controller at [%s]: %s', pathToController, err.stack);
-                        }
-                        callback(null, util.isError(err));
-                    });
-                };
-            });
-            async.parallel(tasks, cb);
-        });
-    };
-
-    /**
-     * Loads a controller for a plugin and attempts to register the route with the
-     * RequestHandler.
-     * @static
-     * @method loadController
-     * @param {String} pathToController The absolute file path to the controller
-     * @param {String} pluginUid The unique identifier for the plugin
-     * @param {string} site
-     * @param {Function} cb A callback that provides two parameters: cb(Error, Boolean)
-     */
-    PluginService.loadController = function(pathToController, pluginUid, site, cb) {
-        try {
-
-            //load the controller type
-            var ControllerPrototype = require(pathToController)(pb);
-
-            //ensure we can get the routes
-            if (!util.isFunction(ControllerPrototype.getRoutes)){
-                return cb(new Error('Controller at ['+pathToController+'] does not implement function "getRoutes"'));
-            }
-
-            //get the routes
-            ControllerPrototype.getRoutes(function(err, routes) {
-                if (util.isError(err)) {
-                    return cb(err, null);
-                }
-                else if (!util.isArray(routes)) {
-                    return cb(new Error('Controller at ['+pathToController+'] did not return an array of routes'), null);
-                }
-
-                //attempt to register route
-                for(var i = 0; i < routes.length; i++) {
-                    var route        = routes[i];
-                    route.controller = pathToController;
-                    var result       = pb.RequestHandler.registerRoute(route, pluginUid, site);
-
-                    //verify registration
-                    if (!result) {
-                        pb.log.warn('PluginService: Failed to register route [%s] for controller at [%s]', util.inspect(route), pathToController);
-                    }
-                }
-
-                //do callback
-                cb(null, true);
-            });
-        }
-        catch(err) {
-            cb(err, null);
-        }
     };
 
     /**
@@ -1665,38 +1474,6 @@ module.exports = function PluginServiceModule(pb) {
 
     /**
      * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
-     * The function is called when a command is recevied to install plugin
-     * dependencies.  The result is then sent back to the calling process via the
-     * CommandService.
-     * @static
-     * @method onIsPluginAvailableCommandReceived
-     * @param {Object} command
-     * @param {String} command.jobId The ID of the in-progress job that this
-     * process is intended to join.
-     */
-    PluginService.onInstallPluginDependenciesCommandReceived = function(command) {
-        if (!util.isObject(command)) {
-            pb.log.error('PluginService: an invalid install_plugin_dependencies command object was passed. %s', util.inspect(command));
-            return;
-        }
-
-        var name = util.format("INSTALL_DEPENDENCIES_%s", command.pluginUid);
-        var job  = new pb.PluginDependenciesJob();
-        job.setRunAsInitiator(false)
-            .init(name, command.jobId)
-            .setPluginUid(command.pluginUid)
-            .run(function(err, result) {
-
-                var response = {
-                    error: err ? err.stack : undefined,
-                    result: result ? true : false
-                };
-                pb.CommandService.getInstance().sendInResponseTo(command, response);
-            });
-    };
-
-    /**
-     * <b>NOTE: DO NOT CALL THIS DIRECTLY</b><br/>
      * The function is called when a command is recevied to initialize a plugin.
      * The result is then sent back to the calling process via the
      * CommandService.
@@ -1739,7 +1516,6 @@ module.exports = function PluginServiceModule(pb) {
         var commandService = pb.CommandService.getInstance();
         commandService.registerForType(pb.PluginUninstallJob.UNINSTALL_PLUGIN_COMMAND, PluginService.onUninstallPluginCommandReceived);
         commandService.registerForType('is_plugin_available', PluginService.onIsPluginAvailableCommandReceived);
-        commandService.registerForType('install_plugin_dependencies', PluginService.onInstallPluginDependenciesCommandReceived);
         commandService.registerForType('initialize_plugin', PluginService.onInitializePluginCommandReceived);
     };
 

@@ -1,0 +1,77 @@
+^tmp_admin=head^
+<div class="col-md-9">
+    ^tmp_admin=elements=error_success^
+    ^tmp_admin=elements=sub_nav^
+    ^tmp_admin=elements=tab_nav^
+    <style>
+        .form-group textarea {
+            height: 125px;
+        }
+
+        .localization-plugin-dropdown, .localization-locale-dropdown {
+            width: 100%;
+        }
+    </style>
+
+    <form name="localizationKVForm" ng-submit="saveLocales()" novalidate>
+        <fieldset>
+            <div class="tab-content">
+                <!--Page for Adding Locales-->
+                <div class="tab-pane active" id="addLocale">
+                    <h1>^loc_LOCALIZATION_SETTINGS^</h1>
+                    <!-- Top Settings for Adding Locales -->
+                    ^tmp_admin=localization=elements=options_selection^
+
+                    <hr>
+
+                    <!--Add/Edit Localizations-->
+                    <div class="tab-pane active" id="locale-overrides-section">
+                        <label>^loc_ADD_LOCALIZATION^</label>
+
+                        <!-- Title Row -->
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <label>^loc_LOCALIZATION_KEY_LABEL^</label>
+                            </div>
+                            <div class="col-xs-5">
+                                <label>^loc_LOCALIZATION_VALUE_LABEL^</label>
+                            </div>
+                            <div class="col-xs-2">
+                            </div>
+                        </div>
+                        <!-- Localization Rows -->
+                        ^tmp_admin=localization=elements=localization_rows^
+
+                        <br>
+                        <hr>
+                        <br>
+                        <!--Add Fields-->
+                        ^tmp_admin=localization=elements=add_localization_button^
+                    </div>
+
+                    <!--submit button-->
+                    ^tmp_admin=localization=elements=submit_localization_button^
+
+                </div>
+
+                <!--Page for Viewing Existing Locales-->
+                <div class="tab-pane" id="viewLocale">
+                    <h1>^loc_VIEW_LOC_TITLE^</h1>
+
+                    ^tmp_admin=localization=elements=options_selection^
+                    <hr>
+                    ^tmp_admin=localization=elements=generic_locale_search_bar^
+                    ^tmp_admin=localization=elements=generic_locale_table^
+
+                    ^tmp_admin=localization=elements=override_locale_search_bar^
+                    ^tmp_admin=localization=elements=override_locale_table^
+                </div>
+        </fieldset>
+    </form>
+    ^tmp_admin=elements=progress_console_modal^
+</div>
+
+</div>
+^tmp_admin=elements=wysiwyg_scripts^
+^tmp_angular=admin=localization=localization_settings^
+^tmp_admin=footer^

@@ -17,7 +17,6 @@
 'use strict';
 
 //dependencies
-var npm = require('npm');
 var semver = require('semver');
 var path = require('path');
 var fs = require('fs');
@@ -36,16 +35,8 @@ module.exports = function (pb) {
      * @constructor
      * @param {object} context
      * @param {string} context.pluginUid
-     * @param {string} context.site
      */
     function PluginControllerLoader(context){
-
-        /**
-         * @property site
-         * @type {string}
-         */
-        this.site = context.site;
-
         PluginControllerLoader.super_.call(this, context);
     }
     util.inherits(PluginControllerLoader, PluginResourceLoader);
@@ -83,7 +74,7 @@ module.exports = function (pb) {
     PluginControllerLoader.prototype.register = function(ControllerPrototype, context, cb) {
         //ensure we can get the routes
         if (!util.isFunction(ControllerPrototype.getRoutes)){
-            return cb(new Error('Controller at [' + context.path + '] does not implement function "getRoutes"'));
+            return cb(new Error(`Controller at [${context.path}] does not implement function "getRoutes"`));
         }
 
         //get the routes
@@ -93,19 +84,13 @@ module.exports = function (pb) {
                 return cb(err);
             }
             else if (!util.isArray(routes)) {
-                return cb(new Error('Controller at [' + context.path + '] did not return an array of routes'));
+                return cb(new Error(`Controller at [${context.path}] did not return an array of routes`));
             }
 
-            //attempt to register route
-            for(var i = 0; i < routes.length; i++) {
-                var route = routes[i];
-                route.controller = context.path;
-
-                //register and verify
-                if (!RequestHandler.registerRoute(route, self.pluginUid, self.site)) {
-                    pb.log.warn('PluginControllerLoaderService: Failed to register route [%s] for controller at [%s]', util.inspect(route), context.path);
-                }
-            }
+            routes.forEach(route => {
+                route.controller = ControllerPrototype;
+                RequestHandler.registerRoute(route, self.pluginUid)
+            })
 
             cb();
         });

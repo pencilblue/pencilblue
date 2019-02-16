@@ -50,8 +50,8 @@ module.exports = function NotFoundControllerModule(pb) {
 
             //carry on
             cb(err, result);
-        };
-        NotFoundController.super_.prototype.init.apply(this, [context, init]);
+      };
+      NotFoundController.super_.prototype.init.apply(this, [context, init]);
     };
 
     /**

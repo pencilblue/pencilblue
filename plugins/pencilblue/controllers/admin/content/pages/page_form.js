@@ -119,6 +119,9 @@ module.exports = function(pb) {
                 }
             }
             data.page.page_topics = topics;
+            if(util.isObject(data.page.page_layout) || !data.page.page_layout){
+                data.page.page_layout = "";
+            }
         }
 
         var objects = {

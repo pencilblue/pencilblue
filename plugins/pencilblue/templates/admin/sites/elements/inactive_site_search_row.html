@@ -1,0 +1,14 @@
+<div class="row">
+    <div class="col-xs-12" style="background-color:#fff; font-weight:bold;">
+        <div class="input-group" style="width:100%; margin-bottom:20px">
+            <input type="text" class="form-control" placeholder="Search Inactive Sites for..." ng-model="inactiveQuery"
+                   style="width:100%;">
+            <span class="input-group-btn" ng-click="search(false)">
+                        <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+                    </span>
+            <span class="input-group-btn" ng-click="clearSearch(false)" ng-if="inactiveQuery.length">
+                        <button class="btn btn-default" type="button"><i class="fa fa-times"></i></button>
+                    </span>
+        </div>
+    </div>
+</div>

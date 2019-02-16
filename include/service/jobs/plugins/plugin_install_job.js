@@ -19,6 +19,7 @@
 //dependencies
 var async = require('async');
 var util  = require('../../../util.js');
+const Promise = require('bluebird');
 
 module.exports = function PluginInstallJobModule(pb) {
     var GLOBAL_SITE = pb.SiteService.GLOBAL_SITE;
@@ -139,81 +140,9 @@ module.exports = function PluginInstallJobModule(pb) {
      * @method doPersistenceTasks
      */
     PluginInstallJob.prototype.doPersistenceTasks = function(cb) {
-        var self = this;
-
-        var pluginUid = this.getPluginUid();
-        var site      = this.getSite();
-        var details   = null;
-        var tasks     = [
-
-            //load details file
-            function(callback) {
-                var filePath = pb.PluginService.getDetailsPath(pluginUid);
-
-                self.log("Loading details file for install persistence operations from: %s", filePath);
-                pb.PluginService.loadDetailsFile(filePath, function(err, loadedDetails) {
-                    details = loadedDetails;
-                    callback(err, loadedDetails ? true : false);
-                });
-            },
-
-            //create plugin entry
-            function(callback) {
-                 self.log("Setting system install flags for %s", details.uid);
-
-                 var clone     = util.clone(details);
-                 clone.dirName = pluginUid;
-
-                 var pluginDescriptor = pb.DocumentCreator.create('plugin', clone);
-                 pluginDescriptor.site = site || GLOBAL_SITE;
-                 self.dao.save(pluginDescriptor, callback);
-             },
-
-             //load plugin settings
-             function(callback) {
-                 self.log("Adding settings for %s", details.uid);
-                 self.pluginService.resetSettings(details, callback);
-             },
-
-             //load theme settings
-             function(callback) {
-                 if (details.theme && details.theme.settings) {
-                     self.log("Adding theme settings for %s", details.uid);
-
-                     self.pluginService.resetThemeSettings(details, callback);
-                 }
-                 else {
-                     callback(null, true);
-                 }
-             },
-
-            //call plugin's onInstall function
-            function(callback) {
-
-                var mainModule = pb.PluginService.loadMainModule(pluginUid, details.main_module.path);
-                if (!mainModule) {
-                    return callback(new Error('Failed to load main module ' + pluginUid + ' at ' + details.main_module.path));
-                }
-                var hasBasicOnInstall = util.isFunction(mainModule.onInstall);
-                var hasContextOnInstall = util.isFunction(mainModule.onInstallWithContext);
-                if (!util.isNullOrUndefined(mainModule) && (hasBasicOnInstall || hasContextOnInstall)) {
-                    self.log("Executing %s 'onInstall' function", details.uid);
-
-                    if (hasBasicOnInstall) {
-                        return mainModule.onInstall(callback);
-                    }
-
-                    mainModule.onInstallWithContext({ site: site }, callback);
-                }
-                else {
-                    self.log("WARN: Plugin %s did not provide an 'onInstall' function.", details.uid);
-                    callback(null, true);
-                }
-            }
-        ];
-        async.series(tasks, function(err, results) {
-            cb(err, !err);
-        });
+        let persistenceService = new pb.PluginPersistenceService(this.log.bind(this));
+        Promise.resolve(persistenceService.persist(this.getPluginUid(), null, this.getSite()))
+            .asCallback(cb);
     };
 
     //exports

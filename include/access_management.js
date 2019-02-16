@@ -77,6 +77,16 @@ module.exports = function(pb) {
      */
     SecurityService.ACCESS_ADMINISTRATOR = 4;
 
+
+    /**
+     *
+     * @static
+     * @readonly
+     * @property ACCESS_DEVELOPER
+     * @type {Integer}
+     */
+    SecurityService.ACCESS_DEVELOPER = 5;
+
     /**
      * Provides an array of all of the system roles.  It provides their numeric value as well as the unique string key
      * @static
@@ -109,7 +119,13 @@ module.exports = function(pb) {
             key: 'ACCESS_ADMINISTRATOR',
             localizationKey: 'generic.ACCESS_ADMINISTRATOR',
             value: 4
+        },
+        {
+            key: 'ACCESS_DEVELOPER',
+            localizationKey: 'generic.ACCESS_DEVELOPER',
+            value: 5
         }
+
     ]);
 
     /**

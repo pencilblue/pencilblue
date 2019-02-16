@@ -77,7 +77,8 @@ describe('SecurityService', function() {
             var result = SecurityService.getRoleNames(ls);
 
             result.should.be.instanceof(Array);
-            should(result.length === 5).be.ok();
+            should(result.length === 6).be.ok();
+            should(result.indexOf('generic.ACCESS_DEVELOPER') >= 0).be.ok();
             should(result.indexOf('generic.ACCESS_ADMINISTRATOR') >= 0).be.ok();
             should(result.indexOf('generic.ACCESS_MANAGING_EDITOR') >= 0).be.ok();
             should(result.indexOf('generic.ACCESS_EDITOR') >= 0).be.ok();
@@ -108,7 +109,7 @@ describe('SecurityService', function() {
 
     describe('SecurityService.isAuthorized', function() {
         it('should correctly check for required authentication', function() {
-            var requirements = {};  
+            var requirements = {};
 
             requirements[SecurityService.AUTHENTICATED] = false;
             SecurityService.isAuthorized(sessions.ADMIN, requirements).should.be.true();
@@ -157,7 +158,7 @@ describe('SecurityService', function() {
             SecurityService.generatePassword(0).should.have.length(8);
             SecurityService.generatePassword(7).should.have.length(8);
             SecurityService.generatePassword(20).should.have.length(20);
-        });    
+        });
 
         it('should generate 25 different passwords that are all unique', function() {
             var passwords = [];
@@ -171,7 +172,7 @@ describe('SecurityService', function() {
             }
         });
     });
-    
+
     describe('SecurityService.getPrincipal', function() {
         it('should return the user principal', function() {
             SecurityService.getPrincipal(sessions.ADMIN).should.deepEqual({

@@ -63,6 +63,10 @@ module.exports = function(pb) {
         var self    = this;
         var custUrl = this.pathVars.customUrl;
 
+        if(pb.config.localization.pages){
+            self.ts.setReprocess(true);
+        }
+
         //attempt to load object
         var opts = {
             render: true,

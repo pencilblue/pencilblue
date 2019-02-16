@@ -1,0 +1,12 @@
+<div class="row">
+    <div class="col-xs-12" style="background-color:#fff; font-weight:bold;">
+        <div class="input-group" style="width:100%; margin-bottom:20px">
+            <input type="text" class="form-control" placeholder="^loc_SEARCH_GENERIC_KEYS^" ng-model="activeQuery" style="width:100%;">
+            <span class="input-group-btn" ng-click="clearSearch('activeQuery')">
+                <button class="btn btn-default" type="button">
+                    <i class="fa fa-search" ng-class="{'fa-search': !activeQuery.length, 'fa-times': activeQuery.length}"></i>
+                </button>
+            </span>
+        </div>
+    </div>
+</div>

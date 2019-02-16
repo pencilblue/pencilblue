@@ -14,16 +14,47 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-'use strict';
-
+'use strict'
 //dependencies
-var path    = require('path');
-var cluster = require('cluster');
-var winston = require('winston');
-var util    = require('../util.js');
+const cluster = require('cluster');
+const winston = require('winston');
+const util    = require('../util.js');
+let newrelic = null;
+
+if(process.env.NEW_RELIC_LICENSE_KEY && process.env.NEW_RELIC_APP_NAME){
+  newrelic = require('newrelic');
+}
+
+function configureFileTransport(config) {
+    //when a log file path is provided log to a file
+    if (util.isString(config.logging.file)) {
+
+        //ensure the directory structure exists
+        util.mkdirsSync(config.logging.file, true, util.cb);
+
+        //add the transport
+        var fileTransport = new (winston.transports.File)({ filename: config.logging.file, level: config.logging.level, timestamp: true });
+        config.logging.transports.push(fileTransport);
+    }
+}
+
+function getConsoleTransport(config) {
+    return new (winston.transports.Console)({
+        level: config.logging.level,
+        timestamp: true,
+        label: cluster.worker ? cluster.worker.id : 'M'
+    });
+}
+
+function getLogger(config) {
+    return new (winston.Logger)({
+        transports: config.logging.transports,
+        level: config.logging.level,
+        padLevels: false
+    })
+}
 
 module.exports = function LogFactory(config){
-
     //verify that we have a valid logging configuration provided
     if (!util.isObject(config.logging)) {
         config.logging = {};
@@ -32,37 +63,19 @@ module.exports = function LogFactory(config){
         config.logging.level = "info";
     }
     if (!util.isArray(config.logging.transports)) {
-
         //initialize transports with console by default
-        config.logging.transports = [
-            new (winston.transports.Console)({ level: config.logging.level, timestamp: true, label: cluster.worker ? cluster.worker.id : 'M'}),
-        ];
-
-        //when a log file path is provided log to a file
-        if (util.isString(config.logging.file)) {
-
-            //ensure the directory structure exists
-            util.mkdirsSync(config.logging.file, true, util.cb);
-
-            //add the transport
-            var fileTransport = new (winston.transports.File)({ filename: config.logging.file, level: config.logging.level, timestamp: true });
-            config.logging.transports.push(fileTransport);
-        }
+        config.logging.transports = [getConsoleTransport(config)];
+        configureFileTransport(config);
     }
 
-    //configure winston
-	var logger =  new (winston.Logger)({
-	    transports: config.logging.transports,
-	    level: config.logging.level,
-        padLevels: false
-   });
+    const logger = getLogger(config);
 
     /**
      * Determines if the root log level is set to debug or silly
      * @method isDebug
      * @return {Boolean}
      */
-	logger.isDebug = function(){
+    logger.isDebug = function(){
 		return logger.levels[logger.level] >= logger.levels.debug;
 	};
 
@@ -71,11 +84,26 @@ module.exports = function LogFactory(config){
      * @method isSilly
      * @return {Boolean}
      */
-	logger.isSilly = function(){
+    logger.isSilly = function(){
 		return logger.levels[logger.level] >= logger.levels.silly;
 	};
 
-    //return the conifgured logger instance
-	logger.info('SystemStartup: Log Level is: '+config.logging.level);
-	return logger;
+    logger.setTransactionName = function(routeName) {
+          if (newrelic) {
+              newrelic.setTransactionName(routeName)
+          }
+    };
+
+    // wrap log.error to notify newrelic
+    let logError = logger.error;
+    logger.error = function(msg) {
+        if (newrelic) {
+            newrelic.noticeError(msg)
+        }
+        logError.apply(logger, arguments)
+    }
+
+    //return the configured logger instance
+    logger.info('SystemStartup: Log Level is: '+config.logging.level);
+    return logger;
 };

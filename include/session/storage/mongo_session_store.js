@@ -137,6 +137,15 @@ module.exports = function MongoSessionStoreModule(pb) {
     };
 
     /**
+     * Returns a disposer representing a lock resource for a session
+     * @method lock
+     * @param {String} sessionId
+     */
+    MongoSessionStore.prototype.lock = function(sessionId) {
+        throw new Error('Not Implemented')
+    }
+
+    /**
      * Constructs a query to find a session in Mongo
      * @method getSessionQuery
      * @param {String} sessionId The session identifier

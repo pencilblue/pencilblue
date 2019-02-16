@@ -178,52 +178,6 @@ module.exports = function PluginSettingServiceModule(pb) {
     };
 
     /**
-     * Replaces a single setting for the specified plugin
-     *
-     * @method setSetting
-     * @param name The name of the setting to change
-     * @param value The new value for the setting
-     * @param pluginName The plugin who's setting is being changed.
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
-     * TRUE if the setting was persisted successfully, FALSE if not.
-     */
-    PluginSettingService.prototype.setSetting = function(name, value, pluginName, cb) {
-        var self = this;
-
-        //error checking
-        if (!pb.PluginService.validateSettingValue(value)) {
-            return cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
-        }
-        if (!pb.validation.isNonEmptyStr(name, true)) {
-            return cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
-        }
-
-        //retrieve the settings to modify
-        this.getSettingsBySite(pluginName, function(err, settings) {
-            if (util.isError(err) || !settings) {
-                cb(err, false);
-                return;
-            }
-
-            var wasFound = false;
-            for (var i = 0; i < settings.length; i++) {
-                if (name === settings[i].name) {
-                    settings[i].value = value;
-                    wasFound = true;
-                    break;
-                }
-            }
-            if (!wasFound) {
-                settings.push({
-                    name: name,
-                    value: value
-                });
-            }
-            self.setSettings(settings, pluginName, cb);
-        });
-    };
-
-    /**
      * Replaces the settings for the specified plugin.
      *
      * @method setSettings
@@ -251,51 +205,6 @@ module.exports = function PluginSettingServiceModule(pb) {
             self.pluginSettingsService.set(pluginName, settings, function(err, result) {
                 cb(err, !util.isError(err) && result);
             });
-        });
-    };
-
-    /**
-     * Replaces a single theme setting for the specified plugin
-     *
-     * @method setThemeSetting
-     * @param name The name of the setting to change
-     * @param value The new value for the setting
-     * @param pluginName The plugin who's setting is being changed.
-     * @param cb A callback that provides two parameters: cb(error, TRUE/FALSE).
-     * TRUE if the setting was persisted successfully, FALSE if not.
-     */
-    PluginSettingService.prototype.setThemeSetting = function(name, value, pluginName, cb) {
-        var self = this;
-
-        //error checking
-        if (!pb.PluginService.validateSettingValue(value)) {
-            return cb(new Error("PluginService: The setting value is required when modifing a theme setting"), false);
-        }
-        if (!pb.validation.isNonEmptyStr(name, true)) {
-            return cb(new Error("PluginService: The setting name is required when modifing a theme setting"), false);
-        }
-
-        //retrieve the settings to modify
-        this.getThemeSettingsBySite(pluginName, function(err, settings) {
-            if (util.isError(err) || !settings) {
-                return cb(err, false);
-            }
-
-            var wasFound = false;
-            for (var i = 0; i < settings.length; i++) {
-                if (name === settings[i].name) {
-                    settings[i].value = value;
-                    wasFound = true;
-                    break;
-                }
-            }
-            if (!wasFound) {
-                settings.push({
-                    name: name,
-                    value: value
-                });
-            }
-            self.setThemeSettings(settings, pluginName, cb);
         });
     };
 

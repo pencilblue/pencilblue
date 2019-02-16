@@ -3,7 +3,6 @@
   "ignore": [
       "public/media",
       "public/js/lib",
-      "public/bower_components",
       "public/css/lib",
       ".git",
       "log",

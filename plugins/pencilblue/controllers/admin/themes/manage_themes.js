@@ -34,6 +34,10 @@ module.exports = function(pb) {
     ManageThemes.prototype.render = function (cb) {
         var self = this;
 
+        if(this.site === 'global' && pb.config.siteRoot !== 'http://localhost:8080'){
+            return self.reqHandler.serve404();
+        }
+
         //get plugs with themes
         var pluginService = new pb.PluginService({site: self.site});
         pluginService.getPluginsWithThemesBySite(function (err, themes) {

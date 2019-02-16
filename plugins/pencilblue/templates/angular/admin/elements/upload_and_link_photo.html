@@ -1,8 +1,7 @@
-<script type="text/javascript" src="^angular_upload_src^"></script>
 <script type="text/javascript" src="/js/angular/services/media.js"></script>
 <script type="text/javascript">
-	angular.module('uploadPhoto', ['media', 'ui.sortable', 'angularFileUpload'])
-	.controller('UploadPhotoController', function($scope, $rootScope, $sce, $http, $upload, mediaService) {
+	angular.module('uploadPhoto', ['media', 'as.sortable', 'ngFileUpload'])
+	.controller('UploadPhotoController', function($scope, $rootScope, $sce, $http, Upload, mediaService) {
 		$scope.photoPreview = '';
 		$scope.photo = {
 			link: '',
@@ -57,9 +56,9 @@
 				var file = $files[i];
 				$scope.uploading = true;
 				$scope.uploadPercent = 0;
-				$scope.upload = $upload.upload({
+				$scope.upload = Upload.upload({
 					url: '/api/admin/content/media/upload_media',
-					file: file
+					data: { file: file }
 				}).progress(function(evt) {
 					$scope.uploadPercent = parseInt(100.0 * evt.loaded / evt.total);
 				}).success(function(data, status, headers, config) {

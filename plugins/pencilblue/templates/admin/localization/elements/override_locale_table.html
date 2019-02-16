@@ -1,0 +1,20 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        ^loc_VIEW_LOC_SITE_OVERRIDES^
+    </div>
+    <div class="panel-body" ng-if="!siteLocales.length">
+        ^loc_VIEW_LOC_NO_OVERRIDES^
+    </div>
+    <table id="override_locales_table" class="table table-responsive table-condensed"
+           ng-if="siteLocales.length > 0">
+        <tr id="override_locales_table_header">
+            <th id="override_locales_name_header">^loc_LOCALIZATION_KEY_LABEL^</th>
+            <th id="override_locales_date_header">^loc_LOCALIZATION_VALUE_LABEL^</th>
+        </tr>
+        <tr class="override_locales_site_row"
+            ng-repeat="item in siteLocales | filter:inactiveQuery">
+            <td ng-bind="item.key"></td>
+            <td ng-bind="item.val"></td>
+        </tr>
+    </table>
+</div>

@@ -79,16 +79,20 @@ module.exports = function SiteQueryServiceModule(pb) {
     util.inherits(SiteQueryService, DAO);
 
     /**
+     * Given an existing where object to search, add site parameter to the where object so that the returned where searches for object belonging to the site specified by this service's constructor and by the original where object
+     *
+     * If the site is global, also look for objects where site is not set for backwards compatibility
+     *
      * @private
      * @static
-     * @method modifyLoadWhere
+     * @method addSiteToWhere
      * @param {String} site
      * @param {Object} where
      * @return {Object}
      */
-  function modifyLoadWhere(site, where) {
+  function addSiteToWhere(site, where) {
     if (pb.config.multisite.enabled) {
-      where = _.clone(where);
+      where = _.cloneDeep(where);
       if (site === GLOBAL_SITE) {
         var siteDoesNotExist = {}, siteEqualToSpecified = {};
         siteDoesNotExist[SITE_FIELD] = {$exists: false};
@@ -116,7 +120,7 @@ module.exports = function SiteQueryServiceModule(pb) {
       var target = _.clone(options);
 
       target.where = target.where || {};
-      target.where = modifyLoadWhere(site, target.where);
+      target.where = addSiteToWhere(site, target.where);
       return target;
     }
     // else do nothing
@@ -241,6 +245,22 @@ module.exports = function SiteQueryServiceModule(pb) {
   };
 
   /**
+   * Overriding DAO delete method for sites, removes objects from persistence that match criteria and on the site specified
+   *
+   * @method delete
+   * @param {Object} where Key value pair object
+   * @param {String} collection The collection to search in
+   * @param {Object} [options] See http://mongodb.github.io/node-mongodb-native/api-generated/collection.html#remove
+   * @param {Function} cb A callback that provides two parameter. The first is an
+   * error, if occurred.  The second is the number of records that were removed
+   * from persistence.
+   */
+  SiteQueryService.prototype.delete = function (where, collection, options, cb) {
+      let modifiedWhere = addSiteToWhere(this.siteUid, where);
+      return DAO.prototype.delete.call(this, modifiedWhere, collection, options, cb);
+  };
+
+  /**
    * Wrapper for site-aware DAO.save.  Saves object to database
    * @method save
    * @param {Object} dbObj
@@ -269,6 +289,55 @@ module.exports = function SiteQueryServiceModule(pb) {
       });
 
       cb(err, items);
+    });
+  };
+
+  /**
+   * Deletes all site specific content
+   * @param {Array} collections -  array of collection names
+   * @param {String} siteid - unique site id
+   * @param {Function} callback - callback function
+   */
+  SiteQueryService.prototype.deleteSiteSpecificContent = function (collections, siteid, callback) {
+    var self = this;
+    var BaseObjectService = pb.BaseObjectService;
+
+    SiteService.siteExists(siteid, function (err, exists) {
+      if (util.isError(err)) {
+        return callback(err);
+      }
+
+      if (!exists) {
+        return callback(BaseObjectService.validationError([BaseObjectService.validationFailure("siteid", "Invalid siteid")]));
+      }
+
+      var tasks = util.getTasks(collections, function (collections, i) {
+        return function (taskCallback) {
+          self.delete({site: siteid}, collections[i].name, function (err, commandResult) {
+            if (util.isError(err) || !commandResult) {
+              return taskCallback(err);
+            }
+
+            var numberOfDeletedRecords = commandResult.result.n;
+            pb.log.silly(numberOfDeletedRecords + " site specific " + collections[i].name + " records associated with " + siteid + " were deleted");
+            taskCallback(null, {collection: collections[i].name, recordsDeleted: numberOfDeletedRecords});
+          });
+        };
+      });
+      async.parallel(tasks, function(err, results) {
+        if (pb.util.isError(err)) {
+          pb.log.error(err);
+          return callback(err);
+        }
+        self.delete({uid: siteid}, 'site', function(err/*, result*/) {
+          if (util.isError(err)) {
+            pb.log.error("SiteQueryService: Failed to delete site: %s \n%s", siteid, err.stack);
+            return callback(err);
+          }
+          pb.log.silly("Successfully deleted site %s from database: ", siteid);
+          callback(null, results);
+        });
+      });
     });
   };
 

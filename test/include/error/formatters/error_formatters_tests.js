@@ -38,7 +38,7 @@ describe('ErrorFormatters', function() {
         it('should return true when a mime and formatter is provided', function() {
             var mime = 'application/junk';
             var formatter = function(){};
-            var result = ErrorFormatters.register(mime, function(){});
+            var result = ErrorFormatters.register(mime, formatter);
             var formatterResult = ErrorFormatters.get(mime);
             result.should.be.ok();
             formatterResult.should.eql(formatter);
@@ -78,7 +78,7 @@ describe('ErrorFormatters', function() {
             var error = new Error('hello world');
             error.code = 510;
 
-            var themeRoute = Object.freeze({
+            var route = Object.freeze({
                 handler: 'testHandler'
             });
             var params = {
@@ -88,14 +88,14 @@ describe('ErrorFormatters', function() {
                     router: {
                         continueAfter: function() {}
                     },
-                    themeRoute: themeRoute
+                    route: route
                 }
             };
             sinon.spy(params.request.router, 'continueAfter');
             ErrorFormatters.html(params, function(err, result){});
             (typeof params.request.controllerInstance).should.eql('object');
             params.request.router.continueAfter.calledOnce.should.eql(true);
-            params.request.themeRoute.should.not.eql(themeRoute);
+            params.request.route.should.not.eql(route);
         });
     });
 

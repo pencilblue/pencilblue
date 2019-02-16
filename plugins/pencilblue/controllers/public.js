@@ -42,11 +42,9 @@ module.exports = function PluginPublicContentControllerModule(pb) {
      */
     PluginPublicContentController.prototype.render = function(cb) {
         var plugin          = this.pathVars.plugin;
-        var pathParts       = this.req.url.split('/');
-        pathParts.splice(0, 3);
-
-        var postPluginPath  = pathParts.join(path.sep);
+        var postPluginPath  = this.pathVars.path;
         var pluginPublicDir = PluginService.getActivePluginPublicDir(plugin);
+        var publicRoutes = ['angular/', 'js/', 'css/', 'fonts/', 'img/', 'images/', 'localization/', 'favicon.ico', 'dist/', 'widgets/', 'version/'];
 
         //do check for valid strings otherwise serve 404
         if (!util.isString(postPluginPath) || !util.isString(pluginPublicDir)) {
@@ -56,10 +54,24 @@ module.exports = function PluginPublicContentControllerModule(pb) {
         }
 
         //serve up the content
-        var resourcePath = path.join(pluginPublicDir, postPluginPath);
+        //mitigates path traversal attacks by using path.normalize to resolve any
+        //directory changes (./ and ../) and verifying that the path has one of
+        //the prefixes in publicRoutes
+        var normalizedpath = path.normalize(postPluginPath).replace(/^(\.\.[\/\\])+/, '');
+        
+        if (publicRoutes.some(prefix => normalizedpath.startsWith(prefix))) {
+            var fullpath = path.join(pluginPublicDir, normalizedpath);
+            
+            //remove qsvars before loading files
+            this.reqHandler.servePublicContent(fullpath.split('?')[0]);
+        } else {
+            pb.log.error('PluginPublicContentController: Path is not a valid public directory. NORMALIZED_POST_PLUGIN_PATH=[%s] PLUGIN_PUBLIC_DIR=[%s] URL=[%s]', normalizedpath, pluginPublicDir, this.req.url);
 
-        //remove qsvars before loading files
-        this.reqHandler.servePublicContent(resourcePath.split('?')[0]);
+            var forbidden = new Error('Path is not a valid public directory.');
+            forbidden.code = 403;
+
+            return this.reqHandler.serveError(forbidden);
+        }
     };
 
     //exports

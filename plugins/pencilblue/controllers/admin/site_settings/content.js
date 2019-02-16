@@ -89,15 +89,6 @@ module.exports = function(pb) {
             href: '/admin/site_settings/email'
         }];
 
-        if (data.site === pb.SiteService.GLOBAL_SITE) {
-            subNavItems.push({
-                name: 'libraries',
-                title: ls.g('site_settings.LIBRARIES'),
-                icon: 'book',
-                href: '/admin/site_settings/libraries'
-            });
-        }
-
         return subNavItems;
     };
 
