@@ -135,5 +135,5 @@
     "start": "node pencilblue.js",
     "test": "nyc mocha --recursive"
   },
-  "version": "0.8.1-69"
+  "version": "0.8.1-70"
 }
