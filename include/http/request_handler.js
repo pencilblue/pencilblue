@@ -117,6 +117,8 @@ module.exports = function RequestHandlerModule(pb) {
                     content: content,
                     content_type: mime.lookup(absolutePath)
                 };
+                self.req.controllerResult = data;
+
                 //send response
                 self.writeResponse(data);
             });
