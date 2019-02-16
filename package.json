@@ -1,139 +1,110 @@
 {
-  "_from": "@cbtn/pencilblue@0.8.1-69",
-  "_id": "@cbtn/pencilblue@0.8.1-69",
-  "_inBundle": false,
-  "_integrity": "sha1-N2GMsajISIP9QjWOHRaaG+nZIYw=",
-  "_location": "/@cbtn/pencilblue",
-  "_phantomChildren": {
-    "double-ended-queue": "2.1.0-0",
-    "is": "3.2.1",
-    "redis-commands": "1.4.0",
-    "redis-parser": "1.3.0"
-  },
-  "_requested": {
-    "type": "version",
-    "registry": true,
-    "raw": "@cbtn/pencilblue@0.8.1-69",
-    "name": "@cbtn/pencilblue",
-    "escapedName": "@cbtn%2fpencilblue",
-    "scope": "@cbtn",
-    "rawSpec": "0.8.1-69",
-    "saveSpec": null,
-    "fetchSpec": "0.8.3-0"
-  },
-  "_requiredBy": [
-    "/"
-  ],
-  "_resolved": "https://cbdatascience.jfrog.io/cbdatascience/api/npm/tn-npm-repo/@cbtn/pencilblue/-/@cbtn/pencilblue-0.8.1-69.tgz",
-  "_shasum": "37618cb1a8c84883fd42358e1d169a1be9d9218c",
-  "_spec": "@cbtn/pencilblue@0.8.1-69",
-  "_where": "/Users/logenet/Documents/NodeProjects/CMSPencilblue",
-  "author": {
-    "name": "PencilBlue, LLC",
-    "email": "info@pencilblue.com"
-  },
-  "bugs": {
-    "url": "https://github.com/pencilblue/pencilblue/issues"
-  },
-  "bundleDependencies": false,
-  "contributors": [
-    {
-      "name": "Blake Callens"
+    "author": {
+        "name": "PencilBlue, LLC",
+        "email": "info@pencilblue.com"
     },
-    {
-      "name": "Brian Hyder"
-    }
-  ],
-  "dependencies": {
-    "angular": "~1.4.7",
-    "angular-bootstrap-colorpicker": "^3.0.32",
-    "angular-route": "~1.4.7",
-    "angular-sanitize": "~1.4.7",
-    "async": "~1.5.2",
-    "async-eventemitter": "^0.2.4",
-    "bluebird": "^3.5.0",
-    "bootstrap": "~3.3.5",
-    "cookies": "^0.7.1",
-    "fakeredis": "1.0.3",
-    "font-awesome": "^4.3.0",
-    "formidable": "^1.1.1",
-    "htmlencode": "0.0.4",
-    "http-status-codes": "^1.0.6",
-    "jquery": "~1.11.1",
-    "jquery-datetimepicker": "^2.5.14",
-    "jquery-ui-dist": "^1.12.1",
-    "jquery-validation": "^1.17.0",
-    "jsonformatter": "^0.7.0",
-    "locale": "^0.1.0",
-    "lodash": "^4.17.2",
-    "markdown": "~0.5.0",
-    "mime": "^1.3.4",
-    "mongodb": "2.1.14",
-    "ng-file-upload": "^12.2.13",
-    "ng-sortable": "~1.3.8",
-    "node.extend": "1.1.6",
-    "nodemailer": "^4.1.3",
-    "path-to-regexp": "^2.1.0",
-    "rangy": "~1.3.0",
-    "redis": "^2.6.3",
-    "redlock": "^3.0.0",
-    "sanitize-html": "^1.14.1",
-    "semver": "^5.4.1",
-    "to-markdown": "0.0.3",
-    "uuid": "^3.0.1",
-    "winston": "^2.3.0"
-  },
-  "deprecated": false,
-  "description": "Fork of PencilBlue for use by CareerBuilder's Talent Networks",
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "chai-as-promised": "^6.0.0",
-    "coveralls": "^2.11.15",
-    "mocha": "^3.2.0",
-    "mocha-lcov-reporter": "^1.3.0",
-    "nyc": "^11.3.0",
-    "should": "^11.1.2",
-    "sinon": "1.17.6",
-    "sinon-as-promised": "^4.0.3"
-  },
-  "engines": {
-    "node": ">=4"
-  },
-  "homepage": "https://github.com/careerbuilder/pencilblue#readme",
-  "keywords": [
-    "cms",
-    "website",
-    "platform"
-  ],
-  "license": "GPL-3.0",
-  "main": "./pencilblue.js",
-  "name": "@cbtn/pencilblue",
-  "nyc": {
-    "all": true,
-    "exclude": [
-      "log/**",
-      "coverage/**",
-      "public/**",
-      "plugins/**",
-      "test/**",
-      "sample.config.js"
+    "contributors": [
+        {
+            "name": "Blake Callens"
+        },
+        {
+            "name": "Brian Hyder"
+        }
     ],
-    "reporter": [
-      "text-summary",
-      "lcov",
-      "html"
-    ]
-  },
-  "publishConfig": {
-    "registry": "https://cbdatascience.jfrog.io/cbdatascience/api/npm/tn-npm-repo"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/careerbuilder/pencilblue.git"
-  },
-  "scripts": {
-    "start": "node pencilblue.js",
-    "test": "nyc mocha --recursive"
-  },
-  "version": "0.8.1-70"
+    "name": "@cbtn/pencilblue",
+    "homepage": "https://github.com/careerbuilder/pencilblue#readme",
+    "description": "Fork of PencilBlue for use by CareerBuilder's Talent Networks",
+    "keywords": [
+        "cms",
+        "website",
+        "platform"
+    ],
+    "version": "0.8.3-0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/careerbuilder/pencilblue.git"
+    },
+    "dependencies": {
+        "angular": "~1.4.7",
+        "angular-bootstrap-colorpicker": "^3.0.32",
+        "angular-route": "~1.4.7",
+        "angular-sanitize": "~1.4.7",
+        "async": "~1.5.2",
+        "async-eventemitter": "^0.2.4",
+        "bluebird": "^3.5.0",
+        "bootstrap": "~3.3.5",
+        "cookies": "^0.7.1",
+        "fakeredis": "1.0.3",
+        "font-awesome": "^4.3.0",
+        "formidable": "^1.1.1",
+        "htmlencode": "0.0.4",
+        "http-status-codes": "^1.0.6",
+        "jquery": "~1.11.1",
+        "jquery-datetimepicker": "^2.5.14",
+        "jquery-ui-dist": "^1.12.1",
+        "jquery-validation": "^1.17.0",
+        "jsonformatter": "^0.7.0",
+        "locale": "^0.1.0",
+        "lodash": "^4.17.2",
+        "markdown": "~0.5.0",
+        "mime": "^1.3.4",
+        "mongodb": "2.1.14",
+        "ng-file-upload": "^12.2.13",
+        "ng-sortable": "~1.3.8",
+        "node.extend": "1.1.6",
+        "nodemailer": "^4.1.3",
+        "path-to-regexp": "^2.1.0",
+        "rangy": "~1.3.0",
+        "redis": "^2.6.3",
+        "redlock": "^3.0.0",
+        "sanitize-html": "^1.14.1",
+        "semver": "^5.4.1",
+        "to-markdown": "0.0.3",
+        "uuid": "^3.0.1",
+        "winston": "^2.3.0"
+    },
+    "devDependencies": {
+        "chai": "^3.5.0",
+        "chai-as-promised": "^6.0.0",
+        "coveralls": "^2.11.15",
+        "mocha": "^3.2.0",
+        "mocha-lcov-reporter": "^1.3.0",
+        "nyc": "^11.3.0",
+        "should": "^11.1.2",
+        "sinon": "1.17.6",
+        "sinon-as-promised": "^4.0.3"
+    },
+    "main": "./pencilblue.js",
+    "engines": {
+        "node": ">=8"
+    },
+    "scripts": {
+        "start": "node pencilblue.js",
+        "test": "nyc mocha --recursive"
+    },
+    "nyc": {
+        "all": true,
+        "exclude": [
+            "log/**",
+            "coverage/**",
+            "public/**",
+            "plugins/**",
+            "test/**",
+            "sample.config.js"
+        ],
+        "reporter": [
+            "text-summary",
+            "lcov",
+            "html"
+        ]
+    },
+    "license": "GPL-3.0",
+    "readme": "See README file",
+    "readmeFilename": "README.md",
+    "bugs": {
+        "url": "https://github.com/pencilblue/pencilblue/issues"
+    },
+    "publishConfig": {
+        "registry": "https://cbdatascience.jfrog.io/cbdatascience/api/npm/tn-npm-repo"
+    }
 }
