@@ -19,7 +19,7 @@
     "scope": "@cbtn",
     "rawSpec": "0.8.1-69",
     "saveSpec": null,
-    "fetchSpec": "0.8.1-69"
+    "fetchSpec": "0.8.3-0"
   },
   "_requiredBy": [
     "/"
