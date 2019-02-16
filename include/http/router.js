@@ -63,7 +63,45 @@ module.exports = function (pb) {
          * @param {Request} req
          * @param {Response} res
          */
+
+        _handleMiddleware(req, res, action) {
+            return new Promise((resolve, reject) => {
+                process.nextTick(() => {
+                    try {
+                        action(req, res, (err) => {
+                            if (err) {
+                                return reject(err);
+                            }
+                            resolve();
+                        });
+                    } catch (err) {
+                        reject(err);
+                    }
+                });
+            });
+        }
+
+        async _handleMiddlewares (req, res) {
+            try {
+                for (; this.index < Router.middleware.length; this.index++) {
+                    await this._handleMiddleware(req, res, Router.middleware[this.index].action);
+                }
+            } catch (e) {
+                return new Promise((resolve, reject) => {
+                    req.handler.serveError(e, {
+                        handler: (data) => {
+                            req.controllerResult = data;
+                            this.continueAfter('render')
+                                .then(resolve, reject);
+                        }
+                    });
+                });
+            }
+        }
+
         _handle (req, res) {
+            return this._handleMiddlewares(req, res);
+
             var resolve, reject;
             var promise = new Promise(function(reso, rej) { resolve = reso; reject = rej; });
 
@@ -75,11 +113,12 @@ module.exports = function (pb) {
                 }
 
                 req.handler.serveError(err, { handler: function(data) {
-                    req.controllerResult = data;
-                    self.continueAfter('render')
-                        .then(resolve, reject);
-                }});
+                        req.controllerResult = data;
+                        self.continueAfter('render')
+                            .then(resolve, reject);
+                    }});
             };
+
 
             //create execution loop
             var execute = function () {
