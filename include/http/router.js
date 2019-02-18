@@ -70,9 +70,10 @@ module.exports = function (pb) {
                     try {
                         action(req, res, (err) => {
                             if (err) {
-                                return reject(err);
+                                reject(err);
+                            } else {
+                                resolve();
                             }
-                            resolve();
                         });
                     } catch (err) {
                         reject(err);
@@ -101,63 +102,6 @@ module.exports = function (pb) {
 
         _handle (req, res) {
             return this._handleMiddlewares(req, res);
-
-            var resolve, reject;
-            var promise = new Promise(function(reso, rej) { resolve = reso; reject = rej; });
-
-            // initialize completion function
-            var self = this;
-            var done = function (err) {
-                if (!util.isError(err)) {
-                    return resolve();
-                }
-
-                req.handler.serveError(err, { handler: function(data) {
-                        req.controllerResult = data;
-                        self.continueAfter('render')
-                            .then(resolve, reject);
-                    }});
-            };
-
-
-            //create execution loop
-            var execute = function () {
-                if (self.index >= Router.middleware.length) {
-                    return done();
-                }
-
-                //execute the next task
-                var sync = true;
-                var action = Router.middleware[self.index].action;
-                action(req, res, function (err) {
-                    if (err) {
-                        return done(err);
-                    }
-
-                    // delay by a tick when reaching here synchronously otherwise just proceed
-                    self.index++;
-                    if (sync) {
-                        process.nextTick(function() {
-                            execute();
-                        });
-                    }
-                    else {
-                        execute();
-                    }
-                });
-                sync = false;
-            };
-
-            domain.create()
-                .once('error', function(err) {
-                    var middleWareName = Router.middleware[self.index] ? Router.middleware[self.index].name : 'UNKNOWN';
-                    pb.log.error(`Router: An unhandled error occurred after calling middleware ${middleWareName}: ${err.stack}`);
-                    reject(err);
-                })
-                .run(function() {
-                    process.nextTick(execute);
-                });
-            return promise;
         }
 
         /**
