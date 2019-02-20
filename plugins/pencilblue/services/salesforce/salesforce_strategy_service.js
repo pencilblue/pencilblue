@@ -22,10 +22,6 @@ module.exports = function(pb) {
             this.siteQueryService = new pb.SiteQueryService();
         }
 
-        static getName() {
-            return 'SalesforceStrategyService';
-        }
-
         async getSalesforceLoginSettings(req) {
             try {
                 const settings = await this.getSalesforceSettings(req);
@@ -36,6 +32,48 @@ module.exports = function(pb) {
                 return options;
             } catch (e) {
                 pb.log.error('Something went wrong during salesforce SSO strategy: ', e);
+                return null;
+            }
+        }
+
+        async salesforceCallback(req, code) {
+            try {
+                const loginContext = req.session._loginContext || {};
+                const settings = await this.getSalesforceSettings(req);
+                const options = {
+                    url: `${salesforceOAUTHTokenService}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.headers.host}/login/salesforce/callback&grant_type=authorization_code&code=${code}&client_secret=${settings.salesforce_client_secret}`,
+                    method: 'POST',
+                    json: true
+                };
+                const response = await request(options);
+                const accessToken = response.access_token;
+                let salesforceUser = await request({
+                    url: `${salesforceAPIUrl}/services/oauth2/userinfo?format=json&access_token=${accessToken}`,
+                    method: 'GET',
+                    json: true
+                });
+                let user = {
+                    external_user_id: salesforceUser.user_id,
+                    first_name: salesforceUser.given_name,
+                    last_name: salesforceUser.family_name,
+                    username: salesforceUser.preferred_username,
+                    email: salesforceUser.email,
+                    admin: 0,
+                    object_type: 'user',
+                    site: loginContext.site || '',
+                    identity_provider: 'salesforce'
+                };
+                // user = await strategyServices.saveUser(user, loginContext, done, pb, true);
+                // user.salesforce = {
+                //     authorize: response,
+                //     profile: {
+                //         id: salesforceUser.user_id
+                //     }
+                // };
+                // strategyServices._addUserToSession(req, user, pb);
+                return user;
+            } catch (e) {
+                pb.log.error('Something went wrong during salesforce callback strategy: ', e);
                 return null;
             }
         }
