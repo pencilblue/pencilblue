@@ -84,10 +84,6 @@ module.exports = function(pb) {
                     externalUserId: user.external_user_id
                 };
                 createdUser = await this.getUser(_loginContext, user.identity_provider, true);
-                console.log('_____ params _____\n', {
-                    createdUser,
-                    _loginContext
-                });
                 if (!createdUser) {
                     await siteQueryService.saveAsync(user);
                     createdUser = await this.getUser(_loginContext, user.identity_provider, true);
@@ -105,10 +101,6 @@ module.exports = function(pb) {
                 pb.log.error(`Failed to get createdUser during authentication. ${err}`);
                 return false;
             }
-            console.log('_____ params2 _____\n', {
-                    createdUser,
-                    _loginContext
-                });
             return createdUser;
         }
     };
