@@ -16,10 +16,11 @@ let salesforceOAUTHTokenService = salesforceAPIUrl + OAUTH_TOKEN_SERVICE,
     salesforceOAUTHAuthorizeService = salesforceAPIUrl + OAUTH_AUTHORIZE_SERVICE;
 
 module.exports = function(pb) {
-
+    const AuthStrategyService = require('../authentication/auth_strategy_service')(pb);
     class SalesforceStrategyService {
         constructor() {
             this.siteQueryService = new pb.SiteQueryService();
+            this.authStrategyServices = new AuthStrategyService();
         }
 
         async getSalesforceLoginSettings(req) {
@@ -63,14 +64,14 @@ module.exports = function(pb) {
                     site: loginContext.site || '',
                     identity_provider: 'salesforce'
                 };
-                // user = await strategyServices.saveUser(user, loginContext, done, pb, true);
-                // user.salesforce = {
-                //     authorize: response,
-                //     profile: {
-                //         id: salesforceUser.user_id
-                //     }
-                // };
-                // strategyServices._addUserToSession(req, user, pb);
+                user = await this.authStrategyServices.saveUser(user, loginContext, true);
+                user.salesforce = {
+                    authorize: response,
+                    profile: {
+                        id: salesforceUser.user_id
+                    }
+                };
+                this.authStrategyServices._addUserToSession(req, user);
                 return user;
             } catch (e) {
                 pb.log.error('Something went wrong during salesforce callback strategy: ', e);

@@ -30,7 +30,6 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
             if (!response) {
                 return this.loginError(cb);
             }
-            console.log('_____ response _____\n', response);
             this.redirect('/', cb);
         }
 
