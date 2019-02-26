@@ -272,7 +272,8 @@ module.exports = function(pb) {
                 {
                     email : usernameEmailSearchExp
                 }
-            ]
+            ],
+            identity_provider: null
         };
         this.getSingle(options, cb);
     };

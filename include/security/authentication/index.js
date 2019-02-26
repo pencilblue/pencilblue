@@ -54,7 +54,8 @@ module.exports = function AuthenticationModule(pb) {
                     email : usernameSearchExp
                 }
             ],
-            password : credentials.password
+            password : credentials.password,
+            identity_provider: null
         };
 
         //check for required access level

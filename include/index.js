@@ -50,6 +50,8 @@ module.exports = function PB(config) {
         }
     });
 
+    pb.regexUtil = require('./utils/reg_exp_utils');
+
     //initialize logging
     pb.log    = require(path.join(config.docRoot, '/include/utils/logging.js'))(config);
     pb.AsyncEventEmitter = require(path.join(config.docRoot, '/include/utils/async_event_emitter.js'))(pb);
