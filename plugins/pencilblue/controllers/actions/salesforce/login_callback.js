@@ -25,12 +25,12 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
 
         async _doLogin(cb) {
             const salesforceStrategyService = new SalesforceStrategyService();
-            let redirectLocation = this.redirectLink;
             const response = await salesforceStrategyService.salesforceCallback(this.req, this.query.code);
             if (!response) {
                 return this.loginError(cb);
             }
-            this.redirect('/', cb);
+            let redirectLocation = await this.getRedirectLink(response);
+            this.redirect(redirectLocation, cb);
         }
 
         _setupLoginContext() {
@@ -40,11 +40,22 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
             this.req.session._loginContext = options;
         }
 
-        get redirectLink() {
+        async getRedirectLink(user) {
             let location = '/';
+            const siteQueryService = new pb.SiteQueryService();
+            const query = {
+                externalUserId: user.external_user_id,
+                object_type : 'jobseeker_profile'
+            };
+            const hasJobSeekerProfile = await siteQueryService.loadByValuesAsync(query, 'jobseeker_profile');
             if (this.session.on_login) {
                 location = this.session.on_login;
                 delete this.session.on_login;
+            } else if (!hasJobSeekerProfile) {
+               // redirect to create-profile if the user don't have a created jobseeker profile
+               location = `/${this.req.localizationService.language}/profile/create-profile`;
+            } else {
+                // TODO: Pending route when the user already exists in the jobseeker profile collection
             }
             return location;
         }
