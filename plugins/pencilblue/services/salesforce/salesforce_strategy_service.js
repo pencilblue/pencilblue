@@ -1,15 +1,13 @@
 const request = require('request-promise');
 const Promise = require('bluebird');
-let state, salesforceAPIUrl;
+let salesforceAPIUrl;
 const isSandbox = process.env.USE_SALESFORCE_SANDBOX === 'true';
 const OAUTH_TOKEN_SERVICE = '/services/oauth2/token';
 const OAUTH_AUTHORIZE_SERVICE = '/services/oauth2/authorize';
 if (isSandbox) {
     salesforceAPIUrl = process.env.SALESFORCE_SANDBOX_API_URL;
-    state = 'webServerSandbox';
 } else {
     salesforceAPIUrl = process.env.salesforceAPIUrl;
-    state = 'webServerProd';
 }
 
 let salesforceOAUTHTokenService = salesforceAPIUrl + OAUTH_TOKEN_SERVICE,
@@ -27,7 +25,7 @@ module.exports = function(pb) {
             try {
                 const settings = await this.getSalesforceSettings(req);
                 const options = {
-                    url: `${salesforceOAUTHAuthorizeService}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.headers.host}/login/salesforce/callback&response_type=code&state=${state}`,
+                    url: `${salesforceOAUTHAuthorizeService}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.headers.host}/login/salesforce/callback&response_type=code`,
                     method: 'POST'
                 };
                 return options;
@@ -59,7 +57,7 @@ module.exports = function(pb) {
                     last_name: salesforceUser.family_name,
                     username: salesforceUser.preferred_username,
                     email: salesforceUser.email,
-                    admin: 0,
+                    admin: 0,// lowest admin level, used to forbid the access to the admin panel
                     object_type: 'user',
                     site: loginContext.site || '',
                     identity_provider: 'salesforce'
