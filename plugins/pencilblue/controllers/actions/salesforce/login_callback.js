@@ -57,7 +57,9 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                 object_type: 'jobseeker_profile'
             };
             const hasJobSeekerProfile = await siteQueryService.loadByValuesAsync(query, 'jobseeker_profile');
-            if (state && state.redirectURL) {
+            if (state && state.highPriorityToRegister && !hasJobSeekerProfile) {
+                location = `/${this.req.localizationService.language}/profile/create-profile`;
+            } else if (state && state.redirectURL) {
                 location = state.redirectURL;
             } else if (this.session.on_login) {
                 location = this.session.on_login;
