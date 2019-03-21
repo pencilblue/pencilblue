@@ -1,7 +1,7 @@
 'use strict';
 
 const Promise = require('bluebird');
-const Cookies = require('Cookies');
+const Cookies = require('cookies');
 
 module.exports = function LogOutSFSSOControllerModule(pb) {
     /**
