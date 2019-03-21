@@ -4,6 +4,8 @@ let salesforceAPIUrl;
 const isSandbox = process.env.USE_SALESFORCE_SANDBOX === 'true';
 const OAUTH_TOKEN_SERVICE = '/services/oauth2/token';
 const OAUTH_AUTHORIZE_SERVICE = '/services/oauth2/authorize';
+const OAUTH_REVOKE_SERVICE = '/services/oauth2/revoke';
+
 if (isSandbox) {
     salesforceAPIUrl = process.env.SALESFORCE_SANDBOX_API_URL;
 } else {
@@ -11,7 +13,8 @@ if (isSandbox) {
 }
 
 let salesforceOAUTHTokenService = salesforceAPIUrl + OAUTH_TOKEN_SERVICE,
-    salesforceOAUTHAuthorizeService = salesforceAPIUrl + OAUTH_AUTHORIZE_SERVICE;
+    salesforceOAUTHAuthorizeService = salesforceAPIUrl + OAUTH_AUTHORIZE_SERVICE,
+    salesforceOAuthRevokeService = salesforceAPIUrl + OAUTH_REVOKE_SERVICE;
 
 module.exports = function(pb) {
     const AuthStrategyService = require('../authentication/auth_strategy_service')(pb);
@@ -21,11 +24,27 @@ module.exports = function(pb) {
             this.authStrategyServices = new AuthStrategyService();
         }
 
+        async logout(req) {
+            try {
+                const token = req.session.authentication.user.salesforce.authorize.access_token;
+                const settings = await this.getSalesforceSettings(req);
+                const options = {
+                    url: `${salesforceOAuthRevokeService}?token=${token}`,
+                    method: 'GET'
+                };
+                await request(options);
+                return true;
+            } catch (e) {
+                pb.log.error('Something went wrong during salesforce logout strategy: ', e);
+                return false;
+            }
+        }
+
         async getSalesforceLoginSettings(req) {
             try {
                 const settings = await this.getSalesforceSettings(req);
                 const options = {
-                    url: `${salesforceOAUTHAuthorizeService}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.headers.host}/login/salesforce/callback&response_type=code`,
+                    url: `${salesforceOAUTHAuthorizeService}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.headers.host}/login/salesforce/callback&response_type=code&prompt=login`,
                     method: 'POST'
                 };
                 return options;
@@ -57,7 +76,7 @@ module.exports = function(pb) {
                     last_name: salesforceUser.family_name,
                     username: salesforceUser.preferred_username,
                     email: salesforceUser.email,
-                    admin: 0,// lowest admin level, used to forbid the access to the admin panel
+                    admin: 0, // lowest admin level, used to forbid the access to the admin panel
                     object_type: 'user',
                     site: loginContext.site || '',
                     identity_provider: 'salesforce'
@@ -86,6 +105,7 @@ module.exports = function(pb) {
             if (settings.app_url && settings.app_url !== '') {
                 salesforceOAUTHTokenService = settings.app_url + OAUTH_TOKEN_SERVICE;
                 salesforceOAUTHAuthorizeService = settings.app_url + OAUTH_AUTHORIZE_SERVICE;
+                salesforceOAuthRevokeService = settings.app_url + OAUTH_REVOKE_SERVICE;
                 salesforceAPIUrl = settings.app_url;
             }
             return settings;
