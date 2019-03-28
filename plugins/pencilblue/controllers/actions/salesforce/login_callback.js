@@ -11,7 +11,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
         render(cb) {
             this.sanitizeObject(this.body);
             this._setupLoginContext();
-            this._doLogin(cb);
+            this._doLoginCallback(cb);
         }
         loginError(cb) {
             this.session.error = this.ls.g('login.INVALID_LOGIN');
@@ -19,11 +19,11 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                 return this.redirect('/admin/login', cb);
             }
 
-            return this.redirect('/user/login', cb);
+            return this.redirect('/', cb);
         };
 
 
-        async _doLogin(cb) {
+        async _doLoginCallback(cb) {
             const salesforceStrategyService = new SalesforceStrategyService();
             const response = await salesforceStrategyService.salesforceCallback(this.req, this.query.code);
             if (!response) {
@@ -38,8 +38,31 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                     pb.log.warn('Something went wrong during the state parsing: ', e);
                 }
             }
-            let redirectLocation = await this.getRedirectLink(response, state);
+            if (response.updateEmail) {
+                await this.updateEmail(response.user);
+            }
+            let redirectLocation = await this.getRedirectLink(response.user, state);
             this.redirect(redirectLocation, cb);
+        }
+
+        async updateEmail(user) {
+            try {
+                this.identityProviderService = this.createService('IdentityProviderService', 'tn_auth');
+                this.encryptProfileIdService = pb.PluginService.isPluginActiveBySite('tn_profile', this.site) ? this.createService('EncryptProfileIdService', 'tn_profile') : null;
+                // update user, jobseeker_profile collections and matrix jobseeker_profile table
+                const siteQueryService = new pb.SiteQueryService();
+                const jobseekerProfile = await siteQueryService.loadByValuesAsync({
+                    externalUserId: user.external_user_id,
+                    object_type: 'jobseeker_profile'
+                }, 'jobseeker_profile');
+                let encryptedProfileDID = null;
+                if (jobseekerProfile && this.encryptProfileIdService) {
+                    encryptedProfileDID = await this.encryptProfileIdService.encrypt(jobseekerProfile.profileDID);
+                }
+                await this.identityProviderService.updateUserEmail(user.external_user_id, user.email, encryptedProfileDID);
+            } catch (e) {
+                pb.log.warn('Something went wrong during the email update: ', e);
+            }
         }
 
         _setupLoginContext() {
@@ -65,7 +88,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                 location = this.session.on_login;
                 delete this.session.on_login;
             } else if (!hasJobSeekerProfile) {
-                // redirect to create-profile if the user don't have a created jobseeker profile
+                // redirect to create-profile if the user doesn't have a created jobseeker profile
                 location = `/${this.req.localizationService.language}/profile/create-profile`;
             } else {
                 location = `/${this.req.localizationService.language}/profile/view`;
