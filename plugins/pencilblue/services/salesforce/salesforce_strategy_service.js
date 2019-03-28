@@ -88,8 +88,13 @@ module.exports = function(pb) {
                         id: salesforceUser.user_id
                     }
                 };
+                const updateEmail = salesforceUser.email !== user.email;
+                user.email = salesforceUser.email;
                 this.authStrategyServices._addUserToSession(req, user);
-                return user;
+                return {
+                    user,
+                    updateEmail
+                };
             } catch (e) {
                 pb.log.error('Something went wrong during salesforce callback strategy: ', e);
                 return null;
