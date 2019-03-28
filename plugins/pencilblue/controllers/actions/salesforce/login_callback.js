@@ -48,7 +48,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
         async updateEmail(user) {
             try {
                 this.identityProviderService = this.createService('IdentityProviderService', 'tn_auth');
-                this.encryptProfileIdService = this.createService('EncryptProfileIdService', 'tn_profile');
+                this.encryptProfileIdService = pb.PluginService.isPluginActiveBySite('tn_profile', this.site) ? this.createService('EncryptProfileIdService', 'tn_profile') : null;
                 // update user, jobseeker_profile collections and matrix jobseeker_profile table
                 const siteQueryService = new pb.SiteQueryService();
                 const jobseekerProfile = await siteQueryService.loadByValuesAsync({
@@ -56,7 +56,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                     object_type: 'jobseeker_profile'
                 }, 'jobseeker_profile');
                 let encryptedProfileDID = null;
-                if (jobseekerProfile) {
+                if (jobseekerProfile && this.encryptProfileIdService) {
                     encryptedProfileDID = await this.encryptProfileIdService.encrypt(jobseekerProfile.profileDID);
                 }
                 await this.identityProviderService.updateUserEmail(user.external_user_id, user.email, encryptedProfileDID);
