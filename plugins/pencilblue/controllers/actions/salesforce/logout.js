@@ -2,6 +2,7 @@
 
 const Promise = require('bluebird');
 const Cookies = require('cookies');
+const request = require('request-promise');
 
 module.exports = function LogOutSFSSOControllerModule(pb) {
     /**
@@ -41,7 +42,15 @@ module.exports = function LogOutSFSSOControllerModule(pb) {
                     pb.log.error('Something went wrong during the removal of the cookie : ', e);
                 }
             }
-            this.redirect('/', cb);
+            if (response && response.enableCustomLogout && response.url) {
+                request({
+                    url: response.url,
+                    method: 'GET'
+                }).pipe(this.res);
+
+            } else {
+                this.redirect('/', cb);
+            }
         }
     }
 

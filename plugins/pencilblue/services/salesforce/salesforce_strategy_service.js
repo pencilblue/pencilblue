@@ -33,10 +33,13 @@ module.exports = function(pb) {
                     method: 'GET'
                 };
                 await request(options);
-                return true;
+                return {
+                    enableCustomLogout: settings.enable_custom_logout_url,
+                    url: settings.custom_logout_url
+                };
             } catch (e) {
                 pb.log.error('Something went wrong during salesforce logout strategy: ', e);
-                return false;
+                return null;
             }
         }
 
