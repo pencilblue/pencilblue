@@ -21,27 +21,26 @@ module.exports = function LogOutSFSSOControllerModule(pb) {
         async salesforceLogout(cb) {
             const salesforceStrategyService = new SalesforceStrategyService();
             let response = await salesforceStrategyService.logout(this.req);
-            if (response) {
-                try {
-                    await new Promise((resolve, reject) => {
-                        pb.session.end(this.session, (err, result) => {
-                            if (err) {
-                                reject(false);
-                            } else {
-                                //clear the cookie
-                                const cookies = new Cookies(this.req, this.res);
-                                const cookie = pb.SessionHandler.getSessionCookie(this.session);
-                                cookie.expires = new Date();
-                                cookie.overwrite = true;
-                                cookies.set(pb.SessionHandler.COOKIE_NAME, null, cookie);
-                                resolve(true);
-                            }
-                        });
+            try {
+                await new Promise((resolve, reject) => {
+                    pb.session.end(this.session, (err, result) => {
+                        if (err) {
+                            reject(false);
+                        } else {
+                            //clear the cookie
+                            const cookies = new Cookies(this.req, this.res);
+                            const cookie = pb.SessionHandler.getSessionCookie(this.session);
+                            cookie.expires = new Date();
+                            cookie.overwrite = true;
+                            cookies.set(pb.SessionHandler.COOKIE_NAME, null, cookie);
+                            resolve(true);
+                        }
                     });
-                } catch (e) {
-                    pb.log.error('Something went wrong during the removal of the cookie : ', e);
-                }
+                });
+            } catch (e) {
+                pb.log.error('Something went wrong during the removal of the cookie : ', e);
             }
+
             if (response && response.enableCustomLogout && response.url) {
                 request({
                     url: response.url,
