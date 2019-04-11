@@ -43,6 +43,19 @@ module.exports = function(pb) {
             }
         }
 
+        async register(req) {
+            try {
+                const settings = await this.getSalesforceSettings(req);
+                return {
+                    enableCustomRegister: settings.enable_custom_register_url,
+                    url: settings.custom_register_url
+                };
+            } catch (e) {
+                pb.log.error('Something went wrong during salesforce register: ', e);
+                return null;
+            }
+        }
+
         async getSalesforceLoginSettings(req) {
             try {
                 const settings = await this.getSalesforceSettings(req);
