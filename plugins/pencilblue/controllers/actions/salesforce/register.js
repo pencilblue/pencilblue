@@ -21,7 +21,18 @@ module.exports = function RegisterSFControllerModule(pb) {
             let response = await salesforceStrategyService.register(this.req);
 
             if (response && response.enableCustomRegister && response.url) {
-                this.redirect(response.url, cb);
+                if (response.hackUserAuthFlow) {
+                    const options = await salesforceStrategyService.getSalesforceLoginSettings(this.req);
+                    if (this.query.state) {
+                        options.url += `&state=${this.query.state}`;
+                    }
+                    request(options)
+                        .on('response', function(rsp) {
+                            rsp.headers.location = rsp.headers.location.replace(response.toReplace, response.replacement);
+                        }).pipe(this.res);
+                } else {
+                    this.redirect(response.url, cb);
+                }
             } else {
                 this.redirect('/login/salesforce', cb);
             }

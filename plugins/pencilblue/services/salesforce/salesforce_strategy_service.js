@@ -48,7 +48,10 @@ module.exports = function(pb) {
                 const settings = await this.getSalesforceSettings(req);
                 return {
                     enableCustomRegister: settings.enable_custom_register_url,
-                    url: settings.custom_register_url
+                    url: settings.custom_register_url,
+                    hackUserAuthFlow: settings.force_auth_process_for_register,
+                    toReplace: settings.register_string_to_replace,
+                    replacement: settings.register_replacement_string
                 };
             } catch (e) {
                 pb.log.error('Something went wrong during salesforce register: ', e);
