@@ -60,6 +60,12 @@ module.exports = pb => ({
         let found = !exactMatch && plugins.some(plugin => {
             return Object.values(plugin).some(route => {
                 let match = route.pattern.exec(req.handler.url.pathname)
+                let prefix = req.siteObj.prefix
+
+                if (prefix) {
+                    match = route.pattern.exec(req.handler.url.pathname.replace(prefix, '').replace('//', '/'))
+                }
+
                 if (!match) {
                     return false
                 }
