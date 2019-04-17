@@ -18,6 +18,10 @@
                         <div class="form_error" ng-if="!isActive && !isFieldValid(siteForm.hostname)">^loc_generic.REQUIRED_FIELD^</div>
                         <div class="form_error" ng-if="isActive">^loc_generic.SITE_MUST_DEACTIVATE^</div>
                     </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.prefix)}">
+                        <label>Base route</label>
+                        <input type="text" name="prefix" class="form-control" ng-model="prefix">
+                    </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.supportedLocales)}">
                         <label>Supported Locales</label><br>
                         <label ng-repeat="(locale, checked) in supportedLocales" style="display:block;">
