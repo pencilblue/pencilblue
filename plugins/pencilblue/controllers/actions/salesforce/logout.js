@@ -52,6 +52,5 @@ module.exports = function LogOutSFSSOControllerModule(pb) {
             }
         }
     }
-
     return LogOutSFSSOController;
 };
