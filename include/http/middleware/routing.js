@@ -63,7 +63,15 @@ module.exports = pb => ({
                 let prefix = req.siteObj.prefix
 
                 if (prefix) {
-                    match = route.pattern.exec(req.handler.url.pathname.replace(prefix, '').replace('//', '/'))
+                    let trimedPathName = req.handler.url.pathname.replace(prefix, '').replace('//', '/');
+                    exactMatch = plugins.some(plugin => {
+                        descriptor = findDescriptor(plugin[trimedPathName]) || findDescriptor(plugin['/:locale?' + trimedPathName])
+                        return descriptor
+                    })
+                    if (exactMatch) {
+                        return
+                    }
+                    match = route.pattern.exec(trimedPathName);
                 }
 
                 if (!match) {

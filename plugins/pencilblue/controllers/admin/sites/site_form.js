@@ -60,7 +60,7 @@ module.exports = function SiteFormModule(pb) {
         options.isActive = data.active;
         options.uid = data.uid;
         options.useBundledScripts = data.useBundledScripts;
-        options.prefixSite = data.prefix.toString();
+        options.prefixSite = data.prefix ? data.prefix.toString() : '';
       }
 
       setupAngularObj(self, options, cb);
