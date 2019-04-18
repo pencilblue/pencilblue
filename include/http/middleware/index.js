@@ -25,7 +25,7 @@ module.exports = function(pb) {
     const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb)
     const { requiresAuthenticationCheck, authorizationCheck, ipFilterCheck } = require('./auth')(pb)
     const { localizedRouteCheck, initializeLocalization } = require('./localization')(pb)
-    const { instantiateController, initializeController, render, writeResponse } = require('./controller')(pb)
+    const { instantiateController, initializeController, render, writeResponse, prefix } = require('./controller')(pb)
 
     const stack = [
         startTime,
@@ -47,6 +47,7 @@ module.exports = function(pb) {
         initializeLocalization,
         initializeController,
         render,
+        prefix,
         writeSessionCookie,
         writeResponse,
         endTime,

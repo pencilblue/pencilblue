@@ -343,51 +343,6 @@ module.exports = function RequestHandlerModule(pb) {
                 if (!Buffer.isBuffer(content) && util.isObject(data.content)) {
                     content = JSON.stringify(content);
                 }
-
-                const prefix = this.req && this.req.siteObj && this.req.siteObj.prefix;
-                // This is to handle the js file. Maybe we could find some better way.
-                if (prefix && data.content_type === 'application/javascript' && Buffer.isBuffer(content)) {
-                    const strContent = new Buffer(content).toString();
-
-                    // Replace all the window.location.href to be window.redirectHref
-                    content = strContent.replace(/((?<=[^\$])window)?\.location\.href(?=[\=\s])/g, function (match) {
-                        return 'window.redirectHref';
-                    })
-                }
-
-                if (prefix && contentType === 'text/html' && content && ((typeof content) === 'string')) {
-                    // Add prefix for all the <a href> & <link href> tags.
-                    content = content.replace(/(?<=\<(?:a|link).*\shref\s*=\s*['"])\/[^'"]*['"]/g, function (match) {
-                        if (match.indexOf(prefix) !== 0 && match.indexOf(prefix) !== 1) {
-                            return `/${prefix}${match}`;
-                        }
-                    });
-
-                    // Replace all the window.location.href to be window.redirectHref
-                    content = content.replace(/((?<=[^\$])window)?\.location\.href(?=[\=\s])/g, function (match) {
-                        return 'window.redirectHref';
-                    })
-
-                    // Inject the global value redirectHref in window
-                    content = content.replace(/<body[^>]*>/, function (match) {
-                        return `${match}<script>
-                            Object.defineProperty(window, 'redirectHref', {
-                                set(val) {
-                                    if (/^\\//.test(val)) {
-                                        this.location.href = '/${prefix}' + val;
-                                    } else {
-                                        this.location.href = val;
-                                    }
-                                },
-                                get() {
-                                    return this.location.href;
-                                }
-                            })
-                        </script>`;
-                    });
-
-                }
-
                 this.resp.end(content);
             }
             catch (e) {
