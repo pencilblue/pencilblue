@@ -356,7 +356,11 @@ module.exports = function RequestHandlerModule(pb) {
                     });
 
                     // Handle some hacks
-                    content = content.replace('/public/premium/widgets/job_widget.html', `/${prefix}/public/premium/widgets/job_widget.html`);
+                    // content = content.replace('/public/premium/widgets/job_widget.html', `/${prefix}/public/premium/widgets/job_widget.html`);
+                    // temp fix, might need to update later.
+                    content = content.replace(/\/public\/premium\/?/g, function (match) {
+                        return `/${prefix}${match}`;
+                    });
                 }
 
                 this.resp.end(content);
