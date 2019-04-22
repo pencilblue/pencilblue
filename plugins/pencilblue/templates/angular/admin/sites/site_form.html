@@ -24,7 +24,8 @@
                                 selectedLocales: $scope.selectedLocales,
                                 defaultLocale: $scope.defaultLocale,
                                 useCustomRedirect: $scope.useCustomRedirect || true,
-                                redirectLink: $scope.redirectLink
+                                redirectLink: $scope.redirectLink,
+                                prefix: $scope.prefix
                             })
                             .success(function(result) {
                                 $scope.onCreateOrEditComplete(result);

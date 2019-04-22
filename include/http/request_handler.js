@@ -343,6 +343,36 @@ module.exports = function RequestHandlerModule(pb) {
                 if (!Buffer.isBuffer(content) && util.isObject(data.content)) {
                     content = JSON.stringify(content);
                 }
+
+                //This is to handle the js file. Maybe we could find some better way.
+                const prefix = this.req && this.req.siteObj && this.req.siteObj.prefix;
+                if (prefix && contentType === 'application/javascript' && Buffer.isBuffer(content)) {
+                    const strContent = new Buffer(content).toString();
+
+                    // Replace all the window.location.href to be window.redirectHref
+                    // Need to include $window.location.href, $window.location.href=, $location.href, and location.href later
+                    content = strContent.replace(/((\$?window\.)(?:top.)?)(location\.href)(?=[\=\s])/g, function (match, p1) {
+                        return `${p1}redirectHref`;
+                    });
+
+                    // Handle some hacks
+                    // content = content.replace('/public/premium/widgets/job_widget.html', `/${prefix}/public/premium/widgets/job_widget.html`);
+                    // temp fix, might need to update later.
+                    content = content.replace(/\/public\/premium\/?/g, function (match) {
+                        return `/${prefix}${match}`;
+                    });
+                }
+
+                if (prefix && contentType === 'text/css') {
+                    if (Buffer.isBuffer(content)) {
+                        content = new Buffer(content).toString();
+                    }
+
+                    content = content.replace(/(url\(['"])(\/media)/g, function (match, p1, p2) {
+                        return `${p1}/it-jobs${p2}`;
+                    });
+                }
+
                 this.resp.end(content);
             }
             catch (e) {

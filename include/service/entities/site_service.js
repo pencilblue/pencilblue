@@ -305,7 +305,7 @@ module.exports = function SiteServiceModule(pb) {
     };
 
     /**
-     * Run a job to update a site's hostname and/or displayname.
+     * Run a job to update a site's hostname, displayname and route prefix.
      * @method editSite
      * @param {Object} options - object containing site fields
      * @param {String} options.uid - site uid

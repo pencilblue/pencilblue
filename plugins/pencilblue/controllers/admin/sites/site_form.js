@@ -60,6 +60,7 @@ module.exports = function SiteFormModule(pb) {
         options.isActive = data.active;
         options.uid = data.uid;
         options.useBundledScripts = data.useBundledScripts;
+        options.prefixSite = data.prefix ? data.prefix.toString() : '';
       }
 
       setupAngularObj(self, options, cb);
@@ -87,7 +88,8 @@ module.exports = function SiteFormModule(pb) {
       selectedLocales = [],
       defaultLocale = options.defaultLocale || pb.Localization.getDefaultLocale(),
       isActive = options.isActive,
-      uid = options.uid;
+      uid = options.uid,
+      prefixSite = options.prefixSite;
 
     savedLocales[defaultLocale] = true;
 
@@ -111,7 +113,8 @@ module.exports = function SiteFormModule(pb) {
       defaultLocale: defaultLocale,
       isNew: isNew,
       isActive: isActive,
-      uid: uid
+      uid: uid,
+      prefix: prefixSite
     });
 
     self.ts.registerLocal('angular_objects', new pb.TemplateValue(angularObjects, false));
