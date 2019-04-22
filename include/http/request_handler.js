@@ -369,7 +369,7 @@ module.exports = function RequestHandlerModule(pb) {
                     }
 
                     content = content.replace(/(url\(['"])(\/media)/g, function (match, p1, p2) {
-                        return `${p1}/it-jobs${p2}`;
+                        return `${p1}/${prefix}${p2}`;
                     });
                 }
 
