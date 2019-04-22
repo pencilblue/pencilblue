@@ -343,6 +343,19 @@ module.exports = function RequestHandlerModule(pb) {
                 if (!Buffer.isBuffer(content) && util.isObject(data.content)) {
                     content = JSON.stringify(content);
                 }
+
+                //This is to handle the js file. Maybe we could find some better way.
+                const prefix = this.req && this.req.siteObj && this.req.siteObj.prefix;
+                if (prefix && contentType === 'application/javascript' && Buffer.isBuffer(content)) {
+                    const strContent = new Buffer(content).toString();
+
+                    // Replace all the window.location.href to be window.redirectHref
+                    // Need to include $window.location.href, $window.location.href=, $location.href, and location.href later
+                    content = strContent.replace(/((\$?window\.)(?:top.)?)(location\.href)(?=[\=\s])/g, function (match, p1) {
+                        return `${p1}redirectHref`;
+                    })
+                }
+
                 this.resp.end(content);
             }
             catch (e) {

@@ -48,7 +48,7 @@ module.exports = pb => ({
 
         if (prefix && (contentType === 'text/html' || contentType === undefined) && content && ((typeof content) === 'string')) {
             // Add prefix for all the <a href> & <link href> tags. TO DO: be able to replace <a> href's when href is in a new line
-            content = content.replace(/(\<(?:a|link|script)(?:[^\>]|\r|\n)*\s(?:ng-href|href|src)\s*=\s*['"]\/)([^\/][^'"]*)(['"])/mg, function (match, p1, p2, p3) {
+            content = content.replace(/(\<(?:a|link|script|img)(?:[^\>]|\r|\n)*\s(?:ng-href|href|src)\s*=\s*['"]\/)([^\/][^'"]*)(['"])/mg, function (match, p1, p2, p3) {
                 if (p2.indexOf(prefix) !== 0 && p2.indexOf(prefix) !== 1) {
                     return `${p1}${prefix}/${p2}${p3}`;
                 } else {
@@ -57,9 +57,9 @@ module.exports = pb => ({
             });
 
             // Replace all the window.location.href to be window.redirectHref
-            // Need to include $window.lication.href, $location.href, and location.href later
-            content = content.replace(/window\.location\.href(?=[\=\s])/g, function (match) {
-                return 'window.redirectHref';
+            // Need to include $window.location.href, $location.href, and location.href later
+            content = content.replace(/((\$?window\.)(?:top.)?)(location\.href)(?=[\=\s])/g, function (match, p1) {
+                return '${p1}redirectHref';
             })
 
             // Inject the global value redirectHref in window
@@ -90,18 +90,6 @@ module.exports = pb => ({
                         </script>`;
             });
         }
-
-        //This is to handle the js file. Maybe we could find some better way.
-        if (prefix && contentType === 'application/javascript' && Buffer.isBuffer(content)) {
-            const strContent = new Buffer(content).toString();
-
-            // Replace all the window.location.href to be window.redirectHref
-            // Need to include $window.lication.href, $location.href, and location.href later
-            content = strContent.replace(/window\.location\.href(?=[\=\s])/g, function (match) {
-                return 'window.redirectHref';
-            })
-        }
-
 
         req.controllerResult.content = content;
     }
