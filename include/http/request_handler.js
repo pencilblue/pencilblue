@@ -363,6 +363,16 @@ module.exports = function RequestHandlerModule(pb) {
                     });
                 }
 
+                if (prefix && contentType === 'text/css') {
+                    if (Buffer.isBuffer(content)) {
+                        content = new Buffer(content).toString();
+                    }
+
+                    content = content.replace(/(url\(['"])(\/media)/g, function (match, p1, p2) {
+                        return `${p1}/it-jobs${p2}`;
+                    });
+                }
+
                 this.resp.end(content);
             }
             catch (e) {
