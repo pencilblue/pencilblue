@@ -26,7 +26,12 @@ module.exports = pb => ({
         }
     },
     checkModuleRoute: async (req, res) => {
-        const pathname = req.handler.url.pathname;
+        let pathname = req.handler.url.pathname;
+
+        // The static files could not get the siteObj. So I have to hard code the prefix here.
+        // Not sure if we can have a better solution.
+        pathname = pathname.replace(/^\/(it-jobs|jobs)/, '');
+
         const match = modulePattern.exec(pathname);
         if (match) {
             let modulePath;
