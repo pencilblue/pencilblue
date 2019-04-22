@@ -353,7 +353,10 @@ module.exports = function RequestHandlerModule(pb) {
                     // Need to include $window.location.href, $window.location.href=, $location.href, and location.href later
                     content = strContent.replace(/((\$?window\.)(?:top.)?)(location\.href)(?=[\=\s])/g, function (match, p1) {
                         return `${p1}redirectHref`;
-                    })
+                    });
+
+                    // Handle some hacks
+                    content = content.replace('/public/premium/widgets/job_widget.html', `/${prefix}/public/premium/widgets/job_widget.html`);
                 }
 
                 this.resp.end(content);

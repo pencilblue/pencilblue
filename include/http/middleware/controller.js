@@ -51,7 +51,7 @@ module.exports = pb => ({
                 ((typeof content) === 'string')) {
 
             // Add prefix for all the <a href> & <link href> tags. TO DO: be able to replace <a> href's when href is in a new line
-            content = content.replace(/(\<(?:a|link|script|img)(?:[^\>]|\r|\n)*\s(?:ng-href|href|src)\s*=\s*['"]\/)([^\/][^'"]*)(['"])/mg, function (match, p1, p2, p3) {
+            content = content.replace(/(\<(?:a|link|script|img|image)(?:[^\>]|\r|\n)*\s(?:ng-href|href|src)\s*=\s*['"]\/)([^\/][^'"]*)(['"])/mg, function (match, p1, p2, p3) {
                 if (p2.indexOf(prefix) !== 0 && p2.indexOf(prefix) !== 1) {
                     return `${p1}${prefix}/${p2}${p3}`;
                 } else {
