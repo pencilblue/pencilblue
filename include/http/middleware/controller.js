@@ -46,7 +46,10 @@ module.exports = pb => ({
         let content = req.controllerResult.content;
         const contentType = req.controllerResult.content_type;
 
-        if (prefix && (contentType === 'text/html' || contentType === undefined) && content && ((typeof content) === 'string')) {
+        if (prefix && content && !/.*admin/.test(req.url) &&
+                (contentType === 'text/html' || contentType === undefined) &&
+                ((typeof content) === 'string')) {
+
             // Add prefix for all the <a href> & <link href> tags. TO DO: be able to replace <a> href's when href is in a new line
             content = content.replace(/(\<(?:a|link|script|img)(?:[^\>]|\r|\n)*\s(?:ng-href|href|src)\s*=\s*['"]\/)([^\/][^'"]*)(['"])/mg, function (match, p1, p2, p3) {
                 if (p2.indexOf(prefix) !== 0 && p2.indexOf(prefix) !== 1) {
