@@ -55,7 +55,8 @@ module.exports = pb => ({
             });
 
             // Replace all the window.location.href to be window.redirectHref
-            content = content.replace(/((?<=[^\$])window)?\.location\.href(?=[\=\s])/g, function (match) {
+            // Need to include $window.lication.href, $location.href, and location.href later
+            content = content.replace(/window\.location\.href(?=[\=\s])/g, function (match) {
                 return 'window.redirectHref';
             })
 
@@ -73,20 +74,31 @@ module.exports = pb => ({
                                 get() {
                                     return this.location.href;
                                 }
-                            })
+                            });
+
+                            jQuery.fn.extend({
+                                attr: function( name, value ) {
+                                    if (name === 'href' && /^\//.test(value)) {
+                                        value = '/${prefix}' + value;
+                                    }
+
+                                    return jQuery.access( this, jQuery.attr, name, value, arguments.length > 1 );
+                            　　}
+                            });
                         </script>`;
             });
         }
 
-        // This is to handle the js file. Maybe we could find some better way.
-        // if (prefix && data.content_type === 'application/javascript' && Buffer.isBuffer(content)) {
-        //     const strContent = new Buffer(content).toString();
+        //This is to handle the js file. Maybe we could find some better way.
+        if (prefix && data.content_type === 'application/javascript' && Buffer.isBuffer(content)) {
+            const strContent = new Buffer(content).toString();
 
-        //     // Replace all the window.location.href to be window.redirectHref
-        //     content = strContent.replace(/((?<=[^\$])window)?\.location\.href(?=[\=\s])/g, function (match) {
-        //         return 'window.redirectHref';
-        //     })
-        // }
+            // Replace all the window.location.href to be window.redirectHref
+            // Need to include $window.lication.href, $location.href, and location.href later
+            content = strContent.replace(/window\.location\.href(?=[\=\s])/g, function (match) {
+                return 'window.redirectHref';
+            })
+        }
 
 
         req.controllerResult.content = content;
