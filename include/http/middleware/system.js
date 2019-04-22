@@ -18,7 +18,12 @@ module.exports = pb => ({
         req.handler.hostname = req.headers.host || pb.SiteService.getGlobalSiteContext().hostname;
     },
     checkPublicRoute: async (req, res) => {
-        const pathname = req.handler.url.pathname;
+        let pathname = req.handler.url.pathname;
+
+        // The static files could not get the siteObj. So I have to hard code the prefix here.
+        // Not sure if we can have a better solution.
+        pathname = pathname.replace(/^\/(it-jobs|jobs)/, '');
+
         if (publicRoutes.some(prefix => pathname.startsWith(prefix))) {
             const absolutePath = path.join(pb.config.docRoot, 'public', pathname);
             await req.handler.servePublicContentAsync(absolutePath);
