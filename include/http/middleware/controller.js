@@ -78,7 +78,7 @@ module.exports = pb => ({
 
                             jQuery.fn.extend({
                                 attr: function( name, value ) {
-                                    if (name === 'href' && /^\//.test(value)) {
+                                    if (name === 'href' && /^\\//.test(value)) {
                                         value = '/${prefix}' + value;
                                     }
 
@@ -90,7 +90,7 @@ module.exports = pb => ({
         }
 
         //This is to handle the js file. Maybe we could find some better way.
-        if (prefix && data.content_type === 'application/javascript' && Buffer.isBuffer(content)) {
+        if (prefix && contentType === 'application/javascript' && Buffer.isBuffer(content)) {
             const strContent = new Buffer(content).toString();
 
             // Replace all the window.location.href to be window.redirectHref
