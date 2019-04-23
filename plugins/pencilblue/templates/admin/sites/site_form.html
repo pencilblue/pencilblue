@@ -22,6 +22,10 @@
                         <label>Base route</label>
                         <input type="text" name="prefix" class="form-control" ng-model="prefix">
                     </div>
+                    <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.origin)}">
+                        <label>Site origin</label>
+                        <input type="text" name="origin" class="form-control" ng-model="origin">
+                    </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.supportedLocales)}">
                         <label>Supported Locales</label><br>
                         <label ng-repeat="(locale, checked) in supportedLocales" style="display:block;">

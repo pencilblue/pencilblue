@@ -66,6 +66,7 @@ module.exports = function EditSiteActionModule(pb) {
                 data.forceLocale = self.body.forceLocale;
                 data.useBundledScripts = self.body.useBundledScripts;
                 data.prefix = self.body.prefix;
+                data.origin = self.body.origin;
 
                 var jobId = siteService.editSite(data, function(err, result) {
                     var content = pb.BaseController.apiResponse(pb.BaseController.API_SUCCESS, self.ls.g('sites.UPDATING_SITE'), jobId);
