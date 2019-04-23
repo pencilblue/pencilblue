@@ -16,14 +16,18 @@ module.exports = pb => ({
     urlParse: (req, res) => {
         req.handler.url = url.parse(req.url, true);
         req.handler.hostname = req.headers.host || pb.SiteService.getGlobalSiteContext().hostname;
+        const siteObj = pb.RequestHandler.sites[req.handler.hostname];
+
+        if (siteObj) {
+            req.handler.siteObj = req.siteObj = siteObj;
+        }
     },
     checkPublicRoute: async (req, res) => {
         let pathname = req.handler.url.pathname;
-
-        // The static files could not get the siteObj. So I have to hard code the prefix here.
-        // Not sure if we can have a better solution.
-        pathname = pathname.replace(/^\/(it-jobs|jobs)/, '');
-
+        const prefix = req && req.siteObj && req.siteObj.prefix;
+        if (prefix) {
+            pathname = pathname.replace(`/^\/(${prefix})/`, '');
+        }
         if (publicRoutes.some(prefix => pathname.startsWith(prefix))) {
             const absolutePath = path.join(pb.config.docRoot, 'public', pathname);
             await req.handler.servePublicContentAsync(absolutePath);
@@ -32,11 +36,10 @@ module.exports = pb => ({
     },
     checkModuleRoute: async (req, res) => {
         let pathname = req.handler.url.pathname;
-
-        // The static files could not get the siteObj. So I have to hard code the prefix here.
-        // Not sure if we can have a better solution.
-        pathname = pathname.replace(/^\/(it-jobs|jobs)/, '');
-
+        const prefix = req && req.siteObj && req.siteObj.prefix;
+        if (prefix) {
+            pathname = pathname.replace(`/^\/(${prefix})/`, '');
+        }
         const match = modulePattern.exec(pathname);
         if (match) {
             let modulePath;
