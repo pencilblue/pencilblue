@@ -63,7 +63,7 @@ module.exports = function(pb) {
             try {
                 const settings = await this.getSalesforceSettings(req);
                 const options = {
-                    url: `${salesforceOAUTHAuthorizeService}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.headers.host}/login/salesforce/callback&response_type=code&prompt=login`,
+                    url: `${salesforceOAUTHAuthorizeService}?client_id=${settings.salesforce_client_id}&redirect_uri=${this.getCallBackURL(req)}&response_type=code&prompt=login`,
                     method: 'POST'
                 };
                 return options;
@@ -78,7 +78,7 @@ module.exports = function(pb) {
                 const loginContext = req.session._loginContext || {};
                 const settings = await this.getSalesforceSettings(req);
                 const options = {
-                    url: `${salesforceOAUTHTokenService}?client_id=${settings.salesforce_client_id}&redirect_uri=https://${req.headers.host}/login/salesforce/callback&grant_type=authorization_code&code=${code}&client_secret=${settings.salesforce_client_secret}`,
+                    url: `${salesforceOAUTHTokenService}?client_id=${settings.salesforce_client_id}&redirect_uri=${this.getCallBackURL(req)}&grant_type=authorization_code&code=${code}&client_secret=${settings.salesforce_client_secret}`,
                     method: 'POST',
                     json: true
                 };
@@ -133,6 +133,26 @@ module.exports = function(pb) {
                 salesforceAPIUrl = settings.app_url;
             }
             return settings;
+        }
+
+        getCallBackURL(req) {
+            let baseURL;
+
+            if (req.siteObj.origin) {
+                // just to be safe, but siteObj.origin should not contain a protocol
+                if (!req.siteObj.origin.includes('http://') && !req.siteObj.origin.includes('https://')) {
+                    baseURL = `https://${req.siteObj.origin}`;
+                } else {
+                    baseURL = `${req.siteObj.origin}`;
+                }
+            } else {
+                baseURL = `https://${req.headers.host}`;
+            }
+            if (req.siteObj.prefix) {
+                baseURL += `/${req.siteObj.prefix}`;
+            }
+
+            return `${baseURL}/login/salesforce/callback`;
         }
     };
 
