@@ -18,16 +18,20 @@ module.exports = pb => ({
         req.handler.hostname = req.headers.host || pb.SiteService.getGlobalSiteContext().hostname;
         const siteObj = pb.RequestHandler.sites[req.handler.hostname];
 
-        if (siteObj) {
-            req.handler.siteObj = req.siteObj = siteObj;
+        if (siteObj && siteObj.prefix) {
+            req.url = req.url.replace(new RegExp(`^\/${siteObj.prefix}`), '');
+            req.handler.url = url.parse(req.url, true);
         }
     },
     checkPublicRoute: async (req, res) => {
         let pathname = req.handler.url.pathname;
-        const prefix = req && req.siteObj && req.siteObj.prefix;
-        if (prefix) {
-            pathname = pathname.replace(`/^\/(${prefix})/`, '');
-        }
+
+        // This is to hack the public files
+        // const sitePrefix = req && req.siteObj && req.siteObj.prefix;
+        // if (sitePrefix) {
+        //     pathname = pathname.replace(new RegExp(`^\/${sitePrefix}`), '');
+        // }
+
         if (publicRoutes.some(prefix => pathname.startsWith(prefix))) {
             const absolutePath = path.join(pb.config.docRoot, 'public', pathname);
             await req.handler.servePublicContentAsync(absolutePath);
@@ -36,10 +40,10 @@ module.exports = pb => ({
     },
     checkModuleRoute: async (req, res) => {
         let pathname = req.handler.url.pathname;
-        const prefix = req && req.siteObj && req.siteObj.prefix;
-        if (prefix) {
-            pathname = pathname.replace(`/^\/(${prefix})/`, '');
-        }
+        // const prefix = req && req.siteObj && req.siteObj.prefix;
+        // if (prefix) {
+        //     pathname = pathname.replace(new RegExp(`^\/${prefix}`), '');
+        // }
         const match = modulePattern.exec(pathname);
         if (match) {
             let modulePath;

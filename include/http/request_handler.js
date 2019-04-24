@@ -356,7 +356,6 @@ module.exports = function RequestHandlerModule(pb) {
                     });
 
                     // Handle some hacks
-                    // content = content.replace('/public/premium/widgets/job_widget.html', `/${prefix}/public/premium/widgets/job_widget.html`);
                     // temp fix, might need to update later.
                     content = content.replace(/\/public\/premium\/?/g, function (match) {
                         return `/${prefix}${match}`;
@@ -368,8 +367,13 @@ module.exports = function RequestHandlerModule(pb) {
                         content = new Buffer(content).toString();
                     }
 
-                    content = content.replace(/(url\(['"])(\/media)/g, function (match, p1, p2) {
-                        return `${p1}/${prefix}${p2}`;
+                    content = content.replace(/(url\(['"])(\/[^'"\)]*['"]\s*\))/g, function (match, p1, p2) {
+                        if (p2.indexOf(prefix) === 0 || p2.indexOf(prefix) === 1) {
+                            return match;
+                        } else {
+                            return `${p1}/${prefix}${p2}`;
+                        }
+
                     });
                 }
 
