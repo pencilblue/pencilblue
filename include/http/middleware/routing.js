@@ -60,19 +60,19 @@ module.exports = pb => ({
         let found = !exactMatch && plugins.some(plugin => {
             return Object.values(plugin).some(route => {
                 let match = route.pattern.exec(req.handler.url.pathname)
-                let prefix = req.siteObj.prefix
+                // let prefix = req.siteObj.prefix
 
-                if (prefix) {
-                    let trimedPathName = req.handler.url.pathname.replace(prefix, '').replace('//', '/');
-                    exactMatch = plugins.some(plugin => {
-                        descriptor = findDescriptor(plugin[trimedPathName]) || findDescriptor(plugin['/:locale?' + trimedPathName])
-                        return descriptor
-                    })
-                    if (exactMatch) {
-                        return
-                    }
-                    match = route.pattern.exec(trimedPathName);
-                }
+                // if (prefix) {
+                //     let trimedPathName = req.handler.url.pathname.replace(prefix, '').replace('//', '/');
+                //     exactMatch = plugins.some(plugin => {
+                //         descriptor = findDescriptor(plugin[trimedPathName]) || findDescriptor(plugin['/:locale?' + trimedPathName])
+                //         return descriptor
+                //     })
+                //     if (exactMatch) {
+                //         return
+                //     }
+                //     match = route.pattern.exec(trimedPathName);
+                // }
 
                 if (!match) {
                     return false
