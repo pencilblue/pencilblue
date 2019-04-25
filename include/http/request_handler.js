@@ -419,6 +419,13 @@ module.exports = function RequestHandlerModule(pb) {
              */
         doRedirect(location, statusCode) {
             this.resp.statusCode = statusCode || pb.HttpStatus.MOVED_TEMPORARILY;
+
+            const prefix = this.req && this.req.siteObj && this.req.siteObj.prefix;
+            if (prefix && /^\/(?!admin).*/.test(location)
+                    && location.indexOf(prefix) !== 0 && location.indexOf(prefix) !== 1) {
+                location = `/${prefix}${location}`
+            }
+
             this.resp.setHeader("Location", location);
             this.resp.end();
         }
