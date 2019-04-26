@@ -653,11 +653,12 @@ module.exports = function BaseControllerModule(pb) {
      * @param {Function} cb
      */
     BaseController.prototype.redirect = function(location, cb){
-        if (this.req.siteObj.prefix && /^\/.*/.test(location) && location.indexOf(this.req.siteObj.prefix) === -1 && location.indexOf('admin') === -1) {
-            cb(pb.RequestHandler.generateRedirect(`/${this.req.siteObj.prefix}${location}`));
-        } else {
-            cb(pb.RequestHandler.generateRedirect(location));
-        }
+        // if (this.req.siteObj.prefix && /^\/.*/.test(location) && location.indexOf(this.req.siteObj.prefix) === -1 && location.indexOf('admin') === -1) {
+        //     cb(pb.RequestHandler.generateRedirect(`/${this.req.siteObj.prefix}${location}`));
+        // } else {
+        //     cb(pb.RequestHandler.generateRedirect(location));
+        // }
+        cb(pb.RequestHandler.generateRedirect(location));
     };
 
     /**
