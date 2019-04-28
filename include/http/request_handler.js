@@ -367,7 +367,7 @@ module.exports = function RequestHandlerModule(pb) {
                         content = new Buffer(content).toString();
                     }
 
-                    content = content.replace(/(url\(['"])(\/[^'"\)]*['"]\s*\))/g, function (match, p1, p2) {
+                    content = content.replace(/(url\(['"]?)(\/[^'"\)]*['"]?\s*\))/g, function (match, p1, p2) {
                         if (p2.indexOf(prefix) === 0 || p2.indexOf(prefix) === 1) {
                             return match;
                         } else {

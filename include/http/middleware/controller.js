@@ -86,7 +86,7 @@ module.exports = pb => ({
 
                             jQuery.fn.extend({
                                 attr: function( name, value ) {
-                                    if (name === 'href' && /^\\//.test(value) && !/^\\/${prefix}/.test(value)) {
+                                    if ((name === 'href' || name === 'src') && /^\\//.test(value) && !/^\\/${prefix}/.test(value)) {
                                         value = '/${prefix}' + value;
                                     }
 
