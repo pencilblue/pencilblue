@@ -303,7 +303,7 @@ module.exports = function RequestHandlerModule(pb) {
              * @method writeResponse
              * @param {Object} data
              */
-        writeResponse(data) {
+        async writeResponse(data) {
             var self = this;
             //infer a response code when not provided
             if (!data.code) {
@@ -335,7 +335,26 @@ module.exports = function RequestHandlerModule(pb) {
                         pb.log.error('Failed to set cookie, callback probably called twice: %s', e.stack);
                     }
                 }
-                this.resp.setHeader('Access-Control-Allow-Origin', pb.SiteService.getHostWithProtocol(this.hostname));
+
+                var pluginService = new pb.PluginService({
+                    site: this.req.site
+                });
+                pluginService = Promise.promisifyAll(pluginService);
+                var settings = await pluginService.getSettingsKVAsync('tn_auth');
+                if (settings && settings.enable_CORS && settings.white_listed_origins) {
+                    var whiteListedOrigins = settings.white_listed_origins.split(',');
+                    var hostname = this.req.headers.referer ? this.req.headers.referer.match(/:\/\/(www[0-9]?\.)?(.[^/]+)/i)[2] : this.hostname;
+                    var scheme = this.req.headers.referer ? this.req.headers.referer.match(/^http([s]?):\/\//)[0] : 'https://';
+
+                    if (whiteListedOrigins && whiteListedOrigins.find(origin => {return hostname.indexOf(origin) !== -1;})){
+                        this.resp.setHeader('Access-Control-Allow-Origin', scheme + hostname);
+                    } else {
+                        this.resp.setHeader('Access-Control-Allow-Origin', pb.SiteService.getHostWithProtocol(this.hostname));
+                    }
+                } else {
+                    this.resp.setHeader('Access-Control-Allow-Origin', pb.SiteService.getHostWithProtocol(this.hostname));
+                }
+
                 this.resp.setHeader('content-type', contentType);
                 this.resp.writeHead(data.code);
                 //write content
