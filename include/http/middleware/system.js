@@ -32,7 +32,7 @@ module.exports = pb => ({
         //     pathname = pathname.replace(new RegExp(`^\/${sitePrefix}`), '');
         // }
 
-        if (publicRoutes.some(prefix => pathname.startsWith(prefix))) {
+        if (pathname && publicRoutes.some(prefix => pathname.startsWith(prefix))) {
             const absolutePath = path.join(pb.config.docRoot, 'public', pathname);
             await req.handler.servePublicContentAsync(absolutePath);
             req.router.continueAfter('writeResponse');
