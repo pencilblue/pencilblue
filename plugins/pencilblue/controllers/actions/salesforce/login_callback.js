@@ -41,7 +41,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
             if (response.updateEmail) {
                 await this.updateEmail(response.user);
             }
-            let redirectLocation = await this.getRedirectLink(response.user, state);
+            let redirectLocation = await this.getRedirectLink(response.user, state, salesforceStrategyService);
             this.redirect(redirectLocation, cb);
         }
 
@@ -72,7 +72,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
             this.req.session._loginContext = options;
         }
 
-        async getRedirectLink(user, state) {
+        async getRedirectLink(user, state, salesforceStrategyService) {
             let location = '/';
             const siteQueryService = new pb.SiteQueryService();
             const query = {
@@ -96,6 +96,13 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
             if (state) {
                 location += `?state=${JSON.stringify(state)}`;
             }
+
+            const options = await salesforceStrategyService.getSalesforceCallbackSettings(this.req);
+
+            if (options.addPrefix && location.indexOf(options.prefix) !== 1) {
+                location = `/${options.prefix}${location}`;
+            }
+
             return location;
         }
     }
