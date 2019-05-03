@@ -59,6 +59,19 @@ module.exports = function(pb) {
             }
         }
 
+        async getSalesforceCallbackSettings(req) {
+            const settings = await this.getSalesforceSettings(req);
+            const options = {
+                addPrefix: req.siteObj && req.siteObj.prefix && settings.use_prefix_cb_redir
+            }
+
+            if (options.addPrefix) {
+                options.prefix = req.siteObj.prefix;
+            }
+
+            return options;
+        }
+
         async getSalesforceLoginSettings(req) {
             try {
                 const settings = await this.getSalesforceSettings(req);
