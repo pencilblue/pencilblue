@@ -22,7 +22,17 @@ module.exports = function LoginSFSSOControllerModule(pb) {
             if (this.query.state) {
                 options.url += `&state=${this.query.state}`;
             }
-            request(options).pipe(this.res);
+
+            request(options)
+                .on('response', (response) => {
+                    const currentUrl = this.req && this.req.url;
+                    const responseHeader = response && response.headers;
+
+                    this.log.info(`Salesforce Login Redirection here:
+                        Current URL is: ${currentUrl}
+                        Response header is: ${JSON.stringify(responseHeader)}`);
+                })
+                .pipe(this.res)
         }
     }
 
