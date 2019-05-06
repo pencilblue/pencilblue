@@ -27,6 +27,8 @@ module.exports = function LogOutSFSSOControllerModule(pb) {
                         if (err) {
                             reject(false);
                         } else {
+                            //close the session (destroys all, including session uid)
+                            pb.session.close(this.session, () => {});
                             //clear the cookie
                             const cookies = new Cookies(this.req, this.res);
                             const cookie = pb.SessionHandler.getSessionCookie(this.session);
@@ -38,7 +40,7 @@ module.exports = function LogOutSFSSOControllerModule(pb) {
                     });
                 });
             } catch (e) {
-                pb.log.error('Something went wrong during the removal of the cookie : ', e);
+                pb.log.error('Something went wrong during session closing and the removal of the cookie : ', e);
             }
 
             if (response && response.enableCustomLogout && response.url) {
