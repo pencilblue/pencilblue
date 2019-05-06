@@ -103,6 +103,7 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                 location = `/${options.prefix}${location}`;
             }
 
+            pb.log.info(`callback redirection URL: ${location}`);
             return location;
         }
     }
