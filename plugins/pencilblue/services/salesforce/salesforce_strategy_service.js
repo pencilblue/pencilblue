@@ -34,6 +34,7 @@ module.exports = function(pb) {
                 };
                 await request(options);
                 return {
+                    serverSideCustomLogoutRequest: settings.server_custom_logout_request,
                     enableCustomLogout: settings.enable_custom_logout_url,
                     url: settings.custom_logout_url
                 };

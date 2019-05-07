@@ -44,11 +44,14 @@ module.exports = function LogOutSFSSOControllerModule(pb) {
             }
 
             if (response && response.enableCustomLogout && response.url) {
-                request({
-                    url: response.url,
-                    method: 'GET'
-                }).pipe(this.res);
-
+                if (response.serverSideCustomLogoutRequest) {
+                    request({
+                        url: response.url,
+                        method: 'GET'
+                    }).pipe(this.res);
+                } else {
+                    this.redirect(response.url, cb);
+                }
             } else {
                 this.redirect('/', cb);
             }
