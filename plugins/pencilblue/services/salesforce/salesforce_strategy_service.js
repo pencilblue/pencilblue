@@ -34,6 +34,7 @@ module.exports = function(pb) {
                 };
                 await request(options);
                 return {
+                    serverSideCustomLogoutRequest: settings.server_custom_logout_request,
                     enableCustomLogout: settings.enable_custom_logout_url,
                     url: settings.custom_logout_url
                 };
@@ -60,9 +61,8 @@ module.exports = function(pb) {
         }
 
         async getSalesforceCallbackSettings(req) {
-            const settings = await this.getSalesforceSettings(req);
             const options = {
-                addPrefix: req.siteObj && req.siteObj.prefix && settings.use_prefix_cb_redir
+                addPrefix: req.siteObj && req.siteObj.prefix
             }
 
             if (options.addPrefix) {
