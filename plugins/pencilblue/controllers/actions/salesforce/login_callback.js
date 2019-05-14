@@ -94,6 +94,9 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                 location = `/${this.req.localizationService.language}/profile/view`;
             }
             if (state) {
+                if (state.redirectURL) {
+                    state.redirectURL = encodeURIComponent(state.redirectURL);
+                }
                 location += `?state=${JSON.stringify(state)}`;
             }
 

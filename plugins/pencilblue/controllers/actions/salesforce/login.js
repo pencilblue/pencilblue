@@ -20,6 +20,9 @@ module.exports = function LoginSFSSOControllerModule(pb) {
             const salesforceStrategyService = new SalesforceStrategyService();
             const options = await salesforceStrategyService.getSalesforceLoginSettings(this.req);
             if (this.query.state) {
+                if (this.query.state.redirectURL) {
+                    this.query.state.redirectURL = encodeURIComponent(this.query.state.redirectURL);
+                }
                 options.url += `&state=${this.query.state}`;
             }
 
