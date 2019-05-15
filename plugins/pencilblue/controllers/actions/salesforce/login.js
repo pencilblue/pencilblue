@@ -20,7 +20,15 @@ module.exports = function LoginSFSSOControllerModule(pb) {
             const salesforceStrategyService = new SalesforceStrategyService();
             const options = await salesforceStrategyService.getSalesforceLoginSettings(this.req);
             if (this.query.state) {
-                options.url += `&state=${this.query.state}`;
+                try {
+                    let state = JSON.parse(this.query.state);
+                    if (state.redirectURL) {
+                        state.redirectURL = encodeURIComponent(state.redirectURL);
+                    }
+                    options.url += `&state=${JSON.stringify(state)}`;
+                } catch (e) {
+                    pb.log.warn('Something went wrong during the state parsing: ', e);
+                }
             }
 
             request(options)

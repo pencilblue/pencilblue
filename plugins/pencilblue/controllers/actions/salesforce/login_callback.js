@@ -94,7 +94,11 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                 location = `/${this.req.localizationService.language}/profile/view`;
             }
             if (state) {
-                location += `?state=${JSON.stringify(state)}`;
+                if (state.redirectURL) {
+                    state.redirectURL = encodeURIComponent(state.redirectURL);
+                }
+                let token = location.includes('?') ? '&' : '?';
+                location += `${token}state=${JSON.stringify(state)}`;
             }
 
             const options = await salesforceStrategyService.getSalesforceCallbackSettings(this.req);
