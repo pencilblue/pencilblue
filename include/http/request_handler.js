@@ -356,6 +356,20 @@ module.exports = function RequestHandlerModule(pb) {
                 }
 
                 this.resp.setHeader('content-type', contentType);
+
+                const secureCookies = this.req && this.req.siteObj && this.req.siteObj.secureCookies;
+                if (secureCookies) {
+                    const cookies = this.resp.getHeader('set-cookie');
+                    (cookies || []).forEach((cookie, index) => {
+                        if (!/\bsecure\b/g.test(cookie)) {
+                            cookies[index] = `${cookie}; Secure`;
+                        }
+                    });
+                    if (cookies) {
+                        this.resp.setHeader('set-cookie', cookies);
+                    }
+                }
+
                 this.resp.writeHead(data.code);
                 //write content
                 var content = data.content;
