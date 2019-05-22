@@ -1323,6 +1323,20 @@ module.exports = function RequestHandlerModule(pb) {
                 this.resp.setHeader('x-powered-by', pb.config.server.x_powered_by);
             }
             this.resp.setHeader('content-type', contentType);
+            //Start: This code is to handle the "set-cookies" 
+            const secureCookies = this.req && this.req.siteObj && this.req.siteObj.secureCookies;
+            if (secureCookies) {
+                const cookies = this.resp.getHeader('set-cookie');
+                (cookies || []).forEach((cookie, index) => {
+                    if (!/\bsecure\b/g.test(cookie)) {
+                        cookies[index] = `${cookie}; Secure`;
+                    }
+                });
+                if (cookies) {
+                    this.resp.setHeader('set-cookie', cookies);
+                }
+            }
+            //End
             this.resp.writeHead(data.code);
 
             //write content
