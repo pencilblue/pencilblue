@@ -74,9 +74,6 @@ module.exports = function(pb) {
 
         async getSalesforceLoginSettings(req) {
             try {
-                if(req.session && req.session.authentication && req.session.authentication.user && req.session.authentication.user.jobSeekerProfileId){
-                    return {url:`http://${req.headers.host}/profile/view`,method:'GET'}
-                }
                 const settings = await this.getSalesforceSettings(req);
                 const options = {
                     url: `${salesforceOAUTHAuthorizeService}?client_id=${settings.salesforce_client_id}&redirect_uri=${this.getCallBackURL(req)}&response_type=code&prompt=login`,

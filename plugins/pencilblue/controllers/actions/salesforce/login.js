@@ -13,15 +13,17 @@ module.exports = function LoginSFSSOControllerModule(pb) {
     class LoginSFSSOController extends pb.BaseController {
         render(cb) {
             this.sanitizeObject(this.body);
-            this.salesforceSSO(cb);
+            if(this.req.session && this.req.session.authentication && this.req.session.authentication.user &&
+                this.req.session.authentication.user.external_user_id){
+                this.redirect (`http://${this.req.headers.host}/profile/view`,cb);
+            }else{
+                this.salesforceSSO(cb);
+            }
         }
 
         async salesforceSSO(cb) {
             const salesforceStrategyService = new SalesforceStrategyService();
             const options = await salesforceStrategyService.getSalesforceLoginSettings(this.req);
-            if(options.url.indexOf('profile/view') !== -1){
-                return this.redirect(options.url,cb);
-            }
             if (this.query.state) {
                 try {
                     let state = JSON.parse(this.query.state);
