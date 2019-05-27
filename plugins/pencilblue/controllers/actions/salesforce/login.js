@@ -15,7 +15,7 @@ module.exports = function LoginSFSSOControllerModule(pb) {
             this.sanitizeObject(this.body);
             if(this.req.session && this.req.session.authentication && this.req.session.authentication.user &&
                 this.req.session.authentication.user.external_user_id){
-                this.redirect (`https://${this.req.headers.host}/profile/view`,cb);
+                this.redirect (`/profile/view`,cb);
             }else{
                 this.salesforceSSO(cb);
             }
