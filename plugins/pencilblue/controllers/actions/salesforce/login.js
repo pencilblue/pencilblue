@@ -19,6 +19,9 @@ module.exports = function LoginSFSSOControllerModule(pb) {
         async salesforceSSO(cb) {
             const salesforceStrategyService = new SalesforceStrategyService();
             const options = await salesforceStrategyService.getSalesforceLoginSettings(this.req);
+            if(options.url.indexOf('profile/view') !== -1){
+                return this.redirect(options.url,cb);
+            }
             if (this.query.state) {
                 try {
                     let state = JSON.parse(this.query.state);
