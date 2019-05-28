@@ -13,7 +13,12 @@ module.exports = function LoginSFSSOControllerModule(pb) {
     class LoginSFSSOController extends pb.BaseController {
         render(cb) {
             this.sanitizeObject(this.body);
-            this.salesforceSSO(cb);
+            if(this.req.session && this.req.session.authentication && this.req.session.authentication.user &&
+                this.req.session.authentication.user.external_user_id){
+                this.redirect (`/profile/view`,cb);
+            }else{
+                this.salesforceSSO(cb);
+            }
         }
 
         async salesforceSSO(cb) {
