@@ -22,6 +22,13 @@
                         <label>Base route</label>
                         <input type="text" name="prefix" class="form-control" ng-model="prefix">
                     </div>
+                    <div class="form-group"> 
+                        <label>Secure Cookies</label> 
+                        <div class="btn-group"> 
+                            <button type="button" id="enable-custom-redirect" class="btn btn-default" ng-class="{'active': secureCookies}" ng-click="secureCookies = true">^loc_YES^</button> 
+                            <button type="button" id="disable-custom-redirect" class="btn btn-default" ng-class="{'active': !secureCookies}" ng-click="secureCookies = false">^loc_NO^</button> 
+                        </div> 
+                     </div>
                     <div class="form-group" ng-class="{'has-error': !isFieldValid(siteForm.origin)}">
                         <label>Site origin</label>
                         <input type="text" name="origin" class="form-control" ng-model="origin">
