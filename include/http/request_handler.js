@@ -359,7 +359,7 @@ module.exports = function RequestHandlerModule(pb) {
                 let enabledSecureCookie = this.req && this.req.siteObj && this.req.siteObj.enabledSecureCookie;
                 enabledSecureCookie = (enabledSecureCookie == undefined) ? true : enabledSecureCookie;
                 const cookies = this.resp.getHeader('set-cookie');
-                if (setDefaultSecureCookie && cookies) {
+                if (enabledSecureCookie && cookies) {
                     cookies.forEach((cookie, index) => {
                         if (!/\bsecure\b/g.test(cookie)) {
                             cookies[index] = `${cookie}; Secure`;
