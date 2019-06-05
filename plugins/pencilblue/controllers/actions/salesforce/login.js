@@ -40,7 +40,7 @@ module.exports = function LoginSFSSOControllerModule(pb) {
                 .on('response', (response) => {
                     const currentUrl = this.req && this.req.url;
                     const responseHeader = response && response.headers;
-
+                    responseHeader.location += `&lang=${this.ls.language}`;
                     this.log.info(`Salesforce Login Redirection here:
                         Current URL is: ${currentUrl}
                         Response header is: ${JSON.stringify(responseHeader)}`);

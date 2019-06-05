@@ -65,7 +65,8 @@ module.exports = function Routes(pb){
             auth_required: false,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce', 'login.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            localization: true
         },
         {
             method: 'get',
@@ -73,7 +74,8 @@ module.exports = function Routes(pb){
             auth_required: false,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce', 'register.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            localization: true
         },
         {
             method: 'get',
@@ -81,7 +83,8 @@ module.exports = function Routes(pb){
             auth_required: false,
             inactive_site_access: true,
             controller: path.join(pb.config.docRoot, 'plugins', 'pencilblue', 'controllers', 'actions', 'salesforce', 'logout.js'),
-            content_type: 'text/html'
+            content_type: 'text/html',
+            localization: true
         },
         {
             method: 'get',

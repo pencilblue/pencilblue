@@ -27,11 +27,17 @@ module.exports = function RegisterSFControllerModule(pb) {
                         options.url += `&state=${this.query.state}`;
                     }
                     request(options)
-                        .on('response', function(rsp) {
+                        .on('response', (rsp) => {
                             rsp.headers.location = rsp.headers.location.replace(response.toReplace, response.replacement);
+                            rsp.headers.location += `&lang=${this.ls.language}`;
                         }).pipe(this.res);
                 } else {
                     this.redirect(response.url, cb);
+                    request(options)
+                        .on('response', (rsp) => {
+                            rsp.headers.location += `&lang=${this.ls.language}`;
+                        })
+                        .pipe(this.res)
                 }
             } else {
                 this.redirect('/login/salesforce', cb);
