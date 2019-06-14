@@ -71,23 +71,23 @@ module.exports = pb => ({
             // Inject the global value redirectHref in window
             content = content.replace(/<body[^>]*>/, function (match) {
                 return `${match}<script>
-                            const reg = new RegExp('^\/(?!${prefix})');
+                            var reg = new RegExp('^\/(?!${prefix})');
 
                             Object.defineProperty(window, 'redirectHref', {
-                                set(val) {
+                                'set': function (val) {
                                     if (reg.test(val)) {
                                         this.location.href = '/${prefix}' + val;
                                     } else {
                                         this.location.href = val;
                                     }
                                 },
-                                get() {
+                                'get': function () {
                                     return this.location.href;
                                 }
                             });
 
                             jQuery.fn.extend({
-                                attr: function( name, value ) {
+                                'attr': function ( name, value ) {
                                     if ((name === 'href' || name === 'src') && reg.test(value)) {
                                         value = '/${prefix}' + value;
                                     }
