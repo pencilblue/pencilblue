@@ -19,7 +19,7 @@ module.exports = pb => ({
         const siteObj = pb.RequestHandler.sites[req.handler.hostname];
 
         if (siteObj && siteObj.prefix) {
-            req.url = req.url.replace(new RegExp(`^\/${siteObj.prefix}`), '') || '/';
+            req.url = req.url.replace(new RegExp(`^\/${siteObj.prefix}\/?`), '/');
             req.handler.url = url.parse(req.url, true);
         }
     },
@@ -49,7 +49,7 @@ module.exports = pb => ({
             let modulePath;
             try {
                 modulePath = require.resolve(match[1])
-            } catch(_) {
+            } catch (_) {
                 throw ErrorUtils.notFound()
             }
             await req.handler.servePublicContentAsync(modulePath);
