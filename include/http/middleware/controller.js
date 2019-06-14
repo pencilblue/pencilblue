@@ -93,6 +93,13 @@ module.exports = pb => ({
                                     }
 
                                     return jQuery.access( this, jQuery.attr, name, value, arguments.length > 1 );
+                            　　},
+                                'prop': function ( name, value ) {
+                                    if ((name === 'href' || name === 'src') && reg.test(value)) {
+                                        value = '/${prefix}' + value;
+                                    }
+
+                                    return jQuery.access( this, jQuery.attr, name, value, arguments.length > 1 );
                             　　}
                             });
                         </script>`;
