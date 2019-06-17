@@ -46,7 +46,7 @@ module.exports = pb => ({
         let content = req.controllerResult.content;
         const contentType = req.controllerResult.content_type;
 
-        if (prefix && content && !/.*admin/.test(req.url) &&
+        if (prefix && content && !/^\/admin\//.test(req.url) &&
                 (contentType === 'text/html' || contentType === undefined) &&
                 ((typeof content) === 'string')) {
 
