@@ -25,11 +25,12 @@ module.exports = function(pb) {
     const { deriveSite, deriveActiveTheme, deriveRoute, inactiveAccessCheck } = require('./routing')(pb)
     const { requiresAuthenticationCheck, authorizationCheck, ipFilterCheck } = require('./auth')(pb)
     const { localizedRouteCheck, initializeLocalization } = require('./localization')(pb)
-    const { instantiateController, initializeController, render, writeResponse, prefix } = require('./controller')(pb)
+    const { instantiateController, initializeController, render, writeResponse, prefix, callProxy } = require('./controller')(pb)
 
     const stack = [
         startTime,
         urlParse,
+        callProxy,
         checkModuleRoute,
         checkPublicRoute,
         openSession,
