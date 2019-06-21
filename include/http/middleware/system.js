@@ -34,11 +34,8 @@ module.exports = pb => ({
                     url: url,
                     method: 'GET',
                     headers: {
-                        "Accept": '*/*;q=0.5, text/javascript, application/javascript, application/ecmascript, application/x-ecmascript',
-                        "Referer": 'http://premium.lvh.me:8080/searchv2',
-                        'Origin': 'http://premium.lvh.me:8080',
-                        'User-Agent': 'Mozilla/ 5.0(Macintosh; Intel Mac OS X 10_13_6) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 75.0.3770.90 Safari / 537.36',
-                        'DNT': '1',
+                        "Accept": req.headers.accept,
+                        "User-Agent": req.headers['user-agent']
                     },
                     resolveWithFullResponse: true
                 });
