@@ -1,5 +1,6 @@
 const util = require('util')
 const _ = require('lodash')
+
 module.exports = pb => ({
     instantiateController: (req, res) => {
         const Controller = _.get(req, 'route.controller');
@@ -37,6 +38,7 @@ module.exports = pb => ({
             req.handler.writeResponse(data);
         }
     },
+
     prefix: (req, res) => {
         if (typeof req.controllerResult.redirect === 'string') {
             // no need to process output
@@ -47,8 +49,8 @@ module.exports = pb => ({
         const contentType = req.controllerResult.content_type;
 
         if (prefix && content && !/^\/admin\//.test(req.url) &&
-                (contentType === 'text/html' || contentType === undefined) &&
-                ((typeof content) === 'string')) {
+            (contentType === 'text/html' || contentType === undefined) &&
+            ((typeof content) === 'string')) {
 
             // Add prefix for all the <a href> & <link href> tags. TO DO: be able to replace <a> href's when href is in a new line
             const disableHtmlPrefix = req && req.siteObj && req.siteObj.disableHtmlPrefix;
