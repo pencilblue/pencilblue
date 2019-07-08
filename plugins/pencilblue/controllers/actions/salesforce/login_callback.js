@@ -75,11 +75,20 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
         async getRedirectLink(user, state, salesforceStrategyService) {
             let location = '/';
             const siteQueryService = new pb.SiteQueryService();
-            const query = {
+            const query_ext_id = {
                 externalUserId: user.external_user_id,
                 object_type: 'jobseeker_profile'
             };
-            const hasJobSeekerProfile = await siteQueryService.loadByValuesAsync(query, 'jobseeker_profile');
+            let hasJobSeekerProfile = await siteQueryService.loadByValuesAsync(query_ext_id, 'jobseeker_profile');
+
+            const query_email = {
+                username: user.email,
+                object_type: 'jobseeker_profile'
+            };
+            if (!hasJobSeekerProfile) {
+                hasJobSeekerProfile = await siteQueryService.loadByValuesAsync(query_email, 'jobseeker_profile');
+            }
+
             if (state && state.highPriorityToRegister && !hasJobSeekerProfile) {
                 location = `/${this.req.localizationService.language}/profile/create-profile`;
             } else if (state && state.redirectURL) {
