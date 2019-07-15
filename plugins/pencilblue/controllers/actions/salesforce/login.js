@@ -27,10 +27,7 @@ module.exports = function LoginSFSSOControllerModule(pb) {
             if (this.query.state) {
                 try {
                     let state = JSON.parse(this.query.state);
-                    if (state.redirectURL) {
-                        state.redirectURL = encodeURIComponent(state.redirectURL);
-                    }
-                    options.url += `&state=${JSON.stringify(state)}`;
+                    options.url += `&state=${encodeURIComponent(JSON.stringify(state))}`;
                 } catch (e) {
                     pb.log.warn('Something went wrong during the state parsing: ', e);
                 }
