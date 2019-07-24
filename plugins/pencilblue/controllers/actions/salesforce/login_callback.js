@@ -89,13 +89,14 @@ module.exports = function LoginSalesforceCallbackControllerModule(pb) {
                 hasJobSeekerProfile = await siteQueryService.loadByValuesAsync(query_email, 'jobseeker_profile');
             }
 
+            if (this.session.on_login) {
+                delete this.session.on_login;
+            }
+
             if (state && state.highPriorityToRegister && !hasJobSeekerProfile) {
                 location = `/${this.req.localizationService.language}/profile/create-profile`;
             } else if (state && state.redirectURL) {
                 location = state.redirectURL;
-            } else if (this.session.on_login) {
-                location = this.session.on_login;
-                delete this.session.on_login;
             } else if (!hasJobSeekerProfile) {
                 // redirect to create-profile if the user doesn't have a created jobseeker profile
                 location = `/${this.req.localizationService.language}/profile/create-profile`;
