@@ -356,7 +356,8 @@ module.exports = function RequestHandlerModule(pb) {
                 }
 
                 this.resp.setHeader('content-type', contentType);
-                let disableSecureCookie = this.req && this.req.siteObj && this.req.siteObj.disableSecureCookie;
+                const isDev = process && process.env && process.env.NODE_ENV === 'development';
+                const disableSecureCookie = (this.req && this.req.siteObj && this.req.siteObj.disableSecureCookie) || isDev;
                 const cookies = this.resp.getHeader('set-cookie');
                 if (!disableSecureCookie && cookies) {
                     cookies.forEach((cookie, index) => {
