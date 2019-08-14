@@ -26,13 +26,10 @@ module.exports = function(pb) {
     const { requiresAuthenticationCheck, authorizationCheck, ipFilterCheck } = require('./auth')(pb)
     const { localizedRouteCheck, initializeLocalization } = require('./localization')(pb)
     const { instantiateController, initializeController, render, writeResponse, prefix } = require('./controller')(pb)
-    const { prerender } = require('./prerender')(pb)
-
 
     const stack = [
         startTime,
         urlParse,
-        prerender,
         checkModuleRoute,
         checkPublicRoute,
         openSession,
