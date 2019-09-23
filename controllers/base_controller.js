@@ -229,11 +229,11 @@ module.exports = function BaseControllerModule(pb) {
         };
 
         if(process.env.NEW_RELIC_LICENSE_KEY && process.env.NEW_RELIC_APP_NAME) {
-            newrelic.addCustomParameter('hostname', this.hostname);
-            newrelic.addCustomParameter('pathVars', JSON.stringify(this.pathVars));
-            newrelic.addCustomParameter('query', JSON.stringify(this.query));
-            newrelic.addCustomParameter('referer', this.referer);
-            newrelic.addCustomParameter('x-forwarded-for', this.req.headers["x-forwarded-for"]);
+            newrelic.addCustomAttribute('hostname', this.hostname);
+            newrelic.addCustomAttribute('pathVars', JSON.stringify(this.pathVars));
+            newrelic.addCustomAttribute('query', JSON.stringify(this.query));
+            newrelic.addCustomAttribute('referer', this.referer);
+            newrelic.addCustomAttribute('x-forwarded-for', this.req.headers["x-forwarded-for"]);
         }
         //call the initSync function
         this.initSync(props);
