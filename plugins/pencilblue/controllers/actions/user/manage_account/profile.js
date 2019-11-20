@@ -61,9 +61,15 @@ module.exports = function UserProfileApiControllerModule(pb) {
      * @param {Function} cb
      */
     UserProfileApiController.prototype.put = function(cb) {
+        var self = this;
         var dto = this.body || {};
-        dto[pb.DAO.getIdField()] = this.session.authentication.user_id;
-        this.service.save(dto, this.handleSave(cb, false));
+        var sessionUserId = this.session.authentication.user_id;
+
+        this.service.getById(sessionUserId, function(err, value) {
+            dto.admin = value.admin;
+            dto[pb.DAO.getIdField()] = sessionUserId;
+            self.service.save(dto, self.handleSave(cb, false));
+        });
     };
 
     //exports
