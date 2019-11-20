@@ -66,7 +66,8 @@ module.exports = function UserProfileApiControllerModule(pb) {
         var sessionUserId = this.session.authentication.user_id;
 
         this.service.getById(sessionUserId, function(err, value) {
-            dto.admin = value.admin;
+            dto.admin = util.isError(err) ? 0 : value.admin;
+
             dto[pb.DAO.getIdField()] = sessionUserId;
             self.service.save(dto, self.handleSave(cb, false));
         });
