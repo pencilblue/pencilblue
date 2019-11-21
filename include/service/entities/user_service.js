@@ -65,6 +65,29 @@ module.exports = function(pb) {
      */
     var UNVERIFIED_TYPE = 'unverified_user';
 
+
+    /**
+     * Gets the user object by ID
+     * @method getById
+     * @param {String} userId The object Id of the user
+     * @param {Function} cb (Error, string)
+     */
+    UserService.prototype.getById = function(userId, cb) {
+        if (!pb.validation.isId(userId, true)) {
+            return cb(new Error('The userId parameter must be a valid ID value'));
+        }
+
+        var dao  = new pb.DAO();
+        dao.loadById(userId, TYPE, function(err, user){
+            if (util.isError(err)) {
+                return cb(err, null);
+            }
+
+            cb(null, user)
+        });
+    };
+
+
     /**
      * Gets the full name of a user
      * @method getFullName
