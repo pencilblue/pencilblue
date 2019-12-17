@@ -351,8 +351,9 @@ module.exports = function BaseControllerModule(pb) {
 
     BaseController.prototype.processUrlWithSiteOrigin = function(url){
         if (this.siteObj.origin && this.siteObj.prefix) {
-            var origin = this.siteObj.origin + "/" + this.siteObj.prefix;
-            url = url.replace(/[a-zA-Z]*.jobs.net/g, origin);
+            var protocol = this.hostname.split(":")[0];
+            var origin = protocol + "://" + this.siteObj.origin + "/" + this.siteObj.prefix;
+            url = url.replace(this.hostname, origin);
         }
         return url;
     }
