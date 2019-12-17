@@ -329,7 +329,6 @@ module.exports = function BaseControllerModule(pb) {
                 return;
             }
             var relationship = self.ls.language === locale ? 'canonical' : 'alternate';
-
             var urlOpts = {
                 hostname: self.hostname,
                 locale: undefined
@@ -344,10 +343,19 @@ module.exports = function BaseControllerModule(pb) {
                 urlOpts.locale = locale;
             }
             var url = pb.UrlService.createSystemUrl(path, urlOpts);
+            url = self.processUrlWithSiteOrigin(url);
             val += '<link rel="' + relationship + '" hreflang="' + locale + '" href="' + url + '" />\n';
         });
         cb(null, new pb.TemplateValue(val, false));
     };
+
+    BaseController.prototype.processUrlWithSiteOrigin = function(url){
+        if (this.siteObj.origin && this.siteObj.prefix) {
+            var origin = this.siteObj.origin + "/" + this.siteObj.prefix;
+            url = url.replace(/[a-zA-Z]*.jobs.net/g, origin);
+        }
+        return url;
+    }
 
     /**
      * Retrieves a context object that contains the necessary information for
