@@ -324,27 +324,41 @@ module.exports = function BaseControllerModule(pb) {
         Object.keys(this.siteObj.supportedLocales).forEach(function(locale) {
             var path = self.req.url;
             var isLocalizedPath = !!self.pathVars.locale && path.indexOf(self.pathVars.locale) >= 0;
-            if (self.ls.language === locale && !isLocalizedPath) {
-                //skip current language.  We don't need to list it as an alternate
-                return;
-            }
             var relationship = self.ls.language === locale ? 'canonical' : 'alternate';
             var urlOpts = {
                 hostname: self.hostname,
                 locale: undefined
             };
-            if (self.ls.language === locale) {
-                path = path.replace(locale + '/', '').replace(locale, '');
+            if (self.siteObj.origin && self.siteObj.prefix) {
+                if (isLocalizedPath) {
+                    path = path.replace(self.pathVars.locale, locale);
+                }
+                else {
+                    urlOpts.locale = locale;
+                }
+            } else {
+                if (self.ls.language === locale && !isLocalizedPath) {
+                    //skip current language.  We don't need to list it as an alternate
+                    return;
+                }
+                if (self.ls.language === locale) {
+                    path = path.replace(locale + '/', '').replace(locale, '');
+                }
+                else if (isLocalizedPath) {
+                    path = path.replace(self.pathVars.locale, locale);
+                }
+                else {
+                    urlOpts.locale = locale;
+                }
             }
-            else if (isLocalizedPath) {
-                path = path.replace(self.pathVars.locale, locale);
-            }
-            else {
-                urlOpts.locale = locale;
-            }
+
             var url = pb.UrlService.createSystemUrl(path, urlOpts);
             url = self.processUrlWithSiteOrigin(url);
             val += '<link rel="' + relationship + '" hreflang="' + locale + '" href="' + url + '" />\n';
+
+            if(self.siteObj.origin && self.siteObj.prefix && relationship === 'canonical') {
+                val += '<link rel="alternate" hreflang="' + locale + '" href="' + url + '" />\n';
+            }
         });
         cb(null, new pb.TemplateValue(val, false));
     };
