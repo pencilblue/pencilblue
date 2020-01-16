@@ -465,7 +465,17 @@ module.exports = function RequestHandlerModule(pb) {
                     && location.indexOf(prefix) !== 0 && location.indexOf(prefix) !== 1) {
                 location = `/${prefix}${location}`
             }
-
+            const isDev = process && process.env && process.env.NODE_ENV === 'development';
+            const disableSecureCookie = (this.req && this.req.siteObj && this.req.siteObj.disableSecureCookie) || isDev;
+            const cookies = this.resp.getHeader('set-cookie');
+            if (!disableSecureCookie && cookies) {
+                cookies.forEach((cookie, index) => {
+                    if (!/\bsecure\b/g.test(cookie)) {
+                        cookies[index] = `${cookie}; Secure`;
+                    }
+                });
+                this.resp.setHeader('set-cookie', cookies);
+            }
             this.resp.setHeader("Location", location);
             this.resp.end();
         }
