@@ -17,14 +17,14 @@
 'use strict';
 
 //dependencies
-var fs          = require('fs');
-var http        = require('http');
-var https       = require('https');
-var async       = require('async');
-var npm         = require('npm');
-var util        = require('./include/util.js');
-var ServerInitializer = require('./include/http/server_initializer.js');
-var HtmlEncoder = require('htmlencode');
+const fs          = require('fs');
+const http        = require('http');
+const https       = require('https');
+const async       = require('async');
+const npm         = require('npm');
+const util        = require('./include/util.js');
+const ServerInitializer = require('./include/http/server_initializer.js');
+const HtmlEncoder = require('htmlencode');
 
 
 /**
