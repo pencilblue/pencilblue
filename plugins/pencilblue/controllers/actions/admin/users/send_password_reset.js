@@ -73,7 +73,7 @@ module.exports = function(pb) {
             }
 
             //check to see if a reset value already exists
-            self.dao.loadByValue('user_id', vars.id, 'password_reset', function(err, passwordReset) {
+            self.dao.loadByValue('userId', vars.id, 'password_reset', function(err, passwordReset) {
                 if(util.isError(err)) {
                     return self.formError(self.ls.g('users.NOT_REGISTERED'), '/admin/users/' + vars.id, cb);
                 }
