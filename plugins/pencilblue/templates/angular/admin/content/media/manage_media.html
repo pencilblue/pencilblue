@@ -33,8 +33,25 @@
 			sortDesc: false
 		}];
 
+		$scope.setItem = function(item) {
+				$scope.topic = item;
+				$scope.search();
+				$scope.$apply();
+		};
+		setItem = $scope.setItem;
+
 		$scope.search = function() {
-			searchService.search($scope.searchText, $scope.media, ['name'], function(media) {
+			var patternSearch = [
+				{
+					searchText : $scope.searchText,
+					searchFields : ['name']
+				},
+				{
+					searchText : $scope.topic,
+					searchFields : ['media_topics']
+				}
+			]
+			searchService.multiSearch(patternSearch, $scope.media, function(media){
 				$scope.media = media;
 				$scope.paginate(0);
 			});

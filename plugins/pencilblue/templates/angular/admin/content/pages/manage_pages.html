@@ -16,6 +16,7 @@
         ^tmp_angular=admin=elements=error_success^
 
         $scope.searchText = '';
+        $scope.topic = '';
         $scope.paginationIndex;
         $scope.paginationLimit = 25;
         $scope.paginationPages = [];
@@ -81,21 +82,32 @@
           $scope.searchText = '';
           $scope.paginate(0, true);
         };
-
+        $scope.setItem = function(item) {
+        				$scope.topic = item;
+        				$scope.search();
+        		};
+        setItem = $scope.setItem;
         $scope.query = function(cb) {
           if(!cb) {
             cb = function() {};
           }
 
           $scope.pages = null;
-
-          pageFactory.getPages({
-            q: $scope.searchText,
+          var query = {
             $limit: $scope.paginationLimit,
             $offset: $scope.paginationIndex,
             $order: $scope.orderString,
             render: 1
-          }, function(error, pages, total) {
+          }
+          if ($scope.searchText.length){
+            query.q = $scope.searchText
+          }else if (!$scope.topic.length){
+            query.q = ''
+          }
+          if ($scope.topic.length){
+            query.topic = $scope.topic;
+          }
+          pageFactory.getPages(query, function(error, pages, total) {
             if(error) {
               $scope.errorMessage = error.message;
               return;
@@ -113,7 +125,7 @@
           }
 
           $scope.paginationIndex = paginationIndex;
-          if($scope.searchText.length) {
+          if($scope.searchText.length || $scope.topic.length) {
             $scope.query(function() {
               $scope.paginationPages = paginationService.getPageArray(paginationIndex, $scope.paginationLimit, $scope.paginationTotal);
             });

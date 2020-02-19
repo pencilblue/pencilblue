@@ -2,7 +2,18 @@
 <div class="col-md-9">
   ^tmp_admin=elements=error_success^
   ^tmp_admin=elements=sub_nav^
-  ^tmp_admin=elements=search_input^
+  <div class="form-group">
+      <label>
+        <span>^loc_generic.ARTICLE^</span>
+      </label>
+    ^tmp_admin=elements=search_input^
+  </div>
+  <div class="form-group">
+      <label>
+        <span>^loc_topics.TOPIC_NAME^</span>
+      </label>
+    ^tmp_admin=elements=content_search^
+  </div>
   <div ng-if="!articles">
     <i class="fa fa-4x fa-circle-o-notch fa-spin"></i>
   </div>

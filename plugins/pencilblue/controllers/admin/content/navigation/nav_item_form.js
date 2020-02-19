@@ -140,7 +140,11 @@ module.exports = function(pb) {
                         callback(err, navItem);
                     });
                 });
+            },
+            content_search: function(callback){
+              callback(null, {selectField: 'headline', orderField: 'headline'});
             }
+
         };
         async.series(tasks, cb);
     };

@@ -1,6 +1,6 @@
-<div class="input-group" style="margin-bottom: .5em">
+<div class="input-group" style="margin-bottom: .5em" ng-click="clearSearch()">
     <input type="text" ng-model="searchText" ng-change="search()" ng-model-options="{'debounce': 400}" class="form-control"></input>
     <span class="input-group-btn">
-        <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}" ng-click="clearSearch()"></i></button>
+        <button class="btn btn-default" type="button"><i class="fa" ng-class="{'fa-search': !searchText.length, 'fa-times': searchText.length}" ></i></button>
     </span>
 </div>

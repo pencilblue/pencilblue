@@ -19,21 +19,23 @@ $(document).ready(function() {
   var input = $('#content_search');
   input.autocomplete({
     source: function(request, response) {
+      var angularObjects = angular.element('#content_type').scope();
       $.ajax({
-        url: '/api/content/' + angular.element('#content_type').scope().navItem.type + 's',
+        url: '/api/content/' + angularObjects.navItem.type + 's',
         dataType: 'json',
         data: {
           'q': $('#content_search').val(),
           '$offset': 0,
           '$limit': 8,
-          '$order': 'headline=1',
-          '$select': 'headline=1'
+          '$order': angularObjects.content_search.orderField + '=1',
+          '$select': angularObjects.content_search.selectField + '=1'
         },
         success: function(data) {
+          data.data.unshift({_id:'\u00A0'});
           response($.map(data.data, function(item) {
             return {
               value: item._id,
-              label: item.headline
+              label: item[angularObjects.content_search.selectField]
             };
           }));
         }
@@ -41,6 +43,10 @@ $(document).ready(function() {
     },
     minLength: 0,
     select: function(event, ui) {
+      if(ui.item.value === '\u00A0'){
+        ui.item.value = '';
+        ui.item.label = '';
+      }
       setItem(ui.item.value);
       $(this).val(ui.item.label);
       return false;
