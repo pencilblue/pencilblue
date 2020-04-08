@@ -212,7 +212,7 @@ module.exports = function RandomTextViewControllerModule(pb) {
             //extension is implied and does not have to be specified.
             //While it appears that paths with forward '/' characters are
             //interpreted correctly on windows systems it is better to be safe an
-            //use the "path" module to join the parts correctly.  In this case we have overriden the "head.html"
+            //use the "path" module to join the parts correctly.  In this case we have overridden the "head.html"
             // template inside of templates/sample/index.html.  We want the template service to prioritize the "sample"
             // plugin's templates over the others so we explicitly tell the service that if you find a template
             // reference try the sample plugin first, then fall back to the others

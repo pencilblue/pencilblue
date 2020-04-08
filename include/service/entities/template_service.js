@@ -475,8 +475,8 @@ module.exports = function(pb) {
      * Called when a flag is encountered by the processing engine.  The function is
      * responsible for delegating out the responsibility of the flag to the
      * registered entity.  Some flags are handled by default (although they can
-     * always be overriden locally or globally).  The following flags are considered
-     * "baked in" and will be handled automatically unless overriden:
+     * always be overridden locally or globally).  The following flags are considered
+     * "baked in" and will be handled automatically unless overridden:
      * <ul>
      * <li>^loc_xyz^ - A localization flag.  When provided, the Localization
      * instance will have its "get" function called in an attempt to retrieve the

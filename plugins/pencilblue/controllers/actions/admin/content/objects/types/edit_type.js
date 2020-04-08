@@ -52,7 +52,7 @@ module.exports = function(pb) {
 
             //TODO modify this approach to check for protected properties and allow
             //others.  Right now this will not allow additional fields if template
-            //is overriden.
+            //is overridden.
             var post = self.body;
             custObjType.name = post.name;
             custObjType.fields = post.fields;

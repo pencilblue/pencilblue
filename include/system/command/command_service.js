@@ -262,7 +262,7 @@ module.exports = function CommandServiceModule(pb) {
      * becomes the command object.  Custom properties to be part of the command can
      * be added.  However, certain properties do have special meaning such as "id",
      * "to", "from", "timeout", "includeme".  These special properties may be
-     * overriden by this function or one it calls in order for the commands to
+     * overridden by this function or one it calls in order for the commands to
      * function properly.
      * @param {String} [options.id]
      * @param {Boolean} [options.ignoreme]
