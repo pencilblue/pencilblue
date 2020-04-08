@@ -24,7 +24,7 @@ var util    = require('./util.js');
 var winston = require('winston');
 
 /**
- * Default configuration.  The settings here should be overriden by taking the
+ * Default configuration.  The settings here should be overridden by taking the
  * example file "sample.config.js" and modifying it to override the properties
  * shown below.  In order to properly override the default configuration do the
  * following:
@@ -262,7 +262,7 @@ Configuration.getBaseConfig = function(multisite) {
             },
 
             //The default plugin.  Allows for the default plugin to be
-            //referenced from a single location.  The property can be overriden
+            //referenced from a single location.  The property can be overridden
             //but may have unexpected behavior.
             default: 'pencilblue'
         },

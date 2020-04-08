@@ -51,7 +51,7 @@ module.exports = function (pb) {
      * @param {Function} cb
      */
     PluginDependencyService.prototype.hasDependencies = function(plugin, options, cb) {
-        throw new Error('This function must overriden by the inheriting prototype');
+        throw new Error('This function must overridden by the inheriting prototype');
     };
 
     /**
@@ -99,7 +99,7 @@ module.exports = function (pb) {
     };
 
     /**
-     * <b>NOTE: This function must be overriden by the inheriting prototype</b>
+     * <b>NOTE: This function must be overridden by the inheriting prototype</b>
      * Checks to see if the plugin dependency is already installed
      * @method isSatisfied
      * @param {object} context
@@ -109,7 +109,7 @@ module.exports = function (pb) {
      * @param {function} cb (Error, {{moduleName: string, success: boolean, validationFailures: Array}})
      */
     PluginDependencyService.prototype.isSatisfied = function(context, cb) {
-        throw new Error('This function must overriden by the inheriting prototype');
+        throw new Error('This function must overridden by the inheriting prototype');
     };
 
     /**
@@ -175,7 +175,7 @@ module.exports = function (pb) {
      * @param {function} cb (Error, Boolean)
      */
     PluginDependencyService.prototype._installAll = function(dependencies, options, cb) {
-        throw new Error('This function must overriden by the inheriting prototype');
+        throw new Error('This function must overridden by the inheriting prototype');
     };
 
     /**
@@ -187,7 +187,7 @@ module.exports = function (pb) {
      * @param {function} cb (Error, {logOutput: Array, logListener: function})
      */
     PluginDependencyService.prototype.configure = function(options, cb) {
-        throw new Error('This function must overriden by the inheriting prototype');
+        throw new Error('This function must overridden by the inheriting prototype');
     };
 
     /**
@@ -238,7 +238,7 @@ module.exports = function (pb) {
      * @return {string}
      */
     PluginDependencyService.prototype.getType = function() {
-        throw new Error('This function must overriden by the inheriting prototype');
+        throw new Error('This function must overridden by the inheriting prototype');
     };
 
     /**

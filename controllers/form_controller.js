@@ -93,7 +93,7 @@ module.exports = function(pb) {
 
     /**
      * Called after the posted parameters have been received and parsed.  The
-     * function should be overriden in order to continue processing and render the
+     * function should be overridden in order to continue processing and render the
      * result of the request.  The default implementation echoes the received
      * parameters as JSON.
      * @method onPostParamsRetrieved

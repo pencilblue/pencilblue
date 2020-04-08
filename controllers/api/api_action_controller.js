@@ -73,7 +73,7 @@ module.exports = function ApiActionControllerModule(pb) {
      * Provides the hash of all actions supported by this controller
      * @method getActions
      * @return {Object} An empty hash of actions since this is meant to be
-     * overriden.
+     * overridden.
      */
     ApiActionController.prototype.getActions = function() {
         return {};
