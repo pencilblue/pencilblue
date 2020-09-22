@@ -3,6 +3,8 @@ var util = require('../../util.js');
 
 module.exports = function AdminIPFilterModule(pb) {
 
+    var disableXFF = pb.config && pb.config.flags && pb.config.flags.DisableXForwardedFor;
+
     var FILTERS = [];
 
     function AdminIPFilter() {}
@@ -18,7 +20,7 @@ module.exports = function AdminIPFilterModule(pb) {
         }
         var ip = req.connection.remoteAddress;
         var ipList = [];
-        if (req && req.headers && req.headers["x-forwarded-for"]) {
+        if (!disableXFF && req && req.headers && req.headers["x-forwarded-for"]) {
             var xForwardedForIps = req.headers["x-forwarded-for"].split(/[\s,]+/);
             ipList = ipList.concat(xForwardedForIps);
         }

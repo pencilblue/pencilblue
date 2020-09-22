@@ -41,6 +41,8 @@ module.exports = function SessionModule(pb) {
         //ensure a session store was started
         Promise.promisifyAll(sessionStore);
         this.sessionStore = sessionStore;
+        this.disableXFF = pb.config && pb.config.flags && pb.config.flags.DisableXForwardedFor;
+
     }
 
     /**
@@ -237,7 +239,7 @@ module.exports = function SessionModule(pb) {
      * @returns {String} User's true remote IP address
      */
     SessionHandler.getRemoteIP = function(request) {
-        if(request.headers && request.headers['x-forwarded-for']) {
+        if(!this.disableXFF && request.headers && request.headers['x-forwarded-for']) {
             var ipList = request.headers['x-forwarded-for'].split(/[\s,]+/);
             if(ipList.length > 0) {
                 return ipList[0];
