@@ -108,11 +108,13 @@ module.exports = function DBManagerModule(pb) {
 
             pb.log.debug("Attempting connection to: %s with options: %s", dbURL, JSON.stringify(options));
             var self = this;
-            mongo.connect(dbURL, options, function(err, db){
+            mongo.connect(dbURL, options, function(err, client){
                 if (err) {
                     var message = err.name + ': ' + err.message + ' - ' + dbURL + '\nIs your instance running?';
                     return cb(new Error(message));
                 }
+
+                var db = client.db(name);
 
                 self.authenticate(pb.config.db.authentication, db, function(err, didAuthenticate) {
                     if (util.isError(err)) {

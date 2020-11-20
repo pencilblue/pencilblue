@@ -48,7 +48,7 @@
     "lodash": "^4.17.20",
     "markdown": "~0.5.0",
     "mime": "^1.3.4",
-    "mongodb": "2.1.14",
+    "mongodb": "3.1.13",
     "ng-file-upload": "^12.2.13",
     "ng-sortable": "~1.3.8",
     "node.extend": "2.0.2",
