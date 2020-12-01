@@ -32,10 +32,10 @@
 
         $scope.getUrlAvailability = function() {
           $http.get('/api/url/exists_for?url=' + $scope.navItem.url + '&type=section')
-          .success(function(result) {
+          .then(function({data: result}) {
             $scope.urlAvailable = !result.data;
           })
-          .error(function(error, status) {
+          .catch(function({data: error, status}) {
             $scope.errorMessage = error.message;
           });
         };
@@ -55,7 +55,7 @@
             $scope.saving = true;
 
             $http.post('/actions/admin/content/navigation' + ($scope.navItem._id ? '/' + $scope.navItem._id : ''), saveObject)
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
 
@@ -64,7 +64,7 @@
                     $scope.navItem = {type: 'container'};
                 }
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
                 $scope.saving = false;
             });

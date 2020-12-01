@@ -21,12 +21,12 @@
 			var postURL = '/actions/admin/plugins/wp_import/settings/manage_new_users';
 
 			$http.post(postURL, {users: $scope.users})
-			.success(function(result) {
+			.then(function({data: result}) {
 				$scope.successMessage = result.message;
 				$scope.saving = false;
 				$window.location = '/admin/plugins/wp_import/settings/import';
 			})
-			.error(function(error, status) {
+			.catch(function({data: error, status}) {
 				$scope.errorMessage = error.message;
 				$scope.saving = false;
 			});

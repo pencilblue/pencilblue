@@ -9,10 +9,10 @@ angular.module('pencilblueApp', ['validation', 'password'])
 
   $scope.getUsernameAvailability = function() {
     $http.get('/api/user/get_username_available?username=' + $scope.user.username)
-    .success(function(result) {
+    .then(function({data: result}) {
       $scope.usernameAvailable = result.data;
     })
-    .error(function(error, status) {
+    .catch(function({data: error, status}) {
       $scope.errorMessage = error.message;
     });
   };
@@ -55,13 +55,13 @@ angular.module('pencilblueApp', ['validation', 'password'])
     var postURL = '/actions/user/sign_up';
 
     $http.post(postURL, $scope.user)
-    .success(function(result) {
+    .then(function({data: result}) {
       $scope.successMessage = result.message;
       $scope.saving = false;
       $scope.user = {};
       $scope.formSubmitted = false;
     })
-    .error(function(error, status) {
+    .catch(function({data: error, status}) {
       $scope.errorMessage = error.message;
       $scope.saving = false;
     });

@@ -24,11 +24,11 @@
 			$scope.saving = true;
 
 			$http.post('/actions/admin/plugins/settings/portfolio/home_page', $scope.homePageSettings)
-			.success(function(result) {
+			.then(function({data: result}) {
 				$scope.successMessage = result.message;
 				$scope.saving = false;
 			})
-			.error(function(error, status) {
+			.error(function({data: error, status}) {
 				$scope.errorMessage = error.message;
 				$scope.saving = false;
 			});

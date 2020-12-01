@@ -23,20 +23,20 @@
             $('#progress_modal').modal({});
 
             $http.post("/api/plugins/" + actionType + "/" + encodeURIComponent($scope.actionPlugin.uid))
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.onActionSuccess(result);
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.onActionFailure(error);
             });
         };
 
         $scope.jobAction = function(actionType, identifier, data, cb) {
             $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
-            .success(function(result) {
+            .then(function({data: result}) {
                 cb(result);
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.onActionFailure(error);
             });
         };
@@ -57,11 +57,11 @@
 
         $scope.saveSiteLogo = function() {
             $http.post('/actions/admin/themes/site_logo', {site_logo: $scope.photoValue})
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
                 $scope.saving = false;
             });

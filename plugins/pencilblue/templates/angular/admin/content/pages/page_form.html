@@ -26,10 +26,10 @@
 
         $scope.getUrlAvailability = function() {
             $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page&' + $scope.siteKey + '=' + $scope.site)
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.urlAvailable = !result.data;
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
             });
         };
@@ -51,12 +51,12 @@
                 if(pageData._id) {
                     // Update an existing page
                     $http.put('/api/content/pages/' + $scope.page._id, pageData)
-                    .success(function(result) {
+                    .then(function({data: result}) {
                         $scope.successMessage = pageData.headline + ' ' + loc.admin.EDITED;
                         $scope.page.last_modified = result.last_modified;
                         $scope.saving = false;
                     })
-                    .error(function(error, status) {
+                    .catch(function({data: error, status}) {
                         $scope.errorMessage = error.message;
                         $scope.saving = false;
                     });
@@ -64,12 +64,12 @@
                 else {
                     // Save a new page
                     $http.post('/api/content/pages', pageData)
-                    .success(function(result) {
+                    .then(function({data: result}) {
                         $scope.successMessage = pageData.headline + ' ' + loc.admin.CREATED;
                         $scope.saving = false;
                         $window.location = '/admin/content/pages/' + result._id.toString();
                     })
-                    .error(function(error, status) {
+                    .catch(function({data: error, status}) {
                         $scope.errorMessage = error.message;
                         $scope.saving = false;
                     });
@@ -86,7 +86,7 @@
             $scope.getPageData(true, function(pageData) {
                 $scope.saving = true;
                 $http.put('/api/content/pages/' + $scope.page._id, pageData)
-                .success(function(result) {
+                .then(function({data: result}) {
                     $scope.page.last_modified = result.last_modified;
                     $timeout($scope.savePageDraft, 30000);
                     $scope.saving = false;
@@ -95,7 +95,7 @@
                         cb(null);
                     }
                 })
-                .error(function(error, status) {
+                .catch(function({data: error, status}) {
                     $scope.errorMessage = error.message;
                     $scope.saving = false;
 
@@ -159,10 +159,10 @@
 			$scope.page.url = $scope.generateUrl($scope.page.headline);
 
             $http.get('/api/url/exists_for?url=' + $scope.page.url + '&type=page&' + $scope.siteKey + '=' + $scope.site)
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.urlAvailable = !result.data;
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
             });
 

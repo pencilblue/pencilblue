@@ -22,11 +22,11 @@
             $scope.sendingEmail = true;
 
             $http.post('/api/admin/site_settings/email/send_test', {email: $scope.testEmailAddress})
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.emailTestSuccess = true;
                 $scope.sendingEmail = false;
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.emailTestFailure = error.message;
                 $scope.sendingEmail = false;
             });
@@ -38,11 +38,11 @@
             $scope.emailSettings.verification_content = $scope.layout;
 
             $http.post('/actions/admin/site_settings/email', $scope.emailSettings)
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
                 $scope.saving = false;
             });

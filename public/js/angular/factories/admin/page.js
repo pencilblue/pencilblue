@@ -16,10 +16,10 @@
         }
 
         $http.get('/api/content/pages' + queryString)
-        .success(function(result) {
+        .then(function({data: result}) {
           cb(null, result.data, result.total);
         })
-        .error(function(error) {
+        .catch(function({data: error}) {
           cb(error);
         });
       },

@@ -114,21 +114,21 @@
                     $scope.consoleOutput = '';
                     angular.element('#progress_modal').modal();
                     $http.post('/actions/admin/sites/activate/' + site.uid)
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 $scope.onActivateOrDeactivateComplete(result);
                             })
-                            .error(function(error, status) {
+                            .catch(function({data: error, status}) {
                                 $scope.onActionFailure(error);
                             });
                 };
 
                 $scope.authUserToSite = function(site) {
                     $http.post('/actions/admin/sites/auth_token/' + encodeURIComponent(site.uid))
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 $scope.successMessage = result.message;
                                 $scope.onTokenComplete(site, result.data);
                             })
-                            .error(function(error, status) {
+                            .catch(function({data: error, status}) {
                                 $scope.onActionFailure(error);
                             });
                 };
@@ -140,22 +140,22 @@
                     $scope.consoleOutput = '';
                     angular.element('#progress_modal').modal();
                     $http.post('/actions/admin/sites/deactivate/' + site.uid)
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 $scope.onActivateOrDeactivateComplete(result);
                             })
-                            .error(function(error, status) {
+                            .catch(function({data: error, status}) {
                                 $scope.onActionFailure(error);
                             });
                 };
 
                 $scope.deleteSite = function(site) {
                     $http.delete('/actions/admin/sites/delete/' + site.uid)
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 $scope.successMessage = result.message;
                                 $scope.saving = false;
                                 $scope.onActionSuccess();
                             })
-                            .error(function(error, status) {
+                            .catch(function({data: error, status}) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
                             });
@@ -163,10 +163,10 @@
 
                 $scope.jobAction = function(actionType, identifier, data, cb) {
                     $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 cb(result);
                             })
-                            .error(function(error, status) {
+                            .catch(function({data: error, status}) {
                                 $scope.onActionFailure(error);
                             });
                 };
@@ -174,11 +174,11 @@
                 $scope.onTokenComplete = function(site, data) {
                     var url = '//' + site.hostname + '/actions/admin/sites/token_login?callback=angular.callbacks._0&token=' + data.token;
                     $http.jsonp(url)
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 $scope.successMessage = result.message;
                                 window.location = '//' + site.hostname + '/admin';
                             })
-                            .error(function(error, status){
+                            .catch(function({data: error, status}){
                                 if(!error){
                                     error = status;
                                 }
