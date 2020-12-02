@@ -13,11 +13,11 @@
             $scope.saving = true;
 
             $http.post('/actions/admin/content/objects/' + $scope.objectType._id + '/sort', {sorted_objects: sorting})
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
                 $scope.saving = false;
             });

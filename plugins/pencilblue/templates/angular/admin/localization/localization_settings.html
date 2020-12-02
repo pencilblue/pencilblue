@@ -19,7 +19,7 @@
                     if($scope.currentPlugin && $scope.currentLocale && $scope.site){
 
                         $http.get('/api/localizations/overrides?plugin=' + $scope.currentPlugin + '&lang=' + $scope.currentLocale + '&site=' + $scope.site)
-                            .success(function (result) {
+                            .then(function ({data: result}) {
                                 $scope.allLocales = result.message;
                                 var siteSpecificLocales = [];
                                 if(result.message.generic){
@@ -34,7 +34,7 @@
                                 $scope.siteLocales = getGenerics($scope.localizationKVSet[0]);
                                 formatLocalizationKVSet();
                             })
-                            .error(function (error, status) {
+                            .catch(function ({data: error, status}) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
                             });
@@ -125,10 +125,10 @@
                     angular.element('#progress_modal').modal();
 
                     $http.post('/api/localizations/overrides', payload)
-                            .success(function (result) {
+                            .then(function ({data: result}) {
                                 $scope.onCreateOrEditComplete(result);
                             })
-                            .error(function (error, status) {
+                            .catch(function ({data: error, status}) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
                                 angular.element('#progress_modal').modal('hide');
@@ -199,10 +199,10 @@
 
                 $scope.jobAction = function(actionType, identifier, data, cb) {
                     $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 cb(result);
                             })
-                            .error(function(error, status) {
+                            .catch(function({data: error, status}) {
                                 $scope.onActionFailure(error);
                             });
                 };

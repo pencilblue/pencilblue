@@ -29,10 +29,10 @@
                                 prefix: $scope.prefix,
                                 origin: $scope.origin
                             })
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 $scope.onCreateOrEditComplete(result);
                             })
-                            .error(function(error, status) {
+                            .catch(function({data: error, status}) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
                                 angular.element('#progress_modal').modal('hide');
@@ -51,10 +51,10 @@
                                 selectedLocales: $scope.selectedLocales,
                                 defaultLocale: $scope.defaultLocale
                             })
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 $scope.onCreateOrEditComplete(result);
                             })
-                            .error(function(error, status) {
+                            .catch(function({data: error, status}) {
                                 $scope.errorMessage = error.message;
                                 $scope.saving = false;
                                 angular.element('#progress_modal').modal('hide');
@@ -124,10 +124,10 @@
 
                 $scope.jobAction = function(actionType, identifier, data, cb) {
                     $http.post("/api/jobs/" + actionType + "/" + encodeURIComponent(identifier), data)
-                            .success(function(result) {
+                            .then(function({data: result}) {
                                 cb(result);
                             })
-                            .error(function(error, status) {
+                            .catch(function({data: error, status}) {
                                 $scope.onActionFailure(error);
                             });
                 };

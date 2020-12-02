@@ -16,10 +16,10 @@
         }
 
         $http.get('/api/content/articles' + queryString)
-        .success(function(result) {
+        .then(function({data: result}) {
           cb(null, result.data, result.total);
         })
-        .error(function(error) {
+        .catch(function({data: error}) {
           cb(error);
         });
       },
@@ -29,10 +29,10 @@
           method: 'DELETE',
           url: '/api/content/articles/' + id
         })
-        .success(function(result) {
+        .then(function({data: result}) {
           cb(null, result);
         })
-        .error(function(error) {
+        .catch(function({data: error}) {
           cb(error);
         });
       }

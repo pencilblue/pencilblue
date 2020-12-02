@@ -120,7 +120,7 @@ angular.module('pencilblueApp', ['wysiwygElement', 'as.sortable', 'search', 'pag
     $scope.saving = true;
 
     $http.post(postURL, saveObject)
-    .success(function(result) {
+    .then(function({data: result}) {
       $scope.successMessage = result.message;
       $scope.saving = false;
 
@@ -128,7 +128,7 @@ angular.module('pencilblueApp', ['wysiwygElement', 'as.sortable', 'search', 'pag
         $window.location = '/admin/content/objects/' + $scope.objectType._id + '/' + result.data._id.toString();
       }
     })
-    .error(function(error, status) {
+    .catch(function({data: error, status}) {
       $scope.errorMessage = error.message;
       $scope.saving = false;
     });

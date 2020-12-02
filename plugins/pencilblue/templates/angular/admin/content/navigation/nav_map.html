@@ -38,11 +38,11 @@
 
             $scope.saving = true;
             $http.post('/actions/admin/content/navigation/map', {map: navMap})
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
                 $scope.saving = false;
             });
@@ -60,7 +60,7 @@
 
             $scope.deleting = true;
             $http({method: 'DELETE', url: '/actions/admin/content/navigation/' + $scope.objectToDelete._id})
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.deleting = false;
                 $scope.successMessage = result.message;
                 $('#confirm_delete_modal').modal('hide');
@@ -79,7 +79,7 @@
                     }
                 }
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.deleting = false;
                 $scope.errorMessage = error.message;
                 $('#confirm_delete_modal').modal('hide');

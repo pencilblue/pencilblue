@@ -2,10 +2,10 @@ angular.module('media', [])
 .service('mediaService', function($http, $q, Upload) {
     this.loadMediaLink = function(url, cb) {
         $http.get('/api/admin/content/media/get_link?url=' + url)
-        .success(function(result) {
+        .then(function({data: result}) {
             cb(null, result);
         })
-        .error(function(error, status) {
+        .catch(function({data: error, status}) {
             error.status = status;
             cb(error);
         });
@@ -13,10 +13,10 @@ angular.module('media', [])
 
     this.getMediaPreview = function(type, location, cb) {
         $http.get('/api/admin/content/media/get_preview?type=' + type + '&location=' + location)
-        .success(function(result) {
+        .then(function({data: result}) {
             cb(null, result);
         })
-        .error(function(error, status) {
+        .catch(function({data: error, status}) {
             error.status = status;
             cb(error);
         });
@@ -28,10 +28,10 @@ angular.module('media', [])
         $http.post('/actions/admin/content/media' + (mediaObject._id ? '/' + mediaObject._id : ''), mediaObject, {
             headers: {'Content-Type': 'application/json'}
         })
-        .success(function(result) {
+        .then(function({data: result}) {
             deferred.resolve(result);
         })
-        .error(function(error, status) {
+        .catch(function({data: error, status}) {
             deferred.reject(error, status);
         });
 

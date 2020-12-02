@@ -17,12 +17,12 @@ angular.module('pencilblueApp', ['validation'])
     var postURL = '/actions/user/resend_verification';
 
     $http.post(postURL, {email: $scope.email})
-    .success(function(result) {
+    .then(function({data: result}) {
       $scope.successMessage = result.message;
       $scope.saving = false;
       $scope.formSubmitted = false;
     })
-    .error(function(error, status) {
+    .catch(function({data: error, status}) {
       $scope.errorMessage = error.message;
       $scope.saving = false;
     });

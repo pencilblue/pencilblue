@@ -13,11 +13,11 @@
 			}
 
 			$http.post('/admin/' + $scope.type + '/' + $scope.pluginUID + '/settings', settingsObject)
-			.success(function(result) {
+			.then(function({data: result}) {
 				$scope.successMessage = result.message;
 				$scope.saving = false;
 			})
-			.error(function(error, status) {
+			.catch(function({data: error, status}) {
 				$scope.errorMessage = error.message;
 				$scope.saving = false;
 			});

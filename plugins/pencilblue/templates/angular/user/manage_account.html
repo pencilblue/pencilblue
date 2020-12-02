@@ -25,10 +25,10 @@ angular.module('pencilblueApp', ['validation', 'uploadPhoto'])
 
   $scope.getUsernameAvailability = function() {
     $http.get('/api/user/get_username_available?username=' + $scope.user.username)
-    .success(function(result) {
+    .then(function({data: result}) {
       $scope.usernameAvailable = result.data;
     })
-    .error(function(error, status) {
+    .catch(function({data: error, status}) {
       $scope.errorMessage = error.message;
     });
   };
@@ -71,11 +71,11 @@ angular.module('pencilblueApp', ['validation', 'uploadPhoto'])
     var postURL = '/actions/user/manage_account/profile';
 
     $http.post(postURL, $scope.user)
-    .success(function(result) {
+    .then(function({data: result}) {
       $scope.successMessage = 'Account Edited';
       $scope.saving = false;
     })
-    .error(function(error, status) {
+    .catch(function({data: error, status}) {
       $scope.errorMessage = error.message;
       $scope.saving = false;
     });

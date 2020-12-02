@@ -27,10 +27,10 @@
 
         $scope.getUsernameAvailability = function() {
             $http.get('/api/user/get_username_available?username=' + $scope.user.username)
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.usernameAvailable = result.data;
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
             });
         };
@@ -76,7 +76,7 @@
             }
 
             $http.post(postURL, $scope.user)
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.successMessage = result.message;
                 $scope.saving = false;
 
@@ -84,7 +84,7 @@
                     $window.location = '/admin/users/' + result.data._id;
                 }
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
                 $scope.saving = false;
             });

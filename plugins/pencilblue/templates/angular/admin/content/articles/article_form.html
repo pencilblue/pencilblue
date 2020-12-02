@@ -29,10 +29,10 @@
 
 		$scope.getUrlAvailability = function() {
 			$http.get('/api/url/exists_for?url=' + $scope.article.url + '&type=article&' + $scope.siteKey + '=' + $scope.site)
-			.success(function(result) {
+			.then(function({data: result}) {
 				$scope.urlAvailable = !result.data;
 			})
-			.error(function(error, status) {
+			.catch(function({data: error, status}) {
 				$scope.errorMessage = error.message;
 			});
 		};
@@ -54,12 +54,12 @@
 				if(articleData._id) {
 					// Update an existing article
 					$http.put('/api/content/articles/' + $scope.article._id, articleData)
-					.success(function(result) {
+					.then(function({data: result}) {
 						$scope.successMessage = articleData.headline + ' ' + loc.admin.EDITED;
 						$scope.article.last_modified = result.last_modified;
 						$scope.saving = false;
 					})
-					.error(function(error, status) {
+					.catch(function({data: error, status}) {
 						$scope.errorMessage = error.message;
 						$scope.saving = false;
 					});
@@ -67,7 +67,7 @@
 				else {
 					// Save a new article
 					$http.post('/api/content/articles', articleData)
-					.success(function(result) {
+					.then(function({data: result}) {
 						$scope.successMessage = articleData.headline + ' ' + loc.admin.CREATED;
 						$scope.saving = false;
 
@@ -77,7 +77,7 @@
 						}
 						$window.location = '/admin/content/articles/' + result._id.toString();
 					})
-					.error(function(error, status) {
+					.catch(function({data: error, status}) {
 						$scope.errorMessage = error.message;
 						$scope.saving = false;
 					});
@@ -94,7 +94,7 @@
 			$scope.getArticleData(true, function(articleData) {
 				$scope.saving = true;
 				$http.put('/api/content/articles/' + $scope.article._id, articleData)
-				.success(function(result) {
+				.then(function({data: result}) {
 					$scope.article.last_modified = result.last_modified;
 					$timeout($scope.saveArticleDraft, 30000);
 					$scope.saving = false;
@@ -103,7 +103,7 @@
 						cb(null);
 					}
 				})
-				.error(function(error, status) {
+				.catch(function({data: error, status}) {
 					$scope.errorMessage = error.message;
 					$scope.saving = false;
 
@@ -174,10 +174,10 @@
 			$scope.article.url = $scope.generateUrl($scope.article.headline);
 
 			$http.get('/api/url/exists_for?url=' + $scope.article.url + '&type=article&' + $scope.siteKey + '=' + $scope.site)
-			.success(function(result) {
+			.then(function({data: result}) {
 				$scope.urlAvailable = !result.data;
 			})
-			.error(function(error, status) {
+			.catch(function({data: error, status}) {
 				$scope.errorMessage = error.message;
 			});
 

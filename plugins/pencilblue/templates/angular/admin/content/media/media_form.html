@@ -105,10 +105,10 @@
 			$scope.mediaPreview = '<i class="fa fa-circle-o-notch fa-spin"></i>';
 
 			$http.get('/api/admin/content/media/get_preview?id=' + $scope.media._id)
-			.success(function(result) {
+			.then(function({data: result}) {
 				$scope.mediaPreview = result.data;
 			})
-			.error(function(error, status) {
+			.catch(function({data: error, status}) {
 				$scope.mediaPreview = '';
 				$scope.errorMessage = error.message;
 			})
