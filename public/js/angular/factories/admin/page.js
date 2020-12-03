@@ -29,10 +29,10 @@
           method: 'DELETE',
           url: '/api/content/pages/' + id
         })
-        .success(function(result) {
+          .then(function ({ data: result }) {
           cb(null, result);
         })
-        .error(function(error) {
+          .catch(function ({ data: error }) {
           cb(error);
         });
       }

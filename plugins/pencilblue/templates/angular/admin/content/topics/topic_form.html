@@ -23,7 +23,7 @@
             }
 
             $http[action](url, $scope.topic)
-            .success(function(result) {
+            .then(function({data: result}) {
                 $scope.successMessage = result.message;
                 if(!$scope.topic._id) {
                     $scope.topic = {};
@@ -31,7 +31,7 @@
                 }
                 $scope.saving = false;
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.errorMessage = error.message;
                 $scope.saving = false;
             });
