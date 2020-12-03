@@ -74,7 +74,7 @@
 
             $scope.deleting = true;
             $http({method: 'DELETE', url: '/actions/admin/content/objects/' + $scope.objectToDelete._id})
-            .success(function(result) {
+            .then(function({data:result}) {
                 for(var i = 0; i < $scope.customObjects.length; i++) {
                     if($scope.customObjects[i]._id.toString() === $scope.objectToDelete._id.toString()) {
                         $scope.customObjects.splice(i, 1);
@@ -86,7 +86,7 @@
                 $scope.paginate(0);
                 $('#confirm_delete_modal').modal('hide');
             })
-            .error(function(error, status) {
+            .catch(function({data: error, status}) {
                 $scope.deleting = false;
                 $scope.errorMessage = error.message;
                 $('#confirm_delete_modal').modal('hide');
