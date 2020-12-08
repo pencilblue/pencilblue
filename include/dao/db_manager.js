@@ -116,7 +116,10 @@ module.exports = function DBManagerModule(pb) {
 
                 var db = client.db(name);
 
-                self.authenticate(pb.config.db.authentication, db, function(err, didAuthenticate) {
+                dbs[db.databaseName]  = db;
+                cb(null, db);
+
+                /*self.authenticate(pb.config.db.authentication, db, function(err, didAuthenticate) {
                     if (util.isError(err)) {
                         var message = err.name + ': ' + err.message;
                         return cb(new Error(message));
@@ -130,7 +133,7 @@ module.exports = function DBManagerModule(pb) {
 
                     //Indicate the promise was kept.
                     cb(null, db);
-                });
+                });*/
             });
         };
 
@@ -392,6 +395,11 @@ module.exports = function DBManagerModule(pb) {
     DBManager.buildConnectionStr = function(config) {
         var str = PROTOCOL_PREFIX;
         var options = '?';
+
+        if (config.db.authentication.tn && config.db.authentication.pw) {
+            str += `${config.db.authentication.tn}:${config.db.authentication.pw}@`;
+            options += `authSource=admin`;
+        }
         for (var i = 0; i < config.db.servers.length; i++) {
 
             //check for prefix for backward compatibility
