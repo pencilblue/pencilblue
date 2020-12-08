@@ -154,8 +154,8 @@ Configuration.getBaseConfig = function(multisite) {
 
             options: {
                 w: 1,
-                replicaSet: 'replset-1',
-                readPreference: 'secondaryPreferred'
+                //replicaSet: 'replset-1',
+                //readPreference: 'secondaryPreferred'
             },
 
             //PB provides the ability to log queries.  This is handy during
