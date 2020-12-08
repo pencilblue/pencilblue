@@ -396,8 +396,8 @@ module.exports = function DBManagerModule(pb) {
         var str = PROTOCOL_PREFIX;
         var options = '?';
 
-        if (config.db.authentication.tn && config.db.authentication.pw) {
-            str += `${config.db.authentication.tn}:${config.db.authentication.pw}@`;
+        if (config.db.authentication.un && config.db.authentication.pw) {
+            str += `${config.db.authentication.un}:${config.db.authentication.pw}@`;
             options += `authSource=admin`;
         }
         for (var i = 0; i < config.db.servers.length; i++) {
