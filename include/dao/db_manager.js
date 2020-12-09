@@ -398,7 +398,6 @@ module.exports = function DBManagerModule(pb) {
 
         if (config.db.authentication.un && config.db.authentication.pw) {
             str += `${config.db.authentication.un}:${config.db.authentication.pw}@`;
-            options += `authSource=admin`;
         }
         for (var i = 0; i < config.db.servers.length; i++) {
 
