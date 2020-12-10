@@ -76,7 +76,9 @@ module.exports = function DBManagerModule(pb) {
          * @property dbs
          * @type {Object}
          */
-        var dbs  = {};
+        var dbs = {};
+        
+        var db_client;
 
         /**
          * Retrieves a handle to the specified database.
@@ -113,6 +115,7 @@ module.exports = function DBManagerModule(pb) {
                     var message = err.name + ': ' + err.message + ' - ' + dbURL + '\nIs your instance running?';
                     return cb(new Error(message));
                 }
+                db_client = client;
 
                 var db = client.db(name);
 
@@ -351,7 +354,7 @@ module.exports = function DBManagerModule(pb) {
                 return function(callback) {
                     var d = domain.create();
                     d.run(function() {
-                        dbs[keys[i]].close(true, function(err, result) {
+                        db_client.close(true, function(err, result) {
                             if (util.isError(err)) {
                                 throw err;
                             }
