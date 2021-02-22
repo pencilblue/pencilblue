@@ -413,7 +413,7 @@ module.exports = function DAOModule(pb) {
             }
 
             if (dbObj._id) {
-                db.collection(dbObj.object_type).replaceOne(dbObj, options, function(err/*, writeOpResult*/) {
+                db.collection(dbObj.object_type).updateOne(dbObj, options, function(err/*, writeOpResult*/) {
                     DAO.mapSimpleIdField(dbObj);
                     cb(err, dbObj);
                 });
