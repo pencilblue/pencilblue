@@ -412,10 +412,20 @@ module.exports = function DAOModule(pb) {
                 return cb(err);
             }
 
-            db.collection(dbObj.object_type).save(dbObj, options, function(err/*, writeOpResult*/) {
-                DAO.mapSimpleIdField(dbObj);
-                cb(err, dbObj);
-            });
+            if (dbObj._id) {
+                options.upsert = true;
+                db.collection(dbObj.object_type).updateOne({ _id: dbObj._id }, { $set: dbObj }, options, function(err/*, writeOpResult*/) {
+                    DAO.mapSimpleIdField(dbObj);
+                    cb(err, dbObj);
+                });
+            } else {
+                db.collection(dbObj.object_type).insertOne(dbObj, options, function(err/*, writeOpResult*/) {
+                    DAO.mapSimpleIdField(dbObj);
+                    cb(err, dbObj);
+                }); 
+            }
+
+
 
         });
     };
