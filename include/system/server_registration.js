@@ -91,8 +91,8 @@ module.exports = function ServerRegistrationModule(pb) {
         },
 
         active_plugins: function(cb) {
-            var pluginService = new pb.PluginService();
-            cb(null, pluginService.getAllActivePluginNames());
+            //var pluginService = new pb.PluginService();
+            cb(null, "pluginService.getAllActivePluginNames()");
         },
 
         uptime: function(cb) {
