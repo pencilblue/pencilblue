@@ -309,7 +309,7 @@ module.exports = function DAOModule(pb) {
         //set defaults
         var entityType = options.entityType;
         var where      = options.where  ? options.where : DAO.ANYWHERE;
-        var select     = options.select ? options.select : DAO.PROJECT_ALL;
+        var select = options.select ? { projection: options.select } : DAO.PROJECT_ALL;
         var offset     = options.offset ? options.offset : 0;
 
         //get reference to the db
