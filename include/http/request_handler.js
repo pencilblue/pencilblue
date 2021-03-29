@@ -336,7 +336,7 @@ module.exports = function RequestHandlerModule(pb) {
                     }
                 }
 
-                var pluginService = new pb.PluginService({
+                /*var pluginService = new pb.PluginService({
                     site: this.req.site
                 });
                 pluginService = Promise.promisifyAll(pluginService);
@@ -353,7 +353,8 @@ module.exports = function RequestHandlerModule(pb) {
                     }
                 } else {
                     this.resp.setHeader('Access-Control-Allow-Origin', pb.SiteService.getHostWithProtocol(this.hostname));
-                }
+                }*/
+                this.resp.setHeader('Access-Control-Allow-Origin', pb.SiteService.getHostWithProtocol(this.hostname));
 
                 this.resp.setHeader('content-type', contentType);
                 const isDev = process && process.env && process.env.NODE_ENV === 'development';
