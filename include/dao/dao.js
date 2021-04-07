@@ -409,6 +409,9 @@ module.exports = function DAOModule(pb) {
         //retrieve db reference
         this.getDb(function(err, db) {
             if (util.isError(err)) {
+                if (pb.config.db.query_logging) {
+                    pb.log.info(`err: ${err}`);
+                }
                 return cb(err);
             }
 
@@ -417,6 +420,12 @@ module.exports = function DAOModule(pb) {
                 db.collection(dbObj.object_type).updateOne({ _id: dbObj._id }, { $set: dbObj }, options, function(err/*, writeOpResult*/) {
                     DAO.mapSimpleIdField(dbObj);
                     cb(err, dbObj);
+                    if (!err && pb.config.db.query_logging) {
+                        pb.log.info(`updated successfully, options: ${options}`);
+                    }
+                    if (err && pb.config.db.query_logging) {
+                        pb.log.info(`err with update: ${err}`);
+                    }
                 });
             } else {
                 db.collection(dbObj.object_type).insertOne(dbObj, options, function(err/*, writeOpResult*/) {
