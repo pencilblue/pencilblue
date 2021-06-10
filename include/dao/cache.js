@@ -72,7 +72,13 @@ module.exports = function CacheModule(pb){
 
         var moduleAtPlay = config.fake ? "fakeredis" : "redis";
         var Redis        = require(moduleAtPlay);
+        if (!pb.config.db.query_logging) {
+            console.log(`config.port: ${config.port}, config.host: ${config.host}, config: ${JSON.stringify(config)}`);
+        }
         var myClient = Redis.createClient(config.port, config.host, config);
+        if (!pb.config.db.query_logging) {
+            console.log(`myClient: ${JSON.stringify(myClient)}`);
+        }
         myClient.on("error", function(err) {
             pb.log.error("CACHE ERROR: " + err);
         });
