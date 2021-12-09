@@ -366,6 +366,7 @@ module.exports = function RequestHandlerModule(pb) {
                             cookies[index] = `${cookie}; Secure`;
                         }
                     });
+                    cookies.set("SameSite", "Lax");
                     this.resp.setHeader('set-cookie', cookies);
                 }
                 this.resp.writeHead(data.code);
